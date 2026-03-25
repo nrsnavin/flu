@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:production/src/features/Warping/screens/warping_plan.dart';
+// import 'package:production/src/features/Warping/screens/beam_label_pdf.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/controllers.dart';
 import '../models/models.dart';
@@ -762,6 +763,41 @@ class _PlanView extends StatelessWidget {
                   color: Colors.white, size: 14),
               label: Text(
                 c.isExportingPdf.value ? 'Exporting…' : 'Export PDF',
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800),
+              ),
+            ),
+          )),
+          const SizedBox(width: 8),
+          // ── Beam label PDF button ───────────────────────
+          Obx(() => SizedBox(
+            height: 36,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7C3AED),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 0),
+              ),
+              onPressed: c.isExportingBeamLabels.value
+                  ? null
+                  : c.exportBeamLabels,
+              icon: c.isExportingBeamLabels.value
+                  ? const SizedBox(
+                  width: 13,
+                  height: 13,
+                  child: CircularProgressIndicator(
+                      color: Colors.white, strokeWidth: 2))
+                  : const Icon(Icons.label_outline,
+                  color: Colors.white, size: 14),
+              label: Text(
+                c.isExportingBeamLabels.value
+                    ? 'Printing…'
+                    : 'Beam Labels',
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11,

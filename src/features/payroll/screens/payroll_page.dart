@@ -509,7 +509,11 @@ class _EmpRow extends StatelessWidget {
           color: _s2,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: row.excessAbsents > 0 ? _red.withOpacity(0.35) : _bdr,
+            color: row.excessAbsents > 0
+                ? _red.withOpacity(0.35)
+                : row.wastageDeduction > 0
+                ? _amber.withOpacity(0.35)
+                : _bdr,
           ),
         ),
         child: Row(
@@ -556,6 +560,13 @@ class _EmpRow extends StatelessWidget {
                         Text(
                           '−${_(row.totalAdvanceDeduction)} adv',
                           style: const TextStyle(color: _redLt, fontSize: 9),
+                        ),
+                      ],
+                      if (row.wastageDeduction > 0) ...[
+                        const Text('  ', style: TextStyle(fontSize: 10)),
+                        Text(
+                          '−${_(row.wastageDeduction)} wsgt',
+                          style: const TextStyle(color: _amber, fontSize: 9),
                         ),
                       ],
                     ],
@@ -784,6 +795,12 @@ class _SlipBody extends StatelessWidget {
             if (ps.excessAbsents > 0)
               _R2('⚠️ Excess (penalised)', '${ps.excessAbsents}', vc: _redLt),
             _R2('⏰ Late Minutes', '${ps.totalLateMinutes}m', vc: _amber),
+            if (ps.wastageDeduction > 0)
+              _R2(
+                '🧵 Wastage Penalty (${ps.wastageRecordCount} record${ps.wastageRecordCount != 1 ? 's' : ''})',
+                '−${_(ps.wastageDeduction)}',
+                vc: _redLt,
+              ),
           ],
         ),
       ),

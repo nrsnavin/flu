@@ -85,7 +85,7 @@ class ShiftPlanSummaryPdf extends StatelessWidget {
               children: [
                 pw.Text('Total Machines: ${shift.machines.length}',
                     style: pw.TextStyle(fontSize: 10)),
-                pw.Text('Operators: ${shift.operatorCount}',
+                pw.Text('Operators: ${shift.machines.length}',
                     style: pw.TextStyle(fontSize: 10)),
                 pw.Text(
                   'Total Production: ${shift.totalProduction} mtrs',
@@ -148,7 +148,7 @@ class ShiftPlanSummaryPdf extends StatelessWidget {
               "Production Efficiency Snapshot:\n"
                   "- Shift Utilization: ${(shift.totalProduction / (shift.machines.length * 1000) * 100).toStringAsFixed(1)}%\n"
                   "- Machines Running: ${shift.machines.length}\n"
-                  "- Operators Engaged: ${shift.operatorCount}",
+                  "- Operators Engaged: ${shift.machines.length}",
               style: const pw.TextStyle(fontSize: 9),
             ),
           ),

@@ -27,7 +27,7 @@ class ShiftModel {
       date: DateTime.parse(json["date"]),
       shift: json["shift"],
       operatorName: json["employee"]?["name"] ?? "",
-      machineName: json["machine"]?["machineId"] ?? "",
+      machineName: json["machine"]?["ID"] ?? "",
       jobNo: json["machine"]?["orderRunning"]?["jobOrderNo"]?.toString() ?? "",
       production: (json["production"] ?? 0).toDouble(),
       timer: json["timer"] ?? "00:00:00",

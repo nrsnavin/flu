@@ -2,7 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:production/src/features/shift/models/shift_detail_view_model.dart';
-import 'package:production/src/features/shift/screens/shift_list_page.dart';
+
+// ── import removed: shift_list_page (caused circular import) ──
 
 class ShiftDetailController extends GetxController {
   final String shiftId;
@@ -27,9 +28,11 @@ class ShiftDetailController extends GetxController {
     ),
   );
 
-  var shift = Rxn<ShiftDetailViewModel>();
-  var isSaving = false.obs;
-  var isLoading = false.obs;
+  var shift       = Rxn<ShiftDetailViewModel>();
+  var isSaving    = false.obs;
+  var isLoading   = false.obs;
+  // FIX: screen watches this flag and calls Navigator.pop(context)
+  var saveSuccess = false.obs;
 
   @override
   void onClose() {
@@ -43,7 +46,8 @@ class ShiftDetailController extends GetxController {
     try {
       isLoading.value = true;
       final response = await _dio.get("/shift/shiftDetail?id=$shiftId");
-      shift.value = ShiftDetailViewModel.fromJson(response.data["shift"]);
+      shift.value =
+          ShiftDetailViewModel.fromJson(response.data["shift"]);
     } catch (e) {
       Get.snackbar(
         "Error",
@@ -57,8 +61,8 @@ class ShiftDetailController extends GetxController {
   }
 
   Future<void> saveShift() async {
-    // BUG FIX: Validate input before parsing — prevents int.parse crash
-    final productionText = productionController.text.trim();
+    // Validate before parsing
+    final productionText  = productionController.text.trim();
     final productionValue = int.tryParse(productionText);
     if (productionValue == null) {
       Get.snackbar("Validation Error", "Enter a valid production number");
@@ -70,10 +74,10 @@ class ShiftDetailController extends GetxController {
       await _dio.post(
         "/shift/enter-shift-production",
         data: {
-          "id": shiftId,
+          "id":         shiftId,
           "production": productionValue,
-          "timer": timerController.text,
-          "feedback": feedbackController.text,
+          "timer":      timerController.text,
+          "feedback":   feedbackController.text,
         },
       );
       Get.snackbar(
@@ -82,9 +86,8 @@ class ShiftDetailController extends GetxController {
         backgroundColor: const Color(0xFF16A34A),
         colorText: const Color(0xFFFFFFFF),
       );
-      // BUG FIX: Use Get.back() instead of importing and navigating to ShiftListPage
-      // This avoids circular import between controller and screen
-      Get.off(ShiftListPage());
+      // FIX: signal the screen to pop — no context needed in controller
+      saveSuccess.value = true;
     } catch (e) {
       Get.snackbar(
         "Error",

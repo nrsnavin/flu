@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:production/src/features/elastic/controllers/elastic_detail_controller.dart';
 import 'package:production/src/features/elastic/models/raw_material.dart';
 
@@ -75,9 +75,7 @@ class _DetailView extends StatelessWidget {
               // ── Warping Plan Template ────────────────────────
               _WarpingPlanSection(c: c, e: e),
               const SizedBox(height: 10),
-              _CostingSection(costing: c.costing),
-              const SizedBox(height: 10),
-              _OrdersSection(c: c),
+              _CostingSection(c: c),
             ]),
           ),
         );
@@ -160,7 +158,7 @@ class _DetailView extends StatelessWidget {
       backgroundColor: ErpColors.navyDark, elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new, size: 16, color: Colors.white),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () => Get.back(),
       ),
       titleSpacing: 4,
       actions: [
@@ -1100,316 +1098,328 @@ class _TestingSection extends StatelessWidget {
   }
 }
 
+// ══════════════════════════════════════════════════════════════
+//  COSTING SECTION  — with Recalculate button + breakdown sheet
+// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  COSTING SECTION  — with recalculate button + breakdown
+// ══════════════════════════════════════════════════════════════
 class _CostingSection extends StatelessWidget {
-  final Map<String, dynamic> costing;
-  const _CostingSection({required this.costing});
-
-  @override
-  Widget build(BuildContext context) {
-    final mat   = (costing["materialCost"]   ?? 0).toDouble();
-    final conv  = (costing["conversionCost"] ?? 0).toDouble();
-    final total = (costing["totalCost"]      ?? 0).toDouble();
-
-    return _Card(title: "COSTING", icon: Icons.calculate_outlined,
-        accentColor: ErpColors.successGreen,
-        child: Column(children: [
-          _Row("Material Cost",   "₹${mat.toStringAsFixed(2)}"),
-          _Row("Conversion Cost", "₹${conv.toStringAsFixed(2)}"),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: ErpColors.successGreen.withOpacity(0.06),
-              border: Border.all(color: ErpColors.successGreen.withOpacity(0.3)),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              const Text("TOTAL COST", style: TextStyle(color: ErpColors.textSecondary,
-                  fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.4)),
-              Text("₹${total.toStringAsFixed(2)}", style: const TextStyle(
-                  color: ErpColors.successGreen, fontSize: 20, fontWeight: FontWeight.w900)),
-            ]),
-          ),
-        ]));
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-//  ORDERS SECTION
-// ══════════════════════════════════════════════════════════════
-class _OrdersSection extends StatefulWidget {
   final ElasticDetailController c;
-  const _OrdersSection({required this.c});
-  @override State<_OrdersSection> createState() => _OrdersSectionState();
-}
-
-class _OrdersSectionState extends State<_OrdersSection> {
-  ElasticDetailController get c => widget.c;
-
-  @override
-  void initState() {
-    super.initState();
-    c.loadingOrders.listen((_) { if (mounted) setState(() {}); });
-    c.orders.listen((_)        { if (mounted) setState(() {}); });
-  }
-
-  Color _statusColor(String s) {
-    switch (s) {
-      case 'Completed':  return ErpColors.successGreen;
-      case 'InProgress': return ErpColors.accentBlue;
-      case 'Approved':   return const Color(0xFF0891B2);
-      case 'Cancelled':  return ErpColors.errorRed;
-      default:           return ErpColors.warningAmber;
-    }
-  }
+  const _CostingSection({required this.c});
 
   @override
   Widget build(BuildContext context) {
-    final orders = c.orders;
-    final loading = c.loadingOrders.value;
+    return Obx(() {
+      final costing = c.costing;
+      final mat     = (costing['materialCost']   ?? 0).toDouble();
+      final conv    = (costing['conversionCost'] ?? 0).toDouble();
+      final total   = (costing['totalCost']      ?? 0).toDouble();
+      final details = (costing['details'] as List? ?? []);
 
-    // Summary stats
-    final totalOrdered  = orders.fold<double>(0, (s, o) => s + o.orderedQty);
-    final totalProduced = orders.fold<double>(0, (s, o) => s + o.producedQty);
-    final totalPacked   = orders.fold<double>(0, (s, o) => s + o.packedQty);
+      // Last updated timestamp
+      String? lastUpdated;
+      try {
+        if (costing['date'] != null) {
+          lastUpdated = DateFormat('dd MMM yyyy, HH:mm')
+              .format(DateTime.parse(costing['date'].toString()).toLocal());
+        }
+      } catch (_) {}
 
-    return _Card(
-      title: 'ORDERS',
-      icon:  Icons.receipt_long_outlined,
-      accentColor: const Color(0xFF0891B2),
-      action: loading
-          ? const Padding(
-          padding: EdgeInsets.only(right: 4),
-          child: SizedBox(width: 14, height: 14,
-              child: CircularProgressIndicator(strokeWidth: 2,
-                  color: ErpColors.accentBlue)))
-          : GestureDetector(
-          onTap: c.fetchOrders,
-          child: const Padding(
-              padding: EdgeInsets.only(right: 4),
-              child: Icon(Icons.refresh_rounded, size: 16,
-                  color: ErpColors.textMuted))),
-      child: loading && orders.isEmpty
-          ? const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
-          child: Center(child: CircularProgressIndicator(
-              color: ErpColors.accentBlue, strokeWidth: 2)))
-          : orders.isEmpty
-          ? const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
-          child: Center(child: Text('No orders found for this elastic',
-              style: TextStyle(color: ErpColors.textMuted, fontSize: 12))))
-          : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // ── Summary strip ──────────────────────────
-        Container(
-          padding: const EdgeInsets.all(12),
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: const Color(0xFF0891B2).withOpacity(0.06),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-                color: const Color(0xFF0891B2).withOpacity(0.2)),
+      return _Card(
+        title: 'COSTING',
+        icon: Icons.calculate_outlined,
+        accentColor: ErpColors.successGreen,
+        // ── Recalculate button ──────────────────────────────
+        action: Obx(() => c.recalculating.value
+            ? const SizedBox(
+            width: 18, height: 18,
+            child: CircularProgressIndicator(
+                strokeWidth: 2, color: ErpColors.successGreen))
+            : TextButton.icon(
+          onPressed: () => _showRecalcDialog(context),
+          style: TextButton.styleFrom(
+            backgroundColor: ErpColors.successGreen.withOpacity(0.12),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6)),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 10, vertical: 5),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _StatBox('${orders.length}',   'Orders',   const Color(0xFF0891B2)),
-              _VertDiv(),
-              _StatBox(_qtyStr(totalOrdered),  'Ordered',  ErpColors.textSecondary),
-              _VertDiv(),
-              _StatBox(_qtyStr(totalProduced), 'Produced', ErpColors.successGreen),
-              _VertDiv(),
-              _StatBox(_qtyStr(totalPacked),   'Packed',   ErpColors.warningAmber),
+          icon: const Icon(Icons.refresh_rounded,
+              size: 13, color: ErpColors.successGreen),
+          label: const Text('Recalculate',
+              style: TextStyle(
+                  color: ErpColors.successGreen,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700)),
+        )),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Last updated stamp ──────────────────────────
+            if (lastUpdated != null) ...[
+              Row(children: [
+                const Icon(Icons.access_time_outlined,
+                    size: 11, color: ErpColors.textMuted),
+                const SizedBox(width: 4),
+                Text('Last updated: $lastUpdated',
+                    style: const TextStyle(
+                        color: ErpColors.textMuted,
+                        fontSize: 10,
+                        fontStyle: FontStyle.italic)),
+              ]),
+              const SizedBox(height: 10),
             ],
-          ),
-        ),
-        // ── Order cards ────────────────────────────
-        ...orders.map((o) => _OrderCard(order: o, statusColor: _statusColor)),
-      ]),
-    );
-  }
-}
 
-class _OrderCard extends StatelessWidget {
-  final ElasticOrderSummary order;
-  final Color Function(String) statusColor;
-  const _OrderCard({required this.order, required this.statusColor});
-
-  @override
-  Widget build(BuildContext context) {
-    final sc      = statusColor(order.status);
-    final pct     = order.fulfillmentPct;
-    final dateFmt = DateFormat('dd MMM yyyy');
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: ErpColors.bgMuted,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: order.isOverdue
-            ? ErpColors.errorRed.withOpacity(0.35) : ErpColors.borderLight),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // ── Header ────────────────────────────────────────
-        Row(children: [
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Text('Order #${order.orderNo}',
-                  style: const TextStyle(color: ErpColors.textPrimary,
-                      fontSize: 13, fontWeight: FontWeight.w800)),
-              const SizedBox(width: 8),
+            // ── Material breakdown table ────────────────────
+            if (details.isNotEmpty) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: sc.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: sc.withOpacity(0.35)),
+                  color: ErpColors.bgMuted,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: ErpColors.borderLight),
                 ),
-                child: Text(order.status,
-                    style: TextStyle(color: sc, fontSize: 10, fontWeight: FontWeight.w800)),
-              ),
-              if (order.isOverdue) ...[
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: ErpColors.errorRed.withOpacity(0.10),
-                    borderRadius: BorderRadius.circular(4),
+                child: Column(children: [
+                  // Header row
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 7),
+                    decoration: const BoxDecoration(
+                      border: Border(bottom:
+                      BorderSide(color: ErpColors.borderLight)),
+                    ),
+                    child: const Row(children: [
+                      Expanded(flex: 3,
+                          child: Text('Material',
+                              style: TextStyle(fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: ErpColors.textMuted,
+                                  letterSpacing: 0.3))),
+                      SizedBox(width: 8),
+                      SizedBox(width: 52,
+                          child: Text('Qty',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: ErpColors.textMuted))),
+                      SizedBox(width: 8),
+                      SizedBox(width: 52,
+                          child: Text('Rate',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: ErpColors.textMuted))),
+                      SizedBox(width: 8),
+                      SizedBox(width: 60,
+                          child: Text('Cost',
+                              textAlign: TextAlign.right,
+                              style: TextStyle(fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: ErpColors.textMuted))),
+                    ]),
                   ),
-                  child: const Text('OVERDUE',
-                      style: TextStyle(color: ErpColors.errorRed,
-                          fontSize: 9, fontWeight: FontWeight.w800)),
-                ),
-              ],
-            ]),
-            const SizedBox(height: 2),
-            Text('PO: ${order.po}  ·  ${order.customer}',
-                style: const TextStyle(color: ErpColors.textSecondary, fontSize: 11),
-                overflow: TextOverflow.ellipsis),
-          ])),
-          // Job count badge
-          if (order.jobCount > 0)
+                  // Detail rows
+                  ...details.asMap().entries.map((entry) {
+                    final i    = entry.key;
+                    final d    = entry.value as Map? ?? {};
+                    final qty  = (d['quantity'] as num?)?.toDouble() ?? 0;
+                    final rate = (d['rate']     as num?)?.toDouble() ?? 0;
+                    final cost = (d['cost']     as num?)?.toDouble() ?? 0;
+                    final desc = d['description']?.toString() ?? '—';
+                    final isLast = i == details.length - 1;
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        border: isLast ? null : const Border(
+                            bottom: BorderSide(
+                                color: ErpColors.borderLight)),
+                      ),
+                      child: Row(children: [
+                        Expanded(flex: 3,
+                            child: Text(desc,
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: ErpColors.textPrimary),
+                                overflow: TextOverflow.ellipsis)),
+                        const SizedBox(width: 8),
+                        SizedBox(width: 52,
+                            child: Text(qty.toStringAsFixed(3),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: ErpColors.textSecondary))),
+                        const SizedBox(width: 8),
+                        SizedBox(width: 52,
+                            child: Text('₹${rate.toStringAsFixed(2)}',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: ErpColors.textSecondary))),
+                        const SizedBox(width: 8),
+                        SizedBox(width: 60,
+                            child: Text('₹${cost.toStringAsFixed(2)}',
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: ErpColors.textPrimary))),
+                      ]),
+                    );
+                  }),
+                ]),
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            // ── Subtotals ───────────────────────────────────
+            _Row('Material Cost',   '₹${mat.toStringAsFixed(2)}'),
+            _Row('Conversion Cost', '₹${conv.toStringAsFixed(2)}'),
+            const SizedBox(height: 8),
+
+            // ── Total highlight box ─────────────────────────
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: ErpColors.accentBlue.withOpacity(0.08),
+                color: ErpColors.successGreen.withOpacity(0.06),
+                border: Border.all(
+                    color: ErpColors.successGreen.withOpacity(0.3)),
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.work_outline, size: 11, color: ErpColors.accentBlue),
-                const SizedBox(width: 4),
-                Text('${order.jobCount} job${order.jobCount != 1 ? 's' : ''}',
-                    style: const TextStyle(color: ErpColors.accentBlue,
-                        fontSize: 10, fontWeight: FontWeight.w700)),
-              ]),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('TOTAL COST / MTR',
+                        style: TextStyle(
+                            color: ErpColors.textSecondary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.4)),
+                    Text('₹${total.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                            color: ErpColors.successGreen,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900)),
+                  ]),
             ),
-        ]),
-        const SizedBox(height: 8),
 
-        // ── Dates ─────────────────────────────────────────
-        Row(children: [
-          const Icon(Icons.calendar_today_outlined, size: 11, color: ErpColors.textMuted),
-          const SizedBox(width: 4),
-          Text('Order: ${dateFmt.format(order.date)}',
-              style: const TextStyle(color: ErpColors.textMuted, fontSize: 10)),
-          const SizedBox(width: 12),
-          Icon(Icons.local_shipping_outlined, size: 11,
-              color: order.isOverdue ? ErpColors.errorRed : ErpColors.textMuted),
-          const SizedBox(width: 4),
-          Text('Supply: ${dateFmt.format(order.supplyDate)}',
-              style: TextStyle(
-                  color: order.isOverdue ? ErpColors.errorRed : ErpColors.textMuted,
-                  fontSize: 10, fontWeight: order.isOverdue ? FontWeight.w700 : FontWeight.w400)),
-        ]),
-        const SizedBox(height: 10),
-
-        // ── Qty row ───────────────────────────────────────
-        Row(children: [
-          _QtyBox('Ordered',  order.orderedQty,  ErpColors.textSecondary),
-          const SizedBox(width: 6),
-          _QtyBox('Produced', order.producedQty, ErpColors.successGreen),
-          const SizedBox(width: 6),
-          _QtyBox('Packed',   order.packedQty,   ErpColors.warningAmber),
-          const SizedBox(width: 6),
-          _QtyBox('Pending',  order.pendingQty,
-              order.pendingQty > 0 ? ErpColors.errorRed : ErpColors.textMuted),
-        ]),
-        const SizedBox(height: 8),
-
-        // ── Fulfillment progress bar ───────────────────────
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Text('Fulfillment',
-                style: TextStyle(color: ErpColors.textMuted, fontSize: 10)),
-            Text('${pct.toStringAsFixed(0)}%',
-                style: TextStyle(
-                    color: pct >= 100
-                        ? ErpColors.successGreen
-                        : pct >= 50 ? ErpColors.warningAmber : ErpColors.errorRed,
-                    fontSize: 10, fontWeight: FontWeight.w800)),
-          ]),
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: pct / 100,
-              minHeight: 5,
-              backgroundColor: ErpColors.borderLight,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                pct >= 100
-                    ? ErpColors.successGreen
-                    : pct >= 50 ? ErpColors.warningAmber : ErpColors.errorRed,
+            if (costing.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: Text('No costing data available',
+                      style: TextStyle(
+                          color: ErpColors.textMuted, fontSize: 13)),
+                ),
               ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // ── Confirm dialog before recalculating ─────────────────────
+  void _showRecalcDialog(BuildContext context) {
+    final convCtrl = TextEditingController(
+      text: (c.costing['conversionCost'] ?? 1.25).toStringAsFixed(2),
+    );
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: ErpColors.bgSurface,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12)),
+        title: Row(children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: ErpColors.successGreen.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.refresh_rounded,
+                color: ErpColors.successGreen, size: 20),
+          ),
+          const SizedBox(width: 12),
+          const Text('Recalculate Costing',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: ErpColors.textPrimary)),
+        ]),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Text(
+            'Fetches the latest raw material prices from the database '
+                'and recomputes the material cost breakdown. '
+                'You can also update the conversion cost below.',
+            style: TextStyle(
+                color: ErpColors.textSecondary,
+                fontSize: 13, height: 1.5),
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: convCtrl,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: ErpTextStyles.fieldValue,
+            decoration: ErpDecorations.formInput(
+              'Conversion Cost (₹/mtr)',
+              prefix: const Icon(Icons.currency_rupee,
+                  size: 16, color: ErpColors.textMuted),
             ),
           ),
         ]),
-      ]),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actions: [
+          Row(children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  convCtrl.dispose();
+                  Navigator.of(context).pop();
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: ErpColors.borderMid),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: const Text('Cancel',
+                    style: TextStyle(
+                        color: ErpColors.textSecondary,
+                        fontWeight: FontWeight.w600)),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  final conv = double.tryParse(convCtrl.text.trim());
+                  convCtrl.dispose();
+                  Navigator.of(context).pop();
+                  c.recalculateCosting(conversionCost: conv);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ErpColors.successGreen,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                icon: const Icon(Icons.refresh_rounded,
+                    size: 16, color: Colors.white),
+                label: const Text('Recalculate & Save',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w700)),
+              ),
+            ),
+          ]),
+        ],
+      ),
     );
   }
-}
-
-class _QtyBox extends StatelessWidget {
-  final String label;
-  final double qty;
-  final Color color;
-  const _QtyBox(this.label, this.qty, this.color);
-  @override
-  Widget build(BuildContext context) => Expanded(child: Container(
-    padding: const EdgeInsets.symmetric(vertical: 6),
-    decoration: BoxDecoration(
-      color: color.withOpacity(0.07),
-      borderRadius: BorderRadius.circular(6),
-    ),
-    child: Column(children: [
-      Text(_qtyStr(qty),
-          style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w900)),
-      Text(label,
-          style: const TextStyle(color: ErpColors.textMuted, fontSize: 9)),
-    ]),
-  ));
-}
-
-class _StatBox extends StatelessWidget {
-  final String value, label;
-  final Color color;
-  const _StatBox(this.value, this.label, this.color);
-  @override
-  Widget build(BuildContext context) => Column(children: [
-    Text(value, style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w900)),
-    Text(label, style: const TextStyle(color: ErpColors.textMuted, fontSize: 9)),
-  ]);
-}
-
-class _VertDiv extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) =>
-      Container(width: 1, height: 28, color: ErpColors.borderLight);
-}
-
-String _qtyStr(double v) {
-  if (v == v.truncateToDouble()) return v.toInt().toString();
-  return v.toStringAsFixed(1);
 }
 
 // ── Shared card shell ──────────────────────────────────────────

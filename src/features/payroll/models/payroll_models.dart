@@ -91,14 +91,16 @@ class PayrollDashboard {
 // ══════════════════════════════════════════════════════════════
 class PayrollRow {
   final String employeeId, name, department, status;
-  final double hourlyRate, grossEarnings, totalDeductions, totalBonuses, netPay, totalAdvanceDeduction;
+  final double hourlyRate, grossEarnings, totalDeductions, totalBonuses, netPay,
+      totalAdvanceDeduction, wastageDeduction;
   final int    totalShifts, presentShifts, absentShifts, excessAbsents;
   final bool   perfectAttendance;
   const PayrollRow({required this.employeeId, required this.name, required this.department,
     required this.hourlyRate, required this.totalShifts, required this.presentShifts,
     required this.absentShifts, required this.excessAbsents, required this.grossEarnings,
     required this.totalDeductions, required this.totalBonuses, required this.netPay,
-    required this.totalAdvanceDeduction, required this.perfectAttendance, required this.status});
+    required this.totalAdvanceDeduction, required this.wastageDeduction,
+    required this.perfectAttendance, required this.status});
   factory PayrollRow.fromJson(Map<String, dynamic> j) => PayrollRow(
       employeeId: _s(j['employeeId']), name: _s(j['name']), department: _s(j['department']),
       hourlyRate: _d(j['hourlyRate']), totalShifts: _i(j['totalShifts']),
@@ -106,6 +108,7 @@ class PayrollRow {
       excessAbsents: _i(j['excessAbsents']), grossEarnings: _d(j['grossEarnings']),
       totalDeductions: _d(j['totalDeductions']), totalBonuses: _d(j['totalBonuses']),
       netPay: _d(j['netPay']), totalAdvanceDeduction: _d(j['totalAdvanceDeduction']),
+      wastageDeduction: _d(j['wastageDeduction']),
       perfectAttendance: _b(j['perfectAttendance']), status: _s(j['status']));
 }
 
@@ -132,8 +135,9 @@ class PayrollDoc {
   final int    dayShiftsWorked, nightShiftsWorked;
   final double dayShiftEarnings, nightShiftEarnings;
   final double grossEarnings, totalDeductions, totalBonuses, netPay;
-  final double noLeaveBonus, perfectAttendanceBonus, totalStreakBonus, totalAdvanceDeduction;
-  final int    longestStreak;
+  final double noLeaveBonus, perfectAttendanceBonus, totalStreakBonus,
+      totalAdvanceDeduction, wastageDeduction;
+  final int    longestStreak, wastageRecordCount;
   final bool   perfectAttendance;
   final List<PayrollLineItem> lineItems;
   final String? paidAt, paidBy, paymentNote;
@@ -153,6 +157,7 @@ class PayrollDoc {
     required this.grossEarnings, required this.totalDeductions, required this.totalBonuses,
     required this.netPay, required this.noLeaveBonus, required this.perfectAttendanceBonus,
     required this.totalStreakBonus, required this.totalAdvanceDeduction,
+    required this.wastageDeduction, required this.wastageRecordCount,
     required this.longestStreak, required this.perfectAttendance, required this.lineItems,
     this.paidAt, this.paidBy, this.paymentNote,
   });
@@ -177,6 +182,8 @@ class PayrollDoc {
         perfectAttendanceBonus: _d(j['perfectAttendanceBonus']),
         totalStreakBonus: _d(j['totalStreakBonus']),
         totalAdvanceDeduction: _d(j['totalAdvanceDeduction']),
+        wastageDeduction: _d(j['wastageDeduction']),
+        wastageRecordCount: _i(j['wastageRecordCount']),
         longestStreak: _i(j['longestStreak']), perfectAttendance: _b(j['perfectAttendance']),
         lineItems: (j['lineItems'] as List? ?? [])
             .map((e) => PayrollLineItem.fromJson(e as Map<String, dynamic>)).toList(),

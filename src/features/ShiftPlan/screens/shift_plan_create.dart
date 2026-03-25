@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 // import '../../Orders/screens/erp_theme.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/shiftPlan_controller.dart';
+import '../../shiftPlanView/screens/shiftPlanDetail.dart';
 import '../models/MachineRunningModel.dart';
 import '../models/OperatorModel.dart';
 
@@ -29,7 +30,15 @@ class _CreateShiftPlanPageState extends State<CreateShiftPlanPage> {
     // FIX: was Get.put at class-field level in StatelessWidget → stale instances
     Get.delete<CreateShiftPlanController>(force: true);
     c = Get.put(CreateShiftPlanController(
-      onSuccess: () => Navigator.of(context).pop(true),
+      onSuccess: () {
+        // Navigate to detail page so supervisor can review and confirm.
+        // Replace the create page so Back returns to the list.
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => ShiftPlanDetailPage(shiftPlanId: c.createdShiftPlanId),
+          ),
+        );
+      },
     ));
     _descController = TextEditingController();
   }
@@ -385,77 +394,66 @@ class _SummaryBanner extends StatelessWidget {
       final unassigned = c.unassignedCount;
       final allDone    = unassigned == 0 && total > 0;
 
+      // Colour logic:
+      //   all assigned  → green (complete)
+      //   some assigned → blue (informational — partial is fine)
+      //   none assigned → amber (nudge to assign at least one)
+      final Color accent;
+      final IconData statusIcon;
+      final String statusText;
+
+      if (allDone) {
+        accent     = ErpColors.successGreen;
+        statusIcon = Icons.check_circle_outline_rounded;
+        statusText = 'All $total machines have operators assigned';
+      } else if (assigned > 0) {
+        accent     = ErpColors.accentBlue;
+        statusIcon = Icons.info_outline_rounded;
+        statusText = '$assigned of $total machine(s) assigned — '
+            '$unassigned will be skipped';
+      } else {
+        accent     = ErpColors.warningAmber;
+        statusIcon = Icons.warning_amber_rounded;
+        statusText = 'No operators assigned yet — '
+            'assign at least one machine to save';
+      }
+
       return Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         decoration: BoxDecoration(
-          color: allDone
-              ? ErpColors.statusCompletedBg
-              : ErpColors.statusInProgressBg,
+          color:  accent.withOpacity(0.07),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-              color: allDone
-                  ? ErpColors.statusCompletedBorder
-                  : ErpColors.statusInProgressBorder),
+          border: Border.all(color: accent.withOpacity(0.3)),
         ),
         child: Row(children: [
-          // Status icon
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: (allDone
-                  ? ErpColors.successGreen
-                  : ErpColors.warningAmber)
-                  .withOpacity(0.15),
+              color: accent.withOpacity(0.12),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Icon(
-              allDone
-                  ? Icons.check_circle_outline_rounded
-                  : Icons.warning_amber_rounded,
-              size: 19,
-              color: allDone
-                  ? ErpColors.successGreen
-                  : ErpColors.warningAmber,
-            ),
+            child: Icon(statusIcon, size: 19, color: accent),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              allDone
-                  ? 'All $total machines have operators assigned'
-                  : '$unassigned of $total machine(s) still need an operator',
+              statusText,
               style: TextStyle(
-                color: allDone
-                    ? ErpColors.successGreen
-                    : ErpColors.warningAmber,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+                  color: accent, fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 10),
-          // Progress pill
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: (allDone
-                  ? ErpColors.successGreen
-                  : ErpColors.warningAmber)
-                  .withOpacity(0.15),
+              color:  accent.withOpacity(0.12),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                  color: (allDone
-                      ? ErpColors.successGreen
-                      : ErpColors.warningAmber)
-                      .withOpacity(0.4)),
+              border: Border.all(color: accent.withOpacity(0.4)),
             ),
             child: Text('$assigned/$total',
                 style: TextStyle(
-                    color: allDone
-                        ? ErpColors.successGreen
-                        : ErpColors.warningAmber,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900)),
+                    color: accent,
+                    fontSize: 12, fontWeight: FontWeight.w900)),
           ),
         ]),
       );
@@ -768,9 +766,10 @@ class _SaveBar extends StatelessWidget {
         ],
       ),
       child: Obx(() {
-        final allAssigned = c.unassignedCount == 0 &&
-            c.runningMachines.isNotEmpty;
         final saving = c.isSaving.value;
+        // Button is always active as long as there are running machines.
+        // Partial assignment is fine — unassigned machines are just skipped.
+        final canSave = !saving && c.runningMachines.isNotEmpty;
 
         return Row(children: [
           // Cancel button
@@ -790,18 +789,14 @@ class _SaveBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          // Save button
+          // Save button — always blue when machines exist
           Expanded(
             child: SizedBox(
               height: 48,
               child: ElevatedButton.icon(
-                // FIX: was calling saveShiftPlan() AND showing snackbar inline.
-                //      Now only the controller handles snackbars.
-                onPressed: saving ? null : c.saveShiftPlan,
+                onPressed: canSave ? c.saveShiftPlan : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: allAssigned
-                      ? ErpColors.accentBlue
-                      : ErpColors.borderMid,
+                  backgroundColor: ErpColors.accentBlue,
                   disabledBackgroundColor:
                   ErpColors.accentBlue.withOpacity(0.45),
                   elevation: 0,
@@ -815,17 +810,13 @@ class _SaveBar extends StatelessWidget {
                         color: Colors.white, strokeWidth: 2.5))
                     : const Icon(Icons.save_outlined,
                     size: 18, color: Colors.white),
-                label: Obx(() => Text(
-                  saving
-                      ? 'Saving…'
-                      : c.unassignedCount > 0
-                      ? 'Assign ${c.unassignedCount} More'
-                      : 'Save Shift Plan',
+                label: Text(
+                  saving ? 'Saving…' : 'Save as Draft',
                   style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
                       fontSize: 14),
-                )),
+                ),
               ),
             ),
           ),

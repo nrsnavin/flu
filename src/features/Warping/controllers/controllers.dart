@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/models.dart';
+import '../screens/label.dart';
 import '../screens/pdf.dart';
 
 
@@ -155,6 +156,40 @@ class WarpingDetailController extends GetxController {
   final isExportingPdf = false.obs;
   final errorMsg       = Rxn<String>();
 
+  final isExportingBeamLabels = false.obs;
+
+
+  Future<void> exportBeamLabels() async {
+    final p = plan.value;
+    final w = warping.value;
+    if (p == null || w == null || p.beams.isEmpty) {
+      _snack('No beams to export', isError: true);
+      return;
+    }
+    isExportingBeamLabels.value = true;
+    try {
+      final shade  = w.elastics.isNotEmpty ? w.elastics.first.elasticName : '—';
+      final meters = w.elastics.isNotEmpty ? w.elastics.first.plannedQty  : 0;
+      await BeamLabelPdf.generate(
+        jobOrderNo: warping.value?.jobOrderNo??0,
+        shade:      shade,
+        meters:     meters,
+        beams:      p.beams,
+      );
+    } catch (e) {
+      _snack('Failed to export labels: $e', isError: true);
+    } finally {
+      isExportingBeamLabels.value = false;
+    }
+  }
+
+  void _snack(String msg, {required bool isError}) => Get.snackbar(
+    isError ? 'Error' : 'Success', msg,
+    backgroundColor: isError ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+    colorText: Colors.white, snackPosition: SnackPosition.BOTTOM,
+    duration: const Duration(seconds: 4),
+  );
+
   @override
   void onInit() { super.onInit(); fetchDetail(); }
 
@@ -251,12 +286,7 @@ class WarpingDetailController extends GetxController {
     }
   }
 
-  void _snack(String msg, {required bool isError}) => Get.snackbar(
-    isError ? 'Error' : 'Success', msg,
-    backgroundColor: isError ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
-    colorText: Colors.white, snackPosition: SnackPosition.BOTTOM,
-    duration: const Duration(seconds: 4),
-  );
+
 }
 
 // ══════════════════════════════════════════════════════════════

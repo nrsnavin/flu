@@ -345,3 +345,87 @@ class EditCustomerController extends GetxController {
     super.onClose();
   }
 }
+
+
+// ══════════════════════════════════════════════════════════════
+//  CustomerOrdersController
+//  Loads running orders (all at once) + past orders (paginated)
+//  for a single customer. Mounted inside CustomerDetailPage.
+// ══════════════════════════════════════════════════════════════
+class CustomerOrdersController extends GetxController {
+  final String customerId;
+  CustomerOrdersController({required this.customerId});
+
+  // Running orders — all, no pagination (usually very few)
+  final runningOrders = <Map<String, dynamic>>[].obs;
+  // Past orders — paginated
+  final pastOrders    = <Map<String, dynamic>>[].obs;
+
+  final isLoadingFirst = true.obs;   // first fetch
+  final isLoadingMore  = false.obs;  // loading next page of past
+  final errorMsg       = Rxn<String>();
+
+  int  _page    = 1;
+  bool _hasMore = true;
+  static const _limit = 10;
+
+  final _dio = Dio(BaseOptions(
+    baseUrl: _kBase,
+    connectTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 10),
+  ));
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchOrders(reset: true);
+  }
+
+  Future<void> fetchOrders({bool reset = false}) async {
+    if (isLoadingMore.value) return;
+    if (reset) {
+      _page    = 1;
+      _hasMore = true;
+      pastOrders.clear();
+      runningOrders.clear();
+    }
+    if (!_hasMore && !reset) return;
+
+    try {
+      reset ? isLoadingFirst.value = true : isLoadingMore.value = true;
+      errorMsg.value = null;
+
+      final res = await _dio.get(
+        '/orders',
+        queryParameters: {
+          'id':    customerId,
+          'page':  _page,
+          'limit': _limit,
+        },
+      );
+
+      // Running orders — always returned on first page
+      if (reset || _page == 1) {
+        final raw = res.data['running'] as List? ?? [];
+        runningOrders.value =
+        List<Map<String, dynamic>>.from(raw);
+      }
+
+      final rawPast = res.data['past'] as List? ?? [];
+      pastOrders.addAll(List<Map<String, dynamic>>.from(rawPast));
+
+      _hasMore = res.data['hasMore'] as bool? ?? false;
+      _page++;
+    } on DioException catch (e) {
+      errorMsg.value =
+          e.response?.data?['message'] as String? ?? 'Failed to load orders';
+    } catch (e) {
+      errorMsg.value = e.toString();
+    } finally {
+      isLoadingFirst.value = false;
+      isLoadingMore.value  = false;
+    }
+  }
+
+  bool get hasMore => _hasMore;
+}

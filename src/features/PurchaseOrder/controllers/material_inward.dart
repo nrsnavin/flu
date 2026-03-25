@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:production/src/features/PurchaseOrder/controllers/po_detail.dart';
 import 'package:production/src/features/authentication/screens/home.dart';
 import '../models/po_models.dart';
 import '../services/api.dart';
@@ -83,7 +84,7 @@ class MaterialInwardController extends GetxController {
         data: {"poId": po.id, "items": items},
       );
 
-      Get.offAll(Home());
+    Get.to(Home());
       Get.snackbar(
         "Success",
         res.data["message"] ?? "Stock inward recorded",

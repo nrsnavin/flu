@@ -1,50 +1,49 @@
+// ══════════════════════════════════════════════════════════════
+//  RAW MATERIAL DETAIL PAGE
+//  File: lib/src/features/rawMaterial/screens/material_detail_screen.dart
+//
+//  Sections:
+//  • Hero card  (stock level, price, category, supplier)
+//  • Summary chips  (total inward / total outward)
+//  • Tab bar:  Inward | Outward | Ledger
+//  • Each tab is a list of dated, referenced records
+// ══════════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
 import '../../PurchaseOrder/services/theme.dart';
-import '../controllers/rawMaterial_controller.dart';
-import '../models/RawMaterial.dart';
+import '../controllers/detail_controller.dart';
+import '../models/detail_model.dart';
 
-
-// ══════════════════════════════════════════════════════════════
-//  RAW MATERIAL DETAIL PAGE
-//
-//  FIX: was StatelessWidget with Get.put() at class field and
-//       fetchMaterialDetail() called in build() → refetched
-//       on every rebuild + stale controller.
-//  FIX: displayed only stockMovements, not MaterialInward or
-//       MaterialOutward collections.
-//  FIX: no supplier display (crashed when supplier was null).
-//  FIX: no Raise PO button.
-//  FIX: deleted material called /delete-raw-material which
-//       didn't exist in the backend.
-// ══════════════════════════════════════════════════════════════
 
 class RawMaterialDetailPage extends StatefulWidget {
-  const RawMaterialDetailPage({super.key});
+  final String materialId;
+  const RawMaterialDetailPage({super.key, required this.materialId});
 
   @override
-  State<RawMaterialDetailPage> createState() =>
-      _RawMaterialDetailPageState();
+  State<RawMaterialDetailPage> createState() => _RawMaterialDetailPageState();
 }
 
 class _RawMaterialDetailPageState extends State<RawMaterialDetailPage>
     with SingleTickerProviderStateMixin {
-  late final MaterialDetailController c;
-  late final TabController _tabs;
+  late final RawMaterialDetailController _c;
+  late final TabController _tab;
 
   @override
   void initState() {
     super.initState();
-    final id = Get.arguments as String;
-    Get.delete<MaterialDetailController>(force: true);
-    c = Get.put(MaterialDetailController(id));
-    _tabs = TabController(length: 3, vsync: this);
+    Get.delete<RawMaterialDetailController>(force: true);
+    _c  = Get.put(RawMaterialDetailController(materialId: widget.materialId));
+    _tab = TabController(length: 3, vsync: this);
+    _tab.addListener(() {
+      if (!_tab.indexIsChanging) _c.activeTab.value = _tab.index;
+    });
   }
 
   @override
   void dispose() {
-    _tabs.dispose();
+    _tab.dispose();
     super.dispose();
   }
 
@@ -52,217 +51,96 @@ class _RawMaterialDetailPageState extends State<RawMaterialDetailPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ErpColors.bgBase,
-      appBar: _buildAppBar(),
+      appBar: _appBar(context),
       body: Obx(() {
-        if (c.isLoading.value) {
+        if (_c.isLoading.value) {
           return const Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
-        if (c.errorMsg.value != null) {
-          return _ErrorState(msg: c.errorMsg.value!, retry: c.fetchDetail);
+        if (_c.errorMsg.value != null) {
+          return _ErrorBody(
+              msg: _c.errorMsg.value!, retry: _c.fetchDetail);
         }
-        final m = c.detail.value;
-        if (m == null) {
-          return _ErrorState(
-              msg: 'Material not found', retry: c.fetchDetail);
-        }
-        return Column(children: [
-          _HeroCard(m: m),
-          _TabBar(tabs: _tabs),
-          Expanded(
-            child: TabBarView(
-              controller: _tabs,
-              children: [
-                _StockMovementsTab(movements: m.stockMovements),
-                _InwardsTab(inwards: m.inwards),
-                _OutwardsTab(outwards: m.outwards),
-              ],
-            ),
-          ),
-        ]);
+        final m = _c.material.value;
+        if (m == null) return const SizedBox.shrink();
+        return _Body(c: _c, material: m, tab: _tab);
       }),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: ErpColors.navyDark,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new,
-            size: 16, color: Colors.white),
-        onPressed: () => Get.back(),
-      ),
-      titleSpacing: 4,
-      title: Obx(() {
-        final m = c.detail.value;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              m?.name ?? 'Material Detail',
+  PreferredSizeWidget _appBar(BuildContext context) => AppBar(
+    backgroundColor: ErpColors.navyDark,
+    elevation: 0,
+    leading: IconButton(
+      icon: const Icon(Icons.arrow_back_ios_new,
+          size: 16, color: Colors.white),
+      onPressed: () => Navigator.of(context).pop(),
+    ),
+    titleSpacing: 4,
+    title: Obx(() {
+      final m = _c.material.value;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(m?.name ?? 'Material Detail',
               style: ErpTextStyles.pageTitle,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const Text('Raw Materials  ›  Detail',
-                style: TextStyle(
-                    color: ErpColors.textOnDarkSub, fontSize: 10)),
-          ],
-        );
-      }),
-      actions: [
-        // Raise PO
-        Obx(() {
-          final m = c.detail.value;
-          if (m == null) return const SizedBox.shrink();
-          return TextButton.icon(
-            onPressed: () => _showRaisePOSheet(m),
-            icon: const Icon(Icons.add_shopping_cart_outlined,
-                size: 16, color: Colors.white),
-            label: const Text('Raise PO',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800)),
-          );
-        }),
-        Obx(() => IconButton(
-          icon: c.isLoading.value
-              ? const SizedBox(
-              width: 16, height: 16,
-              child: CircularProgressIndicator(
-                  color: Colors.white, strokeWidth: 2))
-              : const Icon(Icons.refresh_rounded,
-              color: Colors.white, size: 20),
-          onPressed: c.isLoading.value ? null : c.fetchDetail,
-        )),
-      ],
-      bottom: const PreferredSize(
-        preferredSize: Size.fromHeight(1),
-        child: Divider(height: 1, color: Color(0xFF1E3A5F)),
+              overflow: TextOverflow.ellipsis),
+          const Text('Raw Materials  ›  Detail',
+              style: TextStyle(
+                  color: ErpColors.textOnDarkSub, fontSize: 10)),
+        ],
+      );
+    }),
+    actions: [
+      IconButton(
+        icon: const Icon(Icons.refresh_rounded,
+            color: Colors.white, size: 20),
+        onPressed: _c.fetchDetail,
       ),
-    );
-  }
+      const SizedBox(width: 4),
+    ],
+    bottom: const PreferredSize(
+      preferredSize: Size.fromHeight(1),
+      child: Divider(height: 1, color: Color(0xFF1E3A5F)),
+    ),
+  );
+}
 
-  void _showRaisePOSheet(RawMaterialDetail m) {
-    Get.delete<RaisePOController>(force: true);
-    final poc = Get.put(RaisePOController(
-      materialId:        m.id,
-      defaultSupplierId: m.supplier?.id,
-      currentPrice:      m.price,
-    ));
+// ══════════════════════════════════════════════════════════════
+//  BODY
+// ══════════════════════════════════════════════════════════════
+class _Body extends StatelessWidget {
+  final RawMaterialDetailController c;
+  final RawMaterialDetailModel material;
+  final TabController tab;
+  const _Body(
+      {required this.c, required this.material, required this.tab});
 
-    Get.bottomSheet(
-      Container(
-        padding: EdgeInsets.only(
-          left: 20, right: 20, top: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        ),
-        decoration: const BoxDecoration(
-          color: ErpColors.bgSurface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      color: ErpColors.accentBlue,
+      onRefresh: c.fetchDetail,
+      child: Column(children: [
+        // Fixed hero + summary + price history + tab bar
+        _HeroCard(material: material),
+        _SummaryRow(material: material),
+        if (material.priceHistory.isNotEmpty)
+          _PriceHistoryStrip(history: material.priceHistory),
+        _TabBar(tab: tab),
+        // Scrollable tab content
+        Expanded(
+          child: TabBarView(
+            controller: tab,
             children: [
-              // Handle
-              Center(
-                child: Container(
-                  width: 36, height: 4,
-                  decoration: BoxDecoration(
-                    color: ErpColors.borderLight,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text('Raise Purchase Order',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: ErpColors.textPrimary)),
-              const SizedBox(height: 4),
-              Text('${m.name}  •  ${m.category}',
-                  style: const TextStyle(
-                      color: ErpColors.textSecondary, fontSize: 12)),
-              const SizedBox(height: 16),
-              // Supplier dropdown
-              Obx(() {
-                if (poc.isLoadingSup.value) {
-                  return const Center(
-                      child: CircularProgressIndicator(
-                          color: ErpColors.accentBlue, strokeWidth: 2));
-                }
-                return DropdownButtonFormField<SupplierDropdownItem>(
-                  value: poc.selectedSupplier.value,
-                  decoration: ErpDecorations.formInput('Supplier *'),
-                  style: ErpTextStyles.fieldValue,
-                  items: poc.suppliers
-                      .map((s) => DropdownMenuItem(
-                    value: s,
-                    child: Text(s.name),
-                  ))
-                      .toList(),
-                  onChanged: (v) => poc.selectedSupplier.value = v,
-                );
-              }),
-              const SizedBox(height: 12),
-              Row(children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: poc.qtyCtrl,
-                    keyboardType: TextInputType.number,
-                    style: ErpTextStyles.fieldValue,
-                    decoration: ErpDecorations.formInput('Quantity (kg) *'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: poc.priceCtrl,
-                    keyboardType: TextInputType.number,
-                    style: ErpTextStyles.fieldValue,
-                    decoration:
-                    ErpDecorations.formInput('Price / kg *'),
-                  ),
-                ),
-              ]),
-              const SizedBox(height: 20),
-              Obx(() => SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ErpColors.accentBlue,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  onPressed:
-                  poc.isSaving.value ? null : poc.submitPO,
-                  icon: poc.isSaving.value
-                      ? const SizedBox(
-                      width: 18, height: 18,
-                      child: CircularProgressIndicator(
-                          color: Colors.white, strokeWidth: 2.5))
-                      : const Icon(Icons.send_rounded,
-                      color: Colors.white, size: 18),
-                  label: Text(
-                      poc.isSaving.value ? 'Creating…' : 'Create PO',
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 15)),
-                ),
-              )),
+              _InwardTab(records: c.inwards),
+              _OutwardTab(records: c.outwards),
+              _LedgerTab(movements: c.ledger),
             ],
           ),
         ),
-      ),
-      isScrollControlled: true,
+      ]),
     );
   }
 }
@@ -271,183 +149,193 @@ class _RawMaterialDetailPageState extends State<RawMaterialDetailPage>
 //  HERO CARD
 // ══════════════════════════════════════════════════════════════
 class _HeroCard extends StatelessWidget {
-  final RawMaterialDetail m;
-  const _HeroCard({required this.m});
+  final RawMaterialDetailModel material;
+  const _HeroCard({required this.material});
 
   @override
   Widget build(BuildContext context) {
-    final isLow   = m.isLowStock;
-    final stockPc = m.stockPercent;
+    final isLow   = material.isLowStock;
+    final stockColor = isLow ? ErpColors.errorRed : ErpColors.successGreen;
 
     return Container(
-      color: ErpColors.bgSurface,
-      child: Column(children: [
-        // Navy header
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: const BoxDecoration(
+        color: ErpColors.navyDark,
+        border: Border(
+            bottom: BorderSide(color: Color(0xFF1E3A5F))),
+      ),
+      child: Row(children: [
+        // Material icon badge
         Container(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-          color: ErpColors.navyDark,
-          child: Row(children: [
-            Container(
-              width: 48, height: 48,
-              decoration: BoxDecoration(
-                color: _catColor(m.category).withOpacity(0.22),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                    color: _catColor(m.category).withOpacity(0.5)),
-              ),
-              child: Icon(Icons.grain_rounded,
-                  size: 22, color: _catColor(m.category)),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(m.name,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900),
-                        overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 2),
-                    Row(children: [
-                      _CatPill(m.category),
-                      if (isLow) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: ErpColors.errorRed.withOpacity(0.25),
-                            border: Border.all(
-                                color: ErpColors.errorRed.withOpacity(0.6)),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text('⚠ LOW STOCK',
-                              style: TextStyle(
-                                  color: ErpColors.errorRed,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w900)),
-                        ),
-                      ],
-                    ]),
-                  ]),
-            ),
-          ]),
+          width: 52, height: 52,
+          decoration: BoxDecoration(
+            color: ErpColors.accentBlue.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+                color: ErpColors.accentBlue.withOpacity(0.4)),
+          ),
+          child: const Icon(Icons.category_outlined,
+              size: 26, color: Colors.white),
         ),
-        // Stats + stock bar
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
-          child: Column(children: [
-            Row(children: [
-              _Stat('STOCK',   '${m.stock.toStringAsFixed(1)} kg',
-                  isLow ? ErpColors.errorRed : ErpColors.successGreen),
-              _vDiv(),
-              _Stat('MIN STOCK', '${m.minStock.toStringAsFixed(1)} kg',
-                  ErpColors.warningAmber),
-              _vDiv(),
-              _Stat('PRICE',   '₹${m.price.toStringAsFixed(0)}/kg',
-                  ErpColors.accentBlue),
-              _vDiv(),
-              _Stat('CONSUMED', '${m.totalConsumption.toStringAsFixed(1)} kg',
-                  ErpColors.textSecondary),
-            ]),
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: stockPc,
-                minHeight: 6,
-                backgroundColor: ErpColors.borderLight,
-                valueColor: AlwaysStoppedAnimation(
-                  isLow ? ErpColors.errorRed : ErpColors.successGreen,
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (m.supplier != null) ...[
-                  Row(children: [
-                    const Icon(Icons.business_outlined,
-                        size: 11, color: ErpColors.textMuted),
-                    const SizedBox(width: 3),
-                    Text(m.supplier!.name,
-                        style: const TextStyle(
-                            color: ErpColors.textSecondary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500)),
-                  ]),
-                ] else
-                  const SizedBox.shrink(),
-                Text(
-                  'Added ${DateFormat('dd MMM yyyy').format(m.createdAt)}',
+        const SizedBox(width: 14),
+        // Info
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(material.name,
                   style: const TextStyle(
-                      color: ErpColors.textMuted, fontSize: 10),
-                ),
-              ],
-            ),
-          ]),
+                      color: Colors.white,
+                      fontSize: 16, fontWeight: FontWeight.w800),
+                  overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 3),
+              Row(children: [
+                _HeroPill(material.category),
+                if (material.supplierName != null) ...[
+                  const SizedBox(width: 6),
+                  _HeroPill(material.supplierName!,
+                      icon: Icons.store_outlined),
+                ],
+              ]),
+            ],
+          ),
         ),
-        const Divider(height: 1, color: ErpColors.borderLight),
+        // Stock level
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Text(
+            '${material.stock.toStringAsFixed(2)} kg',
+            style: TextStyle(
+                color: stockColor,
+                fontSize: 18, fontWeight: FontWeight.w900),
+          ),
+          Text(
+            isLow ? '⚠ Low Stock' : 'In Stock',
+            style: TextStyle(
+                color: stockColor.withOpacity(0.8), fontSize: 10),
+          ),
+          const SizedBox(height: 4),
+          Text('₹${material.price.toStringAsFixed(2)}/kg',
+              style: const TextStyle(
+                  color: ErpColors.textOnDarkSub,
+                  fontSize: 11, fontWeight: FontWeight.w600)),
+        ]),
       ]),
     );
   }
-
-  Widget _vDiv() =>
-      Container(width: 1, height: 32, color: ErpColors.borderLight);
-
-  Color _catColor(String c) {
-    switch (c) {
-      case 'warp':      return const Color(0xFF1D6FEB);
-      case 'weft':      return const Color(0xFF7C3AED);
-      case 'covering':  return const Color(0xFF0891B2);
-      case 'Rubber':    return const Color(0xFFD97706);
-      case 'Chemicals': return const Color(0xFFDC2626);
-      default:          return const Color(0xFF5A6A85);
-    }
-  }
 }
 
-class _CatPill extends StatelessWidget {
-  final String cat;
-  const _CatPill(this.cat);
+class _HeroPill extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  const _HeroPill(this.label, {this.icon});
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
     decoration: BoxDecoration(
-      color: const Color(0xFF1E3A5F),
+      color: Colors.white.withOpacity(0.08),
       borderRadius: BorderRadius.circular(4),
     ),
-    child: Text(cat,
-        style: const TextStyle(
-            color: ErpColors.textOnDarkSub,
-            fontSize: 9,
-            fontWeight: FontWeight.w700)),
+    child: Row(mainAxisSize: MainAxisSize.min, children: [
+      if (icon != null) ...[
+        Icon(icon, size: 10, color: ErpColors.textOnDarkSub),
+        const SizedBox(width: 4),
+      ],
+      Text(label,
+          style: const TextStyle(
+              color: ErpColors.textOnDarkSub,
+              fontSize: 10, fontWeight: FontWeight.w600)),
+    ]),
   );
 }
 
-class _Stat extends StatelessWidget {
+// ══════════════════════════════════════════════════════════════
+//  SUMMARY ROW
+// ══════════════════════════════════════════════════════════════
+class _SummaryRow extends StatelessWidget {
+  final RawMaterialDetailModel material;
+  const _SummaryRow({required this.material});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(vertical: 10),
+    decoration: const BoxDecoration(
+      color: ErpColors.bgSurface,
+      border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _SumChip(
+          label: 'Total Inward',
+          value: '${material.totalInward.toStringAsFixed(2)} kg',
+          color: ErpColors.successGreen,
+          icon: Icons.arrow_downward_rounded,
+          count: material.inwards.length,
+        ),
+        Container(width: 1, height: 36, color: ErpColors.borderLight),
+        _SumChip(
+          label: 'Total Outward',
+          value: '${material.totalOutward.toStringAsFixed(2)} kg',
+          color: ErpColors.errorRed,
+          icon: Icons.arrow_upward_rounded,
+          count: material.outwards.length,
+        ),
+        Container(width: 1, height: 36, color: ErpColors.borderLight),
+        _SumChip(
+          label: 'Min Stock',
+          value: '${material.minStock.toStringAsFixed(2)} kg',
+          color: ErpColors.warningAmber,
+          icon: Icons.warning_amber_outlined,
+        ),
+      ],
+    ),
+  );
+}
+
+class _SumChip extends StatelessWidget {
   final String label, value;
   final Color color;
-  const _Stat(this.label, this.value, this.color);
+  final IconData icon;
+  final int? count;
+  const _SumChip({
+    required this.label, required this.value,
+    required this.color, required this.icon,
+    this.count,
+  });
   @override
-  Widget build(BuildContext context) => Expanded(
-    child: Column(children: [
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, size: 12, color: color),
+        const SizedBox(width: 4),
+        Text(value,
+            style: TextStyle(
+                color: color,
+                fontSize: 13, fontWeight: FontWeight.w900)),
+        if (count != null) ...[
+          const SizedBox(width: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 5, vertical: 1),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text('$count',
+                style: TextStyle(
+                    color: color,
+                    fontSize: 9, fontWeight: FontWeight.w800)),
+          ),
+        ],
+      ]),
+      const SizedBox(height: 2),
       Text(label,
           style: const TextStyle(
               color: ErpColors.textMuted,
-              fontSize: 8, fontWeight: FontWeight.w700,
-              letterSpacing: 0.4),
-          textAlign: TextAlign.center),
-      const SizedBox(height: 3),
-      Text(value,
-          style: TextStyle(
-              color: color, fontSize: 11, fontWeight: FontWeight.w900),
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis),
-    ]),
+              fontSize: 9, fontWeight: FontWeight.w600,
+              letterSpacing: 0.3)),
+    ],
   );
 }
 
@@ -455,327 +343,691 @@ class _Stat extends StatelessWidget {
 //  TAB BAR
 // ══════════════════════════════════════════════════════════════
 class _TabBar extends StatelessWidget {
-  final TabController tabs;
-  const _TabBar({required this.tabs});
+  final TabController tab;
+  const _TabBar({required this.tab});
 
   @override
   Widget build(BuildContext context) => Container(
     color: ErpColors.bgSurface,
     child: TabBar(
-      controller: tabs,
+      controller: tab,
       labelColor: ErpColors.accentBlue,
-      unselectedLabelColor: ErpColors.textSecondary,
+      unselectedLabelColor: ErpColors.textMuted,
       indicatorColor: ErpColors.accentBlue,
       indicatorWeight: 2,
       labelStyle: const TextStyle(
-          fontSize: 11, fontWeight: FontWeight.w800),
+          fontSize: 12, fontWeight: FontWeight.w700),
+      unselectedLabelStyle: const TextStyle(
+          fontSize: 12, fontWeight: FontWeight.w500),
       tabs: const [
-        Tab(text: 'Movements'),
-        Tab(text: 'Inwards'),
-        Tab(text: 'Outwards'),
+        Tab(text: 'Inward'),
+        Tab(text: 'Outward'),
+        Tab(text: 'Ledger'),
       ],
     ),
   );
 }
 
 // ══════════════════════════════════════════════════════════════
-//  STOCK MOVEMENTS TAB
+//  INWARD TAB
 // ══════════════════════════════════════════════════════════════
-class _StockMovementsTab extends StatelessWidget {
-  final List<StockMovement> movements;
-  const _StockMovementsTab({required this.movements});
+class _InwardTab extends StatelessWidget {
+  final List<MaterialInwardModel> records;
+  const _InwardTab({required this.records});
+
+  @override
+  Widget build(BuildContext context) {
+    if (records.isEmpty) {
+      return const _EmptyTab(
+          icon: Icons.arrow_downward_rounded,
+          label: 'No inward records yet');
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 40),
+      itemCount: records.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (_, i) => _InwardCard(record: records[i]),
+    );
+  }
+}
+
+class _InwardCard extends StatelessWidget {
+  final MaterialInwardModel record;
+  const _InwardCard({required this.record});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      color: ErpColors.bgSurface,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: ErpColors.borderLight),
+      boxShadow: [
+        BoxShadow(
+            color: ErpColors.navyDark.withOpacity(0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 1)),
+      ],
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(children: [
+        // Direction icon
+        Container(
+          width: 36, height: 36,
+          decoration: BoxDecoration(
+            color: ErpColors.successGreen.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: const Icon(Icons.arrow_downward_rounded,
+              size: 18, color: ErpColors.successGreen),
+        ),
+        const SizedBox(width: 12),
+        // Reference + date
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Reference pill
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: ErpColors.successGreen.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                      color: ErpColors.successGreen.withOpacity(0.3)),
+                ),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.receipt_outlined,
+                      size: 11, color: ErpColors.successGreen),
+                  const SizedBox(width: 4),
+                  Text(record.referenceLabel,
+                      style: const TextStyle(
+                          color: ErpColors.successGreen,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700)),
+                ]),
+              ),
+              const SizedBox(height: 5),
+              Row(children: [
+                const Icon(Icons.calendar_today_outlined,
+                    size: 11, color: ErpColors.textMuted),
+                const SizedBox(width: 4),
+                Text(
+                  DateFormat('dd MMM yyyy').format(record.inwardDate),
+                  style: const TextStyle(
+                      color: ErpColors.textSecondary, fontSize: 11),
+                ),
+              ]),
+              if (record.remarks.isNotEmpty) ...[
+                const SizedBox(height: 3),
+                Text(record.remarks,
+                    style: const TextStyle(
+                        color: ErpColors.textMuted,
+                        fontSize: 10,
+                        fontStyle: FontStyle.italic),
+                    overflow: TextOverflow.ellipsis),
+              ],
+            ],
+          ),
+        ),
+        // Quantity
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Text('+${record.quantity.toStringAsFixed(2)}',
+              style: const TextStyle(
+                  color: ErpColors.successGreen,
+                  fontSize: 16, fontWeight: FontWeight.w900)),
+          const Text('kg',
+              style: TextStyle(
+                  color: ErpColors.textMuted, fontSize: 10)),
+        ]),
+      ]),
+    ),
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+//  OUTWARD TAB
+// ══════════════════════════════════════════════════════════════
+class _OutwardTab extends StatelessWidget {
+  final List<MaterialOutwardModel> records;
+  const _OutwardTab({required this.records});
+
+  @override
+  Widget build(BuildContext context) {
+    if (records.isEmpty) {
+      return const _EmptyTab(
+          icon: Icons.arrow_upward_rounded,
+          label: 'No outward records yet');
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 40),
+      itemCount: records.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (_, i) => _OutwardCard(record: records[i]),
+    );
+  }
+}
+
+class _OutwardCard extends StatelessWidget {
+  final MaterialOutwardModel record;
+  const _OutwardCard({required this.record});
+
+  // Type → colour
+  Color get _typeColor {
+    switch (record.type) {
+      case 'ORDER_APPROVAL':  return const Color(0xFF7C3AED);
+      case 'JOB_CONSUMPTION': return ErpColors.warningAmber;
+      default:                return ErpColors.errorRed;
+    }
+  }
+  IconData get _typeIcon {
+    switch (record.type) {
+      case 'ORDER_APPROVAL':  return Icons.assignment_turned_in_outlined;
+      case 'JOB_CONSUMPTION': return Icons.precision_manufacturing_outlined;
+      default:                return Icons.tune_outlined;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      color: ErpColors.bgSurface,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: ErpColors.borderLight),
+      boxShadow: [
+        BoxShadow(
+            color: ErpColors.navyDark.withOpacity(0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 1)),
+      ],
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(children: [
+        Container(
+          width: 36, height: 36,
+          decoration: BoxDecoration(
+            color: _typeColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: Icon(_typeIcon, size: 18, color: _typeColor),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                // Type badge
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: _typeColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                        color: _typeColor.withOpacity(0.3)),
+                  ),
+                  child: Text(record.typeLabel,
+                      style: TextStyle(
+                          color: _typeColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700)),
+                ),
+                const SizedBox(width: 6),
+                // Reference
+                Expanded(
+                  child: Text(record.referenceLabel,
+                      style: const TextStyle(
+                          color: ErpColors.textPrimary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700),
+                      overflow: TextOverflow.ellipsis),
+                ),
+              ]),
+              const SizedBox(height: 5),
+              Row(children: [
+                const Icon(Icons.calendar_today_outlined,
+                    size: 11, color: ErpColors.textMuted),
+                const SizedBox(width: 4),
+                Text(
+                  DateFormat('dd MMM yyyy').format(record.outwardDate),
+                  style: const TextStyle(
+                      color: ErpColors.textSecondary, fontSize: 11),
+                ),
+              ]),
+              if (record.remarks.isNotEmpty) ...[
+                const SizedBox(height: 3),
+                Text(record.remarks,
+                    style: const TextStyle(
+                        color: ErpColors.textMuted,
+                        fontSize: 10,
+                        fontStyle: FontStyle.italic),
+                    overflow: TextOverflow.ellipsis),
+              ],
+            ],
+          ),
+        ),
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Text('-${record.quantity.toStringAsFixed(2)}',
+              style: TextStyle(
+                  color: _typeColor,
+                  fontSize: 16, fontWeight: FontWeight.w900)),
+          const Text('kg',
+              style: TextStyle(
+                  color: ErpColors.textMuted, fontSize: 10)),
+        ]),
+      ]),
+    ),
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+//  LEDGER TAB  (running balance)
+// ══════════════════════════════════════════════════════════════
+class _LedgerTab extends StatelessWidget {
+  final List<StockMovementModel> movements;
+  const _LedgerTab({required this.movements});
 
   @override
   Widget build(BuildContext context) {
     if (movements.isEmpty) {
-      return _TabEmpty('No stock movements recorded',
-          Icons.swap_vert_rounded);
+      return const _EmptyTab(
+          icon: Icons.receipt_long_outlined,
+          label: 'No ledger entries yet');
     }
-    return ListView.builder(
-      padding: const EdgeInsets.all(14),
-      itemCount: movements.length,
-      itemBuilder: (_, i) {
-        final mv = movements[i];
-        final isIn = mv.quantity >= 0;
-        final color = isIn ? ErpColors.successGreen : ErpColors.errorRed;
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: ErpColors.bgSurface,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color.withOpacity(0.25)),
-          ),
-          child: Row(children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isIn
-                    ? Icons.arrow_downward_rounded
-                    : Icons.arrow_upward_rounded,
-                size: 16, color: color,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(_movLabel(mv.type),
-                        style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: ErpColors.textPrimary)),
-                    Text(
-                      DateFormat('dd MMM yyyy').format(mv.date) +
-                          (mv.orderNo != null ? '  •  Order #${mv.orderNo}' : ''),
-                      style: const TextStyle(
-                          color: ErpColors.textMuted, fontSize: 10),
-                    ),
-                  ]),
-            ),
-            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text(
-                '${isIn ? '+' : ''}${mv.quantity.toStringAsFixed(1)} kg',
-                style: TextStyle(
-                    color: color,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900),
-              ),
-              Text('Bal: ${mv.balance.toStringAsFixed(1)}',
-                  style: const TextStyle(
-                      color: ErpColors.textMuted, fontSize: 9)),
-            ]),
-          ]),
-        );
-      },
-    );
+    return Column(children: [
+      // Header
+      Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16, vertical: 8),
+        decoration: const BoxDecoration(
+          color: ErpColors.bgMuted,
+          border: Border(
+              bottom: BorderSide(color: ErpColors.borderLight)),
+        ),
+        child: const Row(children: [
+          Expanded(flex: 2,
+              child: Text('Date',
+                  style: TextStyle(fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: ErpColors.textMuted,
+                      letterSpacing: 0.3))),
+          Expanded(flex: 2,
+              child: Text('Type',
+                  style: TextStyle(fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: ErpColors.textMuted))),
+          SizedBox(width: 56,
+              child: Text('Qty',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: ErpColors.textMuted))),
+          SizedBox(width: 8),
+          SizedBox(width: 60,
+              child: Text('Balance',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: ErpColors.textMuted))),
+        ]),
+      ),
+      Expanded(
+        child: ListView.builder(
+          padding: const EdgeInsets.only(bottom: 40),
+          itemCount: movements.length,
+          itemBuilder: (_, i) => _LedgerRow(
+              movement: movements[i],
+              isEven: i.isEven),
+        ),
+      ),
+    ]);
   }
+}
 
-  String _movLabel(String type) {
-    switch (type) {
-      case 'ORDER_APPROVAL': return 'Order Approval';
-      case 'PO_INWARD':      return 'PO Inward';
-      case 'ADJUSTMENT':     return 'Adjustment';
-      default:               return type;
-    }
+class _LedgerRow extends StatelessWidget {
+  final StockMovementModel movement;
+  final bool isEven;
+  const _LedgerRow({required this.movement, required this.isEven});
+
+  bool get _isIn => movement.quantity > 0 ||
+      movement.type == 'PO_INWARD';
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _isIn ? ErpColors.successGreen : ErpColors.errorRed;
+    final sign  = _isIn ? '+' : '';
+    final typeShort = switch (movement.type) {
+      'PO_INWARD'      => 'PO Inward',
+      'ORDER_APPROVAL' => movement.orderNo != null
+          ? 'Order #${movement.orderNo}'
+          : 'Order Approval',
+      'STOCK_ADJUST'   => 'Adjustment',
+      _                => movement.type,
+    };
+
+    return Container(
+      color: isEven
+          ? ErpColors.bgSurface
+          : ErpColors.bgMuted.withOpacity(0.5),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 16, vertical: 10),
+      child: Row(children: [
+        Expanded(flex: 2,
+          child: Text(
+            DateFormat('dd MMM yy').format(movement.date),
+            style: const TextStyle(
+                color: ErpColors.textSecondary,
+                fontSize: 11),
+          ),
+        ),
+        Expanded(flex: 2,
+          child: Text(typeShort,
+              style: const TextStyle(
+                  color: ErpColors.textPrimary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600),
+              overflow: TextOverflow.ellipsis),
+        ),
+        SizedBox(width: 56,
+          child: Text(
+            '$sign${movement.quantity.abs().toStringAsFixed(2)}',
+            textAlign: TextAlign.right,
+            style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: FontWeight.w800),
+          ),
+        ),
+        const SizedBox(width: 8),
+        SizedBox(width: 60,
+          child: Text(
+            movement.balance.toStringAsFixed(2),
+            textAlign: TextAlign.right,
+            style: const TextStyle(
+                color: ErpColors.textPrimary,
+                fontSize: 11,
+                fontWeight: FontWeight.w700),
+          ),
+        ),
+      ]),
+    );
   }
 }
 
 // ══════════════════════════════════════════════════════════════
-//  INWARDS TAB
+//  PRICE HISTORY STRIP
+//  Shows last 5 price changes as a collapsible section between
+//  the summary row and the tab bar.
 // ══════════════════════════════════════════════════════════════
-class _InwardsTab extends StatelessWidget {
-  final List<MaterialInward> inwards;
-  const _InwardsTab({required this.inwards});
+class _PriceHistoryStrip extends StatefulWidget {
+  final List<PriceHistoryModel> history;
+  const _PriceHistoryStrip({required this.history});
+
+  @override
+  State<_PriceHistoryStrip> createState() => _PriceHistoryStripState();
+}
+
+class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
-    if (inwards.isEmpty) {
-      return _TabEmpty('No inward records', Icons.download_rounded);
-    }
-    return ListView.builder(
-      padding: const EdgeInsets.all(14),
-      itemCount: inwards.length,
-      itemBuilder: (_, i) {
-        final iv = inwards[i];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: ErpColors.bgSurface,
-            borderRadius: BorderRadius.circular(8),
-            border:
-            Border.all(color: ErpColors.successGreen.withOpacity(0.25)),
-          ),
-          child: Row(children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: ErpColors.successGreen.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.download_rounded,
-                  size: 16, color: ErpColors.successGreen),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      Text(
-                        '+${iv.quantity.toStringAsFixed(1)} kg',
-                        style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
-                            color: ErpColors.successGreen),
-                      ),
-                      if (iv.poNo != null) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: ErpColors.accentBlue.withOpacity(0.09),
-                            border: Border.all(
-                                color: ErpColors.accentBlue.withOpacity(0.3)),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text('PO #${iv.poNo}',
+    // Most recent entry
+    final latest  = widget.history.first;
+    final isUp    = latest.change > 0;
+    final color   = isUp ? ErpColors.errorRed : ErpColors.successGreen;
+    final sign    = isUp ? '+' : '';
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: ErpColors.bgSurface,
+        border: Border(
+            bottom: BorderSide(color: ErpColors.borderLight)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Summary row (always visible) ─────────────────────
+            InkWell(
+              onTap: () => setState(() => _expanded = !_expanded),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                child: Row(children: [
+                  Container(
+                    width: 28, height: 28,
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(
+                        isUp ? Icons.trending_up_rounded
+                            : Icons.trending_down_rounded,
+                        size: 15, color: color),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(children: [
+                          Text('Current Price',
                               style: const TextStyle(
-                                  color: ErpColors.accentBlue,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w800)),
+                                  color: ErpColors.textMuted,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.3)),
+                          const SizedBox(width: 6),
+                          Text('₹${latest.price.toStringAsFixed(2)}/kg',
+                              style: const TextStyle(
+                                  color: ErpColors.textPrimary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w900)),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: color.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '$sign₹${latest.change.abs().toStringAsFixed(2)}',
+                              style: TextStyle(
+                                  color: color, fontSize: 10,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ]),
+                        Text(
+                          'Last changed ${DateFormat('dd MMM yyyy').format(latest.changedAt)}'
+                              '${latest.reason.isNotEmpty ? ' · ${latest.reason}' : ''}',
+                          style: const TextStyle(
+                              color: ErpColors.textMuted, fontSize: 10),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
-                    ]),
-                    const SizedBox(height: 2),
-                    Text(
-                      DateFormat('dd MMM yyyy').format(iv.inwardDate),
-                      style: const TextStyle(
-                          color: ErpColors.textMuted, fontSize: 10),
                     ),
-                    if (iv.remarks != null)
-                      Text(iv.remarks!,
-                          style: const TextStyle(
-                              color: ErpColors.textSecondary, fontSize: 10)),
-                  ]),
-            ),
-          ]),
-        );
-      },
-    );
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-//  OUTWARDS TAB
-// ══════════════════════════════════════════════════════════════
-class _OutwardsTab extends StatelessWidget {
-  final List<MaterialOutward> outwards;
-  const _OutwardsTab({required this.outwards});
-
-  @override
-  Widget build(BuildContext context) {
-    if (outwards.isEmpty) {
-      return _TabEmpty('No outward records', Icons.upload_rounded);
-    }
-    return ListView.builder(
-      padding: const EdgeInsets.all(14),
-      itemCount: outwards.length,
-      itemBuilder: (_, i) {
-        final ov = outwards[i];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: ErpColors.bgSurface,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-                color: ErpColors.errorRed.withOpacity(0.22)),
-          ),
-          child: Row(children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: ErpColors.errorRed.withOpacity(0.1),
-                shape: BoxShape.circle,
+                  ),
+                  Icon(
+                      _expanded
+                          ? Icons.expand_less_rounded
+                          : Icons.expand_more_rounded,
+                      size: 18, color: ErpColors.textMuted),
+                ]),
               ),
-              child: const Icon(Icons.upload_rounded,
-                  size: 16, color: ErpColors.errorRed),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      Text(
-                        '−${ov.quantity.toStringAsFixed(1)} kg',
-                        style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
-                            color: ErpColors.errorRed),
-                      ),
-                      if (ov.cost != null) ...[
-                        const SizedBox(width: 8),
-                        Text('₹${ov.cost!.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                                color: ErpColors.textSecondary,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600)),
-                      ],
-                    ]),
-                    const SizedBox(height: 2),
-                    Text(
-                      DateFormat('dd MMM yyyy').format(ov.outwardDate),
-                      style: const TextStyle(
-                          color: ErpColors.textMuted, fontSize: 10),
-                    ),
-                    if (ov.remarks != null)
-                      Text(ov.remarks!,
-                          style: const TextStyle(
-                              color: ErpColors.textSecondary, fontSize: 10)),
+
+            // ── Expanded history list ─────────────────────────────
+            if (_expanded) ...[
+              const Divider(height: 1, color: ErpColors.borderLight),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+                child: Column(children: [
+                  // Header
+                  const Row(children: [
+                    Expanded(child: Text('Date',
+                        style: TextStyle(fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: ErpColors.textMuted,
+                            letterSpacing: 0.3))),
+                    SizedBox(width: 70, child: Text('Old Price',
+                        textAlign: TextAlign.right,
+                        style: TextStyle(fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: ErpColors.textMuted))),
+                    SizedBox(width: 8),
+                    SizedBox(width: 70, child: Text('New Price',
+                        textAlign: TextAlign.right,
+                        style: TextStyle(fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: ErpColors.textMuted))),
+                    SizedBox(width: 8),
+                    SizedBox(width: 52, child: Text('Change',
+                        textAlign: TextAlign.right,
+                        style: TextStyle(fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: ErpColors.textMuted))),
                   ]),
-            ),
+                  const SizedBox(height: 6),
+                  // Rows — show last 10
+                  ...widget.history.take(10).map((h) {
+                    final up   = h.change > 0;
+                    final col  = up ? ErpColors.errorRed : ErpColors.successGreen;
+                    final sign = up ? '+' : '';
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 7),
+                      child: Row(children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                DateFormat('dd MMM yy').format(h.changedAt),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: ErpColors.textPrimary,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              if (h.reason.isNotEmpty)
+                                Text(h.reason,
+                                    style: const TextStyle(
+                                        fontSize: 9,
+                                        color: ErpColors.textMuted,
+                                        fontStyle: FontStyle.italic),
+                                    overflow: TextOverflow.ellipsis),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 70,
+                          child: Text(
+                            '₹${h.oldPrice.toStringAsFixed(2)}',
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(
+                                fontSize: 11,
+                                color: ErpColors.textSecondary,
+                                decoration: TextDecoration.lineThrough),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(width: 70,
+                          child: Text(
+                            '₹${h.price.toStringAsFixed(2)}',
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(
+                                fontSize: 11,
+                                color: ErpColors.textPrimary,
+                                fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(width: 52,
+                          child: Text(
+                            '$sign₹${h.change.abs().toStringAsFixed(2)}',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: col),
+                          ),
+                        ),
+                      ]),
+                    );
+                  }),
+                ]),
+              ),
+            ],
           ]),
-        );
-      },
     );
   }
 }
 
-class _TabEmpty extends StatelessWidget {
-  final String msg;
+// ══════════════════════════════════════════════════════════════
+//  SHARED WIDGETS
+// ══════════════════════════════════════════════════════════════
+class _EmptyTab extends StatelessWidget {
   final IconData icon;
-  const _TabEmpty(this.msg, this.icon);
+  final String label;
+  const _EmptyTab({required this.icon, required this.label});
+
   @override
   Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 40, color: ErpColors.textMuted),
-      const SizedBox(height: 10),
-      Text(msg,
+      Container(
+        width: 64, height: 64,
+        decoration: BoxDecoration(
+          color: ErpColors.bgMuted,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: ErpColors.borderLight),
+        ),
+        child: Icon(icon, size: 30, color: ErpColors.textMuted),
+      ),
+      const SizedBox(height: 14),
+      Text(label,
           style: const TextStyle(
-              color: ErpColors.textSecondary, fontSize: 13)),
+              color: ErpColors.textSecondary,
+              fontSize: 13, fontWeight: FontWeight.w500)),
     ]),
   );
 }
 
-class _ErrorState extends StatelessWidget {
+class _ErrorBody extends StatelessWidget {
   final String msg;
   final VoidCallback retry;
-  const _ErrorState({required this.msg, required this.retry});
+  const _ErrorBody({required this.msg, required this.retry});
+
   @override
   Widget build(BuildContext context) => Center(
-    child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.error_outline,
-          size: 40, color: ErpColors.textMuted),
-      const SizedBox(height: 12),
-      const Text('Failed to load',
-          style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-              color: ErpColors.textPrimary)),
-      const SizedBox(height: 4),
-      Text(msg,
-          style: const TextStyle(
-              color: ErpColors.textSecondary, fontSize: 12),
-          textAlign: TextAlign.center),
-      const SizedBox(height: 14),
-      ElevatedButton.icon(
-        onPressed: retry,
-        style: ElevatedButton.styleFrom(
-            backgroundColor: ErpColors.accentBlue, elevation: 0),
-        icon: const Icon(Icons.refresh, size: 16, color: Colors.white),
-        label: const Text('Retry',
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Icon(Icons.cloud_off_outlined,
+            size: 48, color: ErpColors.textMuted),
+        const SizedBox(height: 14),
+        const Text('Failed to load material',
             style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w600)),
-      ),
-    ]),
+                color: ErpColors.textPrimary,
+                fontSize: 15, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        Text(msg,
+            style: const TextStyle(
+                color: ErpColors.textSecondary, fontSize: 12),
+            textAlign: TextAlign.center),
+        const SizedBox(height: 20),
+        ElevatedButton.icon(
+          onPressed: retry,
+          style: ElevatedButton.styleFrom(
+              backgroundColor: ErpColors.accentBlue,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8))),
+          icon: const Icon(Icons.refresh, size: 16, color: Colors.white),
+          label: const Text('Retry',
+              style: TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w600)),
+        ),
+      ]),
+    ),
   );
 }

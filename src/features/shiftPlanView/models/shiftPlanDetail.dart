@@ -1,48 +1,69 @@
+// ══════════════════════════════════════════════════════════════
+//  SHIFT PLAN DETAIL MODEL
+//  File: lib/src/features/shiftPlanView/models/shiftPlanDetail.dart
+//
+//  FIXES:
+//  • ShiftPlanDetailModel.fromJson: was reading json['plan'] but the
+//    backend /shiftPlanById response wraps machines in json['machines']
+//    → machines list was always empty.
+//  • ShiftMachineDetail.fromJson: was reading json['productionMeters']
+//    but the backend returns the flat key as json['production']
+//    → production always showed 0.
+//  • Added shiftDetailId field (from json['id']) — the ShiftDetail _id
+//    needed to navigate to ShiftDetailPage on double-tap.
+// ══════════════════════════════════════════════════════════════
+
 class ShiftPlanDetailModel {
   final String id;
+  final String shift;         // "DAY" | "NIGHT"
   final DateTime date;
-  final String shift;
   final String description;
-  final int totalProduction;
-  final int operatorCount;
+  final double totalProduction;
+  final String status;        // "draft" | "confirmed"
   final List<ShiftMachineDetail> machines;
 
-  ShiftPlanDetailModel({
+  const ShiftPlanDetailModel({
     required this.id,
-    required this.date,
     required this.shift,
+    required this.date,
     required this.description,
     required this.totalProduction,
-    required this.operatorCount,
+    required this.status,
     required this.machines,
   });
 
   factory ShiftPlanDetailModel.fromJson(Map<String, dynamic> json) {
     return ShiftPlanDetailModel(
-      operatorCount:json['operatorCount'],
-      id: json['_id'],
-      date: DateTime.parse(json['date']),
-      shift: json['shift'],
-      description: json['description'] ?? "",
-      totalProduction: json['totalProduction'] ?? 0,
-      machines: (json['machines'] as List)
-          .map((e) => ShiftMachineDetail.fromJson(e))
-          .toList(),
+      id:              json['_id']?.toString()         ?? json['id']?.toString() ?? '',
+      shift:           json['shift']?.toString()       ?? 'DAY',
+      date:            DateTime.tryParse(json['date']?.toString() ?? '')
+          ?? DateTime.now(),
+      description:     json['description']?.toString() ?? '',
+      totalProduction: (json['totalProduction'] as num?)?.toDouble() ?? 0,
+      // Older records without this field default to 'confirmed' so they
+      // don't suddenly appear as drafts after the migration.
+      status:   json['status']?.toString() ?? 'confirmed',
+      // FIX: backend returns 'machines', not 'plan'
+      machines: (json['machines'] as List<dynamic>?)
+          ?.map((e) => ShiftMachineDetail.fromJson(e as Map<String, dynamic>))
+          .toList()
+          ?? [],
     );
   }
 }
 
 class ShiftMachineDetail {
-  final String machineId;
+  /// The ShiftDetail document _id — used to navigate to ShiftDetailPage.
+  final String shiftDetailId;
   final String machineName;
   final String jobOrderNo;
   final String operatorName;
-  final int production;
+  final double production;
   final String timer;
-  final String status;
+  final String status;   // "open" | "running" | "closed"
 
-  ShiftMachineDetail({
-    required this.machineId,
+  const ShiftMachineDetail({
+    required this.shiftDetailId,
     required this.machineName,
     required this.jobOrderNo,
     required this.operatorName,
@@ -53,13 +74,15 @@ class ShiftMachineDetail {
 
   factory ShiftMachineDetail.fromJson(Map<String, dynamic> json) {
     return ShiftMachineDetail(
-      machineId: json['machineId'],
-      machineName: json['machineName'],
-      jobOrderNo: json['jobOrderNo'],
-      operatorName: json['operatorName'],
-      production: json['production'] ?? 0,
-      timer: json['timer'] ?? "00:00:00",
-      status: json['status'] ?? "open",
+      // FIX: backend returns the ShiftDetail _id as json['id']
+      shiftDetailId: json['id']?.toString() ?? '',
+      machineName:   json['machineName']?.toString()   ?? '—',
+      jobOrderNo:    json['jobOrderNo']?.toString()    ?? '—',
+      operatorName:  json['operatorName']?.toString()  ?? '—',
+      // FIX: backend flattens this as 'production', not 'productionMeters'
+      production:    (json['production'] as num?)?.toDouble() ?? 0,
+      timer:         json['timer']?.toString()         ?? '00:00:00',
+      status:        json['status']?.toString()        ?? 'open',
     );
   }
 }

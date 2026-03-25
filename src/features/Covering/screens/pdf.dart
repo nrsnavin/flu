@@ -57,6 +57,8 @@ class CoveringProgramPdf {
           _secHeading('ELASTICS  (${covering.elasticPlanned.length} items)', bold),
           pw.SizedBox(height: 1.5 * PdfPageFormat.mm),
           _elasticSummaryTable(covering.elasticPlanned, bold, reg),
+          pw.SizedBox(height: 1.5 * PdfPageFormat.mm),
+          _expectedWeightRow(covering.elasticPlanned, bold, reg),
           pw.SizedBox(height: 4 * PdfPageFormat.mm),
           _signRow(bold, reg),
         ],
@@ -153,9 +155,10 @@ class CoveringProgramPdf {
       4: pw.FlexColumnWidth(1.8),
       5: pw.FixedColumnWidth(26),
       6: pw.FixedColumnWidth(28),
+      7: pw.FixedColumnWidth(32),   // ← Expected Produce Wt
     };
 
-    final headerCells = ['#', 'ELASTIC', 'QTY\n(m)', 'WARP SPANDEX', 'SP. COVERING', 'SP.\nENDS', 'TOTAL WT\n(g)'];
+    final headerCells = ['#', 'ELASTIC', 'QTY\n(m)', 'WARP SPANDEX', 'SP. COVERING', 'SP.\nENDS', 'TOTAL WT\n(g)', 'EXP. PRODUCE\n(kg)'];
 
     final dataRows = items.asMap().entries.map((entry) {
       final i   = entry.key;
@@ -178,6 +181,11 @@ class CoveringProgramPdf {
       final totalWt = (ws?.weight ?? 0.0) + (sc?.weight ?? 0.0);
       final totalWtText = totalWt > 0 ? '${_wt(totalWt)} g' : '—';
 
+      // Expected produce weight = (warpSpandex.weight + spandexCovering.weight) × quantity
+      // Expected produce weight = (ws + sc) × qty in grams → ÷1000 → kg
+      final expProduceKg = (totalWt * ced.quantity) / 1000;
+      final expProduceText = expProduceKg > 0 ? '${_wt(expProduceKg)} kg' : '—';
+
       return pw.TableRow(
         decoration: pw.BoxDecoration(color: i.isOdd ? _altFill : _white),
         children: [
@@ -188,6 +196,7 @@ class CoveringProgramPdf {
           _c(scText, reg, 6, _dark),
           _c('${el.spandexEnds}', bold, 7, _dark, align: pw.TextAlign.center),
           _c(totalWtText, bold, 7, _dark, align: pw.TextAlign.center),
+          _c(expProduceText, bold, 7, _dark, align: pw.TextAlign.center),
         ],
       );
     }).toList();
@@ -203,6 +212,45 @@ class CoveringProgramPdf {
               .toList(),
         ),
         ...dataRows,
+      ],
+    );
+  }
+
+  // ── Expected Produce Weight summary row ──────────────────
+  // Formula per elastic: (warpSpandex.weight + spandexCovering.weight) × quantity
+  // Weights in g/m, quantity in meters → total in grams.
+  static pw.Widget _expectedWeightRow(
+      List<CoveringElasticDetail> items, pw.Font bold, pw.Font reg) {
+    double totalGrams = 0;
+    for (final ep in items) {
+      final ws = ep.elastic.warpSpandex?.weight    ?? 0.0;
+      final sc = ep.elastic.spandexCovering?.weight ?? 0.0;
+      totalGrams += (ws + sc) * ep.quantity;
+    }
+    final totalKg  = totalGrams / 1000;
+    final totalStr = totalKg > 0 ? '${_wt(totalKg)} kg' : '—';
+
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.end,
+      children: [
+        pw.Container(
+          padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: pw.BoxDecoration(
+            border: pw.Border.all(color: _bdr, width: 0.35),
+          ),
+          child: pw.Row(children: [
+            pw.Text(
+              'EXPECTED PRODUCE WEIGHT:',
+              style: pw.TextStyle(
+                  font: bold, fontSize: 6.5, color: _mid, letterSpacing: 0.3),
+            ),
+            pw.SizedBox(width: 8),
+            pw.Text(
+              totalStr,
+              style: pw.TextStyle(font: bold, fontSize: 8, color: _dark),
+            ),
+          ]),
+        ),
       ],
     );
   }

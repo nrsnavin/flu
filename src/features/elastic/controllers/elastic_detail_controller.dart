@@ -1,67 +1,10 @@
+import 'package:flutter/material.dart';
 import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
 import '../screens/addElastic.dart';
-
-// ── Order summary model ────────────────────────────────────────
-class ElasticOrderSummary {
-  final String orderId;
-  final int orderNo;
-  final String po;
-  final String customer;
-  final DateTime date;
-  final DateTime supplyDate;
-  final String status;
-  final double orderedQty;
-  final double producedQty;
-  final double packedQty;
-  final double pendingQty;
-  final int jobCount;
-
-  ElasticOrderSummary({
-    required this.orderId,
-    required this.orderNo,
-    required this.po,
-    required this.customer,
-    required this.date,
-    required this.supplyDate,
-    required this.status,
-    required this.orderedQty,
-    required this.producedQty,
-    required this.packedQty,
-    required this.pendingQty,
-    required this.jobCount,
-  });
-
-  double get fulfillmentPct =>
-      orderedQty > 0 ? (producedQty / orderedQty * 100).clamp(0, 100) : 0;
-
-  bool get isOverdue =>
-      status != 'Completed' && status != 'Cancelled' &&
-          supplyDate.isBefore(DateTime.now());
-
-  factory ElasticOrderSummary.fromJson(Map<String, dynamic> j) =>
-      ElasticOrderSummary(
-        orderId:     j['orderId']?.toString()   ?? '',
-        orderNo:     (j['orderNo']  as num?)?.toInt()    ?? 0,
-        po:          j['po']?.toString()         ?? '—',
-        customer:    j['customer']?.toString()   ?? '—',
-        date:        j['date'] != null
-            ? DateTime.parse(j['date'] as String).toLocal()
-            : DateTime.now(),
-        supplyDate:  j['supplyDate'] != null
-            ? DateTime.parse(j['supplyDate'] as String).toLocal()
-            : DateTime.now(),
-        status:      j['status']?.toString()     ?? 'Open',
-        orderedQty:  (j['orderedQty']  as num?)?.toDouble() ?? 0,
-        producedQty: (j['producedQty'] as num?)?.toDouble() ?? 0,
-        packedQty:   (j['packedQty']   as num?)?.toDouble() ?? 0,
-        pendingQty:  (j['pendingQty']  as num?)?.toDouble() ?? 0,
-        jobCount:    (j['jobCount']    as num?)?.toInt()    ?? 0,
-      );
-}
 
 class ElasticDetailController extends GetxController {
   final Dio dio = Dio(BaseOptions(
@@ -73,12 +16,11 @@ class ElasticDetailController extends GetxController {
   final String elasticId;
   ElasticDetailController(this.elasticId);
 
-  final loading      = true.obs;
-  final savingPlan   = false.obs;
-  final loadingOrders = false.obs;
+  final loading       = true.obs;
+  final savingPlan    = false.obs;   // spinner while saving template
+  final recalculating   = false.obs;  // spinner while recalculating costing
   final RxMap<String, dynamic> elastic = <String, dynamic>{}.obs;
   final RxMap<String, dynamic> costing = <String, dynamic>{}.obs;
-  final orders = <ElasticOrderSummary>[].obs;
 
   @override
   void onInit() {
@@ -100,25 +42,6 @@ class ElasticDetailController extends GetxController {
           snackPosition: SnackPosition.BOTTOM);
     } finally {
       loading.value = false;
-    }
-    // Fetch orders in parallel — non-blocking
-    fetchOrders();
-  }
-
-  Future<void> fetchOrders() async {
-    try {
-      loadingOrders.value = true;
-      final res = await dio.get(
-        "/orders-by-elastic",
-        queryParameters: {"id": elasticId},
-      );
-      orders.value = (res.data["orders"] as List? ?? [])
-          .map((o) => ElasticOrderSummary.fromJson(o as Map<String, dynamic>))
-          .toList();
-    } catch (_) {
-      // non-critical — orders section shows empty state
-    } finally {
-      loadingOrders.value = false;
     }
   }
 
@@ -212,6 +135,56 @@ class ElasticDetailController extends GetxController {
       return false;
     } finally {
       savingPlan.value = false;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  COSTING RECALCULATION
+  // ═══════════════════════════════════════════════════════════
+
+  /// Calls POST /elastic/recalculate-elastic-cost.
+  /// [conversionCost] — pass a new value to override what is stored,
+  ///                    or null to keep the existing stored value.
+  ///
+  /// Returns true on success. On success the [costing] map is updated
+  /// in-place so the UI reflects the new numbers immediately without
+  /// a full page reload.
+  Future<bool> recalculateCosting({double? conversionCost}) async {
+    try {
+      recalculating.value = true;
+
+      final body = <String, dynamic>{"elasticId": elasticId};
+      if (conversionCost != null) body["conversionCost"] = conversionCost;
+
+      final res = await dio.post("/recalculate-elastic-cost", data: body);
+
+      // Update the costing map directly — no need for a full page fetch
+      final updated = res.data["costing"] as Map<String, dynamic>?;
+      if (updated != null) {
+        costing.value = updated;
+        // Also patch the costing key inside the elastic map so any widget
+        // reading elastic["costing"] also sees the fresh data
+        elastic["costing"] = updated;
+      }
+
+      Get.snackbar(
+        "Costing Updated",
+        "Recalculated using latest raw material prices",
+        backgroundColor: const Color(0xFF16A34A),
+        colorText: const Color(0xFFFFFFFF),
+        snackPosition: SnackPosition.BOTTOM,
+        icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+      );
+      return true;
+    } on DioException catch (e) {
+      final msg = e.response?.data?["message"] ?? "Recalculation failed";
+      Get.snackbar("Error", msg,
+          backgroundColor: const Color(0xFFDC2626),
+          colorText: const Color(0xFFFFFFFF),
+          snackPosition: SnackPosition.BOTTOM);
+      return false;
+    } finally {
+      recalculating.value = false;
     }
   }
 }

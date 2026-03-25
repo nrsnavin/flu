@@ -842,6 +842,26 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
                       fontWeight: FontWeight.w800),
                 ),
               ),
+            // Expected produce weight pill
+            if (widget.data.expectedProduceWeight > 0) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: ErpColors.warningAmber.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(
+                      color: ErpColors.warningAmber.withOpacity(0.35)),
+                ),
+                child: Text(
+                  '≈ ${_wt(widget.data.expectedProduceWeight)} kg exp.',
+                  style: const TextStyle(
+                      color: ErpColors.warningAmber,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800),
+                ),
+              ),
+            ],
             if (canEdit) ...[
               const SizedBox(width: 8),
               GestureDetector(
@@ -922,6 +942,14 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
                         : '—',
                     'Avg kg',
                     ErpColors.warningAmber),
+                Container(
+                    width: 1, height: 28, color: ErpColors.borderLight),
+                _BeamStat(
+                    widget.data.expectedProduceWeight > 0
+                        ? '${_wt(widget.data.expectedProduceWeight)} kg'
+                        : '—',
+                    'Expected',
+                    ErpColors.accentBlue),
               ],
             ),
           ),

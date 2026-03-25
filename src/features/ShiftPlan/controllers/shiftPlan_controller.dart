@@ -27,7 +27,8 @@ class CreateShiftPlanController extends GetxController {
 
   // ── UI state ────────────────────────────────────────────────
   final isLoading  = true.obs;
-  final isSaving   = false.obs;
+  final isSaving         = false.obs;
+  String createdShiftPlanId = '';  // set after draft is saved
   final errorMsg   = Rxn<String>();  // non-null means error state shown
 
   // ── Lifecycle ──────────────────────────────────────────────
@@ -83,20 +84,17 @@ class CreateShiftPlanController extends GetxController {
   }
 
   // ── Validation ─────────────────────────────────────────────
-  /// Returns an error string, or null if everything is valid.
+  /// Operators are OPTIONAL — machines without an operator are excluded
+  /// from the payload. Only fail if there are no running machines at all.
   String? validate() {
     if (runningMachines.isEmpty) {
       return 'No running machines found. Nothing to plan.';
     }
-
-    final unassigned = machineOperatorMap.entries
-        .where((e) => e.value == null)
-        .length;
-
-    if (unassigned > 0) {
-      return 'Assign an operator to all $unassigned unassigned machine(s) before saving.';
+    // Must assign at least one machine
+    final assignedCount = machineOperatorMap.values.where((v) => v != null).length;
+    if (assignedCount == 0) {
+      return 'Assign an operator to at least one machine before saving.';
     }
-
     return null;
   }
 
@@ -105,10 +103,7 @@ class CreateShiftPlanController extends GetxController {
       machineOperatorMap.values.where((v) => v == null).length;
 
   // ── Save ───────────────────────────────────────────────────
-  /// FIX: validate() was never called before submitting.
-  /// FIX: Get.off(Home()) replaced with onSuccess callback → Navigator.of(context).pop(true).
-  /// FIX: duplicate snackbar — controller showed one, button showed another.
-  ///      Now only the controller shows snackbars.
+  /// Saves shift plan as a DRAFT. The detail page shows a Confirm button.
   Future<void> saveShiftPlan() async {
     // Validation gate
     final err = validate();
@@ -127,34 +122,42 @@ class CreateShiftPlanController extends GetxController {
     isSaving.value = true;
 
     try {
-      final machines = machineOperatorMap.entries.map((e) {
+      // Only send machines that have an operator assigned.
+      // Unassigned machines are silently excluded.
+      final assignedEntries = machineOperatorMap.entries
+          .where((e) => e.value != null)
+          .toList();
+
+      final machines = assignedEntries.map((e) {
         final m = runningMachines.firstWhere((x) => x.machineId == e.key);
         return {
           'machine':    e.key,
-          // FIX: was int.parse(m.jobOrderNo) — throws if non-numeric string.
-          //      Use tryParse with fallback.
           'jobOrderNo': int.tryParse(m.jobOrderNo) ?? 0,
           'operator':   e.value,
         };
       }).toList();
 
-      await ShiftApiService.createShiftPlan({
+      final result = await ShiftApiService.createShiftPlan({
         'date':        DateUtils.dateOnly(selectedDate.value).toIso8601String(),
         'shiftType':   shiftType.value,
         'description': description.value.trim(),
         'machines':    machines,
       });
+      createdShiftPlanId = result['shiftPlanId']?.toString() ?? '';
+
+      final assignedCount = assignedEntries.length;
+      final totalCount    = runningMachines.length;
 
       Get.snackbar(
-        'Shift Plan Created',
-        '${shiftType.value} shift plan saved for $formattedDate',
-        backgroundColor: const Color(0xFF16A34A),
+        'Draft Saved',
+        '$assignedCount of $totalCount machine(s) included — review and confirm in the detail page',
+        backgroundColor: const Color(0xFF1D6AE5),
         colorText:       Colors.white,
         snackPosition:   SnackPosition.BOTTOM,
-        icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+        icon: const Icon(Icons.drafts_outlined, color: Colors.white),
       );
 
-      // Pop back to caller and signal success
+      // Navigate to detail page so supervisor can confirm
       onSuccess?.call();
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode;
@@ -230,7 +233,12 @@ class ShiftApiService {
         .toList();
   }
 
-  static Future<void> createShiftPlan(Map<String, dynamic> body) async {
-    await _dio.post('/shift/create-shift-plan', data: body);
+  static Future<Map<String, dynamic>> createShiftPlan(Map<String, dynamic> body) async {
+    final res = await _dio.post('/shift/create-shift-plan', data: body);
+    return res.data as Map<String, dynamic>;
+  }
+
+  static Future<void> confirmShiftPlan(String id) async {
+    await _dio.post('/shift/confirm-shift-plan', data: {'id': id});
   }
 }

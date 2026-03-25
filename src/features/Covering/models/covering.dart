@@ -115,6 +115,20 @@ class CoveringDetail {
   bool get isInProgress => status == 'in_progress';
   bool get isCompleted  => status == 'completed';
   bool get isCancelled  => status == 'cancelled';
+
+  // ── Expected produce weight ───────────────────────────────
+  // Formula per elastic:
+  //   (warpSpandex.weight + spandexCovering.weight) × quantity
+  // Weights are in g/m, quantity in meters → raw grams ÷ 1000 = kg
+  double get expectedProduceWeight {
+    double totalGrams = 0;
+    for (final ep in elasticPlanned) {
+      final ws  = ep.elastic.warpSpandex?.weight    ?? 0.0;
+      final sc  = ep.elastic.spandexCovering?.weight ?? 0.0;
+      totalGrams += (ws + sc) * ep.quantity;
+    }
+    return totalGrams / 1000; // kg
+  }
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:intl/intl_standalone.dart'
     if (dart.library.html) 'package:intl/intl_browser.dart';
 import 'package:production/src/features/authentication/controllers/login_controller.dart';
+import 'package:production/src/features/authentication/screens/auth_gate.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:production/src/features/authentication/screens/welcome_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +22,7 @@ class MyApp extends StatelessWidget {
       initialBinding: BindingsBuilder(() {
         Get.put(LoginController());
       }),
-      home: WelcomeScreen(),
+      home: const AuthGate(),
     );
   }
 }

@@ -8,22 +8,6 @@ import '../../Job/screens/add_job_page.dart';
 import '../../Job/screens/job_detail.dart';
 import '../../PurchaseOrder/services/theme.dart';
 
-// ══════════════════════════════════════════════════════════════════════════
-//  ORDER DETAIL PAGE
-//
-//  KEY CHANGE — _RawMaterialSection:
-//    • m["inStock"]  now contains the LIVE current RawMaterial.stock value,
-//      returned by the fixed GET /get-orderDetail backend (see order.js).
-//    • m["stockSufficient"] bool flag is now used for per-row colour-coding.
-//    • canApprove bool (top-level field from API) drives the Approve button
-//      state — user can see at a glance whether stock is sufficient.
-//    • Added a "LIVE STOCK" banner above the material list and
-//      stock sufficiency summary chip in the section header.
-//
-//  No other sections changed — all other logic is identical to the
-//  original file delivered in the previous session.
-// ══════════════════════════════════════════════════════════════════════════
-
 class OrderDetailPage extends StatelessWidget {
   const OrderDetailPage({super.key});
 
@@ -92,7 +76,9 @@ class OrderDetailPage extends StatelessWidget {
             child: Column(
               children: [
                 _HeroCard(order: order),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
+                _ActivityTrail(order: order),
+                const SizedBox(height: 10),
                 _ActionBar(order: order, c: c),
                 const SizedBox(height: 12),
                 _ElasticTable(order: order),
@@ -110,7 +96,7 @@ class OrderDetailPage extends StatelessWidget {
 }
 
 
-// ── Hero card ──────────────────────────────────────────────────
+// ── Hero card ──────────────────────────────────────────────
 class _HeroCard extends StatelessWidget {
   final Map<String, dynamic> order;
   const _HeroCard({required this.order});
@@ -127,19 +113,17 @@ class _HeroCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: ErpColors.bgSurface,
+        color:        ErpColors.bgSurface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: ErpColors.borderLight),
+        border:       Border.all(color: ErpColors.borderLight),
       ),
       child: Column(
         children: [
-          // Dark header
           Container(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
             decoration: const BoxDecoration(
               color: ErpColors.navyDark,
-              borderRadius:
-              BorderRadius.vertical(top: Radius.circular(8)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,21 +146,21 @@ class _HeroCard extends StatelessWidget {
                     children: [
                       Text("Order #${order["orderNo"] ?? "—"}",
                           style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 17,
+                              color:      Colors.white,
+                              fontSize:   17,
                               fontWeight: FontWeight.w800)),
                       const SizedBox(height: 2),
                       Text(
                         order["customer"]?["name"] ?? "—",
                         style: const TextStyle(
-                            color: ErpColors.textOnDarkSub,
+                            color:    ErpColors.textOnDarkSub,
                             fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text("PO: ${order["po"] ?? "—"}",
                           style: const TextStyle(
-                              color: ErpColors.textOnDarkSub,
+                              color:    ErpColors.textOnDarkSub,
                               fontSize: 11)),
                     ],
                   ),
@@ -185,20 +169,17 @@ class _HeroCard extends StatelessWidget {
               ],
             ),
           ),
-          // Dates row
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
             child: Row(
               children: [
                 Expanded(
-                    child: _DateStat(
-                        label: "ORDER DATE", value: orderDate)),
+                    child: _DateStat(label: "ORDER DATE",  value: orderDate)),
                 Container(
                     width: 1, height: 32,
                     color: ErpColors.borderLight),
                 Expanded(
-                    child: _DateStat(
-                        label: "SUPPLY DATE", value: supplyDate)),
+                    child: _DateStat(label: "SUPPLY DATE", value: supplyDate)),
               ],
             ),
           ),
@@ -220,9 +201,9 @@ class _DateStat extends StatelessWidget {
       children: [
         Text(label,
             style: const TextStyle(
-                color:        ErpColors.textMuted,
-                fontSize:     10,
-                fontWeight:   FontWeight.w600,
+                color:         ErpColors.textMuted,
+                fontSize:      10,
+                fontWeight:    FontWeight.w600,
                 letterSpacing: 0.4)),
         const SizedBox(height: 4),
         Text(value,
@@ -236,7 +217,167 @@ class _DateStat extends StatelessWidget {
 }
 
 
-// ── Action bar ─────────────────────────────────────────────────
+// ── Activity Trail ─────────────────────────────────────────
+class _ActivityTrail extends StatelessWidget {
+  final Map<String, dynamic> order;
+  const _ActivityTrail({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    final fmt = DateFormat('dd MMM yyyy, hh:mm a');
+
+    String _actorName(dynamic field) {
+      if (field is Map) return field["name"] as String? ?? "—";
+      return "—";
+    }
+
+    String _fmtDate(dynamic val) {
+      if (val == null) return "—";
+      try { return fmt.format(DateTime.parse(val.toString()).toLocal()); }
+      catch (_) { return "—"; }
+    }
+
+    final events = <Map<String, dynamic>>[];
+
+    if (order["createdAt"] != null) {
+      events.add({
+        "label": "Order Created",
+        "actor": _actorName(order["createdBy"]),
+        "at":    _fmtDate(order["createdAt"]),
+        "icon":  Icons.add_circle_outline,
+        "color": ErpColors.accentBlue,
+      });
+    }
+    if (order["approvedAt"] != null) {
+      events.add({
+        "label": "Approved",
+        "actor": _actorName(order["approvedBy"]),
+        "at":    _fmtDate(order["approvedAt"]),
+        "icon":  Icons.check_circle_outline,
+        "color": ErpColors.successGreen,
+      });
+    }
+    if (order["startedAt"] != null) {
+      events.add({
+        "label": "Production Started",
+        "actor": _actorName(order["startedBy"]),
+        "at":    _fmtDate(order["startedAt"]),
+        "icon":  Icons.play_circle_outline,
+        "color": ErpColors.warningAmber,
+      });
+    }
+    if (order["completedAt"] != null) {
+      events.add({
+        "label": "Completed",
+        "actor": _actorName(order["completedBy"]),
+        "at":    _fmtDate(order["completedAt"]),
+        "icon":  Icons.task_alt,
+        "color": ErpColors.successGreen,
+      });
+    }
+    if (order["cancelledAt"] != null) {
+      events.add({
+        "label": "Cancelled",
+        "actor": _actorName(order["cancelledBy"]),
+        "at":    _fmtDate(order["cancelledAt"]),
+        "icon":  Icons.cancel_outlined,
+        "color": ErpColors.errorRed,
+      });
+    }
+
+    if (events.isEmpty) return const SizedBox();
+
+    return ErpSectionCard(
+      title: "ACTIVITY TRAIL",
+      icon:  Icons.history,
+      child: Column(
+        children: events.asMap().entries.map((entry) {
+          final i      = entry.key;
+          final e      = entry.value;
+          final isLast = i == events.length - 1;
+          final color  = e["color"] as Color;
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Timeline spine
+              Column(
+                children: [
+                  Container(
+                    width: 30, height: 30,
+                    decoration: BoxDecoration(
+                      color:  color.withOpacity(0.12),
+                      shape:  BoxShape.circle,
+                      border: Border.all(color: color.withOpacity(0.45)),
+                    ),
+                    child: Icon(e["icon"] as IconData,
+                        size: 15, color: color),
+                  ),
+                  if (!isLast)
+                    Container(
+                      width: 2, height: 32,
+                      margin: const EdgeInsets.symmetric(vertical: 2),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin:  Alignment.topCenter,
+                          end:    Alignment.bottomCenter,
+                          colors: [
+                            color.withOpacity(0.3),
+                            ErpColors.borderLight,
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: isLast ? 0 : 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
+                      Text(e["label"] as String,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize:   13,
+                              color:      ErpColors.textPrimary)),
+                      const SizedBox(height: 3),
+                      Row(children: [
+                        const Icon(Icons.person_outline,
+                            size: 11, color: ErpColors.textMuted),
+                        const SizedBox(width: 4),
+                        Text(e["actor"] as String,
+                            style: const TextStyle(
+                                color:    ErpColors.textSecondary,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600)),
+                      ]),
+                      const SizedBox(height: 2),
+                      Row(children: [
+                        const Icon(Icons.access_time,
+                            size: 11, color: ErpColors.textMuted),
+                        const SizedBox(width: 4),
+                        Text(e["at"] as String,
+                            style: const TextStyle(
+                                color:    ErpColors.textMuted,
+                                fontSize: 11)),
+                      ]),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+
+// ── Action bar ─────────────────────────────────────────────
 class _ActionBar extends StatelessWidget {
   final Map<String, dynamic> order;
   final OrderDetailController c;
@@ -245,15 +386,11 @@ class _ActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status     = order["status"] as String? ?? "";
-    // canApprove comes from the backend (true when all materials have
-    // sufficient current stock). Defaults to true if field is absent
-    // so old API responses still work.
     final canApprove = order["canApprove"] as bool? ?? true;
 
     if (status == "Open") {
       return Obx(() => Column(
         children: [
-          // ── Stock-readiness banner (shown for Open orders only) ──
           if (!canApprove)
             Container(
               margin: const EdgeInsets.only(bottom: 8),
@@ -271,8 +408,7 @@ class _ActionBar extends StatelessWidget {
                 const SizedBox(width: 8),
                 const Expanded(
                   child: Text(
-                    "Insufficient stock — receive pending materials "
-                        "before approving.",
+                    "Insufficient stock — receive pending materials before approving.",
                     style: TextStyle(
                         fontSize:   12,
                         color:      ErpColors.errorRed,
@@ -281,7 +417,6 @@ class _ActionBar extends StatelessWidget {
                 ),
               ]),
             ),
-
           _ActionButton(
             label:   "Approve Order",
             icon:    Icons.check_circle_outline,
@@ -289,10 +424,7 @@ class _ActionBar extends StatelessWidget {
                 ? ErpColors.accentBlue
                 : ErpColors.textSecondary,
             loading: c.isActioning.value,
-            // Disable the button when stock is insufficient
-            onTap: canApprove
-                ? () => _confirmApprove(context, c)
-                : null,
+            onTap:   canApprove ? () => _confirmApprove(context, c) : null,
           ),
         ],
       ));
@@ -311,11 +443,9 @@ class _ActionBar extends StatelessWidget {
     return const SizedBox();
   }
 
-  void _confirmApprove(
-      BuildContext ctx, OrderDetailController c) {
+  void _confirmApprove(BuildContext ctx, OrderDetailController c) {
     Get.dialog(Dialog(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -333,15 +463,12 @@ class _ActionBar extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               const Text("Approve Order",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 16)),
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
             ]),
             const SizedBox(height: 12),
             const Text(
-              "This will deduct raw materials from stock. "
-                  "Cannot be undone.",
-              style: TextStyle(
-                  color: ErpColors.textSecondary, fontSize: 13),
+              "This will deduct raw materials from stock. Cannot be undone.",
+              style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 18),
             Row(children: [
@@ -353,8 +480,7 @@ class _ActionBar extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: ErpColors.accentBlue,
-                      elevation: 0),
+                      backgroundColor: ErpColors.accentBlue, elevation: 0),
                   onPressed: () {
                     Get.back();
                     c.approveOrder();
@@ -370,11 +496,9 @@ class _ActionBar extends StatelessWidget {
     ));
   }
 
-  void _confirmStart(
-      BuildContext ctx, OrderDetailController c) {
+  void _confirmStart(BuildContext ctx, OrderDetailController c) {
     Get.dialog(Dialog(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -392,14 +516,12 @@ class _ActionBar extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               const Text("Start Production",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 16)),
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
             ]),
             const SizedBox(height: 12),
             const Text(
               "Move this order to In Progress and begin production?",
-              style: TextStyle(
-                  color: ErpColors.textSecondary, fontSize: 13),
+              style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 18),
             Row(children: [
@@ -411,8 +533,7 @@ class _ActionBar extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: ErpColors.warningAmber,
-                      elevation: 0),
+                      backgroundColor: ErpColors.warningAmber, elevation: 0),
                   onPressed: () {
                     Get.back();
                     c.startProduction();
@@ -435,7 +556,7 @@ class _ActionButton extends StatelessWidget {
   final IconData icon;
   final Color color;
   final bool loading;
-  final VoidCallback? onTap;  // nullable — null = disabled
+  final VoidCallback? onTap;
   const _ActionButton({
     required this.label,
     required this.icon,
@@ -460,9 +581,9 @@ class _ActionButton extends StatelessWidget {
         ),
         icon: loading
             ? const SizedBox(
-            width: 16, height: 16,
-            child: CircularProgressIndicator(
-                strokeWidth: 2, color: Colors.white))
+                width: 16, height: 16,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white))
             : Icon(icon, size: 18, color: Colors.white),
         label: Text(label,
             style: const TextStyle(
@@ -475,7 +596,7 @@ class _ActionButton extends StatelessWidget {
 }
 
 
-// ── Elastic table ──────────────────────────────────────────────
+// ── Elastic table ───────────────────────────────────────────
 class _ElasticTable extends StatelessWidget {
   final Map<String, dynamic> order;
   const _ElasticTable({required this.order});
@@ -487,10 +608,9 @@ class _ElasticTable extends StatelessWidget {
 
     return ErpSectionCard(
       title: "ELASTIC TRACKING",
-      icon: Icons.layers_outlined,
+      icon:  Icons.layers_outlined,
       child: Column(
         children: [
-          // Header row
           Container(
             padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
             decoration: BoxDecoration(
@@ -585,21 +705,7 @@ class _ColValue extends StatelessWidget {
 }
 
 
-// ══════════════════════════════════════════════════════════════════════════
-//  RAW MATERIAL SECTION — live stock display
-//
-//  Changes from original:
-//    1. Section header now shows a "LIVE" badge and a summary chip
-//       ("All Sufficient" / "X Insufficient") so the user immediately
-//       knows whether they can approve.
-//    2. Each material row uses m["stockSufficient"] (bool from backend)
-//       to colour-code the row — green border = sufficient,
-//       red border = insufficient.
-//    3. Progress bar uses current stock vs required (already worked,
-//       now always accurate because inStock is live).
-//    4. "In Stock" label shows a pulsing "LIVE" dot next to the value.
-//    5. Pull-to-refresh on the page re-fetches, giving fresh live values.
-// ══════════════════════════════════════════════════════════════════════════
+// ── Raw material section ──────────────────────────────────
 class _RawMaterialSection extends StatelessWidget {
   final Map<String, dynamic> order;
   const _RawMaterialSection({required this.order});
@@ -616,17 +722,11 @@ class _RawMaterialSection extends StatelessWidget {
     final allSufficient = insufficientCount == 0;
 
     return ErpSectionCard(
-      // ── Section header with live indicator + summary chip ────────
       title: "RAW MATERIAL REQUIREMENT",
       icon:  Icons.inventory_2_outlined,
-      // headerTrailing is a custom slot in ErpSectionCard — if your
-      // version doesn't have it, wrap the section header manually.
-      // The section body below covers the core logic regardless.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          // ── Live stock banner ──────────────────────────────────────
           Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding:
@@ -643,16 +743,15 @@ class _RawMaterialSection extends StatelessWidget {
               ),
             ),
             child: Row(children: [
-              // "LIVE" pulsing dot
               Container(
                 width: 7, height: 7,
                 decoration: BoxDecoration(
-                  color:  ErpColors.successGreen,
-                  shape:  BoxShape.circle,
+                  color: ErpColors.successGreen,
+                  shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color:      ErpColors.successGreen.withOpacity(0.5),
-                      blurRadius: 4,
+                      color:        ErpColors.successGreen.withOpacity(0.5),
+                      blurRadius:   4,
                       spreadRadius: 1,
                     ),
                   ],
@@ -661,14 +760,12 @@ class _RawMaterialSection extends StatelessWidget {
               const SizedBox(width: 6),
               const Text("LIVE STOCK",
                   style: TextStyle(
-                      fontSize:    10,
-                      fontWeight:  FontWeight.w800,
+                      fontSize:      10,
+                      fontWeight:    FontWeight.w800,
                       letterSpacing: 0.8,
-                      color:       ErpColors.successGreen)),
+                      color:         ErpColors.successGreen)),
               const SizedBox(width: 10),
-              Container(
-                  width: 1, height: 12,
-                  color: ErpColors.borderMid),
+              Container(width: 1, height: 12, color: ErpColors.borderMid),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -683,34 +780,28 @@ class _RawMaterialSection extends StatelessWidget {
                           : ErpColors.errorRed),
                 ),
               ),
-              // Summary chip
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: allSufficient
-                      ? ErpColors.successGreen
-                      : ErpColors.errorRed,
+                  color:        allSufficient ? ErpColors.successGreen : ErpColors.errorRed,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   allSufficient ? "READY" : "NOT READY",
                   style: const TextStyle(
-                      color:      Colors.white,
-                      fontSize:   9,
-                      fontWeight: FontWeight.w800,
+                      color:         Colors.white,
+                      fontSize:      9,
+                      fontWeight:    FontWeight.w800,
                       letterSpacing: 0.5),
                 ),
               ),
             ]),
           ),
-
-          // ── Per-material rows ──────────────────────────────────────
           ...materials.map((m) {
             final required        = (m["requiredWeight"] ?? 0).toDouble();
             final inStock         = (m["inStock"]        ?? 0).toDouble();
             final stockSufficient = m["stockSufficient"] as bool? ??
-                inStock >= required; // fallback if flag absent
+                inStock >= required;
             final pct = required > 0
                 ? (inStock / required).clamp(0.0, 1.0)
                 : 0.0;
@@ -733,7 +824,6 @@ class _RawMaterialSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Name + badge row
                   Row(children: [
                     Expanded(
                       child: Text(m["name"] ?? "—",
@@ -743,54 +833,38 @@ class _RawMaterialSection extends StatelessWidget {
                               color:      ErpColors.textPrimary)),
                     ),
                     if (!stockSufficient)
-                      _StockBadge(
-                        label: "INSUFFICIENT",
-                        color: ErpColors.errorRed,
-                      )
+                      _StockBadge(label: "INSUFFICIENT", color: ErpColors.errorRed)
                     else
-                      _StockBadge(
-                        label: "SUFFICIENT",
-                        color: ErpColors.successGreen,
-                      ),
+                      _StockBadge(label: "SUFFICIENT",   color: ErpColors.successGreen),
                   ]),
-
                   const SizedBox(height: 8),
-
-                  // Progress bar
                   ClipRRect(
                     borderRadius: BorderRadius.circular(3),
                     child: LinearProgressIndicator(
-                      value:          pct.toDouble(),
-                      minHeight:      5,
+                      value:           pct.toDouble(),
+                      minHeight:       5,
                       backgroundColor: ErpColors.borderLight,
                       color: stockSufficient
                           ? ErpColors.successGreen
                           : ErpColors.errorRed,
                     ),
                   ),
-
                   const SizedBox(height: 6),
-
-                  // Required / In Stock row
                   Row(children: [
                     Text(
                       "Required: ${required.toStringAsFixed(2)} kg",
                       style: const TextStyle(
-                          color:    ErpColors.textSecondary,
-                          fontSize: 11),
+                          color: ErpColors.textSecondary, fontSize: 11),
                     ),
                     const Spacer(),
-
-                    // "LIVE" dot next to in-stock value
                     Container(
                       width: 5, height: 5,
                       margin: const EdgeInsets.only(right: 4),
-                      decoration: BoxDecoration(
-                        color:  ErpColors.successGreen,
-                        shape:  BoxShape.circle,
+                      decoration: const BoxDecoration(
+                        color: ErpColors.successGreen,
+                        shape: BoxShape.circle,
                       ),
                     ),
-
                     Text(
                       "In Stock: ${inStock.toStringAsFixed(2)} kg",
                       style: TextStyle(
@@ -801,16 +875,13 @@ class _RawMaterialSection extends StatelessWidget {
                           fontWeight: FontWeight.w700),
                     ),
                   ]),
-
-                  // Shortage amount (only when insufficient)
-                  if (!stockSufficient) ...[
+                  if (!stockSufficient) ...[  
                     const SizedBox(height: 4),
                     Text(
-                      "Short by ${(required - inStock).toStringAsFixed(2)} kg "
-                          "— receive more stock to approve",
+                      "Short by ${(required - inStock).toStringAsFixed(2)} kg — receive more stock to approve",
                       style: const TextStyle(
-                          color:    ErpColors.errorRed,
-                          fontSize: 11,
+                          color:     ErpColors.errorRed,
+                          fontSize:  11,
                           fontStyle: FontStyle.italic),
                     ),
                   ],
@@ -825,7 +896,6 @@ class _RawMaterialSection extends StatelessWidget {
 }
 
 
-/// Small coloured badge chip used in material rows.
 class _StockBadge extends StatelessWidget {
   final String label;
   final Color color;
@@ -833,8 +903,7 @@ class _StockBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding:
-    const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
     decoration: BoxDecoration(
       color:        color.withOpacity(0.12),
       borderRadius: BorderRadius.circular(4),
@@ -843,16 +912,16 @@ class _StockBadge extends StatelessWidget {
     child: Text(
       label,
       style: TextStyle(
-          color:       color,
-          fontSize:    9,
-          fontWeight:  FontWeight.w800,
+          color:         color,
+          fontSize:      9,
+          fontWeight:    FontWeight.w800,
           letterSpacing: 0.4),
     ),
   );
 }
 
 
-// ── Job orders section ──────────────────────────────────────────
+// ── Job orders section ────────────────────────────────────
 class _JobOrdersSection extends StatelessWidget {
   final Map<String, dynamic> order;
   const _JobOrdersSection({required this.order});
@@ -879,11 +948,9 @@ class _JobOrdersSection extends StatelessWidget {
                   side:  const BorderSide(color: ErpColors.accentBlue),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6)),
-                  padding:
-                  const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                 ),
-                icon: const Icon(Icons.add,
-                    size: 16, color: ErpColors.accentBlue),
+                icon:  const Icon(Icons.add, size: 16, color: ErpColors.accentBlue),
                 label: const Text("Add Job Order",
                     style: TextStyle(
                         color:      ErpColors.accentBlue,
@@ -900,8 +967,8 @@ class _JobOrdersSection extends StatelessWidget {
             )
           else
             ...jobs.asMap().entries.map((entry) {
-              final i   = entry.key;
-              final j   = entry.value as Map;
+              final i     = entry.key;
+              final j     = entry.value as Map;
               final jobId = j["job"] is Map
                   ? j["job"]["_id"]?.toString()
                   : j["job"]?.toString();
@@ -913,7 +980,7 @@ class _JobOrdersSection extends StatelessWidget {
                   }
                 },
                 child: Container(
-                  margin: const EdgeInsets.only(bottom: 8),
+                  margin:  const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                   decoration: BoxDecoration(
                     color:        ErpColors.bgMuted,
@@ -922,11 +989,11 @@ class _JobOrdersSection extends StatelessWidget {
                   ),
                   child: Row(children: [
                     Container(
-                      width:     28, height: 28,
+                      width: 28, height: 28,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color:  ErpColors.accentBlue.withOpacity(0.1),
-                        shape:  BoxShape.circle,
+                        color: ErpColors.accentBlue.withOpacity(0.1),
+                        shape: BoxShape.circle,
                       ),
                       child: Text("${i + 1}",
                           style: const TextStyle(

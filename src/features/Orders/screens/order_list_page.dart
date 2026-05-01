@@ -9,8 +9,6 @@ import 'package:production/src/features/Orders/screens/order_detail_page.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 
-// FIX: StatefulWidget — controller + lifecycle must be managed in
-//      initState/dispose, not at class-field level in StatelessWidget
 class OrderListPage extends StatefulWidget {
   const OrderListPage({super.key});
 
@@ -80,7 +78,7 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 }
 
-// ── Status tabs ────────────────────────────────────────────────
+// ── Status tabs ──────────────────────────────────────────────
 class _StatusTabs extends StatelessWidget {
   final OrderListController c;
   const _StatusTabs({required this.c});
@@ -88,12 +86,10 @@ class _StatusTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       decoration: const BoxDecoration(
           color: ErpColors.bgSurface,
-          border: Border(
-              bottom: BorderSide(color: ErpColors.borderLight))),
+          border: Border(bottom: BorderSide(color: ErpColors.borderLight))),
       child: Obx(() => SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -103,23 +99,23 @@ class _StatusTabs extends StatelessWidget {
             switch (s) {
               case "Approved":
                 chipText = ErpColors.statusApprovedText;
-                chipBg = ErpColors.statusApprovedBg;
+                chipBg   = ErpColors.statusApprovedBg;
                 break;
               case "InProgress":
                 chipText = ErpColors.statusInProgressText;
-                chipBg = ErpColors.statusInProgressBg;
+                chipBg   = ErpColors.statusInProgressBg;
                 break;
               case "Completed":
                 chipText = ErpColors.statusCompletedText;
-                chipBg = ErpColors.statusCompletedBg;
+                chipBg   = ErpColors.statusCompletedBg;
                 break;
               case "Cancelled":
                 chipText = ErpColors.statusCancelledText;
-                chipBg = ErpColors.statusCancelledBg;
+                chipBg   = ErpColors.statusCancelledBg;
                 break;
               default:
                 chipText = ErpColors.statusOpenText;
-                chipBg = ErpColors.statusOpenBg;
+                chipBg   = ErpColors.statusOpenBg;
             }
 
             return Padding(
@@ -128,24 +124,19 @@ class _StatusTabs extends StatelessWidget {
                 onTap: () => c.changeStatus(s),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
-                    color: selected
-                        ? ErpColors.accentBlue
-                        : chipBg,
+                    color: selected ? ErpColors.accentBlue : chipBg,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: selected
-                          ? ErpColors.accentBlue
-                          : ErpColors.borderLight,
+                      color: selected ? ErpColors.accentBlue : ErpColors.borderLight,
                     ),
                   ),
                   child: Text(
                     s,
                     style: TextStyle(
-                      color: selected ? Colors.white : chipText,
-                      fontSize: 12,
+                      color:      selected ? Colors.white : chipText,
+                      fontSize:   12,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -159,7 +150,7 @@ class _StatusTabs extends StatelessWidget {
   }
 }
 
-// ── List body ──────────────────────────────────────────────────
+// ── List body ──────────────────────────────────────────────
 class _OrderList extends StatelessWidget {
   final OrderListController c;
   const _OrderList({required this.c});
@@ -169,14 +160,10 @@ class _OrderList extends StatelessWidget {
     return Obx(() {
       if (c.isLoading.value) {
         return const Center(
-            child: CircularProgressIndicator(
-                color: ErpColors.accentBlue));
+            child: CircularProgressIndicator(color: ErpColors.accentBlue));
       }
       if (c.orders.isEmpty) {
-        return _EmptyState(
-          status: c.selectedStatus.value,
-          onRefresh: c.fetchOrders,
-        );
+        return _EmptyState(status: c.selectedStatus.value, onRefresh: c.fetchOrders);
       }
       return RefreshIndicator(
         color: ErpColors.accentBlue,
@@ -185,15 +172,14 @@ class _OrderList extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 100),
           itemCount: c.orders.length,
           separatorBuilder: (_, __) => const SizedBox(height: 8),
-          itemBuilder: (_, i) =>
-              _OrderCard(order: c.orders[i], c: c),
+          itemBuilder: (_, i) => _OrderCard(order: c.orders[i], c: c),
         ),
       );
     });
   }
 }
 
-// ── Order card ─────────────────────────────────────────────────
+// ── Order card ─────────────────────────────────────────────
 class _OrderCard extends StatelessWidget {
   final OrderListItem order;
   final OrderListController c;
@@ -201,16 +187,16 @@ class _OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fmt = DateFormat('dd MMM yyyy');
-    final isOpen = order.status == "Open";
+    final fmt      = DateFormat('dd MMM yyyy');
+    final isOpen   = order.status == "Open";
     final isOverdue =
         order.supplyDate.isBefore(DateTime.now()) &&
-            order.status != "Completed" &&
-            order.status != "Cancelled";
+        order.status != "Completed" &&
+        order.status != "Cancelled";
 
     return GestureDetector(
       onTap: () => Get.to(
-            () => OrderDetailPage(),
+        () => OrderDetailPage(),
         arguments: {"orderId": order.id},
       ),
       child: Container(
@@ -224,9 +210,9 @@ class _OrderCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color:     ErpColors.navyDark.withOpacity(0.04),
               blurRadius: 6,
-              offset: const Offset(0, 2),
+              offset:    const Offset(0, 2),
             ),
           ],
         ),
@@ -238,10 +224,8 @@ class _OrderCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Icon badge
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 40, height: 40,
                     decoration: BoxDecoration(
                       color: ErpColors.accentBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -254,42 +238,34 @@ class _OrderCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              "Order #${order.orderNo}",
-                              style: ErpTextStyles.cardTitle,
-                            ),
-                            const Spacer(),
-                            OrderStatusBadge(order.status),
-                          ],
-                        ),
+                        Row(children: [
+                          Text("Order #${order.orderNo}",
+                              style: ErpTextStyles.cardTitle),
+                          const Spacer(),
+                          OrderStatusBadge(order.status),
+                        ]),
                         const SizedBox(height: 3),
                         Text(order.customerName,
                             style: const TextStyle(
-                                color: ErpColors.textSecondary,
-                                fontSize: 12,
+                                color:      ErpColors.textSecondary,
+                                fontSize:   12,
                                 fontWeight: FontWeight.w500),
                             overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 6),
+                        // Dates row
                         Row(children: [
                           const Icon(Icons.calendar_today_outlined,
                               size: 11, color: ErpColors.textMuted),
                           const SizedBox(width: 4),
-                          Text(
-                            "Order: ${fmt.format(order.date)}",
-                            style: const TextStyle(
-                                color: ErpColors.textMuted,
-                                fontSize: 11),
-                          ),
+                          Text("Order: ${fmt.format(order.date)}",
+                              style: const TextStyle(
+                                  color: ErpColors.textMuted, fontSize: 11)),
                           const SizedBox(width: 12),
-                          Icon(
-                            Icons.local_shipping_outlined,
-                            size: 11,
-                            color: isOverdue
-                                ? ErpColors.errorRed
-                                : ErpColors.textMuted,
-                          ),
+                          Icon(Icons.local_shipping_outlined,
+                              size: 11,
+                              color: isOverdue
+                                  ? ErpColors.errorRed
+                                  : ErpColors.textMuted),
                           const SizedBox(width: 4),
                           Text(
                             "Supply: ${fmt.format(order.supplyDate)}",
@@ -297,26 +273,62 @@ class _OrderCard extends StatelessWidget {
                                 color: isOverdue
                                     ? ErpColors.errorRed
                                     : ErpColors.textMuted,
-                                fontSize: 11,
+                                fontSize:   11,
                                 fontWeight: isOverdue
                                     ? FontWeight.w700
                                     : FontWeight.w400),
                           ),
                         ]),
+                        // Fingerprint row — visible only when createdBy is set
+                        if (order.createdByName != null) ...[  
+                          const SizedBox(height: 5),
+                          Row(children: [
+                            const Icon(Icons.person_outline,
+                                size: 11, color: ErpColors.textMuted),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                "Created by ${order.createdByName}",
+                                style: const TextStyle(
+                                    color:    ErpColors.textMuted,
+                                    fontSize: 11),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (order.createdByRole != null) ...[  
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: ErpColors.accentBlue.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                                child: Text(
+                                  order.createdByRole!,
+                                  style: const TextStyle(
+                                      color:    ErpColors.accentBlue,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            ],
+                          ]),
+                        ],
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            // Action footer (only for Open orders)
+            // Footer
             if (isOpen)
               Container(
                 padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
                 decoration: const BoxDecoration(
                   color: ErpColors.bgMuted,
-                  borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(8)),
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(8)),
                   border: Border(
                       top: BorderSide(color: ErpColors.borderLight)),
                 ),
@@ -326,20 +338,17 @@ class _OrderCard extends StatelessWidget {
                       child: SizedBox(
                         height: 32,
                         child: OutlinedButton(
-                          onPressed: () =>
-                              _confirmCancel(context, order.id),
+                          onPressed: () => _confirmCancel(context, order.id),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                                color: ErpColors.errorRed),
+                            side: const BorderSide(color: ErpColors.errorRed),
                             shape: RoundedRectangleBorder(
-                                borderRadius:
-                                BorderRadius.circular(4)),
+                                borderRadius: BorderRadius.circular(4)),
                             padding: EdgeInsets.zero,
                           ),
                           child: const Text("Cancel",
                               style: TextStyle(
-                                  color: ErpColors.errorRed,
-                                  fontSize: 12,
+                                  color:      ErpColors.errorRed,
+                                  fontSize:   12,
                                   fontWeight: FontWeight.w700)),
                         ),
                       ),
@@ -350,20 +359,18 @@ class _OrderCard extends StatelessWidget {
                       child: SizedBox(
                         height: 32,
                         child: ElevatedButton(
-                          onPressed: () =>
-                              _confirmApprove(context, order.id),
+                          onPressed: () => _confirmApprove(context, order.id),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: ErpColors.accentBlue,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
-                                borderRadius:
-                                BorderRadius.circular(4)),
+                                borderRadius: BorderRadius.circular(4)),
                             padding: EdgeInsets.zero,
                           ),
                           child: const Text("Approve",
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
+                                  color:      Colors.white,
+                                  fontSize:   12,
                                   fontWeight: FontWeight.w700)),
                         ),
                       ),
@@ -376,8 +383,8 @@ class _OrderCard extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(14, 7, 14, 10),
                 decoration: const BoxDecoration(
                   color: ErpColors.bgMuted,
-                  borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(8)),
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(8)),
                   border: Border(
                       top: BorderSide(color: ErpColors.borderLight)),
                 ),
@@ -389,8 +396,8 @@ class _OrderCard extends StatelessWidget {
                       SizedBox(width: 4),
                       Text("Overdue",
                           style: TextStyle(
-                              color: ErpColors.errorRed,
-                              fontSize: 11,
+                              color:      ErpColors.errorRed,
+                              fontSize:   11,
                               fontWeight: FontWeight.w700)),
                     ])
                   else
@@ -406,146 +413,125 @@ class _OrderCard extends StatelessWidget {
     );
   }
 
-  // FIX: Approve now has a confirmation dialog (was missing before)
   void _confirmApprove(BuildContext ctx, String orderId) {
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.check_circle_outline,
-                      color: ErpColors.accentBlue, size: 18),
+    Get.dialog(Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                  color: ErpColors.accentBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(width: 12),
-                const Text("Approve Order",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 16)),
-              ]),
-              const SizedBox(height: 12),
-              const Text(
-                  "This will deduct raw materials from stock. This action cannot be undone.",
-                  style: TextStyle(
-                      color: ErpColors.textSecondary, fontSize: 13)),
-              const SizedBox(height: 18),
-              Row(children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: Get.back,
-                    style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                            color: ErpColors.borderMid)),
-                    child: const Text("Cancel",
-                        style: TextStyle(
-                            color: ErpColors.textSecondary)),
-                  ),
+                child: const Icon(Icons.check_circle_outline,
+                    color: ErpColors.accentBlue, size: 18),
+              ),
+              const SizedBox(width: 12),
+              const Text("Approve Order",
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            ]),
+            const SizedBox(height: 12),
+            const Text(
+                "This will deduct raw materials from stock. This action cannot be undone.",
+                style: TextStyle(color: ErpColors.textSecondary, fontSize: 13)),
+            const SizedBox(height: 18),
+            Row(children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: Get.back,
+                  style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: ErpColors.borderMid)),
+                  child: const Text("Cancel",
+                      style: TextStyle(color: ErpColors.textSecondary)),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: ErpColors.accentBlue,
-                        elevation: 0),
-                    onPressed: () {
-                      Get.back();
-                      c.approveOrder(orderId);
-                    },
-                    child: const Text("Approve",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700)),
-                  ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: ErpColors.accentBlue, elevation: 0),
+                  onPressed: () {
+                    Get.back();
+                    c.approveOrder(orderId);
+                  },
+                  child: const Text("Approve",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w700)),
                 ),
-              ]),
-            ],
-          ),
+              ),
+            ]),
+          ],
         ),
       ),
-    );
+    ));
   }
 
   void _confirmCancel(BuildContext ctx, String orderId) {
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: ErpColors.errorRed.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.cancel_outlined,
-                      color: ErpColors.errorRed, size: 18),
+    Get.dialog(Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                  color: ErpColors.errorRed.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(width: 12),
-                const Text("Cancel Order",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 16)),
-              ]),
-              const SizedBox(height: 12),
-              const Text("Are you sure you want to cancel this order?",
-                  style: TextStyle(
-                      color: ErpColors.textSecondary, fontSize: 13)),
-              const SizedBox(height: 18),
-              Row(children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: Get.back,
-                    style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                            color: ErpColors.borderMid)),
-                    child: const Text("No",
-                        style: TextStyle(
-                            color: ErpColors.textSecondary)),
-                  ),
+                child: const Icon(Icons.cancel_outlined,
+                    color: ErpColors.errorRed, size: 18),
+              ),
+              const SizedBox(width: 12),
+              const Text("Cancel Order",
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            ]),
+            const SizedBox(height: 12),
+            const Text("Are you sure you want to cancel this order?",
+                style: TextStyle(color: ErpColors.textSecondary, fontSize: 13)),
+            const SizedBox(height: 18),
+            Row(children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: Get.back,
+                  style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: ErpColors.borderMid)),
+                  child: const Text("No",
+                      style: TextStyle(color: ErpColors.textSecondary)),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: ErpColors.errorRed,
-                        elevation: 0),
-                    onPressed: () {
-                      Get.back();
-                      c.cancelOrder(orderId);
-                    },
-                    child: const Text("Yes, Cancel",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700)),
-                  ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: ErpColors.errorRed, elevation: 0),
+                  onPressed: () {
+                    Get.back();
+                    c.cancelOrder(orderId);
+                  },
+                  child: const Text("Yes, Cancel",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w700)),
                 ),
-              ]),
-            ],
-          ),
+              ),
+            ]),
+          ],
         ),
       ),
-    );
+    ));
   }
 }
 
-// ── Empty state ────────────────────────────────────────────────
+// ── Empty state ─────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final String status;
   final VoidCallback onRefresh;
@@ -558,8 +544,7 @@ class _EmptyState extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 68,
-            height: 68,
+            width: 68, height: 68,
             decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               borderRadius: BorderRadius.circular(8),
@@ -572,12 +557,11 @@ class _EmptyState extends StatelessWidget {
           Text("No $status Orders",
               style: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                  color: ErpColors.textPrimary)),
+                  fontSize:   15,
+                  color:      ErpColors.textPrimary)),
           const SizedBox(height: 4),
           const Text("Tap + to create a new order",
-              style: TextStyle(
-                  color: ErpColors.textSecondary, fontSize: 13)),
+              style: TextStyle(color: ErpColors.textSecondary, fontSize: 13)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: onRefresh,

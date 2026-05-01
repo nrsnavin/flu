@@ -2,26 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:production/src/features/authentication/controllers/login_controller.dart';
-import 'package:production/src/features/authentication/screens/home.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
-
-// ══════════════════════════════════════════════════════════════
-//  LOGIN PAGE
-//
-//  BUGS FIXED:
-//  1. Container had hardcoded `height: 600` → overflows on small screens.
-//     Fixed: removed fixed height, wrapped in SafeArea + flexible layout.
-//  2. No loading state on submit button → tapping multiple times fired
-//     duplicate login requests.
-//  3. No error feedback from loginController.
-//  4. `_LoginState` didn't dispose controllers → memory leak on pop.
-//  5. ElevatedButton had `fixedSize: Size.fromWidth(240)` which is
-//     not full-width and inconsistent on different screen sizes.
-//  6. Password field had `obscuringCharacter: "*"` — iOS renders this as
-//     "•" regardless, but more importantly it was missing the
-//     visibility toggle.
-// ══════════════════════════════════════════════════════════════
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -30,14 +12,15 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final _formKey         = GlobalKey<FormState>();
-  final _emailCtrl       = TextEditingController();
-  final _passwordCtrl    = TextEditingController();
-  final _loginController = Get.put(LoginController());
+  final _formKey      = GlobalKey<FormState>();
+  final _emailCtrl    = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+
+  // Use find — LoginController is already registered in main.dart initialBinding
+  final _loginController = Get.find<LoginController>();
 
   bool _obscure = true;
 
-  // FIX: dispose controllers to prevent memory leak
   @override
   void dispose() {
     _emailCtrl.dispose();
@@ -137,8 +120,7 @@ class _LoginState extends State<Login> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Password
-                        // FIX: added visibility toggle
+                        // Password with visibility toggle
                         TextFormField(
                           controller: _passwordCtrl,
                           obscureText: _obscure,
@@ -168,38 +150,40 @@ class _LoginState extends State<Login> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Submit
-                        SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: ErpColors.accentBlue,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                              ),
-                              onPressed:  ()=>Get.offAll(Home(),opaque: true),
-                              child:false
-                                  ? const SizedBox(width: 20, height: 20,
-                                  child: CircularProgressIndicator(
-                                      color: Colors.white, strokeWidth: 2.5))
-                                  : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.login_rounded,
-                                      color: Colors.white, size: 18),
-                                  SizedBox(width: 10),
-                                  Text('SIGN IN',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w800,
-                                          letterSpacing: 1.2)),
-                                ],
-                              ),
+                        // Submit button — reactive to loading state
+                        Obx(() => SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ErpColors.accentBlue,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
                             ),
-                          )
+                            onPressed: _loginController.isLoading.value ? null : _submit,
+                            child: _loginController.isLoading.value
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white, strokeWidth: 2.5))
+                                : const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.login_rounded,
+                                          color: Colors.white, size: 18),
+                                      SizedBox(width: 10),
+                                      Text('SIGN IN',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 1.2)),
+                                    ],
+                                  ),
+                          ),
+                        ))
                       ]),
                     ),
 

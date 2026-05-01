@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Orders/models/order_list_item.dart';
 
 class OrderListController extends GetxController {
-  final _dio = Dio(BaseOptions(
-    baseUrl: "http://13.233.117.153:2701/api/v2",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  // Use the shared singleton so the JWT cookie is attached automatically
+  // and every action gets a server-side user fingerprint.
+  Dio get _dio => ApiClient.instance.dio;
 
   final orders = <OrderListItem>[].obs;
 
@@ -79,7 +78,6 @@ class OrderListController extends GetxController {
 
   Future<void> cancelOrder(String id) async {
     try {
-      // FIX (backend): /order/cancel route was missing — added in order.js
       await _dio.post("/order/cancel", data: {"orderId": id});
       Get.snackbar(
         "Order Cancelled",

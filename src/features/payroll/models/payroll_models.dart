@@ -29,7 +29,7 @@ class EmployeeRate {
       role: _s(j['role']), hourlyRate: _d(j['hourlyRate']),
       dayShiftPay: _d(j['dayShiftPay']), nightShiftPay: _d(j['nightShiftPay']));
   EmployeeRate withRate(double r) => EmployeeRate(id: id, name: name, department: department,
-      role: role, hourlyRate: r, dayShiftPay: r * 12, nightShiftPay: r * 8);
+      role: role, hourlyRate: r, dayShiftPay: r * 12, nightShiftPay: r * 12);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -91,16 +91,14 @@ class PayrollDashboard {
 // ══════════════════════════════════════════════════════════════
 class PayrollRow {
   final String employeeId, name, department, status;
-  final double hourlyRate, grossEarnings, totalDeductions, totalBonuses, netPay,
-      totalAdvanceDeduction, wastageDeduction;
+  final double hourlyRate, grossEarnings, totalDeductions, totalBonuses, netPay, totalAdvanceDeduction;
   final int    totalShifts, presentShifts, absentShifts, excessAbsents;
   final bool   perfectAttendance;
   const PayrollRow({required this.employeeId, required this.name, required this.department,
     required this.hourlyRate, required this.totalShifts, required this.presentShifts,
     required this.absentShifts, required this.excessAbsents, required this.grossEarnings,
     required this.totalDeductions, required this.totalBonuses, required this.netPay,
-    required this.totalAdvanceDeduction, required this.wastageDeduction,
-    required this.perfectAttendance, required this.status});
+    required this.totalAdvanceDeduction, required this.perfectAttendance, required this.status});
   factory PayrollRow.fromJson(Map<String, dynamic> j) => PayrollRow(
       employeeId: _s(j['employeeId']), name: _s(j['name']), department: _s(j['department']),
       hourlyRate: _d(j['hourlyRate']), totalShifts: _i(j['totalShifts']),
@@ -108,7 +106,6 @@ class PayrollRow {
       excessAbsents: _i(j['excessAbsents']), grossEarnings: _d(j['grossEarnings']),
       totalDeductions: _d(j['totalDeductions']), totalBonuses: _d(j['totalBonuses']),
       netPay: _d(j['netPay']), totalAdvanceDeduction: _d(j['totalAdvanceDeduction']),
-      wastageDeduction: _d(j['wastageDeduction']),
       perfectAttendance: _b(j['perfectAttendance']), status: _s(j['status']));
 }
 
@@ -134,10 +131,11 @@ class PayrollDoc {
   final int    approvedLeaveShifts, totalLateMinutes, unapprovedAbsents, excessAbsents;
   final int    dayShiftsWorked, nightShiftsWorked;
   final double dayShiftEarnings, nightShiftEarnings;
+  final int    totalOvertimeMinutes;
+  final double overtimeEarnings;
   final double grossEarnings, totalDeductions, totalBonuses, netPay;
-  final double noLeaveBonus, perfectAttendanceBonus, totalStreakBonus,
-      totalAdvanceDeduction, wastageDeduction;
-  final int    longestStreak, wastageRecordCount;
+  final double noLeaveBonus, perfectAttendanceBonus, totalStreakBonus, totalAdvanceDeduction;
+  final int    longestStreak;
   final bool   perfectAttendance;
   final List<PayrollLineItem> lineItems;
   final String? paidAt, paidBy, paymentNote;
@@ -157,7 +155,7 @@ class PayrollDoc {
     required this.grossEarnings, required this.totalDeductions, required this.totalBonuses,
     required this.netPay, required this.noLeaveBonus, required this.perfectAttendanceBonus,
     required this.totalStreakBonus, required this.totalAdvanceDeduction,
-    required this.wastageDeduction, required this.wastageRecordCount,
+    required this.totalOvertimeMinutes, required this.overtimeEarnings,
     required this.longestStreak, required this.perfectAttendance, required this.lineItems,
     this.paidAt, this.paidBy, this.paymentNote,
   });
@@ -182,8 +180,8 @@ class PayrollDoc {
         perfectAttendanceBonus: _d(j['perfectAttendanceBonus']),
         totalStreakBonus: _d(j['totalStreakBonus']),
         totalAdvanceDeduction: _d(j['totalAdvanceDeduction']),
-        wastageDeduction: _d(j['wastageDeduction']),
-        wastageRecordCount: _i(j['wastageRecordCount']),
+        totalOvertimeMinutes: _i(j['totalOvertimeMinutes']),
+        overtimeEarnings: _d(j['overtimeEarnings']),
         longestStreak: _i(j['longestStreak']), perfectAttendance: _b(j['perfectAttendance']),
         lineItems: (j['lineItems'] as List? ?? [])
             .map((e) => PayrollLineItem.fromJson(e as Map<String, dynamic>)).toList(),
@@ -343,4 +341,85 @@ class AnalyticsSummary {
       totalEmployees:   _i(j['totalEmployees']),
       totalPayout:      _d(j['totalPayout']),
       avgAttendanceRate:_d(j['avgAttendanceRate']));
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ATTENDANCE DAY  (for payslip calendar)
+// ══════════════════════════════════════════════════════════════
+class AttendanceDay {
+  final String date;   // "YYYY-MM-DD"
+  final String shift;  // "DAY" | "NIGHT"
+  final String status; // "present" | "absent" | "late" | "half_day" | "on_leave"
+  final bool   approvedLeave;
+  final int    lateMinutes;
+  final int    overtimeMinutes;
+  final int    billableOtMinutes;
+  final bool   hasOvertime;
+  final bool   overtimePaid;
+
+  const AttendanceDay({
+    required this.date, required this.shift, required this.status,
+    required this.approvedLeave, required this.lateMinutes,
+    required this.overtimeMinutes, required this.billableOtMinutes,
+    required this.hasOvertime, required this.overtimePaid,
+  });
+
+  factory AttendanceDay.fromJson(Map<String, dynamic> j) => AttendanceDay(
+    date:              _s(j['date']),
+    shift:             _s(j['shift']),
+    status:            _s(j['status']),
+    approvedLeave:     _b(j['approvedLeave']),
+    lateMinutes:       _i(j['lateMinutes']),
+    overtimeMinutes:   _i(j['overtimeMinutes']),
+    billableOtMinutes: _i(j['billableOtMinutes']),
+    hasOvertime:       _b(j['hasOvertime']),
+    overtimePaid:      _b(j['overtimePaid']),
+  );
+
+  /// Day number (1–31) parsed from "YYYY-MM-DD"
+  int get day => int.tryParse(date.split('-').last) ?? 0;
+
+  /// Visual status for calendar cell
+  AttendanceStatus get attStatus {
+    if (approvedLeave) return AttendanceStatus.approvedLeave;
+    switch (status) {
+      case 'present': return AttendanceStatus.present;
+      case 'late':    return AttendanceStatus.late;
+      case 'half_day':return AttendanceStatus.halfDay;
+      case 'absent':
+      case 'on_leave':return AttendanceStatus.absent;
+      default:        return AttendanceStatus.unknown;
+    }
+  }
+}
+
+enum AttendanceStatus { present, absent, late, halfDay, approvedLeave, unknown }
+
+class AttendanceSummary {
+  final int present, absent, halfDay, approvedLeave, overtime, overtimePaid, totalOtMinutes;
+  const AttendanceSummary({
+    required this.present, required this.absent, required this.halfDay,
+    required this.approvedLeave, required this.overtime,
+    required this.overtimePaid, required this.totalOtMinutes,
+  });
+  factory AttendanceSummary.fromJson(Map<String, dynamic> j) => AttendanceSummary(
+    present:       _i(j['present']),
+    absent:        _i(j['absent']),
+    halfDay:       _i(j['halfDay']),
+    approvedLeave: _i(j['approvedLeave']),
+    overtime:      _i(j['overtime']),
+    overtimePaid:  _i(j['overtimePaid']),
+    totalOtMinutes:_i(j['totalOtMinutes']),
+  );
+}
+
+class DailyAttendance {
+  final List<AttendanceDay> days;
+  final AttendanceSummary summary;
+  const DailyAttendance({required this.days, required this.summary});
+  factory DailyAttendance.fromJson(Map<String, dynamic> j) => DailyAttendance(
+    days:    (j['days'] as List? ?? [])
+        .map((d) => AttendanceDay.fromJson(d as Map<String, dynamic>)).toList(),
+    summary: AttendanceSummary.fromJson(j['summary'] as Map<String, dynamic>? ?? {}),
+  );
 }

@@ -9,6 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:production/src/features/payroll/screens/pdf.dart';
 import '../controllers/payroll_controller.dart';
 import '../models/payroll_models.dart';
 import 'Bonus_tab.dart';
@@ -39,6 +40,9 @@ const _tm = Color(0xFF3D5470);
 
 String _(double v) => '₹${v.toStringAsFixed(0)}';
 String _k(double v) => v >= 1000 ? '₹${(v / 1000).toStringAsFixed(1)}k' : _(v);
+// Format DateTime → "YYYY-MM-DD" for RxString leave date fields
+String _fmtDate(DateTime d) =>
+    '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
 // ══════════════════════════════════════════════════════════════
 //  ROOT
@@ -509,11 +513,7 @@ class _EmpRow extends StatelessWidget {
           color: _s2,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: row.excessAbsents > 0
-                ? _red.withOpacity(0.35)
-                : row.wastageDeduction > 0
-                ? _amber.withOpacity(0.35)
-                : _bdr,
+            color: row.excessAbsents > 0 ? _red.withOpacity(0.35) : _bdr,
           ),
         ),
         child: Row(
@@ -560,13 +560,6 @@ class _EmpRow extends StatelessWidget {
                         Text(
                           '−${_(row.totalAdvanceDeduction)} adv',
                           style: const TextStyle(color: _redLt, fontSize: 9),
-                        ),
-                      ],
-                      if (row.wastageDeduction > 0) ...[
-                        const Text('  ', style: TextStyle(fontSize: 10)),
-                        Text(
-                          '−${_(row.wastageDeduction)} wsgt',
-                          style: const TextStyle(color: _amber, fontSize: 9),
                         ),
                       ],
                     ],
@@ -652,10 +645,39 @@ class _SlipViewState extends State<_SlipView> {
   }
 }
 
-class _SlipBody extends StatelessWidget {
+class _SlipBody extends StatefulWidget {
   final PayrollDoc ps;
   final PayrollController c;
   const _SlipBody({required this.ps, required this.c});
+  @override
+  State<_SlipBody> createState() => _SlipBodyState();
+}
+
+class _SlipBodyState extends State<_SlipBody> {
+  PayrollDoc get ps => widget.ps;
+  PayrollController get c => widget.c;
+
+  DailyAttendance? _att;
+  bool _loadingAtt = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAttendance();
+  }
+
+  Future<void> _fetchAttendance() async {
+    if (!mounted) return;
+    setState(() => _loadingAtt = true);
+    try {
+      final att = await c.fetchDailyAttendance(
+          c.selectedEmployee.value ?? '', ps.year, ps.month);
+      if (mounted) setState(() { _att = att; _loadingAtt = false; });
+    } catch (_) {
+      if (mounted) setState(() => _loadingAtt = false);
+    }
+  }
+
   @override
   Widget build(BuildContext ctx) => ListView(
     padding: const EdgeInsets.all(14),
@@ -759,7 +781,7 @@ class _SlipBody extends StatelessWidget {
           children: [
             _R2('Hourly Rate', '${_(ps.hourlyRate)}/hr'),
             _R2('DAY (12h)', _(ps.hourlyRate * 12)),
-            _R2('NIGHT (8h)', _(ps.hourlyRate * 8)),
+            _R2('NIGHT (12h)', _(ps.hourlyRate * 12)),
             const Divider(color: _bdr, height: 12),
             _R2(
               'DAY shifts',
@@ -769,6 +791,13 @@ class _SlipBody extends StatelessWidget {
               'NIGHT shifts',
               '${ps.nightShiftsWorked}  →  ${_(ps.nightShiftEarnings)}',
             ),
+            if (ps.overtimeEarnings > 0) ...[
+              const Divider(color: _bdr, height: 12),
+              _R2('⏱ Overtime (total mins)',
+                  '${ps.totalOvertimeMinutes}m', vc: _purple),
+              _R2('⏱ Overtime Earnings',
+                  _(ps.overtimeEarnings), vc: _purple),
+            ],
           ],
         ),
       ),
@@ -795,15 +824,28 @@ class _SlipBody extends StatelessWidget {
             if (ps.excessAbsents > 0)
               _R2('⚠️ Excess (penalised)', '${ps.excessAbsents}', vc: _redLt),
             _R2('⏰ Late Minutes', '${ps.totalLateMinutes}m', vc: _amber),
-            if (ps.wastageDeduction > 0)
-              _R2(
-                '🧵 Wastage Penalty (${ps.wastageRecordCount} record${ps.wastageRecordCount != 1 ? 's' : ''})',
-                '−${_(ps.wastageDeduction)}',
-                vc: _redLt,
-              ),
           ],
         ),
       ),
+      const SizedBox(height: 12),
+      // ── Daily Attendance Calendar ─────────────────────────
+      const SizedBox(height: 12),
+      const _SecLbl('📅 Daily Attendance'),
+      const SizedBox(height: 8),
+      if (_loadingAtt)
+        const Padding(
+          padding: EdgeInsets.all(20),
+          child: Center(child: CircularProgressIndicator(
+              color: _blue, strokeWidth: 2)),
+        )
+      else if (_att != null)
+        _AttendanceCalendar(att: _att!, year: ps.year, month: ps.month)
+      else
+        const Padding(
+          padding: EdgeInsets.all(12),
+          child: Text('Attendance data unavailable',
+              style: TextStyle(color: _ts, fontSize: 12)),
+        ),
       const SizedBox(height: 12),
       if (ps.earnings.isNotEmpty) ...[
         const _SecLbl('💰 Earnings'),
@@ -823,6 +865,10 @@ class _SlipBody extends StatelessWidget {
         _LineTable(items: ps.bonuses, color: _amber),
         const SizedBox(height: 12),
       ],
+      // ── PDF Download button ──────────────────────────
+      const SizedBox(height: 4),
+      _PdfButton(ps: ps, body: this),
+      const SizedBox(height: 12),
       _SlipActions(ps: ps, c: c),
       const SizedBox(height: 30),
     ],
@@ -1034,7 +1080,7 @@ class _RatesViewState extends State<_RatesView> {
                       ),
                     ),
                     Text(
-                      'DAY = rate × 12h  ·  NIGHT = rate × 8h',
+                      'DAY = rate × 12h  ·  NIGHT = rate × 12h',
                       style: TextStyle(color: _tm, fontSize: 10),
                     ),
                   ],
@@ -1085,6 +1131,7 @@ class _RateRowState extends State<_RateRow> {
           : '',
     );
     ever(widget.c.isSavingRate, (v) {
+      // isSavingRate is now RxnString — v is the employee ID being saved (or null)
       if (mounted) setState(() => _saving = v == widget.emp.id);
     });
   }
@@ -1279,7 +1326,7 @@ class _SettingsViewState extends State<_SettingsView> {
                   children: [
                     Expanded(child: _InfoBox('☀️ DAY', '12 hours', _amber)),
                     const SizedBox(width: 8),
-                    Expanded(child: _InfoBox('🌙 NIGHT', '8 hours', _purple)),
+                    Expanded(child: _InfoBox('🌙 NIGHT', '12 hours', _purple)),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -1340,6 +1387,22 @@ class _SettingsViewState extends State<_SettingsView> {
           ),
           const SizedBox(height: 8),
           _Field('Streak Bonus / 7 Days (₹)', c.tfStreakBonus, hint: '100'),
+          const SizedBox(height: 14),
+          const _SecLbl('⏱ Overtime'),
+          const SizedBox(height: 8),
+          _Field(
+            'Overtime Grace Period (mins)',
+            c.tfOtGraceMins,
+            hint: '60',
+            sub: 'First N mins of OT are free — no extra pay',
+          ),
+          const SizedBox(height: 8),
+          _Field(
+            'Overtime Pay Multiplier',
+            c.tfOtMultiplier,
+            hint: '1.5',
+            sub: '1.5 = time-and-a-half, 2.0 = double time',
+          ),
           const SizedBox(height: 18),
           _GBtn(
             c.isSavingSettings.value ? 'Saving…' : '💾 Save Settings',
@@ -1770,10 +1833,23 @@ class _LeaveFormState extends State<_LeaveForm> {
       Row(
         children: [
           Expanded(
-            child: _datePick(ctx, 'From', c.leaveStartDate.value, (d) {
-              c.leaveStartDate.value = d;
-              if (d.isAfter(c.leaveEndDate.value)) c.leaveEndDate.value = d;
-            }),
+            child: _datePick(
+              ctx, 'From',
+              // FIX: parse RxString to DateTime for the picker
+              c.leaveStartDate.value.isEmpty
+                  ? DateTime.now()
+                  : DateTime.tryParse(c.leaveStartDate.value) ?? DateTime.now(),
+                  (d) {
+                // FIX: format DateTime back to "YYYY-MM-DD" string
+                final s = _fmtDate(d);
+                c.leaveStartDate.value = s;
+                final end = c.leaveEndDate.value.isEmpty
+                    ? DateTime.now()
+                    : DateTime.tryParse(c.leaveEndDate.value) ?? DateTime.now();
+                // FIX: compare DateTime to DateTime (not String)
+                if (d.isAfter(end)) c.leaveEndDate.value = s;
+              },
+            ),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
@@ -1781,10 +1857,13 @@ class _LeaveFormState extends State<_LeaveForm> {
           ),
           Expanded(
             child: _datePick(
-              ctx,
-              'To',
-              c.leaveEndDate.value,
-                  (d) => c.leaveEndDate.value = d,
+              ctx, 'To',
+              // FIX: parse RxString to DateTime for the picker
+              c.leaveEndDate.value.isEmpty
+                  ? DateTime.now()
+                  : DateTime.tryParse(c.leaveEndDate.value) ?? DateTime.now(),
+              // FIX: format DateTime back to "YYYY-MM-DD" string
+                  (d) => c.leaveEndDate.value = _fmtDate(d),
             ),
           ),
         ],
@@ -3472,4 +3551,306 @@ class _Hint extends StatelessWidget {
   Widget build(BuildContext ctx) => Center(
     child: Text(msg, style: const TextStyle(color: _tm, fontSize: 12)),
   );
+}
+
+
+// ══════════════════════════════════════════════════════════════
+//  PDF DOWNLOAD BUTTON
+// ══════════════════════════════════════════════════════════════
+class _PdfButton extends StatefulWidget {
+  final PayrollDoc ps;
+  final _SlipBodyState body;
+  const _PdfButton({required this.ps, required this.body});
+  @override
+  State<_PdfButton> createState() => _PdfButtonState();
+}
+
+class _PdfButtonState extends State<_PdfButton> {
+  bool _busy = false;
+
+  Future<void> _generate() async {
+    setState(() => _busy = true);
+    try {
+      final bytes = await PayslipPdfService.generate(
+        widget.ps,
+        attendance: widget.body._att,
+      );
+      await PayslipPdfService.openOrShare(bytes, widget.ps);
+    } catch (e) {
+      if (mounted) {
+        Get.snackbar(
+          'PDF Error', e.toString(),
+          backgroundColor: const Color(0xFFDC2626),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 46,
+      child: ElevatedButton.icon(
+        onPressed: _busy ? null : _generate,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF2563EB),
+          disabledBackgroundColor: const Color(0xFF2563EB).withOpacity(0.5),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10)),
+        ),
+        icon: _busy
+            ? const SizedBox(
+            width: 16, height: 16,
+            child: CircularProgressIndicator(
+                strokeWidth: 2, color: Colors.white))
+            : const Icon(Icons.picture_as_pdf_outlined,
+            size: 18, color: Colors.white),
+        label: Text(
+          _busy ? 'Generating PDF…' : 'Download Payslip PDF',
+          style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 14),
+        ),
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ATTENDANCE CALENDAR
+// ══════════════════════════════════════════════════════════════
+class _AttendanceCalendar extends StatelessWidget {
+  final DailyAttendance att;
+  final int year, month;
+  const _AttendanceCalendar(
+      {required this.att, required this.year, required this.month});
+
+  // Number of days in the month
+  int get _daysInMonth => DateTime(year, month + 1, 0).day;
+  // Weekday of the 1st (1=Mon … 7=Sun → 0-based index)
+  int get _startOffset => (DateTime(year, month, 1).weekday - 1) % 7;
+
+  @override
+  Widget build(BuildContext context) {
+    // Index days by day-of-month for fast lookup
+    final Map<int, List<AttendanceDay>> byDay = {};
+    for (final d in att.days) {
+      byDay.putIfAbsent(d.day, () => []).add(d);
+    }
+
+    return Column(children: [
+      // ── Legend ───────────────────────────────────────────
+      Container(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        decoration: BoxDecoration(
+          color: _s2,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _bdr),
+        ),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 6,
+          children: [
+            _Legend(_green,  'Present'),
+            _Legend(_amber,  'Late'),
+            _Legend(_blue,   'Half Day'),
+            _Legend(_teal,   'Approved Leave'),
+            _Legend(_red,    'Absent'),
+            _Legend(_purple, 'Overtime'),
+          ],
+        ),
+      ),
+      const SizedBox(height: 8),
+
+      // ── Summary strip ─────────────────────────────────────
+      Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        decoration: BoxDecoration(
+          color: _s2, borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _bdr),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _AttStat('✅', '${att.summary.present}',  'Present',  _green),
+            _AttStat('❌', '${att.summary.absent}',   'Absent',   _red),
+            _AttStat('🔶', '${att.summary.halfDay}',  'Half Day', _amber),
+            _AttStat('⏱', '${att.summary.overtime}', 'OT Days',  _purple),
+          ],
+        ),
+      ),
+      const SizedBox(height: 10),
+
+      // ── Grid ─────────────────────────────────────────────
+      Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: _s2, borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _bdr),
+        ),
+        child: Column(children: [
+          // Day-of-week headers
+          Row(
+            children: ['M','T','W','T','F','S','S'].map((h) => Expanded(
+              child: Center(
+                child: Text(h,
+                    style: const TextStyle(
+                        color: _ts, fontSize: 10,
+                        fontWeight: FontWeight.w700)),
+              ),
+            )).toList(),
+          ),
+          const SizedBox(height: 6),
+
+          // Calendar cells
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 4,
+              childAspectRatio: 1,
+            ),
+            itemCount: _startOffset + _daysInMonth,
+            itemBuilder: (_, idx) {
+              if (idx < _startOffset) return const SizedBox.shrink();
+              final day = idx - _startOffset + 1;
+              final records = byDay[day] ?? [];
+              return _DayCell(day: day, records: records);
+            },
+          ),
+        ]),
+      ),
+    ]);
+  }
+}
+
+class _DayCell extends StatelessWidget {
+  final int day;
+  final List<AttendanceDay> records;
+  const _DayCell({required this.day, required this.records});
+
+  Color _cellColor() {
+    if (records.isEmpty) return _s3;
+    // If any shift has overtime, tint purple
+    final hasOt = records.any((r) => r.hasOvertime);
+    // Pick dominant status from first record
+    final status = records.first.attStatus;
+    switch (status) {
+      case AttendanceStatus.present:      return hasOt ? _purple : _green;
+      case AttendanceStatus.late:         return hasOt ? _purple : _amber;
+      case AttendanceStatus.halfDay:      return _blue;
+      case AttendanceStatus.approvedLeave:return _teal;
+      case AttendanceStatus.absent:       return _red;
+      default:                            return _s3;
+    }
+  }
+
+  String _emoji() {
+    if (records.isEmpty) return '';
+    if (records.any((r) => r.overtimePaid)) return '⏱';
+    switch (records.first.attStatus) {
+      case AttendanceStatus.present:      return '✓';
+      case AttendanceStatus.late:         return '⏰';
+      case AttendanceStatus.halfDay:      return '½';
+      case AttendanceStatus.approvedLeave:return '🟢';
+      case AttendanceStatus.absent:       return '✗';
+      default:                            return '';
+    }
+  }
+
+  String _shiftLabel() {
+    if (records.length == 2) return 'D+N';
+    if (records.isEmpty) return '';
+    return records.first.shift == 'DAY' ? 'D' : 'N';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _cellColor();
+    final isEmpty = records.isEmpty;
+    return Tooltip(
+      message: records.isEmpty
+          ? 'Day $day — No record'
+          : records.map((r) {
+        final ot = r.overtimeMinutes > 0
+            ? ' OT:${r.overtimeMinutes}m' : '';
+        final late = r.lateMinutes > 0
+            ? ' Late:${r.lateMinutes}m' : '';
+        return '${r.shift}: ${r.approvedLeave ? "Approved Leave" : r.status}$late$ot';
+      }).join('\n'),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isEmpty ? _s3 : color.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+              color: isEmpty ? _bdr : color.withOpacity(0.6),
+              width: 1),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('$day',
+                style: TextStyle(
+                    color: isEmpty ? _tm : _tp,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800)),
+            if (!isEmpty) ...[
+
+              Text(_emoji(),
+                  style: const TextStyle(fontSize: 9)),
+              Text(_shiftLabel(),
+                  style: TextStyle(
+                      color: color,
+                      fontSize: 7,
+                      fontWeight: FontWeight.w700)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AttStat extends StatelessWidget {
+  final String emoji, value, label;
+  final Color color;
+  const _AttStat(this.emoji, this.value, this.label, this.color);
+  @override
+  Widget build(BuildContext context) => Column(children: [
+    Text(emoji, style: const TextStyle(fontSize: 14)),
+    const SizedBox(height: 2),
+    Text(value,
+        style: TextStyle(
+            color: color, fontSize: 14, fontWeight: FontWeight.w900)),
+    Text(label,
+        style: const TextStyle(color: _ts, fontSize: 8,
+            fontWeight: FontWeight.w600)),
+  ]);
+}
+
+class _Legend extends StatelessWidget {
+  final Color color;
+  final String label;
+  const _Legend(this.color, this.label);
+  @override
+  Widget build(BuildContext context) => Row(mainAxisSize: MainAxisSize.min, children: [
+    Container(
+      width: 10, height: 10,
+      decoration: BoxDecoration(
+          color: color.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(2),
+          border: Border.all(color: color.withOpacity(0.8))),
+    ),
+    const SizedBox(width: 4),
+    Text(label, style: const TextStyle(color: _ts, fontSize: 9)),
+  ]);
 }

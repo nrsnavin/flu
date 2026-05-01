@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/api_client.dart';
 import '../models/user.dart';
 import '../screens/home.dart';
 import 'storage_keys.dart';
@@ -9,12 +10,12 @@ import 'storage_keys.dart';
 class LoginController extends GetxController {
   static LoginController get find => Get.find();
 
-  static const _baseUrl = 'http://13.233.117.153:2701/api/v2';
-
   Rx<User>  user            = User(id: '', name: '', role: '').obs;
   RxBool    isLoading        = false.obs;
   RxBool    isLoggedIn       = false.obs;
   RxBool    isCheckingAuth   = true.obs;
+
+  Dio get _dio => ApiClient.instance.dio;
 
   @override
   void onInit() {
@@ -28,16 +29,12 @@ class LoginController extends GetxController {
     try {
       final prefs       = await SharedPreferences.getInstance();
       final storedToken = prefs.getString(StorageKeys.token) ?? '';
-
       if (storedToken.isEmpty) return;
 
-      // Validate the stored token against the server.
-      final response = await Dio().get(
-        '$_baseUrl/user/getuser',
-        options: Options(
-          headers: {'Cookie': 'token=$storedToken'},
-          validateStatus: (s) => s != null && s < 500,
-        ),
+      // The interceptor in ApiClient attaches the cookie automatically.
+      final response = await _dio.get(
+        '/user/getuser',
+        options: Options(validateStatus: (s) => s != null && s < 500),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -50,12 +47,11 @@ class LoginController extends GetxController {
         );
         isLoggedIn.value = true;
       } else {
-        // Token rejected (expired / revoked) — force re-login.
         await _clearSession(prefs);
       }
     } catch (_) {
-      // Network unavailable — restore from cache so the user isn't locked out
-      // when the factory has no connectivity.
+      // Network unavailable — restore from cache so the user isn't locked
+      // out when the factory has no connectivity.
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getBool(StorageKeys.isLoggedIn) == true &&
           (prefs.getString(StorageKeys.token) ?? '').isNotEmpty) {
@@ -71,13 +67,13 @@ class LoginController extends GetxController {
     }
   }
 
-  // ── Manual login ─────────────────────────────────────────────────────────
+  // ── Manual login ──────────────────────────────────────────────────────
 
   void tryLogin(String email, String password) async {
     isLoading.value = true;
     try {
-      final response = await Dio().post(
-        '$_baseUrl/user/login-user',
+      final response = await _dio.post(
+        '/user/login-user',
         data: {'email': email, 'password': password},
       );
 
@@ -118,7 +114,7 @@ class LoginController extends GetxController {
     isLoggedIn.value = false;
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────────────
 
   Future<void> _saveSession({required String token, required User user}) async {
     final prefs = await SharedPreferences.getInstance();

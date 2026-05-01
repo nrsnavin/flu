@@ -9,8 +9,6 @@ import 'package:production/src/features/Orders/screens/order_detail_page.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 
-// FIX: StatefulWidget — controller + lifecycle must be managed in
-//      initState/dispose, not at class-field level in StatelessWidget
 class OrderListPage extends StatefulWidget {
   const OrderListPage({super.key});
 
@@ -80,7 +78,7 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 }
 
-// ── Status tabs ────────────────────────────────────────────────
+// ── Status tabs ─────────────────────────────────────────────────────
 class _StatusTabs extends StatelessWidget {
   final OrderListController c;
   const _StatusTabs({required this.c});
@@ -159,7 +157,7 @@ class _StatusTabs extends StatelessWidget {
   }
 }
 
-// ── List body ──────────────────────────────────────────────────
+// ── List body ────────────────────────────────────────────────────────
 class _OrderList extends StatelessWidget {
   final OrderListController c;
   const _OrderList({required this.c});
@@ -193,7 +191,7 @@ class _OrderList extends StatelessWidget {
   }
 }
 
-// ── Order card ─────────────────────────────────────────────────
+// ── Order card ──────────────────────────────────────────────────────
 class _OrderCard extends StatelessWidget {
   final OrderListItem order;
   final OrderListController c;
@@ -207,6 +205,10 @@ class _OrderCard extends StatelessWidget {
         order.supplyDate.isBefore(DateTime.now()) &&
             order.status != "Completed" &&
             order.status != "Cancelled";
+
+    final hasFingerprint = order.createdByName != null;
+    final wasEdited = order.updatedByName != null &&
+        order.updatedByName != order.createdByName;
 
     return GestureDetector(
       onTap: () => Get.to(
@@ -303,6 +305,40 @@ class _OrderCard extends StatelessWidget {
                                     : FontWeight.w400),
                           ),
                         ]),
+                        // User fingerprint row
+                        if (hasFingerprint) ...[
+                          const SizedBox(height: 5),
+                          Row(children: [
+                            const Icon(Icons.person_outline,
+                                size: 11, color: ErpColors.textMuted),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                "By ${order.createdByName}",
+                                style: const TextStyle(
+                                    color: ErpColors.textMuted,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (wasEdited) ...[
+                              const SizedBox(width: 10),
+                              const Icon(Icons.edit_outlined,
+                                  size: 11, color: ErpColors.textMuted),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  order.updatedByName!,
+                                  style: const TextStyle(
+                                      color: ErpColors.textMuted,
+                                      fontSize: 11),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ]),
+                        ],
                       ],
                     ),
                   ),
@@ -406,7 +442,6 @@ class _OrderCard extends StatelessWidget {
     );
   }
 
-  // FIX: Approve now has a confirmation dialog (was missing before)
   void _confirmApprove(BuildContext ctx, String orderId) {
     Get.dialog(
       Dialog(
@@ -545,7 +580,7 @@ class _OrderCard extends StatelessWidget {
   }
 }
 
-// ── Empty state ────────────────────────────────────────────────
+// ── Empty state ────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final String status;
   final VoidCallback onRefresh;

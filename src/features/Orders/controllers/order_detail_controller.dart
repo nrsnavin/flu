@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
+    show buildActorPayload;
 
 class OrderDetailController extends GetxController {
   final String orderId;
@@ -48,7 +50,11 @@ class OrderDetailController extends GetxController {
   Future<void> approveOrder() async {
     try {
       isActioning.value = true;
-      await _dio.post("/order/approve", data: {"orderId": orderId});
+      // 🪪 Actor attached so the backend records who approved
+      await _dio.post("/order/approve", data: {
+        "orderId": orderId,
+        "actor":   buildActorPayload(),
+      });
       Get.snackbar(
         "Order Approved",
         "Raw materials deducted from stock",
@@ -74,8 +80,10 @@ class OrderDetailController extends GetxController {
     try {
       isActioning.value = true;
       // FIX: use /start-production which validates Approved status first
-      await _dio.post("/order/start-production",
-          data: {"orderId": orderId});
+      await _dio.post("/order/start-production", data: {
+        "orderId": orderId,
+        "actor":   buildActorPayload(),
+      });
       Get.snackbar(
         "Production Started",
         "Order is now In Progress",

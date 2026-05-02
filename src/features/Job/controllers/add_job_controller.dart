@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:production/src/features/Job/models/order_model.dart';
+import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
+    show buildActorPayload;
 
 
 class ElasticInput {
@@ -87,9 +89,11 @@ class AddJobOrderController extends GetxController {
       isSubmitting.value = true;
       // FIX: was using JobApi static class — consolidated into _dio directly
       await _dio.post("/job/create", data: {
-        "orderId": order.id,
-        "date":    DateTime.now().toIso8601String().split('T')[0],
+        "orderId":  order.id,
+        "date":     DateTime.now().toIso8601String().split('T')[0],
         "elastics": items,
+        // 🪪 Actor attached so the backend records who created the job
+        "actor":    buildActorPayload(),
       });
       success = true;
       Get.snackbar(

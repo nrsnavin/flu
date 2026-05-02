@@ -8,6 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../../PurchaseOrder/services/theme.dart';
+import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
+import '../../../common_widgets/fingerprint_timeline.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  DATA MODELS
@@ -247,6 +249,8 @@ class JobDetailModel {
   final List<JobShiftDetail> shiftDetails;
   final List<JobWastage> wastages;
   final List<JobPacking> packingDetails;
+  // 🪪 Audit fingerprints (action timeline) — newest-first
+  final List<Map<String, dynamic>> fingerprints;
 
   const JobDetailModel({
     required this.id,
@@ -269,6 +273,7 @@ class JobDetailModel {
     required this.shiftDetails,
     required this.wastages,
     required this.packingDetails,
+    this.fingerprints = const [],
   });
 
   factory JobDetailModel.fromJson(Map<String, dynamic> j) {
@@ -310,6 +315,10 @@ class JobDetailModel {
           ?.map((e) => JobPacking.fromJson(e as Map<String, dynamic>))
           .toList() ??
           [],
+      fingerprints: (j['fingerprints'] as List<dynamic>?)
+              ?.map((e) => (e as Map).cast<String, dynamic>())
+              .toList() ??
+          const [],
     );
   }
 
@@ -394,9 +403,10 @@ class JobDetailController extends GetxController {
     actionLoading.value = true;
     try {
       await _dio.post('/assign-machine', data: {
-        'jobId': j.id,
+        'jobId':     j.id,
         'machineId': machineId,
-        'elastics': elastics,
+        'elastics':  elastics,
+        'actor':     buildActorPayload(),
       });
       Get.snackbar('Machine Assigned', 'Machine & head plan saved for ${j.jobNo}.',
           backgroundColor: ErpColors.successGreen,
@@ -423,8 +433,11 @@ class JobDetailController extends GetxController {
     if (j == null) return;
     actionLoading.value = true;
     try {
-      await _dio.post('/update-status',
-          data: {'jobId': j.id, 'nextStatus': nextStatus});
+      await _dio.post('/update-status', data: {
+        'jobId':      j.id,
+        'nextStatus': nextStatus,
+        'actor':      buildActorPayload(),
+      });
       const messages = {
         'finishing': 'Weaving complete. Machine released. Job → Finishing.',
         'checking': 'Finishing complete. Job → Checking.',
@@ -1342,6 +1355,11 @@ class _GeneralTab extends StatelessWidget {
               ],
             ]),
           ),
+        const SizedBox(height: 10),
+
+        // 🪪 Audit fingerprint timeline
+        FingerprintTimeline(fingerprints: job.fingerprints),
+
         const SizedBox(height: 16),
       ],
     );

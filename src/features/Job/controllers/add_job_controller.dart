@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Job/models/order_model.dart';
-
 
 class ElasticInput {
   final String elasticId;
@@ -23,19 +23,13 @@ class AddJobOrderController extends GetxController {
   final VoidCallback? onSuccess;
   AddJobOrderController({this.onSuccess});
 
-  static final _dio = Dio(BaseOptions(
-    baseUrl: "http://13.233.117.153:2701/api/v2",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  Dio get _dio => ApiClient.instance.dio;
 
   final elasticInputs = <ElasticInput>[].obs;
   final isSubmitting = false.obs;
-  // FIX: track initialised flag so initFromOrder doesn't re-run in build()
   bool _initialised = false;
   late OrderModel order;
 
-  // FIX: guard prevents reset on every build() rebuild
   void initFromOrder(OrderModel o) {
     if (_initialised) return;
     _initialised = true;
@@ -59,22 +53,22 @@ class AddJobOrderController extends GetxController {
       if (qty > 0) {
         if (qty > e.maxQty) {
           Get.snackbar(
-            "Validation Error",
-            "Qty for ${e.elasticName} exceeds pending ${e.maxQty}",
+            'Validation Error',
+            'Qty for ${e.elasticName} exceeds pending ${e.maxQty}',
             backgroundColor: const Color(0xFFD97706),
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
           );
           return;
         }
-        items.add({"elastic": e.elasticId, "quantity": qty});
+        items.add({'elastic': e.elasticId, 'quantity': qty});
       }
     }
 
     if (items.isEmpty) {
       Get.snackbar(
-        "Validation Error",
-        "Enter at least one elastic quantity",
+        'Validation Error',
+        'Enter at least one elastic quantity',
         backgroundColor: const Color(0xFFD97706),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -85,30 +79,27 @@ class AddJobOrderController extends GetxController {
     bool success = false;
     try {
       isSubmitting.value = true;
-      // FIX: was using JobApi static class — consolidated into _dio directly
-      await _dio.post("/job/create", data: {
-        "orderId": order.id,
-        "date":    DateTime.now().toIso8601String().split('T')[0],
-        "elastics": items,
+      await _dio.post('/job/create', data: {
+        'orderId': order.id,
+        'date':    DateTime.now().toIso8601String().split('T')[0],
+        'elastics': items,
       });
       success = true;
       Get.snackbar(
-        "Job Order Created",
-        "Preparatory (Warping & Covering) programs generated",
+        'Job Order Created',
+        'Preparatory (Warping & Covering) programs generated',
         backgroundColor: const Color(0xFF16A34A),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
     } on DioException catch (e) {
-      // FIX: was missing catch — silent failure before
-      final msg = e.response?.data?['message'] ?? "Failed to create job order";
-      Get.snackbar("Error", msg,
+      final msg = e.response?.data?['message'] ?? 'Failed to create job order';
+      Get.snackbar('Error', msg,
           backgroundColor: const Color(0xFFDC2626),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
       isSubmitting.value = false;
-      // FIX: was Get.back() BEFORE snackbar — snackbar never showed
       if (success) onSuccess?.call();
     }
   }

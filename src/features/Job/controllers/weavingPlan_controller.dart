@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:production/src/core/api_client.dart';
 
-// Inline-safe model for machines on this page
 class MachineSelectModel {
   final String id;
   final String manufacturer;
@@ -15,15 +15,14 @@ class MachineSelectModel {
   });
 
   factory MachineSelectModel.fromJson(Map j) => MachineSelectModel(
-    id:           j["_id"],
-    manufacturer: j["manufacturer"] ?? j["ID"] ?? "Machine",
-    noOfHeads:    j["NoOfHead"]?.toString() ?? "1",
+    id:           j['_id'],
+    manufacturer: j['manufacturer'] ?? j['ID'] ?? 'Machine',
+    noOfHeads:    j['NoOfHead']?.toString() ?? '1',
   );
 
   int get headCount => int.tryParse(noOfHeads) ?? 1;
 }
 
-// Inline model for elastics in job
 class JobElasticEntry {
   final String id;
   final String name;
@@ -35,19 +34,13 @@ class WeavingPlanController extends GetxController {
   final String jobId;
   WeavingPlanController(this.jobId);
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: "http://13.233.117.153:2701/api/v2",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  Dio get _dio => ApiClient.instance.dio;
 
   final isLoading      = true.obs;
   final isSubmitting   = false.obs;
   final machines       = <MachineSelectModel>[].obs;
   final selectedMachine = Rxn<MachineSelectModel>();
   final jobElastics    = <JobElasticEntry>[].obs;
-
-  // headIndex → selected elasticId
   final headElasticMap = <int, String?>{}.obs;
 
   @override
@@ -63,16 +56,15 @@ class WeavingPlanController extends GetxController {
   Future<void> fetchFreeMachines() async {
     try {
       isLoading.value = true;
-      final res = await _dio.get("/machine/free");
+      final res = await _dio.get('/machine/free');
       machines.assignAll(
-        (res.data["machines"] as List)
+        (res.data['machines'] as List)
             .map((e) => MachineSelectModel.fromJson(e))
             .toList(),
       );
     } on DioException catch (e) {
-      // FIX: was missing — crash silently before
-      final msg = e.response?.data?['message'] ?? "Failed to load machines";
-      Get.snackbar("Error", msg,
+      final msg = e.response?.data?['message'] ?? 'Failed to load machines';
+      Get.snackbar('Error', msg,
           backgroundColor: const Color(0xFFDC2626),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
@@ -94,18 +86,16 @@ class WeavingPlanController extends GetxController {
   }
 
   Future<void> submitWeavingPlan() async {
-    // FIX: was force-unwrapping selectedMachine.value! — NPE possible
     final machine = selectedMachine.value;
     if (machine == null) {
-      Get.snackbar("Validation", "Please select a machine",
+      Get.snackbar('Validation', 'Please select a machine',
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
-    final unassigned =
-        headElasticMap.values.where((v) => v == null).length;
+    final unassigned = headElasticMap.values.where((v) => v == null).length;
     if (unassigned > 0) {
-      Get.snackbar("Validation", "Assign an elastic to all $unassigned remaining heads",
+      Get.snackbar('Validation', 'Assign an elastic to all $unassigned remaining heads',
           backgroundColor: const Color(0xFFD97706),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
@@ -114,22 +104,20 @@ class WeavingPlanController extends GetxController {
 
     try {
       isSubmitting.value = true;
-      await _dio.post("/job/plan-weaving", data: {
-        "jobId":         jobId,
-        "machineId":     machine.id,
-        "headElasticMap": headElasticMap
+      await _dio.post('/job/plan-weaving', data: {
+        'jobId':         jobId,
+        'machineId':     machine.id,
+        'headElasticMap': headElasticMap
             .map((k, v) => MapEntry(k.toString(), v)),
       });
-      Get.snackbar("Weaving Planned", "Machine assigned successfully",
+      Get.snackbar('Weaving Planned', 'Machine assigned successfully',
           backgroundColor: const Color(0xFF16A34A),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
-      // FIX: was Get.to(JobListPage()) — created stale instance.
-      //      Go back to the Job Detail page which will refresh.
       Get.back(result: true);
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? "Failed to plan weaving";
-      Get.snackbar("Error", msg,
+      final msg = e.response?.data?['message'] ?? 'Failed to plan weaving';
+      Get.snackbar('Error', msg,
           backgroundColor: const Color(0xFFDC2626),
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/PackingModel.dart';
+import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
+    show buildActorPayload;
 
 
 // ══════════════════════════════════════════════════════════════
@@ -61,7 +63,12 @@ class PackingApiService {
   /// POST /packing/create-packing
   static Future<Map<String, dynamic>> createPacking(
       Map<String, dynamic> payload) async {
-    final res = await _dio.post('/packing/create-packing', data: payload);
+    // 🪪 Tag the request with the logged-in user so the backend
+    //    can attribute the PACKING_CREATED fingerprint correctly.
+    final res = await _dio.post(
+      '/packing/create-packing',
+      data: {...payload, 'actor': buildActorPayload()},
+    );
     return res.data as Map<String, dynamic>;
   }
 }

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/covering.dart';
+import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
+    show buildActorPayload;
 
 class CoveringApiService {
   static final Dio _dio = Dio(
@@ -22,15 +24,23 @@ class CoveringApiService {
   }
 
   static Future<void> start(String id) async {
-    await _dio.post('/start', data: {'id': id});
+    await _dio.post('/start', data: {'id': id, 'actor': buildActorPayload()});
   }
 
   static Future<void> complete(String id, {String? remarks}) async {
-    await _dio.post('/complete', data: {'id': id, if (remarks != null) 'remarks': remarks});
+    await _dio.post('/complete', data: {
+      'id': id,
+      if (remarks != null) 'remarks': remarks,
+      'actor': buildActorPayload(),
+    });
   }
 
   static Future<void> cancel(String id, {String? remarks}) async {
-    await _dio.post('/cancel', data: {'id': id, if (remarks != null) 'remarks': remarks});
+    await _dio.post('/cancel', data: {
+      'id': id,
+      if (remarks != null) 'remarks': remarks,
+      'actor': buildActorPayload(),
+    });
   }
 
   /// POST /covering/beam-entry
@@ -45,6 +55,7 @@ class CoveringApiService {
       'beamNo': beamNo,
       'weight': weight,
       'note':   note,
+      'actor':  buildActorPayload(),
     });
     return res.data as Map<String, dynamic>;
   }

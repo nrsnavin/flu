@@ -136,7 +136,7 @@ class AddOrderController extends GetxController {
       success = true;
       _snack(
         'Order Created',
-        'PO \${poCtrl.text} — \${DateFormat('dd MMM').format(orderDate.value)}',
+        'PO \${poCtrl.text} — \ ${DateFormat('dd MMM').format(orderDate.value)}',
         isError: false,
       );
     } on DioException catch (e) {

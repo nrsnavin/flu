@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:production/src/features/Orders/controllers/order_detail_controller.dart';
 
+import '../../../common_widgets/fingerprint_timeline.dart';
 import '../../Job/models/order_model.dart';
 import '../../Job/screens/add_job_page.dart';
 import '../../Job/screens/job_detail.dart';
@@ -81,6 +82,12 @@ class OrderDetailPage extends StatelessWidget {
                 _RawMaterialSection(order: order),
                 const SizedBox(height: 10),
                 _JobOrdersSection(order: order),
+                const SizedBox(height: 10),
+                // 🪪 Fingerprint timeline — every action recorded
+                FingerprintTimeline(
+                  fingerprints:
+                      (order["fingerprints"] as List<dynamic>?) ?? const [],
+                ),
               ],
             ),
           ),

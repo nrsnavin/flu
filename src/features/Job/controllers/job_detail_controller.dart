@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
+    show buildActorPayload;
 
 /// FIX: Rewritten to use raw Map<String,dynamic> to avoid dependency on
 /// missing model files (JobDetailViewMapper, JobDetailView, PreparatoryView,
@@ -64,8 +66,11 @@ class JobDetailController extends GetxController {
 
     try {
       actioning.value = true;
-      await _dio.post("/job/update-status",
-          data: {"jobId": jobId, "nextStatus": nextStatus});
+      await _dio.post("/job/update-status", data: {
+        "jobId":      jobId,
+        "nextStatus": nextStatus,
+        "actor":      buildActorPayload(),
+      });
       Get.snackbar(
         "Stage Updated",
         "Job moved to $nextStatus",

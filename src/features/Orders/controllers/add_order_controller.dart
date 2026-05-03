@@ -5,6 +5,22 @@ import 'package:intl/intl.dart';
 import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Orders/models/elasticLite.dart';
 import 'package:production/src/features/Orders/models/order_elastic_row.dart';
+import 'package:production/src/features/authentication/controllers/login_controller.dart';
+
+/// Build the actor blob the backend expects so every fingerprint
+/// can be attributed to the logged-in user.
+Map<String, dynamic> buildActorPayload() {
+  try {
+    final u = LoginController.find.user.value;
+    return {
+      'id':   u.id,
+      'name': u.name,
+      'role': u.role,
+    };
+  } catch (_) {
+    return {'id': 'unknown', 'name': 'Unknown', 'role': 'unknown'};
+  }
+}
 
 class AddOrderController extends GetxController {
   final VoidCallback? onSuccess;
@@ -119,6 +135,8 @@ class AddOrderController extends GetxController {
       'quantity': int.tryParse(r.qtyCtrl.text) ?? 0,
     })
         .toList(),
+    // 🪪 Attach logged-in user so the backend records who created it
+    'actor': buildActorPayload(),
   };
 
   // ── Submit ─────────────────────────────────────────────────

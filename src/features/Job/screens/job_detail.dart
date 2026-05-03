@@ -8,6 +8,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../../PurchaseOrder/services/theme.dart';
+import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
+import '../../../common_widgets/fingerprint_timeline.dart';
+import 'package:production/src/core/api_client.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  DATA MODELS
@@ -247,6 +250,8 @@ class JobDetailModel {
   final List<JobShiftDetail> shiftDetails;
   final List<JobWastage> wastages;
   final List<JobPacking> packingDetails;
+  // 🪪 Audit fingerprints (action timeline) — newest-first
+  final List<Map<String, dynamic>> fingerprints;
 
   const JobDetailModel({
     required this.id,
@@ -269,6 +274,7 @@ class JobDetailModel {
     required this.shiftDetails,
     required this.wastages,
     required this.packingDetails,
+    this.fingerprints = const [],
   });
 
   factory JobDetailModel.fromJson(Map<String, dynamic> j) {
@@ -310,6 +316,10 @@ class JobDetailModel {
           ?.map((e) => JobPacking.fromJson(e as Map<String, dynamic>))
           .toList() ??
           [],
+      fingerprints: (j['fingerprints'] as List<dynamic>?)
+              ?.map((e) => (e as Map).cast<String, dynamic>())
+              .toList() ??
+          const [],
     );
   }
 
@@ -364,12 +374,10 @@ class MachineMini {
 // ════════════════════════════════════════════════════════════════
 
 class JobDetailController extends GetxController {
-  static const _baseUrl = 'http://13.233.117.153:2701/api/v2/job';
-  final _dio = Dio(BaseOptions(
-    baseUrl: _baseUrl,
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-  ));
+  // Reuse the shared ApiClient so the JWT cookie travels with every
+  // request — backend sets req.user from it and the audit plugin
+  // stamps createdBy/updatedBy automatically.
+  Dio get _dio => ApiClient.instance.dio;
 
   final isLoading = true.obs;
   final errorMsg = Rxn<String>();
@@ -393,10 +401,11 @@ class JobDetailController extends GetxController {
     if (j == null) return;
     actionLoading.value = true;
     try {
-      await _dio.post('/assign-machine', data: {
-        'jobId': j.id,
+      await _dio.post('/job/assign-machine', data: {
+        'jobId':     j.id,
         'machineId': machineId,
-        'elastics': elastics,
+        'elastics':  elastics,
+        'actor':     buildActorPayload(),
       });
       Get.snackbar('Machine Assigned', 'Machine & head plan saved for ${j.jobNo}.',
           backgroundColor: ErpColors.successGreen,
@@ -423,8 +432,11 @@ class JobDetailController extends GetxController {
     if (j == null) return;
     actionLoading.value = true;
     try {
-      await _dio.post('/update-status',
-          data: {'jobId': j.id, 'nextStatus': nextStatus});
+      await _dio.post('/job/update-status', data: {
+        'jobId':      j.id,
+        'nextStatus': nextStatus,
+        'actor':      buildActorPayload(),
+      });
       const messages = {
         'finishing': 'Weaving complete. Machine released. Job → Finishing.',
         'checking': 'Finishing complete. Job → Checking.',
@@ -454,7 +466,7 @@ class JobDetailController extends GetxController {
     if (machinesLoading.value) return;
     machinesLoading.value = true;
     try {
-      final res = await _dio.get('/free-machines');
+      final res = await _dio.get('/job/free-machines');
       final list = res.data['machines'] as List<dynamic>? ?? [];
       freeMachines.value = list
           .map((m) => MachineMini.fromJson(m as Map<String, dynamic>))
@@ -475,7 +487,7 @@ class JobDetailController extends GetxController {
     isLoading.value = true;
     errorMsg.value = null;
     try {
-      final res = await _dio.get('/$jobId');
+      final res = await _dio.get('/job/$jobId');
       job.value =
           JobDetailModel.fromJson(res.data['data'] as Map<String, dynamic>);
     } on DioException catch (e) {
@@ -535,7 +547,7 @@ class _JobDetailPageState extends State<JobDetailPage>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 6, vsync: this);
+    _tabs = TabController(length: 7, vsync: this);
     _ctrl = Get.put(JobDetailController());
   }
 
@@ -624,6 +636,7 @@ class _JobDetailPageState extends State<JobDetailPage>
                   Tab(text: 'Weaving'),
                   Tab(text: 'Wastage'),
                   Tab(text: 'Packing'),
+                  Tab(icon: Icon(Icons.fingerprint_rounded, size: 16), text: 'Audit Trail'),
                 ],
               ),
             ),
@@ -647,6 +660,7 @@ class _JobDetailPageState extends State<JobDetailPage>
                 totalPlanned: job.totalPlanned,
               ),
               _PackingTab(packingDetails: job.packingDetails),
+              _AuditTrailTab(fingerprints: job.fingerprints),
             ],
           ),
         ),
@@ -2112,6 +2126,25 @@ class _PackingTab extends StatelessWidget {
       children: packingDetails.isEmpty
           ? [const _EmptyCard(label: 'No packing records yet.')]
           : [_PackingTable(packingDetails: packingDetails)],
+    );
+  }
+}
+
+// ── Audit Trail tab ─────────────────────────────────────────────
+//   Dedicated tab for the fingerprint timeline so the audit log is
+//   one tap away from the job header instead of buried at the bottom
+//   of the General tab.
+class _AuditTrailTab extends StatelessWidget {
+  final List<Map<String, dynamic>> fingerprints;
+  const _AuditTrailTab({required this.fingerprints});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(14),
+      children: [
+        FingerprintTimeline(fingerprints: fingerprints),
+      ],
     );
   }
 }

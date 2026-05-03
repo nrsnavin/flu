@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
+import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Orders/models/elasticLite.dart';
 import 'package:production/src/features/Orders/models/order_elastic_row.dart';
 import 'package:production/src/features/authentication/controllers/login_controller.dart';
@@ -25,11 +26,7 @@ class AddOrderController extends GetxController {
   final VoidCallback? onSuccess;
   AddOrderController({this.onSuccess});
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: 'http://13.233.117.153:2701/api/v2',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  Dio get _dio => ApiClient.instance.dio;
 
   // ── Dates ──────────────────────────────────────────────────
   final orderDate  = DateTime.now().obs;
@@ -40,7 +37,6 @@ class AddOrderController extends GetxController {
   final descCtrl = TextEditingController();
 
   // ── Selected customer ──────────────────────────────────────
-  // Only the picked value is stored here; the list lives inside the picker.
   final selectedCustomerId   = RxnString();
   final selectedCustomerName = RxnString();
 
@@ -50,10 +46,6 @@ class AddOrderController extends GetxController {
   // ── Submit state ───────────────────────────────────────────
   final isSubmitting = false.obs;
 
-  // NOTE: loadingCustomers / loadingElastics are removed.
-  // We no longer pre-load all items; instead the picker calls
-  // searchCustomers() / searchElastics() as the user types.
-
   @override
   void onInit() {
     super.onInit();
@@ -61,8 +53,6 @@ class AddOrderController extends GetxController {
   }
 
   // ── Search customers ────────────────────────────────────────
-  // Called by the picker on each debounced keystroke.
-  // GET /customer/all-customers?search=<query>
   Future<List<CustomerLite>> searchCustomers(String query) async {
     try {
       final res = await _dio.get(
@@ -85,8 +75,6 @@ class AddOrderController extends GetxController {
   }
 
   // ── Search elastics ─────────────────────────────────────────
-  // Called by the picker on each debounced keystroke.
-  // GET /elastic/get-elastics?search=<query>
   Future<List<ElasticLite>> searchElastics(String query) async {
     try {
       final res = await _dio.get(
@@ -166,7 +154,7 @@ class AddOrderController extends GetxController {
       success = true;
       _snack(
         'Order Created',
-        'PO ${poCtrl.text} — ${DateFormat('dd MMM').format(orderDate.value)}',
+        'PO \${poCtrl.text} — \${DateFormat('dd MMM').format(orderDate.value)}',
         isError: false,
       );
     } on DioException catch (e) {

@@ -10,6 +10,7 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../PurchaseOrder/services/theme.dart';
 import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../../common_widgets/fingerprint_timeline.dart';
+import 'package:production/src/core/api_client.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  DATA MODELS
@@ -373,12 +374,10 @@ class MachineMini {
 // ════════════════════════════════════════════════════════════════
 
 class JobDetailController extends GetxController {
-  static const _baseUrl = 'http://13.233.117.153:2701/api/v2/job';
-  final _dio = Dio(BaseOptions(
-    baseUrl: _baseUrl,
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-  ));
+  // Reuse the shared ApiClient so the JWT cookie travels with every
+  // request — backend sets req.user from it and the audit plugin
+  // stamps createdBy/updatedBy automatically.
+  Dio get _dio => ApiClient.instance.dio;
 
   final isLoading = true.obs;
   final errorMsg = Rxn<String>();
@@ -402,7 +401,7 @@ class JobDetailController extends GetxController {
     if (j == null) return;
     actionLoading.value = true;
     try {
-      await _dio.post('/assign-machine', data: {
+      await _dio.post('/job/assign-machine', data: {
         'jobId':     j.id,
         'machineId': machineId,
         'elastics':  elastics,
@@ -433,7 +432,7 @@ class JobDetailController extends GetxController {
     if (j == null) return;
     actionLoading.value = true;
     try {
-      await _dio.post('/update-status', data: {
+      await _dio.post('/job/update-status', data: {
         'jobId':      j.id,
         'nextStatus': nextStatus,
         'actor':      buildActorPayload(),
@@ -467,7 +466,7 @@ class JobDetailController extends GetxController {
     if (machinesLoading.value) return;
     machinesLoading.value = true;
     try {
-      final res = await _dio.get('/free-machines');
+      final res = await _dio.get('/job/free-machines');
       final list = res.data['machines'] as List<dynamic>? ?? [];
       freeMachines.value = list
           .map((m) => MachineMini.fromJson(m as Map<String, dynamic>))
@@ -488,7 +487,7 @@ class JobDetailController extends GetxController {
     isLoading.value = true;
     errorMsg.value = null;
     try {
-      final res = await _dio.get('/$jobId');
+      final res = await _dio.get('/job/$jobId');
       job.value =
           JobDetailModel.fromJson(res.data['data'] as Map<String, dynamic>);
     } on DioException catch (e) {

@@ -429,6 +429,23 @@ class _FingerprintRow extends StatelessWidget {
       case 'ORDER_CANCELLED':
       case 'JOB_CANCELLED':
         return ErpColors.errorRed;
+      // Sub-stage events
+      case 'WARPING_STARTED':
+        return const Color(0xFF0891B2);
+      case 'WARPING_COMPLETED':
+        return const Color(0xFF059669);
+      case 'COVERING_STARTED':
+        return const Color(0xFF6366F1);
+      case 'COVERING_COMPLETED':
+        return const Color(0xFF059669);
+      case 'COVERING_BEAM_ENTRY':
+        return const Color(0xFF8B5CF6);
+      case 'SHIFT_PRODUCTION_ENTERED':
+        return const Color(0xFFEA580C);
+      case 'PACKING_CREATED':
+        return const Color(0xFF0EA5E9);
+      case 'WASTAGE_RECORDED':
+        return ErpColors.errorRed;
       default:
         return ErpColors.textSecondary;
     }

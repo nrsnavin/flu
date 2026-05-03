@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:production/src/features/shift/models/shift_detail_view_model.dart';
+import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
+    show buildActorPayload;
 
 // ── import removed: shift_list_page (caused circular import) ──
 
@@ -78,6 +80,7 @@ class ShiftDetailController extends GetxController {
           "production": productionValue,
           "timer":      timerController.text,
           "feedback":   feedbackController.text,
+          "actor":      buildActorPayload(),
         },
       );
       Get.snackbar(

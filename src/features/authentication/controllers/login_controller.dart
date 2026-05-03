@@ -8,7 +8,12 @@ import '../screens/home.dart';
 import 'storage_keys.dart';
 
 class LoginController extends GetxController {
-  static LoginController get find => Get.find();
+  // Lazy registration so `buildActorPayload()` (and any other caller)
+  // always gets a controller back, even if the user opened a deep
+  // link / tile route that hasn't gone through the login screen yet.
+  static LoginController get find => Get.isRegistered<LoginController>()
+      ? Get.find<LoginController>()
+      : Get.put(LoginController(), permanent: true);
 
   Rx<User>  user            = User(id: '', name: '', role: '').obs;
   RxBool    isLoading        = false.obs;

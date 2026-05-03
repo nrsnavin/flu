@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/covering.dart';
+import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
+    show buildActorPayload;
 
 // ══════════════════════════════════════════════════════════════
 //  COVERING API SERVICE
@@ -63,12 +65,14 @@ class CoveringApiService {
       _get('/covering/detail', query: {'id': id});
 
   static Future<void> start(String id) =>
-      _post('/covering/start', data: {'id': id});
+      _post('/covering/start',
+          data: {'id': id, 'actor': buildActorPayload()});
 
   static Future<void> complete(String id, {String? remarks}) =>
       _post('/covering/complete', data: {
         'id': id,
         if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+        'actor': buildActorPayload(),
       });
 }
 

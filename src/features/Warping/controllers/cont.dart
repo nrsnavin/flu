@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 
 import '../models/models.dart';
 import '../screens/pdf.dart';
+import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
+    show buildActorPayload;
 
 // ── API ───────────────────────────────────────────────────────
 class WarpingApi {
@@ -28,10 +30,14 @@ class WarpingApi {
   }
 
   static Future<void> start(String id) async =>
-      _dio.put('/start', queryParameters: {'id': id});
+      _dio.put('/start',
+          queryParameters: {'id': id},
+          data: {'actor': buildActorPayload()});
 
   static Future<void> complete(String id) async =>
-      _dio.put('/complete', queryParameters: {'id': id});
+      _dio.put('/complete',
+          queryParameters: {'id': id},
+          data: {'actor': buildActorPayload()});
 
   // FIX: was { _id: id } on backend — now fixed to { warping: id }
   static Future<WarpingPlanDetail?> fetchPlan(String warpingId) async {

@@ -547,7 +547,7 @@ class _JobDetailPageState extends State<JobDetailPage>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 6, vsync: this);
+    _tabs = TabController(length: 7, vsync: this);
     _ctrl = Get.put(JobDetailController());
   }
 
@@ -636,6 +636,7 @@ class _JobDetailPageState extends State<JobDetailPage>
                   Tab(text: 'Weaving'),
                   Tab(text: 'Wastage'),
                   Tab(text: 'Packing'),
+                  Tab(icon: Icon(Icons.fingerprint_rounded, size: 16), text: 'Audit Trail'),
                 ],
               ),
             ),
@@ -659,6 +660,7 @@ class _JobDetailPageState extends State<JobDetailPage>
                 totalPlanned: job.totalPlanned,
               ),
               _PackingTab(packingDetails: job.packingDetails),
+              _AuditTrailTab(fingerprints: job.fingerprints),
             ],
           ),
         ),
@@ -1354,11 +1356,6 @@ class _GeneralTab extends StatelessWidget {
               ],
             ]),
           ),
-        const SizedBox(height: 10),
-
-        // 🪪 Audit fingerprint timeline
-        FingerprintTimeline(fingerprints: job.fingerprints),
-
         const SizedBox(height: 16),
       ],
     );
@@ -2129,6 +2126,25 @@ class _PackingTab extends StatelessWidget {
       children: packingDetails.isEmpty
           ? [const _EmptyCard(label: 'No packing records yet.')]
           : [_PackingTable(packingDetails: packingDetails)],
+    );
+  }
+}
+
+// ── Audit Trail tab ─────────────────────────────────────────────
+//   Dedicated tab for the fingerprint timeline so the audit log is
+//   one tap away from the job header instead of buried at the bottom
+//   of the General tab.
+class _AuditTrailTab extends StatelessWidget {
+  final List<Map<String, dynamic>> fingerprints;
+  const _AuditTrailTab({required this.fingerprints});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(14),
+      children: [
+        FingerprintTimeline(fingerprints: fingerprints),
+      ],
     );
   }
 }

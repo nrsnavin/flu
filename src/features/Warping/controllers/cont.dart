@@ -29,15 +29,13 @@ class WarpingApi {
     return WarpingDetail.fromJson(res.data['warping'] as Map<String, dynamic>);
   }
 
+  // Backend switched these endpoints from PUT to POST so the JSON
+  // body always survives reverse-proxy hops. `id` now rides in body.
   static Future<void> start(String id) async =>
-      _dio.put('/start',
-          queryParameters: {'id': id},
-          data: {'actor': buildActorPayload()});
+      _dio.post('/start', data: {'id': id, 'actor': buildActorPayload()});
 
   static Future<void> complete(String id) async =>
-      _dio.put('/complete',
-          queryParameters: {'id': id},
-          data: {'actor': buildActorPayload()});
+      _dio.post('/complete', data: {'id': id, 'actor': buildActorPayload()});
 
   // FIX: was { _id: id } on backend — now fixed to { warping: id }
   static Future<WarpingPlanDetail?> fetchPlan(String warpingId) async {

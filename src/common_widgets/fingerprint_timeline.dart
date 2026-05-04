@@ -446,6 +446,19 @@ class _FingerprintRow extends StatelessWidget {
         return const Color(0xFF0EA5E9);
       case 'WASTAGE_RECORDED':
         return ErpColors.errorRed;
+      // Delivery-Challan lifecycle
+      case 'DC_CREATED':
+        return ErpColors.accentBlue;
+      case 'DC_DISPATCHED':
+        return const Color(0xFFD97706);
+      case 'DC_DELIVERED':
+        return ErpColors.successGreen;
+      case 'DC_CANCELLED':
+        return ErpColors.errorRed;
+      case 'DC_DELETED':
+        return ErpColors.errorRed;
+      case 'DC_STATUS_UPDATED':
+        return ErpColors.warningAmber;
       default:
         return ErpColors.textSecondary;
     }

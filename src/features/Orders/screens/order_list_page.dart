@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Orders/controllers/order_list_controller.dart';
 import 'package:production/src/features/Orders/models/order_list_item.dart';
 import 'package:production/src/features/Orders/screens/add_order_page.dart';
@@ -264,6 +265,9 @@ class _OrderCard extends StatelessWidget {
                             ),
                             const Spacer(),
                             OrderStatusBadge(order.status),
+                            // 🪪 Quick edit / delete menu — Open only
+                            if (isOpen)
+                              _OrderCardMenu(orderId: order.id, c: c),
                           ],
                         ),
                         const SizedBox(height: 3),
@@ -579,6 +583,116 @@ class _OrderCard extends StatelessWidget {
     );
   }
 }
+
+// ── Quick edit/delete menu — shown on Open cards ──────────────────
+class _OrderCardMenu extends StatelessWidget {
+  final String orderId;
+  final OrderListController c;
+  const _OrderCardMenu({required this.orderId, required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      tooltip: '',
+      icon: const Icon(Icons.more_vert,
+          size: 18, color: ErpColors.textSecondary),
+      padding: EdgeInsets.zero,
+      onSelected: (value) async {
+        if (value == 'edit') {
+          // Pre-fetch detail so the edit form lands fully hydrated
+          // (customer, dates, elastics, quantities).
+          try {
+            final dio = ApiClient.instance.dio;
+            final res = await dio.get(
+              '/order/get-orderDetail',
+              queryParameters: {'id': orderId},
+            );
+            final data = res.data['data'] as Map<String, dynamic>?;
+            await Get.to(() => AddOrderPage(
+                  editingOrderId: orderId,
+                  initialOrder:   data,
+                ));
+            c.fetchOrders();
+          } catch (_) {/* error already snackbar'd by Dio interceptor */}
+        } else if (value == 'delete') {
+          await _confirmDelete(context);
+        }
+      },
+      itemBuilder: (_) => const [
+        PopupMenuItem(
+          value: 'edit',
+          child: Row(children: [
+            Icon(Icons.edit_outlined, size: 16, color: ErpColors.accentBlue),
+            SizedBox(width: 8),
+            Text('Edit'),
+          ]),
+        ),
+        PopupMenuItem(
+          value: 'delete',
+          child: Row(children: [
+            Icon(Icons.delete_outline, size: 16, color: ErpColors.errorRed),
+            SizedBox(width: 8),
+            Text('Delete'),
+          ]),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext ctx) async {
+    final reasonCtrl = TextEditingController();
+    final confirmed = await Get.dialog<bool>(Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Delete Order',
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            const SizedBox(height: 12),
+            const Text(
+              'The order will be hidden from active lists. An audit '
+              'entry will be recorded. Cannot be undone.',
+              style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: reasonCtrl,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                isDense: true,
+                labelText: 'Reason (optional)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(children: [
+              Expanded(child: OutlinedButton(
+                  onPressed: () => Get.back(result: false),
+                  child: const Text('Cancel'))),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: ErpColors.errorRed, elevation: 0),
+                  onPressed: () => Get.back(result: true),
+                  child: const Text('Delete',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ]),
+          ],
+        ),
+      ),
+    ));
+    if (confirmed == true) {
+      await c.deleteOrder(orderId, reason: reasonCtrl.text.trim());
+    }
+  }
+}
+
 
 // ── Empty state ────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {

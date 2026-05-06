@@ -24,7 +24,22 @@ Map<String, dynamic> buildActorPayload() {
 
 class AddOrderController extends GetxController {
   final VoidCallback? onSuccess;
-  AddOrderController({this.onSuccess});
+
+  /// When non-null, the form starts in edit mode and submitOrder()
+  /// posts to /order/update-order instead of /create-order.
+  final String? editingOrderId;
+
+  /// Optional initial values for edit mode. Wired in by the page
+  /// before the first build.
+  final Map<String, dynamic>? initialOrder;
+
+  AddOrderController({
+    this.onSuccess,
+    this.editingOrderId,
+    this.initialOrder,
+  });
+
+  bool get isEditing => editingOrderId != null;
 
   Dio get _dio => ApiClient.instance.dio;
 
@@ -49,7 +64,51 @@ class AddOrderController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    addElasticRow();
+    if (initialOrder != null) {
+      _hydrateFromOrder(initialOrder!);
+    } else {
+      addElasticRow();
+    }
+  }
+
+  /// Pre-fill controllers from an existing order's GET-response
+  /// payload (the same `data` blob OrderDetailController.fetchOrderDetail
+  /// stores). Called once during onInit when editingOrderId is set.
+  void _hydrateFromOrder(Map<String, dynamic> o) {
+    poCtrl.text   = (o['po']          ?? '').toString();
+    descCtrl.text = (o['description'] ?? '').toString();
+
+    final raw = o['date'];
+    if (raw != null) {
+      try { orderDate.value = DateTime.parse(raw.toString()); } catch (_) {}
+    }
+    final supply = o['supplyDate'];
+    if (supply != null) {
+      try { supplyDate.value = DateTime.parse(supply.toString()); } catch (_) {}
+    }
+
+    final cust = o['customer'];
+    if (cust is Map) {
+      selectedCustomerId.value   = cust['_id']?.toString();
+      selectedCustomerName.value = cust['name']?.toString();
+    }
+
+    // GET /get-orderDetail returns `elastics` (id+name+ordered/produced/...)
+    // — use those to pre-fill the rows. Fall back to elasticOrdered.
+    final list = (o['elastics'] as List?) ?? (o['elasticOrdered'] as List?) ?? const [];
+    elasticRows.clear();
+    for (final raw in list) {
+      if (raw is! Map) continue;
+      final row = OrderElasticRow();
+      final id = (raw['id'] ?? raw['elastic'])?.toString();
+      final name = raw['name']?.toString();
+      final qty = (raw['ordered'] ?? raw['quantity'] ?? 0).toString();
+      row.elasticId.value           = id;
+      row.selectedElasticName.value = name;
+      row.qtyCtrl.text              = qty;
+      elasticRows.add(row);
+    }
+    if (elasticRows.isEmpty) addElasticRow();
   }
 
   // ── Search customers ────────────────────────────────────────
@@ -150,15 +209,28 @@ class AddOrderController extends GetxController {
     bool success = false;
     try {
       isSubmitting.value = true;
-      await _dio.post('/order/create-order', data: _buildPayload());
+      if (isEditing) {
+        await _dio.post('/order/update-order', data: {
+          'orderId': editingOrderId,
+          ..._buildPayload(),
+        });
+        _snack(
+          'Order Updated',
+          'PO ${poCtrl.text} — ${DateFormat('dd MMM').format(orderDate.value)}',
+          isError: false,
+        );
+      } else {
+        await _dio.post('/order/create-order', data: _buildPayload());
+        _snack(
+          'Order Created',
+          'PO ${poCtrl.text} — ${DateFormat('dd MMM').format(orderDate.value)}',
+          isError: false,
+        );
+      }
       success = true;
-      _snack(
-        'Order Created',
-        'PO \${poCtrl.text} — \${DateFormat('dd MMM').format(orderDate.value)}',
-        isError: false,
-      );
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? 'Failed to create order';
+      final msg = e.response?.data?['message'] ??
+          (isEditing ? 'Failed to update order' : 'Failed to create order');
       _snack('Error', msg, isError: true);
     } finally {
       isSubmitting.value = false;

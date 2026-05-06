@@ -8,6 +8,7 @@ import '../../Job/models/order_model.dart';
 import '../../Job/screens/add_job_page.dart';
 import '../../Job/screens/job_detail.dart';
 import '../../PurchaseOrder/services/theme.dart';
+import 'add_order_page.dart' show AddOrderPage;
 
 class OrderDetailPage extends StatelessWidget {
   const OrderDetailPage({super.key});
@@ -394,6 +395,60 @@ class _ActionBar extends StatelessWidget {
             loading: c.isActioning.value,
             onTap:   canApprove ? () => _confirmApprove(context, c) : null,
           ),
+          // ── Edit / Delete row (Open + no jobs only; Open is the
+          //    only state where item changes don't corrupt stock or
+          //    audit history)
+          const SizedBox(height: 8),
+          Row(children: [
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: OutlinedButton.icon(
+                  onPressed: c.isActioning.value
+                      ? null
+                      : () => Get.to(() => AddOrderPage(
+                            editingOrderId: order["_id"]?.toString(),
+                            initialOrder:   order,
+                          ))?.then((updated) {
+                            if (updated == true) c.fetchOrderDetail();
+                          }),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: ErpColors.accentBlue),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                  ),
+                  icon: const Icon(Icons.edit_outlined,
+                      size: 16, color: ErpColors.accentBlue),
+                  label: const Text("Edit",
+                      style: TextStyle(
+                          color: ErpColors.accentBlue,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: OutlinedButton.icon(
+                  onPressed: c.isActioning.value
+                      ? null
+                      : () => _confirmDelete(context, c, order),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: ErpColors.errorRed),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                  ),
+                  icon: const Icon(Icons.delete_outline,
+                      size: 16, color: ErpColors.errorRed),
+                  label: const Text("Delete",
+                      style: TextStyle(
+                          color: ErpColors.errorRed,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ),
+          ]),
         ],
       ));
     }
@@ -488,6 +543,83 @@ class _ActionBar extends StatelessWidget {
                       backgroundColor: ErpColors.warningAmber, elevation: 0),
                   onPressed: () { Get.back(); c.startProduction(); },
                   child: const Text("Start", style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ]),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  void _confirmDelete(
+    BuildContext ctx,
+    OrderDetailController c,
+    Map<String, dynamic> order,
+  ) {
+    final reasonCtrl = TextEditingController();
+    final jobCount   = ((order['jobs'] as List?) ?? []).length;
+    Get.dialog(Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                    color: ErpColors.errorRed.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8)),
+                child: const Icon(Icons.delete_outline,
+                    color: ErpColors.errorRed, size: 18),
+              ),
+              const SizedBox(width: 12),
+              const Text("Delete Order",
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            ]),
+            const SizedBox(height: 12),
+            if (jobCount > 0)
+              Text(
+                "This order has $jobCount job(s). Cancel them first.",
+                style: const TextStyle(color: ErpColors.errorRed, fontSize: 13),
+              )
+            else
+              const Text(
+                "The order will be hidden from active lists and an "
+                "audit entry will be recorded. The action cannot be undone.",
+                style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
+              ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: reasonCtrl,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                isDense: true,
+                labelText: "Reason (optional)",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(children: [
+              Expanded(child: OutlinedButton(
+                  onPressed: Get.back, child: const Text("Cancel"))),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: ErpColors.errorRed, elevation: 0),
+                  onPressed: jobCount > 0 ? null : () async {
+                    Get.back();
+                    final ok = await c.deleteOrder(
+                      reason: reasonCtrl.text.trim(),
+                    );
+                    if (ok) Get.back(result: true); // pop detail
+                  },
+                  child: const Text("Delete",
+                      style: TextStyle(color: Colors.white)),
                 ),
               ),
             ]),

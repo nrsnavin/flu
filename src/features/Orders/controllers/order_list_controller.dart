@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:production/src/core/api_client.dart';
+import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
+    show buildActorPayload;
 import 'package:production/src/features/Orders/models/order_list_item.dart';
 
 class OrderListController extends GetxController {
@@ -58,7 +60,8 @@ class OrderListController extends GetxController {
 
   Future<void> approveOrder(String id) async {
     try {
-      await _dio.post("/order/approve", data: {"orderId": id});
+      await _dio.post("/order/approve",
+          data: {"orderId": id, "actor": buildActorPayload()});
       Get.snackbar(
         "Order Approved",
         "Stock deducted successfully",
@@ -78,7 +81,8 @@ class OrderListController extends GetxController {
 
   Future<void> cancelOrder(String id) async {
     try {
-      await _dio.post("/order/cancel", data: {"orderId": id});
+      await _dio.post("/order/cancel",
+          data: {"orderId": id, "actor": buildActorPayload()});
       Get.snackbar(
         "Order Cancelled",
         "",
@@ -89,6 +93,31 @@ class OrderListController extends GetxController {
       fetchOrders();
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Cancel failed";
+      Get.snackbar("Error", msg,
+          backgroundColor: const Color(0xFFDC2626),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  /// Soft-delete an Open order (no jobs allowed).
+  Future<void> deleteOrder(String id, {String? reason}) async {
+    try {
+      await _dio.post("/order/delete-order", data: {
+        "orderId": id,
+        if (reason != null && reason.isNotEmpty) "reason": reason,
+        "actor": buildActorPayload(),
+      });
+      Get.snackbar(
+        "Order Deleted",
+        "Order moved to Deleted status",
+        backgroundColor: const Color(0xFF16A34A),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      fetchOrders();
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? "Delete failed";
       Get.snackbar("Error", msg,
           backgroundColor: const Color(0xFFDC2626),
           colorText: Colors.white,

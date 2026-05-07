@@ -83,6 +83,10 @@ class _WarpingPlanPageState extends State<WarpingPlanPage> {
             _BeamCountCard(c: c),
             const SizedBox(height: 12),
 
+            // ── Uniform meters toggle ──────────────────────
+            _UniformMetersCard(c: c),
+            const SizedBox(height: 12),
+
             // ── Beam cards ─────────────────────────────────
             ...c.beams.asMap().entries.map((e) => _BeamCard(
               c: c,
@@ -407,6 +411,90 @@ class _BeamCountCard extends StatelessWidget {
     ]),
   );
 }
+
+// ════════════════════════════════════════════════════════════
+//  UNIFORM METERS CARD
+//
+//  Lets the operator force every section in every beam to the same
+//  maxMeters value — the common case for a single warping run. The
+//  checkbox toggles `c.uniformMaxMeters`; when ON, a single
+//  text field appears below and the per-section meter inputs
+//  switch to read-only (driven by `c.uniformMaxMetersCtrl`).
+// ════════════════════════════════════════════════════════════
+class _UniformMetersCard extends StatelessWidget {
+  final WarpingPlanController c;
+  const _UniformMetersCard({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    final on = c.uniformMaxMeters.value;
+    return ErpSectionCard(
+      title: 'BEAM METERS',
+      icon: Icons.straighten_rounded,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: const Text(
+                  'Same meters across all beams',
+                  style: TextStyle(
+                      color: ErpColors.textPrimary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+            // Switch is more discoverable on touch than a checkbox.
+            Switch.adaptive(
+              value: on,
+              activeColor: ErpColors.accentBlue,
+              onChanged: c.setUniformMaxMeters,
+            ),
+          ]),
+          if (!on)
+            const Padding(
+              padding: EdgeInsets.only(top: 4),
+              child: Text(
+                'Leave off to enter a different meter value per section.',
+                style: TextStyle(
+                    color: ErpColors.textMuted, fontSize: 11),
+              ),
+            )
+          else ...[
+            const SizedBox(height: 8),
+            const Text(
+              'Per-section meter fields are locked while this is on.',
+              style: TextStyle(color: ErpColors.textMuted, fontSize: 11),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: c.uniformMaxMetersCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+              ],
+              style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: ErpColors.textPrimary),
+              decoration: ErpDecorations.formInput('Meter').copyWith(
+                suffixText: 'm',
+                suffixStyle: const TextStyle(
+                    color: ErpColors.textMuted, fontSize: 12),
+                hintText: 'e.g. 3000',
+              ),
+              onChanged: c.updateUniformMaxMeters,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 
 // No Obx — receives value as plain int, parent Obx drives rebuilds
 class _StepperField extends StatelessWidget {
@@ -733,13 +821,22 @@ class _SectionRow extends StatelessWidget {
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                 ],
+                // Read-only when uniform-meters mode is on; the value
+                // is driven by the shared field at the top of the page.
+                enabled: !c.uniformMaxMeters.value,
                 decoration: ErpDecorations.formInput('Meter').copyWith(
                   suffixText: 'm',
                   suffixStyle: const TextStyle(
                       color: ErpColors.textMuted, fontSize: 11),
-                  hintText: 'optional',
+                  hintText: c.uniformMaxMeters.value
+                      ? 'set above'
+                      : 'optional',
                   hintStyle: const TextStyle(
                       color: ErpColors.textMuted, fontSize: 10),
+                  fillColor: c.uniformMaxMeters.value
+                      ? ErpColors.bgMuted
+                      : null,
+                  filled: c.uniformMaxMeters.value,
                 ),
                 onChanged: (v) =>
                     c.updateMaxMeters(bi, si, double.tryParse(v) ?? 0),

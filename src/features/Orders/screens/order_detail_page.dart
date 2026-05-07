@@ -588,12 +588,11 @@ class _ActionBar extends StatelessWidget {
                   onPressed: Get.back, child: const Text("Back"))),
               const SizedBox(width: 10),
               Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: ErpColors.errorRed, elevation: 0),
-                  onPressed: () { Get.back(); c.cancelOrder(); },
-                  child: const Text("Cancel Order",
-                      style: TextStyle(color: Colors.white)),
+                child: _DialogActionButton(
+                  c:      c,
+                  label:  "Cancel Order",
+                  color:  ErpColors.errorRed,
+                  action: c.cancelOrder,
                 ),
               ),
             ]),
@@ -632,11 +631,11 @@ class _ActionBar extends StatelessWidget {
               Expanded(child: OutlinedButton(onPressed: Get.back, child: const Text("Cancel"))),
               const SizedBox(width: 10),
               Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: ErpColors.accentBlue, elevation: 0),
-                  onPressed: () { Get.back(); c.approveOrder(); },
-                  child: const Text("Approve", style: TextStyle(color: Colors.white)),
+                child: _DialogActionButton(
+                  c:      c,
+                  label:  "Approve",
+                  color:  ErpColors.accentBlue,
+                  action: c.approveOrder,
                 ),
               ),
             ]),
@@ -675,11 +674,11 @@ class _ActionBar extends StatelessWidget {
               Expanded(child: OutlinedButton(onPressed: Get.back, child: const Text("Cancel"))),
               const SizedBox(width: 10),
               Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: ErpColors.warningAmber, elevation: 0),
-                  onPressed: () { Get.back(); c.startProduction(); },
-                  child: const Text("Start", style: TextStyle(color: Colors.white)),
+                child: _DialogActionButton(
+                  c:      c,
+                  label:  "Start",
+                  color:  ErpColors.warningAmber,
+                  action: c.startProduction,
                 ),
               ),
             ]),
@@ -745,19 +744,47 @@ class _ActionBar extends StatelessWidget {
                   onPressed: Get.back, child: const Text("Cancel"))),
               const SizedBox(width: 10),
               Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: ErpColors.errorRed, elevation: 0),
-                  onPressed: jobCount > 0 ? null : () async {
-                    Get.back();
-                    final ok = await c.deleteOrder(
-                      reason: reasonCtrl.text.trim(),
-                    );
-                    if (ok) Get.back(result: true); // pop detail
-                  },
-                  child: const Text("Delete",
-                      style: TextStyle(color: Colors.white)),
-                ),
+                child: jobCount > 0
+                    ? ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                ErpColors.errorRed.withOpacity(0.4),
+                            elevation: 0),
+                        onPressed: null,
+                        child: const Text("Delete",
+                            style: TextStyle(color: Colors.white)),
+                      )
+                    : Obx(() {
+                        final busy = c.isActioning.value;
+                        return ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ErpColors.errorRed,
+                            disabledBackgroundColor:
+                                ErpColors.errorRed.withOpacity(0.6),
+                            elevation: 0,
+                          ),
+                          onPressed: busy ? null : () async {
+                            final ok = await c.deleteOrder(
+                              reason: reasonCtrl.text.trim(),
+                            );
+                            // Always close the dialog so the snackbar
+                            // surfaces on the route below.
+                            if (Get.isDialogOpen ?? false) Get.back();
+                            // Pop the detail page on success.
+                            if (ok) Get.back(result: true);
+                          },
+                          child: busy
+                              ? const SizedBox(
+                                  width: 16, height: 16,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white))
+                              : const Text("Delete",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700)),
+                        );
+                      }),
               ),
             ]),
           ],
@@ -1180,5 +1207,66 @@ class _JobOrdersSection extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+
+// ── Shared dialog confirm-button ───────────────────────────────
+//   Wraps an async action and:
+//     1. shows a spinner inside the button while it runs,
+//     2. disables the button so it can't double-fire,
+//     3. closes the dialog only AFTER the action completes (so the
+//        controller's snackbar isn't eaten by the route transition).
+//
+//   Used for Approve / Start / Cancel / Delete confirmation dialogs
+//   in the Order detail screen. `action` is the controller method
+//   (already does its own snackbar + state refresh).
+class _DialogActionButton extends StatelessWidget {
+  final OrderDetailController c;
+  final String label;
+  final Color color;
+  final Future<void> Function() action;
+  final bool popDetailOnSuccess; // for Delete — pops the detail page
+
+  const _DialogActionButton({
+    required this.c,
+    required this.label,
+    required this.color,
+    required this.action,
+    this.popDetailOnSuccess = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final busy = c.isActioning.value;
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          disabledBackgroundColor: color.withOpacity(0.55),
+          elevation: 0,
+        ),
+        onPressed: busy ? null : () async {
+          await action();
+          // Close the dialog regardless of success/error — feedback
+          // is delivered via the controller's snackbar.
+          if (Get.isDialogOpen ?? false) Get.back();
+          // For Delete: also pop the detail page if status flipped to
+          // "Deleted" (the controller already updated `order` via
+          // fetchOrderDetail() OR returned true).
+          if (popDetailOnSuccess && (c.order.value?['status'] == 'Deleted')) {
+            Get.back();
+          }
+        },
+        child: busy
+            ? const SizedBox(
+                width: 16, height: 16,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white))
+            : Text(label,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700)),
+      );
+    });
   }
 }

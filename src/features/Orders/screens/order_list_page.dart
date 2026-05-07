@@ -497,18 +497,12 @@ class _OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: ErpColors.accentBlue,
-                        elevation: 0),
-                    onPressed: () {
-                      Get.back();
-                      c.approveOrder(orderId);
-                    },
-                    child: const Text("Approve",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700)),
+                  child: _ListDialogButton(
+                    label:    "Approve",
+                    color:    ErpColors.accentBlue,
+                    orderId:  orderId,
+                    c:        c,
+                    action:   () => c.approveOrder(orderId),
                   ),
                 ),
               ]),
@@ -565,18 +559,12 @@ class _OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: ErpColors.errorRed,
-                        elevation: 0),
-                    onPressed: () {
-                      Get.back();
-                      c.cancelOrder(orderId);
-                    },
-                    child: const Text("Yes, Cancel",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700)),
+                  child: _ListDialogButton(
+                    label:    "Yes, Cancel",
+                    color:    ErpColors.errorRed,
+                    orderId:  orderId,
+                    c:        c,
+                    action:   () => c.cancelOrder(orderId),
                   ),
                 ),
               ]),
@@ -671,7 +659,10 @@ class _OrderCardMenu extends StatelessWidget {
 
   Future<void> _confirmDelete(BuildContext ctx) async {
     final reasonCtrl = TextEditingController();
-    final confirmed = await Get.dialog<bool>(Dialog(
+    // Result is ignored — the confirm button performs the delete
+    // itself and pops the dialog. The Cancel button returns false
+    // and just closes the dialog.
+    await Get.dialog<bool>(Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -704,12 +695,16 @@ class _OrderCardMenu extends StatelessWidget {
                   child: const Text('Cancel'))),
               const SizedBox(width: 10),
               Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: ErpColors.errorRed, elevation: 0),
-                  onPressed: () => Get.back(result: true),
-                  child: const Text('Delete',
-                      style: TextStyle(color: Colors.white)),
+                child: _ListDialogButton(
+                  label:   'Delete',
+                  color:   ErpColors.errorRed,
+                  orderId: orderId,
+                  c:       c,
+                  action:  () =>
+                      c.deleteOrder(orderId, reason: reasonCtrl.text.trim()),
+                  // closeReturnValue is unused for delete (we don't need
+                  // the bool return), but the helper still pops the
+                  // dialog after the action completes.
                 ),
               ),
             ]),
@@ -717,9 +712,56 @@ class _OrderCardMenu extends StatelessWidget {
         ),
       ),
     ));
-    if (confirmed == true) {
-      await c.deleteOrder(orderId, reason: reasonCtrl.text.trim());
-    }
+  }
+}
+
+
+// ── Shared list dialog confirm button ──────────────────────────
+//   Same purpose as _DialogActionButton in order_detail_page.dart:
+//   shows a spinner while the action runs, disables the button to
+//   stop double-clicks, and pops the dialog AFTER the action
+//   completes so the snackbar from the controller reaches the
+//   underlying route. Uses OrderListController.actioningId so each
+//   row's button only shows its own spinner.
+class _ListDialogButton extends StatelessWidget {
+  final OrderListController c;
+  final String orderId;
+  final String label;
+  final Color color;
+  final Future<void> Function() action;
+
+  const _ListDialogButton({
+    required this.c,
+    required this.orderId,
+    required this.label,
+    required this.color,
+    required this.action,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final busy = c.isActioningOn(orderId);
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          disabledBackgroundColor: color.withOpacity(0.6),
+          elevation: 0,
+        ),
+        onPressed: busy ? null : () async {
+          await action();
+          if (Get.isDialogOpen ?? false) Get.back();
+        },
+        child: busy
+            ? const SizedBox(
+                width: 16, height: 16,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white))
+            : Text(label,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700)),
+      );
+    });
   }
 }
 

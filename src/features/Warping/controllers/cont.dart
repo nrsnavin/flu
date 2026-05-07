@@ -297,6 +297,51 @@ class WarpingPlanController extends GetxController {
   final isCombineMode = false.obs;
   final selectedBeams = <int>[].obs; // indices of beams selected for combine
 
+  // ── Uniform meters mode ────────────────────────────────
+  //   When ON: every section in every beam shares the same maxMeters.
+  //   The user types the value in a single field at the top of the
+  //   beam list; per-section meter inputs become read-only.
+  final uniformMaxMeters    = false.obs;
+  final uniformMaxMetersCtrl = TextEditingController();
+
+  /// Toggle uniform-meters mode.
+  /// On enable: pick the first non-zero meter value found in the
+  /// existing beams (or beam 0 / section 0 if all zero), seed the
+  /// shared text controller, then propagate to every section so the
+  /// per-section fields also reflect the unified value.
+  void setUniformMaxMeters(bool enabled) {
+    uniformMaxMeters.value = enabled;
+    if (!enabled) return;
+
+    double seed = 0;
+    for (final b in beams) {
+      for (final s in b.sections) {
+        if (s.maxMeters > 0) { seed = s.maxMeters; break; }
+      }
+      if (seed > 0) break;
+    }
+    uniformMaxMetersCtrl.text = seed > 0 ? _fmtDouble(seed) : '';
+    _applyUniformMaxMeters(seed);
+  }
+
+  /// Called from the shared text field. Parses the value, writes it
+  /// into every section, and refreshes the per-section controllers
+  /// so the disabled inputs visibly reflect the change.
+  void updateUniformMaxMeters(String text) {
+    final v = double.tryParse(text.trim()) ?? 0;
+    _applyUniformMaxMeters(v);
+  }
+
+  void _applyUniformMaxMeters(double v) {
+    for (final b in beams) {
+      for (final s in b.sections) {
+        s.maxMeters = v;
+      }
+    }
+    _syncControllers(); // refreshes per-section text fields
+    beams.refresh();
+  }
+
   void toggleCombineMode() {
     isCombineMode.value = !isCombineMode.value;
     selectedBeams.clear();
@@ -442,6 +487,7 @@ class WarpingPlanController extends GetxController {
     for (final c in _maxMetersCtrlMap.values)  c.dispose();
     _endsCtrlMap.clear();
     _maxMetersCtrlMap.clear();
+    uniformMaxMetersCtrl.dispose();
     super.onClose();
   }
 
@@ -526,7 +572,12 @@ class WarpingPlanController extends GetxController {
   }
 
   void addSection(int beamIndex) {
-    beams[beamIndex].sections.add(EditableBeamSection());
+    // When uniform-meters mode is on, seed the new section with the
+    // current shared value so the user doesn't see a stray 0.
+    final seed = uniformMaxMeters.value
+        ? (double.tryParse(uniformMaxMetersCtrl.text.trim()) ?? 0)
+        : 0.0;
+    beams[beamIndex].sections.add(EditableBeamSection(maxMeters: seed));
     beams.refresh();
     _syncControllers();
   }

@@ -92,4 +92,60 @@ class OrderDetailController extends GetxController {
       isActioning.value = false;
     }
   }
+
+  /// Cancel an Open or Approved order. Stock isn't auto-refunded;
+  /// the confirmation dialog warns the user.
+  Future<void> cancelOrder() async {
+    try {
+      isActioning.value = true;
+      await _dio.post('/order/cancel', data: {
+        'orderId': orderId,
+        'actor':   buildActorPayload(),
+      });
+      Get.snackbar(
+        'Order Cancelled', 'The order has been moved to Cancelled.',
+        backgroundColor: const Color(0xFFDC2626),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      await fetchOrderDetail();
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Cancel failed';
+      Get.snackbar('Error', msg,
+          backgroundColor: const Color(0xFFDC2626),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM);
+    } finally {
+      isActioning.value = false;
+    }
+  }
+
+  /// Soft-delete an Open order (no jobs). Returns true on success
+  /// so the caller can pop back to the list.
+  Future<bool> deleteOrder({String? reason}) async {
+    try {
+      isActioning.value = true;
+      await _dio.post('/order/delete-order', data: {
+        'orderId': orderId,
+        if (reason != null && reason.isNotEmpty) 'reason': reason,
+        'actor':   buildActorPayload(),
+      });
+      Get.snackbar(
+        'Order Deleted', 'The order has been removed.',
+        backgroundColor: const Color(0xFF16A34A),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return true;
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Delete failed';
+      Get.snackbar('Error', msg,
+          backgroundColor: const Color(0xFFDC2626),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM);
+      return false;
+    } finally {
+      isActioning.value = false;
+    }
+  }
 }

@@ -8,6 +8,7 @@ import '../../Job/models/order_model.dart';
 import '../../Job/screens/add_job_page.dart';
 import '../../Job/screens/job_detail.dart';
 import '../../PurchaseOrder/services/theme.dart';
+import 'add_order_page.dart' show AddOrderPage;
 
 class OrderDetailPage extends StatelessWidget {
   const OrderDetailPage({super.key});
@@ -72,6 +73,10 @@ class OrderDetailPage extends StatelessWidget {
             child: Column(
               children: [
                 _HeroCard(order: order),
+                if (order["status"] == "Deleted") ...[
+                  const SizedBox(height: 10),
+                  _DeletedBanner(order: order),
+                ],
                 const SizedBox(height: 10),
                 _ActivityTrail(order: order),
                 const SizedBox(height: 10),
@@ -177,6 +182,61 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
+
+// ── Deleted banner ─────────────────────────────────────────────
+//   Surfaces "this order is soft-deleted" along with who/when so an
+//   operator landing on the detail page knows why nothing is editable.
+class _DeletedBanner extends StatelessWidget {
+  final Map<String, dynamic> order;
+  const _DeletedBanner({required this.order});
+
+  String _actor(dynamic raw) {
+    if (raw is Map) return raw['name']?.toString() ?? '—';
+    if (raw is String && raw.isNotEmpty) return raw;
+    return '—';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final at = order['deletedAt']?.toString();
+    final fmt = DateFormat('dd MMM yyyy · HH:mm');
+    String when = '—';
+    if (at != null && at.isNotEmpty) {
+      try { when = fmt.format(DateTime.parse(at).toLocal()); } catch (_) {}
+    }
+    final by = _actor(order['deletedBy']);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFCBD5E1)),
+      ),
+      child: Row(children: [
+        const Icon(Icons.delete_outline, size: 18, color: Color(0xFF64748B)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: const TextStyle(fontSize: 12, color: Color(0xFF334155)),
+              children: [
+                const TextSpan(
+                  text: 'Order Deleted',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
+                TextSpan(text: '  ·  by '),
+                TextSpan(text: by, style: const TextStyle(fontWeight: FontWeight.w700)),
+                TextSpan(text: '  ·  '),
+                TextSpan(text: when),
+              ],
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
+}
 
 class _DateStat extends StatelessWidget {
   final String label;
@@ -394,21 +454,152 @@ class _ActionBar extends StatelessWidget {
             loading: c.isActioning.value,
             onTap:   canApprove ? () => _confirmApprove(context, c) : null,
           ),
+          // ── Edit / Delete row (Open + no jobs only; Open is the
+          //    only state where item changes don't corrupt stock or
+          //    audit history)
+          const SizedBox(height: 8),
+          Row(children: [
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: OutlinedButton.icon(
+                  onPressed: c.isActioning.value
+                      ? null
+                      : () => Get.to(() => AddOrderPage(
+                            editingOrderId: order["_id"]?.toString(),
+                            initialOrder:   order,
+                          ))?.then((updated) {
+                            if (updated == true) c.fetchOrderDetail();
+                          }),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: ErpColors.accentBlue),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                  ),
+                  icon: const Icon(Icons.edit_outlined,
+                      size: 16, color: ErpColors.accentBlue),
+                  label: const Text("Edit",
+                      style: TextStyle(
+                          color: ErpColors.accentBlue,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: OutlinedButton.icon(
+                  onPressed: c.isActioning.value
+                      ? null
+                      : () => _confirmDelete(context, c, order),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: ErpColors.errorRed),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                  ),
+                  icon: const Icon(Icons.delete_outline,
+                      size: 16, color: ErpColors.errorRed),
+                  label: const Text("Delete",
+                      style: TextStyle(
+                          color: ErpColors.errorRed,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ),
+          ]),
         ],
       ));
     }
 
     if (status == "Approved") {
-      return Obx(() => _ActionButton(
-        label:   "Start Production",
-        icon:    Icons.play_circle_outline,
-        color:   ErpColors.warningAmber,
-        loading: c.isActioning.value,
-        onTap:   () => _confirmStart(context, c),
+      return Obx(() => Column(
+        children: [
+          _ActionButton(
+            label:   "Start Production",
+            icon:    Icons.play_circle_outline,
+            color:   ErpColors.warningAmber,
+            loading: c.isActioning.value,
+            onTap:   () => _confirmStart(context, c),
+          ),
+          const SizedBox(height: 8),
+          // Approved orders can still be cancelled (rolls back stock
+          // is NOT automatic — backend rejects in some states; the
+          // dialog explains the consequence).
+          SizedBox(
+            width: double.infinity,
+            height: 40,
+            child: OutlinedButton.icon(
+              onPressed: c.isActioning.value
+                  ? null
+                  : () => _confirmCancel(context, c),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: ErpColors.errorRed),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6)),
+              ),
+              icon: const Icon(Icons.cancel_outlined,
+                  size: 16, color: ErpColors.errorRed),
+              label: const Text('Cancel Order',
+                  style: TextStyle(
+                      color: ErpColors.errorRed,
+                      fontWeight: FontWeight.w700)),
+            ),
+          ),
+        ],
       ));
     }
 
     return const SizedBox();
+  }
+
+  void _confirmCancel(BuildContext ctx, OrderDetailController c) {
+    Get.dialog(Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                    color: ErpColors.errorRed.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8)),
+                child: const Icon(Icons.cancel_outlined,
+                    color: ErpColors.errorRed, size: 18),
+              ),
+              const SizedBox(width: 12),
+              const Text("Cancel Order",
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            ]),
+            const SizedBox(height: 12),
+            const Text(
+              "The order will be marked Cancelled. Already-deducted "
+              "raw material is NOT auto-refunded — adjust stock manually "
+              "if needed.",
+              style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
+            ),
+            const SizedBox(height: 18),
+            Row(children: [
+              Expanded(child: OutlinedButton(
+                  onPressed: Get.back, child: const Text("Back"))),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _DialogActionButton(
+                  c:      c,
+                  label:  "Cancel Order",
+                  color:  ErpColors.errorRed,
+                  action: c.cancelOrder,
+                ),
+              ),
+            ]),
+          ],
+        ),
+      ),
+    ));
   }
 
   void _confirmApprove(BuildContext ctx, OrderDetailController c) {
@@ -440,11 +631,11 @@ class _ActionBar extends StatelessWidget {
               Expanded(child: OutlinedButton(onPressed: Get.back, child: const Text("Cancel"))),
               const SizedBox(width: 10),
               Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: ErpColors.accentBlue, elevation: 0),
-                  onPressed: () { Get.back(); c.approveOrder(); },
-                  child: const Text("Approve", style: TextStyle(color: Colors.white)),
+                child: _DialogActionButton(
+                  c:      c,
+                  label:  "Approve",
+                  color:  ErpColors.accentBlue,
+                  action: c.approveOrder,
                 ),
               ),
             ]),
@@ -483,12 +674,117 @@ class _ActionBar extends StatelessWidget {
               Expanded(child: OutlinedButton(onPressed: Get.back, child: const Text("Cancel"))),
               const SizedBox(width: 10),
               Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: ErpColors.warningAmber, elevation: 0),
-                  onPressed: () { Get.back(); c.startProduction(); },
-                  child: const Text("Start", style: TextStyle(color: Colors.white)),
+                child: _DialogActionButton(
+                  c:      c,
+                  label:  "Start",
+                  color:  ErpColors.warningAmber,
+                  action: c.startProduction,
                 ),
+              ),
+            ]),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  void _confirmDelete(
+    BuildContext ctx,
+    OrderDetailController c,
+    Map<String, dynamic> order,
+  ) {
+    final reasonCtrl = TextEditingController();
+    final jobCount   = ((order['jobs'] as List?) ?? []).length;
+    Get.dialog(Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                    color: ErpColors.errorRed.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8)),
+                child: const Icon(Icons.delete_outline,
+                    color: ErpColors.errorRed, size: 18),
+              ),
+              const SizedBox(width: 12),
+              const Text("Delete Order",
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            ]),
+            const SizedBox(height: 12),
+            if (jobCount > 0)
+              Text(
+                "This order has $jobCount job(s). Cancel them first.",
+                style: const TextStyle(color: ErpColors.errorRed, fontSize: 13),
+              )
+            else
+              const Text(
+                "The order will be hidden from active lists and an "
+                "audit entry will be recorded. The action cannot be undone.",
+                style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
+              ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: reasonCtrl,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                isDense: true,
+                labelText: "Reason (optional)",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(children: [
+              Expanded(child: OutlinedButton(
+                  onPressed: Get.back, child: const Text("Cancel"))),
+              const SizedBox(width: 10),
+              Expanded(
+                child: jobCount > 0
+                    ? ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                ErpColors.errorRed.withOpacity(0.4),
+                            elevation: 0),
+                        onPressed: null,
+                        child: const Text("Delete",
+                            style: TextStyle(color: Colors.white)),
+                      )
+                    : Obx(() {
+                        final busy = c.isActioning.value;
+                        return ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ErpColors.errorRed,
+                            disabledBackgroundColor:
+                                ErpColors.errorRed.withOpacity(0.6),
+                            elevation: 0,
+                          ),
+                          onPressed: busy ? null : () async {
+                            final ok = await c.deleteOrder(
+                              reason: reasonCtrl.text.trim(),
+                            );
+                            // Always close the dialog so the snackbar
+                            // surfaces on the route below.
+                            if (Get.isDialogOpen ?? false) Get.back();
+                            // Pop the detail page on success.
+                            if (ok) Get.back(result: true);
+                          },
+                          child: busy
+                              ? const SizedBox(
+                                  width: 16, height: 16,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white))
+                              : const Text("Delete",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700)),
+                        );
+                      }),
               ),
             ]),
           ],
@@ -911,5 +1207,66 @@ class _JobOrdersSection extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+
+// ── Shared dialog confirm-button ───────────────────────────────
+//   Wraps an async action and:
+//     1. shows a spinner inside the button while it runs,
+//     2. disables the button so it can't double-fire,
+//     3. closes the dialog only AFTER the action completes (so the
+//        controller's snackbar isn't eaten by the route transition).
+//
+//   Used for Approve / Start / Cancel / Delete confirmation dialogs
+//   in the Order detail screen. `action` is the controller method
+//   (already does its own snackbar + state refresh).
+class _DialogActionButton extends StatelessWidget {
+  final OrderDetailController c;
+  final String label;
+  final Color color;
+  final Future<void> Function() action;
+  final bool popDetailOnSuccess; // for Delete — pops the detail page
+
+  const _DialogActionButton({
+    required this.c,
+    required this.label,
+    required this.color,
+    required this.action,
+    this.popDetailOnSuccess = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final busy = c.isActioning.value;
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          disabledBackgroundColor: color.withOpacity(0.55),
+          elevation: 0,
+        ),
+        onPressed: busy ? null : () async {
+          await action();
+          // Close the dialog regardless of success/error — feedback
+          // is delivered via the controller's snackbar.
+          if (Get.isDialogOpen ?? false) Get.back();
+          // For Delete: also pop the detail page if status flipped to
+          // "Deleted" (the controller already updated `order` via
+          // fetchOrderDetail() OR returned true).
+          if (popDetailOnSuccess && (c.order.value?['status'] == 'Deleted')) {
+            Get.back();
+          }
+        },
+        child: busy
+            ? const SizedBox(
+                width: 16, height: 16,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white))
+            : Text(label,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700)),
+      );
+    });
   }
 }

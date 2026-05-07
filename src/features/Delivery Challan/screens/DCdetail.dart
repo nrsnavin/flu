@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:production/src/features/Delivery%20Challan/screens/pdf.dart';
 
+import '../../../common_widgets/fingerprint_timeline.dart';
+import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
 
@@ -51,7 +53,12 @@ class DCDetailController extends GetxController {
   Future<void> updateStatus(String status, {required VoidCallback onDone}) async {
     try {
       updating.value = true;
-      await _dio.patch('/dc/update-status', data: {'id': dcId, 'status': status});
+      // 🪪 Actor body so the backend records who flipped status
+      await _dio.patch('/dc/update-status', data: {
+        'id':     dcId,
+        'status': status,
+        'actor':  buildActorPayload(),
+      });
       await fetchDetail();
       Get.snackbar('Updated', 'Status changed to ${status.capitalizeFirst}',
           backgroundColor: ErpColors.successGreen, colorText: Colors.white,
@@ -69,7 +76,12 @@ class DCDetailController extends GetxController {
   Future<void> deleteDC({required VoidCallback onDeleted}) async {
     try {
       updating.value = true;
-      await _dio.delete('/dc/delete', queryParameters: {'id': dcId});
+      // Dio's delete() supports `data` for actor payload
+      await _dio.delete(
+        '/dc/delete',
+        queryParameters: {'id': dcId},
+        data: {'actor': buildActorPayload()},
+      );
       Get.snackbar('Deleted', 'Delivery Challan deleted',
           backgroundColor: const Color(0xFF16A34A), colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
@@ -151,6 +163,9 @@ class _DCDetailPageState extends State<DCDetailPage> {
                 const SizedBox(height: 10),
               ],
               _StatusSection(d: d, c: c),
+              const SizedBox(height: 10),
+              // 🪪 Audit timeline — every DC action recorded
+              FingerprintTimeline(fingerprints: d.fingerprints),
             ]),
           ),
         );

@@ -9,7 +9,21 @@ import 'package:production/src/features/Orders/screens/searchable_picker.dart';
 import '../../PurchaseOrder/services/theme.dart';
 
 class AddOrderPage extends StatefulWidget {
-  const AddOrderPage({super.key});
+  /// When non-null the page opens in edit mode for this order id.
+  final String? editingOrderId;
+
+  /// Optional payload to pre-fill the form with (the same `data` blob
+  /// returned by GET /get-orderDetail). Required when [editingOrderId]
+  /// is set.
+  final Map<String, dynamic>? initialOrder;
+
+  const AddOrderPage({
+    super.key,
+    this.editingOrderId,
+    this.initialOrder,
+  });
+
+  bool get isEditing => editingOrderId != null;
 
   @override
   State<AddOrderPage> createState() => _AddOrderPageState();
@@ -23,7 +37,9 @@ class _AddOrderPageState extends State<AddOrderPage> {
     super.initState();
     Get.delete<AddOrderController>(force: true);
     c = Get.put(AddOrderController(
-      onSuccess: () => Navigator.of(context).pop(true),
+      onSuccess:       () => Navigator.of(context).pop(true),
+      editingOrderId:  widget.editingOrderId,
+      initialOrder:    widget.initialOrder,
     ));
   }
 
@@ -46,13 +62,14 @@ class _AddOrderPageState extends State<AddOrderPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         titleSpacing: 4,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('New Order', style: ErpTextStyles.pageTitle),
-            Text('Orders  ›  Create New',
-                style: TextStyle(
+            Text(widget.isEditing ? 'Edit Order' : 'New Order',
+                style: ErpTextStyles.pageTitle),
+            Text(widget.isEditing ? 'Orders  ›  Edit' : 'Orders  ›  Create New',
+                style: const TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 10)),
           ],
         ),
@@ -244,7 +261,9 @@ class _AddOrderPageState extends State<AddOrderPage> {
                   : const Icon(Icons.check,
                   size: 16, color: Colors.white),
               label: Text(
-                c.isSubmitting.value ? 'Saving…' : 'Create Order',
+                c.isSubmitting.value
+                    ? 'Saving…'
+                    : (widget.isEditing ? 'Save Changes' : 'Create Order'),
                 style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,

@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Orders/controllers/order_list_controller.dart';
 import 'package:production/src/features/Orders/models/order_list_item.dart';
 import 'package:production/src/features/Orders/screens/add_order_page.dart';
@@ -114,6 +116,10 @@ class _StatusTabs extends StatelessWidget {
               case "Cancelled":
                 chipText = ErpColors.statusCancelledText;
                 chipBg = ErpColors.statusCancelledBg;
+                break;
+              case "Deleted":
+                chipText = const Color(0xFF64748B);
+                chipBg   = const Color(0xFFF1F5F9);
                 break;
               default:
                 chipText = ErpColors.statusOpenText;
@@ -264,6 +270,9 @@ class _OrderCard extends StatelessWidget {
                             ),
                             const Spacer(),
                             OrderStatusBadge(order.status),
+                            // 🪪 Quick edit / delete menu — Open only
+                            if (isOpen)
+                              _OrderCardMenu(orderId: order.id, c: c),
                           ],
                         ),
                         const SizedBox(height: 3),
@@ -489,18 +498,12 @@ class _OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: ErpColors.accentBlue,
-                        elevation: 0),
-                    onPressed: () {
-                      Get.back();
-                      c.approveOrder(orderId);
-                    },
-                    child: const Text("Approve",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700)),
+                  child: _ListDialogButton(
+                    label:    "Approve",
+                    color:    ErpColors.accentBlue,
+                    orderId:  orderId,
+                    c:        c,
+                    action:   () => c.approveOrder(orderId),
                   ),
                 ),
               ]),
@@ -557,18 +560,12 @@ class _OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: ErpColors.errorRed,
-                        elevation: 0),
-                    onPressed: () {
-                      Get.back();
-                      c.cancelOrder(orderId);
-                    },
-                    child: const Text("Yes, Cancel",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700)),
+                  child: _ListDialogButton(
+                    label:    "Yes, Cancel",
+                    color:    ErpColors.errorRed,
+                    orderId:  orderId,
+                    c:        c,
+                    action:   () => c.cancelOrder(orderId),
                   ),
                 ),
               ]),
@@ -579,6 +576,196 @@ class _OrderCard extends StatelessWidget {
     );
   }
 }
+
+// ── Quick edit/delete menu — shown on Open cards ──────────────────
+class _OrderCardMenu extends StatelessWidget {
+  final String orderId;
+  final OrderListController c;
+  const _OrderCardMenu({required this.orderId, required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      tooltip: '',
+      icon: const Icon(Icons.more_vert,
+          size: 18, color: ErpColors.textSecondary),
+      padding: EdgeInsets.zero,
+      onSelected: (value) async {
+        if (value == 'edit') {
+          // Pre-fetch detail so the edit form lands fully hydrated
+          // (customer, dates, elastics, quantities). Show a tiny
+          // spinner overlay so the tap doesn't feel dead while we
+          // wait on the network.
+          Get.dialog(
+            const Center(
+              child: SizedBox(
+                width: 32, height: 32,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  color: ErpColors.accentBlue,
+                ),
+              ),
+            ),
+            barrierDismissible: false,
+          );
+          try {
+            final dio = ApiClient.instance.dio;
+            final res = await dio.get(
+              '/order/get-orderDetail',
+              queryParameters: {'id': orderId},
+            );
+            final data = res.data['data'] as Map<String, dynamic>?;
+            if (Get.isDialogOpen ?? false) Get.back();
+            await Get.to(() => AddOrderPage(
+                  editingOrderId: orderId,
+                  initialOrder:   data,
+                ));
+            c.fetchOrders();
+          } on DioException catch (e) {
+            if (Get.isDialogOpen ?? false) Get.back();
+            Get.snackbar(
+              'Error',
+              e.response?.data?['message'] ?? 'Failed to load order',
+              backgroundColor: ErpColors.errorRed,
+              colorText: Colors.white,
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          } catch (_) {
+            if (Get.isDialogOpen ?? false) Get.back();
+          }
+        } else if (value == 'delete') {
+          await _confirmDelete(context);
+        }
+      },
+      itemBuilder: (_) => const [
+        PopupMenuItem(
+          value: 'edit',
+          child: Row(children: [
+            Icon(Icons.edit_outlined, size: 16, color: ErpColors.accentBlue),
+            SizedBox(width: 8),
+            Text('Edit'),
+          ]),
+        ),
+        PopupMenuItem(
+          value: 'delete',
+          child: Row(children: [
+            Icon(Icons.delete_outline, size: 16, color: ErpColors.errorRed),
+            SizedBox(width: 8),
+            Text('Delete'),
+          ]),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext ctx) async {
+    final reasonCtrl = TextEditingController();
+    // Result is ignored — the confirm button performs the delete
+    // itself and pops the dialog. The Cancel button returns false
+    // and just closes the dialog.
+    await Get.dialog<bool>(Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Delete Order',
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            const SizedBox(height: 12),
+            const Text(
+              'The order will be hidden from active lists. An audit '
+              'entry will be recorded. Cannot be undone.',
+              style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: reasonCtrl,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                isDense: true,
+                labelText: 'Reason (optional)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(children: [
+              Expanded(child: OutlinedButton(
+                  onPressed: () => Get.back(result: false),
+                  child: const Text('Cancel'))),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _ListDialogButton(
+                  label:   'Delete',
+                  color:   ErpColors.errorRed,
+                  orderId: orderId,
+                  c:       c,
+                  action:  () =>
+                      c.deleteOrder(orderId, reason: reasonCtrl.text.trim()),
+                  // closeReturnValue is unused for delete (we don't need
+                  // the bool return), but the helper still pops the
+                  // dialog after the action completes.
+                ),
+              ),
+            ]),
+          ],
+        ),
+      ),
+    ));
+  }
+}
+
+
+// ── Shared list dialog confirm button ──────────────────────────
+//   Same purpose as _DialogActionButton in order_detail_page.dart:
+//   shows a spinner while the action runs, disables the button to
+//   stop double-clicks, and pops the dialog AFTER the action
+//   completes so the snackbar from the controller reaches the
+//   underlying route. Uses OrderListController.actioningId so each
+//   row's button only shows its own spinner.
+class _ListDialogButton extends StatelessWidget {
+  final OrderListController c;
+  final String orderId;
+  final String label;
+  final Color color;
+  final Future<void> Function() action;
+
+  const _ListDialogButton({
+    required this.c,
+    required this.orderId,
+    required this.label,
+    required this.color,
+    required this.action,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final busy = c.isActioningOn(orderId);
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          disabledBackgroundColor: color.withOpacity(0.6),
+          elevation: 0,
+        ),
+        onPressed: busy ? null : () async {
+          await action();
+          if (Get.isDialogOpen ?? false) Get.back();
+        },
+        child: busy
+            ? const SizedBox(
+                width: 16, height: 16,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white))
+            : Text(label,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700)),
+      );
+    });
+  }
+}
+
 
 // ── Empty state ────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {

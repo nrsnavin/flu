@@ -115,6 +115,8 @@ class DCDetail {
   final String       remarks;
   final String       status;
   final String       createdAt;
+  /// 🪪 Audit-trail entries from `dc.fingerprints`. Newest-first.
+  final List<Map<String, dynamic>> fingerprints;
 
   const DCDetail({
     required this.id,
@@ -138,6 +140,7 @@ class DCDetail {
     required this.remarks,
     required this.status,
     required this.createdAt,
+    this.fingerprints = const [],
   });
 
   bool get isElastic     => type == "elastic";
@@ -167,6 +170,10 @@ class DCDetail {
     remarks:         j["remarks"]?.toString()   ?? "",
     status:          j["status"]?.toString()    ?? "draft",
     createdAt:       j["createdAt"]?.toString() ?? "",
+    fingerprints:    (j["fingerprints"] as List<dynamic>?)
+            ?.map((e) => (e as Map).cast<String, dynamic>())
+            .toList() ??
+        const [],
   );
 }
 

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 
+import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
 
@@ -239,7 +240,12 @@ class AddDCController extends GetxController {
 
     try {
       loading.value = true;
-      await _dio.post('/dc/create', data: payload);
+      // 🪪 Attach logged-in user so the DC_CREATED fingerprint
+      //    can attribute the action to a real person.
+      await _dio.post('/dc/create', data: {
+        ...payload,
+        'actor': buildActorPayload(),
+      });
       Get.snackbar('Created', 'Delivery Challan created successfully',
           backgroundColor: ErpColors.successGreen, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);

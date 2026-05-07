@@ -352,27 +352,7 @@ class _FingerprintRow extends StatelessWidget {
                     // ── Meta details (compact) ───────────────────
                     if (meta.isNotEmpty) ...[
                       const SizedBox(height: 6),
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(
-                            8, 6, 8, 6),
-                        decoration: BoxDecoration(
-                          color: ErpColors.bgSurface,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                              color: ErpColors.borderLight),
-                        ),
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: meta.entries
-                              .where((e) => e.value != null)
-                              .map((e) => _MetaPill(
-                            keyName: e.key,
-                            value: e.value,
-                          ))
-                              .toList(),
-                        ),
-                      ),
+                      _MetaBlock(meta: meta),
                     ],
                   ],
                 ),
@@ -446,6 +426,19 @@ class _FingerprintRow extends StatelessWidget {
         return const Color(0xFF0EA5E9);
       case 'WASTAGE_RECORDED':
         return ErpColors.errorRed;
+      // Delivery-Challan lifecycle
+      case 'DC_CREATED':
+        return ErpColors.accentBlue;
+      case 'DC_DISPATCHED':
+        return const Color(0xFFD97706);
+      case 'DC_DELIVERED':
+        return ErpColors.successGreen;
+      case 'DC_CANCELLED':
+        return ErpColors.errorRed;
+      case 'DC_DELETED':
+        return ErpColors.errorRed;
+      case 'DC_STATUS_UPDATED':
+        return ErpColors.warningAmber;
       default:
         return ErpColors.textSecondary;
     }
@@ -453,6 +446,136 @@ class _FingerprintRow extends StatelessWidget {
 }
 
 // ── A small key:value pill for the meta block ──────────────────
+// ── Meta block ────────────────────────────────────────────────
+//   Renders the fingerprint's `meta` map. Special-cases
+//   ORDER_UPDATED-style entries that carry `previousValues` and
+//   `newValues` Maps so the user sees readable "PO: A → B" rows
+//   instead of `previousValues: {po: A, supplyDate: …}` blobs.
+class _MetaBlock extends StatelessWidget {
+  final Map<String, dynamic> meta;
+  const _MetaBlock({required this.meta});
+
+  @override
+  Widget build(BuildContext context) {
+    final prev = (meta['previousValues'] is Map)
+        ? (meta['previousValues'] as Map).cast<String, dynamic>()
+        : const <String, dynamic>{};
+    final next = (meta['newValues'] is Map)
+        ? (meta['newValues'] as Map).cast<String, dynamic>()
+        : const <String, dynamic>{};
+
+    // Diff rows (key: previous → new). Built only when at least one
+    // diff side has data; otherwise we render nothing for the diff.
+    final diffKeys = <String>{ ...prev.keys, ...next.keys }.toList()..sort();
+
+    // Remaining meta entries that aren't part of the diff bookkeeping.
+    final filteredEntries = meta.entries
+        .where((e) =>
+            e.value != null &&
+            e.key != 'previousValues' &&
+            e.key != 'newValues' &&
+            // changedFields duplicates the diff so suppress it
+            e.key != 'changedFields')
+        .toList();
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+      decoration: BoxDecoration(
+        color: ErpColors.bgSurface,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: ErpColors.borderLight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (diffKeys.isNotEmpty)
+            ...diffKeys.map((k) => _DiffRow(
+                  keyName: k,
+                  before:  prev[k],
+                  after:   next[k],
+                )),
+          if (diffKeys.isNotEmpty && filteredEntries.isNotEmpty)
+            const SizedBox(height: 4),
+          if (filteredEntries.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: filteredEntries
+                  .map((e) =>
+                      _MetaPill(keyName: e.key, value: e.value))
+                  .toList(),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Single "field: before → after" row for ORDER_UPDATED-style entries.
+class _DiffRow extends StatelessWidget {
+  final String keyName;
+  final dynamic before;
+  final dynamic after;
+  const _DiffRow({required this.keyName, this.before, this.after});
+
+  @override
+  Widget build(BuildContext context) {
+    String stringify(dynamic v) {
+      if (v == null) return '—';
+      if (v is num) return v % 1 == 0 ? v.toInt().toString() : v.toStringAsFixed(2);
+      if (v is bool) return v ? 'yes' : 'no';
+      if (v is List) return '${v.length} item(s)';
+      return v.toString();
+    }
+
+    String humanise(String k) {
+      final spaced =
+          k.replaceAllMapped(RegExp(r'([A-Z])'), (m) => ' ${m[1]}').trim();
+      return spaced.isEmpty
+          ? k
+          : '${spaced[0].toUpperCase()}${spaced.substring(1)}';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: RichText(
+        text: TextSpan(
+          style: const TextStyle(fontSize: 10, color: ErpColors.textPrimary),
+          children: [
+            TextSpan(
+              text: '${humanise(keyName)}: ',
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                color: ErpColors.textSecondary,
+                letterSpacing: 0.3,
+              ),
+            ),
+            TextSpan(
+              text: stringify(before),
+              style: const TextStyle(
+                color: ErpColors.errorRed,
+                decoration: TextDecoration.lineThrough,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const TextSpan(
+              text: '  →  ',
+              style: TextStyle(color: ErpColors.textMuted),
+            ),
+            TextSpan(
+              text: stringify(after),
+              style: const TextStyle(
+                color: ErpColors.successGreen,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _MetaPill extends StatelessWidget {
   final String keyName;
   final dynamic value;

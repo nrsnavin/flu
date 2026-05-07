@@ -116,6 +116,10 @@ class _StatusTabs extends StatelessWidget {
                 chipText = ErpColors.statusCancelledText;
                 chipBg = ErpColors.statusCancelledBg;
                 break;
+              case "Deleted":
+                chipText = const Color(0xFF64748B);
+                chipBg   = const Color(0xFFF1F5F9);
+                break;
               default:
                 chipText = ErpColors.statusOpenText;
                 chipBg = ErpColors.statusOpenBg;
@@ -600,7 +604,21 @@ class _OrderCardMenu extends StatelessWidget {
       onSelected: (value) async {
         if (value == 'edit') {
           // Pre-fetch detail so the edit form lands fully hydrated
-          // (customer, dates, elastics, quantities).
+          // (customer, dates, elastics, quantities). Show a tiny
+          // spinner overlay so the tap doesn't feel dead while we
+          // wait on the network.
+          Get.dialog(
+            const Center(
+              child: SizedBox(
+                width: 32, height: 32,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  color: ErpColors.accentBlue,
+                ),
+              ),
+            ),
+            barrierDismissible: false,
+          );
           try {
             final dio = ApiClient.instance.dio;
             final res = await dio.get(
@@ -608,12 +626,24 @@ class _OrderCardMenu extends StatelessWidget {
               queryParameters: {'id': orderId},
             );
             final data = res.data['data'] as Map<String, dynamic>?;
+            if (Get.isDialogOpen ?? false) Get.back();
             await Get.to(() => AddOrderPage(
                   editingOrderId: orderId,
                   initialOrder:   data,
                 ));
             c.fetchOrders();
-          } catch (_) {/* error already snackbar'd by Dio interceptor */}
+          } on DioException catch (e) {
+            if (Get.isDialogOpen ?? false) Get.back();
+            Get.snackbar(
+              'Error',
+              e.response?.data?['message'] ?? 'Failed to load order',
+              backgroundColor: ErpColors.errorRed,
+              colorText: Colors.white,
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          } catch (_) {
+            if (Get.isDialogOpen ?? false) Get.back();
+          }
         } else if (value == 'delete') {
           await _confirmDelete(context);
         }

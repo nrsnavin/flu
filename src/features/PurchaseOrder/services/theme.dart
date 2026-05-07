@@ -263,6 +263,13 @@ class OrderStatusBadge extends StatelessWidget {
         border = ErpColors.statusCancelledBorder;
         text = ErpColors.statusCancelledText;
         break;
+      case "Deleted":
+        // Soft-deleted: visually de-emphasised + red accent so it's
+        // unmistakably distinct from Cancelled and from active states.
+        bg = const Color(0xFFF1F5F9);
+        border = const Color(0xFFCBD5E1);
+        text = const Color(0xFF64748B);
+        break;
       default: // Open
         bg = ErpColors.statusOpenBg;
         border = ErpColors.statusOpenBorder;

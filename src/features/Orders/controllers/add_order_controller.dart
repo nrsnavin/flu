@@ -163,14 +163,19 @@ class AddOrderController extends GetxController {
     elasticRows.removeAt(index);
   }
 
+  // Backend stores Number — accept decimals so the form survives
+  // round-trips for orders created with fractional quantities.
+  static double _parseQty(String s) =>
+      double.tryParse(s.trim()) ?? 0;
+
   // ── Validation ─────────────────────────────────────────────
   String? validate() {
     if (poCtrl.text.trim().isEmpty) return 'PO Number is required';
     if (selectedCustomerId.value == null) return 'Please select a customer';
     final validRows = elasticRows
         .where((r) =>
-    r.elasticId.value != null &&
-        (int.tryParse(r.qtyCtrl.text) ?? 0) > 0)
+            r.elasticId.value != null &&
+            _parseQty(r.qtyCtrl.text) > 0)
         .toList();
     if (validRows.isEmpty) {
       return 'Add at least one elastic with a valid quantity';
@@ -187,12 +192,12 @@ class AddOrderController extends GetxController {
     'description': descCtrl.text.trim(),
     'elasticOrdered': elasticRows
         .where((r) =>
-    r.elasticId.value != null &&
-        (int.tryParse(r.qtyCtrl.text) ?? 0) > 0)
+            r.elasticId.value != null &&
+            _parseQty(r.qtyCtrl.text) > 0)
         .map((r) => {
-      'elastic':  r.elasticId.value,
-      'quantity': int.tryParse(r.qtyCtrl.text) ?? 0,
-    })
+              'elastic':  r.elasticId.value,
+              'quantity': _parseQty(r.qtyCtrl.text),
+            })
         .toList(),
     // 🪪 Attach logged-in user so the backend records who created it
     'actor': buildActorPayload(),

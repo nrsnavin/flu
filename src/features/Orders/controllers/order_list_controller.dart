@@ -19,6 +19,9 @@ class OrderListController extends GetxController {
     "InProgress",
     "Completed",
     "Cancelled",
+    // Deleted is hidden from the default browsing flow but listed
+    // here so admins can audit soft-deleted orders.
+    "Deleted",
   ];
 
   final selectedStatus = "Open".obs;

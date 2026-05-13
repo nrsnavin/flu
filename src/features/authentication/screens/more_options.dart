@@ -9,10 +9,12 @@ import 'package:production/src/features/PurchaseOrder/screnns/po_list.dart';
 import 'package:production/src/features/ShiftPlan/screens/shift_plan_create.dart';
 import 'package:production/src/features/Warping/screens/warping_list.dart';
 import 'package:production/src/features/addendence/screens/attendence.dart';
+import 'package:production/src/features/announcement/screens/announcement_list.dart';
 import 'package:production/src/features/authentication/screens/login.dart';
 // import 'package:production/src/features/customer/screens/customerList.dart';
 import 'package:production/src/features/customer/screens/list.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
+import 'package:production/src/features/feedback/screens/feedback_admin_list.dart';
 import 'package:production/src/features/materials/screens/stock_adjust.dart';
 import 'package:production/src/features/packing/screens/AddPacking.dart';
 import 'package:production/src/features/payroll/screens/payroll_page.dart';
@@ -27,22 +29,6 @@ import '../../packing/screens/PackingOverview.dart';
 import '../../shift/screens/shift_list_page.dart';
 // ══════════════════════════════════════════════════════════════
 //  MORE OPTIONS PAGE  —  Full module launcher grid
-//
-//  BUGS FIXED:
-//  1. Several tiles navigated to `Home()` as a placeholder —
-//     Packing, Machines, Employees tiles just opened Home.
-//     Replaced with correct screens (PackagingOverviewPage,
-//     MachineListScreen, EmpListScreen).
-//  2. `_confirmLogout()` was defined but never called from any tile.
-//     The Logout tile's `onTap` was missing. Fixed.
-//  3. Multiple tiles shared the `Icons.backpack` icon (Add Packing,
-//     Add PO, Purchase Order, Material Inward) — impossible to
-//     distinguish at a glance. Fixed with appropriate icons.
-//  4. Tiles were unsorted — related modules scattered randomly.
-//     Now organised into labelled sections.
-//  5. AppBar showed plain "More" with no ERP styling.
-//  6. Grid item text overflowed on small screens with no overflow
-//     handling.
 // ══════════════════════════════════════════════════════════════
 
 class MoreOptionsPage extends StatelessWidget {
@@ -85,6 +71,11 @@ class MoreOptionsPage extends StatelessWidget {
       _Tile(Icons.access_time_outlined, 'Shift Production', _Nav.shiftList),
       _Tile(Icons.access_time_outlined, 'Attendence', _Nav.attendence),
       _Tile(Icons.access_time_outlined, 'Payroll', _Nav.payroll),
+    ]),
+
+    _Section('HR & COMMUNICATION', [
+      _Tile(Icons.feedback_outlined, 'Employee Feedback', _Nav.feedback),
+      _Tile(Icons.campaign_outlined, 'Notice Board', _Nav.noticeBoard),
     ]),
 
     _Section('ANALYTICS', [_Tile(Icons.dataset, 'ANALYTICS', _Nav.analytics)]),
@@ -176,10 +167,8 @@ class _Nav {
   static void rawMaterials() => Get.to(() => RawMaterialListPage());
   static void warping() => Get.to(() => WarpingListPage());
   static void covering() => Get.to(() => CoveringListPage());
-  // FIX: was AddWastagePage() — use the proper list page
   static void wastage() => Get.to(() => WastageListPage());
   static void packingOverview() => Get.to(() => PackingOverviewPage());
-  // FIX: AddPacking constructor — check if const
   static void addPacking() => Get.to(() => const AddPackingPage());
 
   static void payroll() => Get.to(() => const PayrollPage());
@@ -195,7 +184,10 @@ class _Nav {
   static void dc() => Get.to(() => DCListPage());
 
   static void attendence() => Get.to(() => AttendancePage());
-  // FIX: logout was defined in the widget but never called
+
+  static void feedback() => Get.to(() => const FeedbackAdminListPage());
+  static void noticeBoard() => Get.to(() => const AnnouncementListPage());
+
   static void logout() {
     Get.defaultDialog(
       title: 'Logout',
@@ -295,7 +287,6 @@ class _TileWidget extends StatelessWidget {
                 child: Icon(tile.icon, size: 20, color: color),
               ),
               const SizedBox(height: 8),
-              // FIX: maxLines + overflow to prevent text overflow on small tiles
               Text(
                 tile.label,
                 textAlign: TextAlign.center,

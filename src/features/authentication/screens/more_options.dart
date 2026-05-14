@@ -14,6 +14,7 @@ import 'package:production/src/features/authentication/screens/login.dart';
 // import 'package:production/src/features/customer/screens/customerList.dart';
 import 'package:production/src/features/customer/screens/list.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
+import 'package:production/src/features/employees/screens/empList.dart';
 import 'package:production/src/features/feedback/screens/feedback_admin_list.dart';
 import 'package:production/src/features/materials/screens/stock_adjust.dart';
 import 'package:production/src/features/packing/screens/AddPacking.dart';
@@ -36,6 +37,9 @@ class MoreOptionsPage extends StatelessWidget {
 
   // ── Module sections ─────────────────────────────────────────
   static final _sections = <_Section>[
+    _Section('PEOPLE', [
+      _Tile(Icons.people_alt_rounded, 'Employees', _Nav.employees),
+    ]),
     _Section('CUSTOMERS & ORDERS', [
       _Tile(Icons.people_alt_outlined, 'Customers', _Nav.customerList),
       _Tile(Icons.shopping_bag_outlined, 'Suppliers', _Nav.supplierList),
@@ -118,7 +122,6 @@ class MoreOptionsPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (sectionIdx > 0) const SizedBox(height: 18),
-              // Section label
               Padding(
                 padding: const EdgeInsets.only(left: 2, bottom: 8),
                 child: Text(
@@ -131,7 +134,6 @@ class MoreOptionsPage extends StatelessWidget {
                   ),
                 ),
               ),
-              // Tiles grid
               GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
@@ -157,6 +159,7 @@ class MoreOptionsPage extends StatelessWidget {
 
 // ── Static navigation helpers ──────────────────────────────
 class _Nav {
+  static void employees() => Get.to(() => const EmployeeListPage());
   static void customerList() => Get.to(() => CustomerListPage());
   static void supplierList() => Get.to(() => SupplierListPage());
   static void orderList() => Get.to(() => OrderListPage());

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:production/src/features/authentication/models/user.dart';
 import 'package:production/src/features/authentication/screens/more_options.dart';
-import 'package:production/src/features/employees/screens/empList.dart';
+import 'package:production/src/features/dashboard/screens/dashboard_page.dart';
 import 'package:production/src/features/machines/screens/machineList.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../../production/screens/productionView.dart';
@@ -13,28 +13,14 @@ import '../controllers/login_controller.dart';
 // ══════════════════════════════════════════════════════════════
 //  HOME / SHELL — ERP Bottom Navigation
 //
-//  BUGS FIXED:
-//  1. `Home.build()` returned `MaterialApp(home: ...)` — wrapping a
-//     Scaffold inside MaterialApp inside another MaterialApp causes
-//     Navigator conflicts, broken `Get.to()` navigation, and doubled
-//     theming. Fixed: Home simply returns the shell directly.
-//  2. `BottomNavigationBar` used `type: BottomNavigationBarType.shifting`
-//     (default when items have backgroundColor set) with random per-item
-//     colors (red, green, purple, pink, grey) — completely inconsistent.
-//     Fixed: `type: fixed`, uniform navy/accent-blue theming.
-//  3. `selectedItemColor: Colors.amber[800]` — amber on dark is low
-//     contrast and off-brand. Fixed: accent blue.
-//  4. `Get.put(LoginController())` at both class-field level of `Home`
-//     AND at class-field level of `_BottomNavigationBarExampleState` →
-//     double registration, possible state divergence.
-//     Fixed: single `Get.find<LoginController>()` at the state level.
-//  5. `_widgetOptions` was a `static final` list initialised once at
-//     class load — instantiates all 5 screens immediately at startup
-//     even before the user sees them. Fixed: `IndexedStack` with lazy
-//     initialisation via `_pages` getter.
-//  6. Bottom nav labels didn't match what the screens actually show:
-//     "Running Orders" → EmpListScreen, "Pending Orders" → MachineList.
-//     Fixed: correct labels.
+//  Tab 0 — Dashboard (KPI roll-up: jobs, leaves, attendance, stock)
+//  Tab 1 — Machines
+//  Tab 2 — Production
+//  Tab 3 — Today's Shift
+//  Tab 4 — More (Employees & every other module)
+//
+//  Previously tab 0 was the Employee list. With dashboard added,
+//  Employees moved into the More menu.
 // ══════════════════════════════════════════════════════════════
 
 class Home extends StatefulWidget {
@@ -44,7 +30,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // FIX: single find, not double put
   late final LoginController _loginCtrl;
   late final User _user;
   int _selectedIndex = 0;
@@ -61,22 +46,19 @@ class _HomeState extends State<Home> {
     ));
   }
 
-  // ── Tab definitions ─────────────────────────────────────────
   static const _tabs = [
-    _TabDef(icon: Icons.people_outline_rounded,        activeIcon: Icons.people_rounded,           label: 'Employees'),
+    _TabDef(icon: Icons.dashboard_outlined,             activeIcon: Icons.dashboard_rounded,        label: 'Dashboard'),
     _TabDef(icon: Icons.precision_manufacturing_outlined, activeIcon: Icons.precision_manufacturing,  label: 'Machines'),
     _TabDef(icon: Icons.analytics_outlined,             activeIcon: Icons.analytics_rounded,        label: 'Production'),
     _TabDef(icon: Icons.calendar_today_outlined,        activeIcon: Icons.calendar_today_rounded,   label: 'Shift'),
     _TabDef(icon: Icons.grid_view_outlined,             activeIcon: Icons.grid_view_rounded,        label: 'More'),
   ];
 
-  // FIX: lazy list — not static final, rebuilt on first access per tab
-  // IndexedStack keeps them alive once built
   final _pages = <int, Widget>{};
   Widget _pageFor(int index) {
     return _pages.putIfAbsent(index, () {
       switch (index) {
-        case 0: return const EmployeeListPage();
+        case 0: return const DashboardPage();
         case 1: return const MachineListPage();
         case 2: return const ProductionRangePage();
         case 3: return const TodayShiftPage();
@@ -88,10 +70,8 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // FIX: no MaterialApp wrapper — return Scaffold directly
     return Scaffold(
       backgroundColor: ErpColors.bgBase,
-      // Use IndexedStack so pages stay alive when switching tabs
       body: IndexedStack(
         index: _selectedIndex,
         children: List.generate(_tabs.length, _pageFor),
@@ -105,18 +85,12 @@ class _HomeState extends State<Home> {
   }
 }
 
-// ── Tab definition data class ──────────────────────────────
 class _TabDef {
   final IconData icon;
   final IconData activeIcon;
   final String label;
   const _TabDef({required this.icon, required this.activeIcon, required this.label});
 }
-
-// ══════════════════════════════════════════════════════════════
-//  ERP BOTTOM NAVIGATION BAR
-//  Navy background, accent-blue active indicator, white labels.
-// ══════════════════════════════════════════════════════════════
 
 class _ErpBottomNav extends StatelessWidget {
   final List<_TabDef> tabs;

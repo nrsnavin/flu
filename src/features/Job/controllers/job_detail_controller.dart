@@ -4,16 +4,13 @@ import 'package:dio/dio.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
 
+import '../../../core/api_client.dart';
 /// FIX: Rewritten to use raw Map<String,dynamic> to avoid dependency on
 /// missing model files (JobDetailViewMapper, JobDetailView, PreparatoryView,
 /// ShiftDetailModelView, etc.) that are not included in the upload set.
 /// The API returns a flat job object — we work with it directly.
 class JobDetailController extends GetxController {
-  static final _dio = Dio(BaseOptions(
-    baseUrl: "http://13.233.117.153:2701/api/v2",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  static final _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2");
 
   final String jobId;
   JobDetailController(this.jobId);
@@ -46,7 +43,7 @@ class JobDetailController extends GetxController {
     }
   }
 
-  // ── Status update with confirmation ──────────────────────────
+  // ── Status update with confirmation ───────────────────────────
   Future<void> updateStatus(String nextStatus) async {
     final confirm = await Get.dialog<bool>(AlertDialog(
       title: const Text("Confirm"),

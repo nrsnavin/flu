@@ -14,9 +14,9 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
 
 
-// ══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 //  CONTROLLER
-// ══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 class DCDetailController extends GetxController {
   final String dcId;
   DCDetailController(this.dcId);
@@ -93,9 +93,9 @@ class DCDetailController extends GetxController {
   }
 }
 
-// ══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 //  PAGE
-// ══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 class DCDetailPage extends StatefulWidget {
   final String dcId;
   const DCDetailPage({super.key, required this.dcId});
@@ -324,9 +324,9 @@ class _DCDetailPageState extends State<DCDetailPage> {
   }
 }
 
-// ══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 //  DETAIL SECTIONS
-// ══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 
 // ── Hero banner with DC number + totals ──────────────────────
 class _HeroBanner extends StatelessWidget {
@@ -807,7 +807,7 @@ class _StatusSection extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 //  SHARED HELPERS
 // ════════════════════════════════════════════════════════════════
 
@@ -853,12 +853,9 @@ Color _statusColor(String s) => switch (s) {
   'draft'      => ErpColors.warningAmber,
   'dispatched' => ErpColors.accentBlue,
   'delivered'  => ErpColors.successGreen,
-  'cancelled'  => ErpColors.errorRed,
   _            => ErpColors.textSecondary,
 };
 
-// ════════════════════════════════════════════════════════════════
-//  PDF PREVIEW PAGE
 // ════════════════════════════════════════════════════════════════
 //  PDF PREVIEW PAGE
 // ════════════════════════════════════════════════════════════════

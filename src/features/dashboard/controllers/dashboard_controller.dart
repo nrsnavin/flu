@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
-const _kBase = "http://13.233.117.153:2701/api/v2/dashboard";
+import '../../../core/api_client.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  DashboardController
@@ -16,7 +16,6 @@ class DashboardController extends GetxController {
   final openJobs      = 0.obs;
   final pendingLeaves = 0.obs;
 
-  // Attendance roll-up for today
   final attTotalMarked    = 0.obs;
   final attTotalEmployees = 0.obs;
   final attUnmarked       = 0.obs;
@@ -27,15 +26,15 @@ class DashboardController extends GetxController {
   final attAbsent         = 0.obs;
   final attOnLeave        = 0.obs;
 
-  // Low-stock roll-up
   final lowStockCount = 0.obs;
   final lowStockItems = <Map<String, dynamic>>[].obs;
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: _kBase,
-    connectTimeout: const Duration(seconds: 12),
-    receiveTimeout: const Duration(seconds: 12),
-  ));
+  // Use the cookie-attaching factory so the request carries the JWT
+  // and clears the new isAuthenticated + isAdmin('admin') gate on
+  // /api/v2/dashboard/kpis. A bare Dio() would 401.
+  final _dio = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/dashboard',
+  );
 
   @override
   void onInit() {

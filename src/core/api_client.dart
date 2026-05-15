@@ -8,13 +8,30 @@ import '../features/authentication/controllers/storage_keys.dart';
 // stamp createdBy / updatedBy on every write.
 class ApiClient {
   ApiClient._internal() {
-    dio = Dio(BaseOptions(
-      baseUrl: 'http://13.233.117.153:2701/api/v2',
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
+    dio = buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+  }
+
+  static final ApiClient instance = ApiClient._internal();
+  late final Dio dio;
+
+  // Factory for per-feature Dio instances that point at a specific path
+  // prefix (e.g. ".../api/v2/customer"). Many controllers were written
+  // before the auth gate landed and constructed bare `Dio(BaseOptions(...))`
+  // — those skipped the cookie interceptor and now 401 against the gated
+  // backend. Routing them through this factory restores the JWT cookie
+  // on every request without forcing each controller to depend on the
+  // shared baseUrl.
+  static Dio buildClient({
+    required String baseUrl,
+    Duration timeout = const Duration(seconds: 15),
+  }) {
+    final client = Dio(BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: timeout,
+      receiveTimeout: timeout,
     ));
 
-    dio.interceptors.add(
+    client.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final prefs = await SharedPreferences.getInstance();
@@ -26,8 +43,7 @@ class ApiClient {
         },
       ),
     );
-  }
 
-  static final ApiClient instance = ApiClient._internal();
-  late final Dio dio;
+    return client;
+  }
 }

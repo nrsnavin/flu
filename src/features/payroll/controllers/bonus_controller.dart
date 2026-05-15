@@ -4,6 +4,7 @@
 // Manages: config CRUD, bonus trigger, record listing, mark-paid, reset.
 
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import 'package:get/get.dart';
 
 // ─────────────────────────────────────────────────────────────
@@ -186,11 +187,7 @@ class EmployeeBonusRate {
 // ─────────────────────────────────────────────────────────────
 
 class _BonusApi {
-  static final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'http://13.233.117.153:2701/api/v2',
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 20),
-  ));
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   static Future<Map<String, dynamic>> getConfig(int year) async {
     final r = await _dio.get('/bonus/config', queryParameters: {'year': year});

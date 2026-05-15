@@ -17,14 +17,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import '../models/payroll_models.dart';
 
 class PayrollController extends GetxController {
-  final _dio = Dio(BaseOptions(
-    baseUrl: 'http://13.233.117.153:2701/api/v2',
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-  ));
+  final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   // ════════════════════════════════════════════════════════════
   //  1. NAVIGATION & MONTH PICKER

@@ -3,16 +3,13 @@
 //  File: lib/src/features/production/controllers/production_controller.dart
 // ══════════════════════════════════════════════════════════════
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/productionBrief.dart';
 
 // ── Shared Dio instance ───────────────────────────────────────
-final _dio = Dio(BaseOptions(
-  baseUrl:        'http://13.233.117.153:2701/api/v2/production',
-  connectTimeout: const Duration(seconds: 12),
-  receiveTimeout: const Duration(seconds: 12),
-));
+final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/production');
 
 // ══════════════════════════════════════════════════════════════
 //  BULK ENTRY MODEL

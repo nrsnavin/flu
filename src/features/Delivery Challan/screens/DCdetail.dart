@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:production/src/features/Delivery%20Challan/screens/pdf.dart';
@@ -13,18 +14,14 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
 
 
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 //  CONTROLLER
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 class DCDetailController extends GetxController {
   final String dcId;
   DCDetailController(this.dcId);
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: 'http://13.233.117.153:2701/api/v2',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   final loading  = false.obs;
   final updating = false.obs;
@@ -96,9 +93,9 @@ class DCDetailController extends GetxController {
   }
 }
 
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 //  PAGE
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 class DCDetailPage extends StatefulWidget {
   final String dcId;
   const DCDetailPage({super.key, required this.dcId});
@@ -327,9 +324,9 @@ class _DCDetailPageState extends State<DCDetailPage> {
   }
 }
 
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 //  DETAIL SECTIONS
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 
 // ── Hero banner with DC number + totals ──────────────────────
 class _HeroBanner extends StatelessWidget {
@@ -709,7 +706,7 @@ class _StatusSection extends StatelessWidget {
                 onPressed: c.updating.value
                     ? null : () => _confirmStatus(context, 'cancelled'),
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: ErpColors.errorRed),
+                  side: const BorderSide(color: ErpColors.borderMid),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                 ),
                 child: const Text('Cancel DC',
@@ -810,7 +807,7 @@ class _StatusSection extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 //  SHARED HELPERS
 // ════════════════════════════════════════════════════════════════
 
@@ -860,6 +857,8 @@ Color _statusColor(String s) => switch (s) {
   _            => ErpColors.textSecondary,
 };
 
+// ════════════════════════════════════════════════════════════════
+//  PDF PREVIEW PAGE
 // ════════════════════════════════════════════════════════════════
 //  PDF PREVIEW PAGE
 // ════════════════════════════════════════════════════════════════

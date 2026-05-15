@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/shiftPlanDetail.dart';
+import '../../../core/api_client.dart';
 
 class ShiftPlanDetailController extends GetxController {
   final String shiftPlanId;
@@ -21,13 +22,7 @@ class ShiftPlanDetailController extends GetxController {
   final errorMsg     = Rxn<String>();
   final shiftDetail  = Rxn<ShiftPlanDetailModel>();
 
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ),
-  );
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   @override
   void onInit() {

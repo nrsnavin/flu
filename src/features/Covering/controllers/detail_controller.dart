@@ -8,14 +8,9 @@ import '../models/covering.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
 
+import '../../../core/api_client.dart';
 class CoveringApiService {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2/covering',
-      connectTimeout: const Duration(seconds: 12),
-      receiveTimeout: const Duration(seconds: 12),
-    ),
-  );
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/covering');
 
   static Future<CoveringDetail> fetchDetail(String id) async {
     final res = await _dio.get('/detail', queryParameters: {'id': id});
@@ -71,23 +66,23 @@ class CoveringApiService {
   }
 }
 
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
 //  COVERING DETAIL CONTROLLER
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
 class CoveringDetailController extends GetxController {
   final String coveringId;
   CoveringDetailController(this.coveringId);
 
-  // ── Data ──────────────────────────────────────────────────
+  // ── Data ──────────────────────────────────────────────────────
   final covering    = Rxn<CoveringDetail>();
 
-  // ── UI state ──────────────────────────────────────────────
+  // ── UI state ──────────────────────────────────────────────────
   final isLoading   = true.obs;
   final isActioning = false.obs;   // start / complete / cancel
   final isAddingBeam = false.obs;  // beam entry submit spinner
   final errorMsg    = Rxn<String>();
 
-  // ── Form controllers ──────────────────────────────────────
+  // ── Form controllers ──────────────────────────────────────────
   final remarksCtrl  = TextEditingController();
   final beamNoCtrl   = TextEditingController();
   final beamWtCtrl   = TextEditingController();
@@ -108,7 +103,7 @@ class CoveringDetailController extends GetxController {
     super.onClose();
   }
 
-  // ── Fetch ─────────────────────────────────────────────────
+  // ── Fetch ─────────────────────────────────────────────────────
   Future<void> fetchDetail() async {
     isLoading.value = true;
     errorMsg.value  = null;
@@ -124,7 +119,7 @@ class CoveringDetailController extends GetxController {
     }
   }
 
-  // ── Start ─────────────────────────────────────────────────
+  // ── Start ─────────────────────────────────────────────────────
   Future<void> startCovering() async {
     isActioning.value = true;
     try {
@@ -139,7 +134,7 @@ class CoveringDetailController extends GetxController {
     }
   }
 
-  // ── Complete ──────────────────────────────────────────────
+  // ── Complete ──────────────────────────────────────────────────
   Future<void> completeCovering() async {
     isActioning.value = true;
     try {
@@ -157,7 +152,7 @@ class CoveringDetailController extends GetxController {
     }
   }
 
-  // ── Cancel ────────────────────────────────────────────────
+  // ── Cancel ────────────────────────────────────────────────────
   Future<void> cancelCovering({String? remarks}) async {
     isActioning.value = true;
     try {
@@ -172,7 +167,7 @@ class CoveringDetailController extends GetxController {
     }
   }
 
-  // ── Add beam entry ────────────────────────────────────────
+  // ── Add beam entry ────────────────────────────────────────────
   Future<bool> addBeamEntry() async {
     final no  = int.tryParse(beamNoCtrl.text.trim());
     final wt  = double.tryParse(beamWtCtrl.text.trim());
@@ -213,7 +208,7 @@ class CoveringDetailController extends GetxController {
     }
   }
 
-  // ── Delete beam entry ─────────────────────────────────────
+  // ── Delete beam entry ─────────────────────────────────────────
   Future<void> deleteBeamEntry(String entryId) async {
     try {
       await CoveringApiService.deleteBeamEntry(
@@ -227,7 +222,7 @@ class CoveringDetailController extends GetxController {
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────
   void _snack(String title, String msg, {required bool isError}) {
     Get.snackbar(
       title, msg,

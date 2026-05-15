@@ -6,39 +6,40 @@ import 'package:intl/intl.dart';
 import '../models/MachineRunningModel.dart';
 import '../models/OperatorModel.dart';
 
-// ══════════════════════════════════════════════════════════════
+import '../../../core/api_client.dart';
+// ═════════════════════════════════════════════════════════════════
 //  SHIFT PLAN CONTROLLER
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
 
 class CreateShiftPlanController extends GetxController {
   final VoidCallback? onSuccess;
   CreateShiftPlanController({this.onSuccess});
-  // ── Form state ─────────────────────────────────────────────
+  // ── Form state ────────────────────────────────────────────────
   final selectedDate = DateTime.now().obs;
   final shiftType    = 'DAY'.obs;
   final description  = ''.obs;
 
-  // ── Data ───────────────────────────────────────────────────
+  // ── Data ──────────────────────────────────────────────────────
   final runningMachines = <MachineRunningModel>[].obs;
   final operators       = <OperatorModel>[].obs;
 
   /// machineId → selected operatorId (null = unassigned)
   final machineOperatorMap = <String, String?>{}.obs;
 
-  // ── UI state ────────────────────────────────────────────────
+  // ── UI state ──────────────────────────────────────────────────
   final isLoading  = true.obs;
   final isSaving         = false.obs;
   String createdShiftPlanId = '';  // set after draft is saved
   final errorMsg   = Rxn<String>();  // non-null means error state shown
 
-  // ── Lifecycle ──────────────────────────────────────────────
+  // ── Lifecycle ─────────────────────────────────────────────────
   @override
   void onInit() {
     super.onInit();
     loadData();
   }
 
-  // ── Data loading ───────────────────────────────────────────
+  // ── Data loading ──────────────────────────────────────────────
   /// FIX: was sequential (await A; await B) — now parallel.
   /// FIX: was no try/catch → API failure left isLoading = true forever.
   Future<void> loadData() async {
@@ -78,12 +79,12 @@ class CreateShiftPlanController extends GetxController {
     }
   }
 
-  // ── Operator assignment ─────────────────────────────────────
+  // ── Operator assignment ───────────────────────────────────────
   void setOperator(String machineId, String? operatorId) {
     machineOperatorMap[machineId] = operatorId;
   }
 
-  // ── Validation ─────────────────────────────────────────────
+  // ── Validation ────────────────────────────────────────────────
   /// Operators are OPTIONAL — machines without an operator are excluded
   /// from the payload. Only fail if there are no running machines at all.
   String? validate() {
@@ -102,7 +103,7 @@ class CreateShiftPlanController extends GetxController {
   int get unassignedCount =>
       machineOperatorMap.values.where((v) => v == null).length;
 
-  // ── Save ───────────────────────────────────────────────────
+  // ── Save ──────────────────────────────────────────────────────
   /// Saves shift plan as a DRAFT. The detail page shows a Confirm button.
   Future<void> saveShiftPlan() async {
     // Validation gate
@@ -195,7 +196,7 @@ class CreateShiftPlanController extends GetxController {
     }
   }
 
-  // ── Helpers ────────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────
   String get formattedDate =>
       DateFormat('dd MMM yyyy').format(selectedDate.value);
 
@@ -206,18 +207,12 @@ class CreateShiftPlanController extends GetxController {
   }
 }
 
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
 //  API SERVICE
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
 
 class ShiftApiService {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ),
-  );
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   static Future<List<MachineRunningModel>> fetchRunningMachines() async {
     final res = await _dio.get('/machine/running-machines');

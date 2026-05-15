@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import 'package:production/src/features/elastic/models/elastic_list_model.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -10,11 +11,7 @@ import 'package:production/src/features/elastic/models/elastic_list_model.dart';
 //       loading.value = true forever (spinner never cleared).
 // ══════════════════════════════════════════════════════════════
 class ElasticListController extends GetxController {
-  final _dio = Dio(BaseOptions(
-    baseUrl: "http://13.233.117.153:2701/api/v2/elastic",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2/elastic");
 
   final elastics  = <ElasticListModel>[].obs;
   final loading   = false.obs;
@@ -92,11 +89,7 @@ class ElasticListController extends GetxController {
 //       no snackbar, no reset of loading.
 // ══════════════════════════════════════════════════════════════
 class ElasticDetailController extends GetxController {
-  final _dio = Dio(BaseOptions(
-    baseUrl: "http://13.233.117.153:2701/api/v2/elastic",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2/elastic");
 
   final String elasticId;
   ElasticDetailController(this.elasticId);

@@ -3,15 +3,12 @@ import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 
 import '../screens/addElastic.dart';
 
 class ElasticDetailController extends GetxController {
-  final Dio dio = Dio(BaseOptions(
-    baseUrl:        "http://13.233.117.153:2701/api/v2/elastic",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final Dio dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2/elastic");
 
   final String elasticId;
   ElasticDetailController(this.elasticId);

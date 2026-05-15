@@ -9,13 +9,10 @@ import 'package:production/src/features/Orders/controllers/add_order_controller.
     show buildActorPayload;
 
 
+import '../../../core/api_client.dart';
 // ── API ───────────────────────────────────────────────────────
 class WarpingApi {
-  static final Dio _dio = Dio(BaseOptions(
-    baseUrl:        'http://13.233.117.153:2701/api/v2/warping',
-    connectTimeout: const Duration(seconds: 12),
-    receiveTimeout: const Duration(seconds: 12),
-  ));
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/warping');
 
   static Future<Map<String, dynamic>> listWarpings({
     required String status, String search = '', int page = 1, int limit = 20,
@@ -310,11 +307,7 @@ class WarpingPlanController extends GetxController {
   final String warpingId;
   WarpingPlanController(this.jobId, this.warpingId);
 
-  static final _aiDio = Dio(BaseOptions(
-    baseUrl:        'http://13.233.117.153:2701/api/v2',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 60),
-  ));
+  static final _aiDio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   final warpYarns    = <WarpYarnOption>[].obs;
   final beams        = <EditableBeam>[].obs;

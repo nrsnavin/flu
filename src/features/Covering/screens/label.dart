@@ -1,6 +1,5 @@
 // ══════════════════════════════════════════════════════════════
 //  COVERING BEAM LABEL PDF SERVICE  — thermal printer friendly
-//  File: lib/src/features/Covering/screens/covering_beam_label_pdf.dart
 //
 //  Generates a single 2" × 1" label PDF for ONE beam entry.
 //  Opened immediately via OpenFile (triggers print dialog on device).
@@ -11,18 +10,7 @@
 //    • Warp Spandex  (material name + ends)
 //    • Covering Yarn (spandex covering material name)
 //    • Spandex Ends
-//
-//  Thermal-friendly rules:
-//    • Pure white background — no fills
-//    • Section separators are black rules, not coloured bars
-//    • All text black or dark-grey only
-//    • Outer border: 1.2pt black
-//
-//  Usage:
-//    await CoveringBeamLabelPdf.generate(
-//      entry   : beamEntry,
-//      covering: coveringDetail,
-//    );
+//    • Footer: date + "By <operator>" when known
 // ══════════════════════════════════════════════════════════════
 import 'dart:io';
 
@@ -34,32 +22,23 @@ import 'package:pdf/widgets.dart' as pw;
 import '../models/covering.dart';
 
 class CoveringBeamLabelPdf {
-  // ── Page: 2" wide × 1" tall (landscape) ─────────────────
-  static const double _w = 2.0 * PdfPageFormat.inch; // 144 pt
-  static const double _h = 1.0 * PdfPageFormat.inch; //  72 pt
+  static const double _w = 2.0 * PdfPageFormat.inch;
+  static const double _h = 1.0 * PdfPageFormat.inch;
 
-  // ── Section heights ───────────────────────────────────────
-  static const double _headerH = 14.0; // top strip (rule below)
-  static const double _footerH = 10.0; // bottom strip (rule above)
-  // body = 48 pt (Expanded)
+  static const double _headerH = 14.0;
+  static const double _footerH = 12.0;
 
-  // ── Left column: beam number ──────────────────────────────
   static const double _beamColW = 30.0;
 
-  // ── Thermal-safe palette ──────────────────────────────────
   static const _black  = PdfColors.black;
   static const _gray   = PdfColor.fromInt(0xFF555555);
   static const _ltgray = PdfColor.fromInt(0xFF888888);
 
-  // ── Border weights ────────────────────────────────────────
   static const double _outerW   = 1.2;
   static const double _headerW  = 1.2;
   static const double _footerW  = 0.6;
   static const double _dividerW = 0.8;
 
-  // ══════════════════════════════════════════════════════════
-  //  PUBLIC ENTRY POINT
-  // ══════════════════════════════════════════════════════════
   static Future<void> generate({
     required BeamEntry entry,
     required CoveringDetail covering,
@@ -68,14 +47,13 @@ class CoveringBeamLabelPdf {
     final bold = pw.Font.helveticaBold();
     final reg  = pw.Font.helvetica();
 
-    // Pull elastic data from the first planned elastic (primary)
     final elastic = covering.elasticPlanned.isNotEmpty
         ? covering.elasticPlanned.first.elastic
         : null;
 
-    final warpSpandex    = elastic?.warpSpandex;
+    final warpSpandex     = elastic?.warpSpandex;
     final spandexCovering = elastic?.spandexCovering;
-    final spandexEnds    = elastic?.spandexEnds ?? 0;
+    final spandexEnds     = elastic?.spandexEnds ?? 0;
 
     pdf.addPage(
       pw.Page(
@@ -105,9 +83,6 @@ class CoveringBeamLabelPdf {
     await OpenFile.open(file.path);
   }
 
-  // ══════════════════════════════════════════════════════════
-  //  BUILD LABEL
-  // ══════════════════════════════════════════════════════════
   static pw.Widget _buildLabel({
     required pw.Font bold,
     required pw.Font reg,
@@ -118,13 +93,20 @@ class CoveringBeamLabelPdf {
     required String coveringYarnName,
     required int    spandexEnds,
   }) {
-    // Weight formatted: trim trailing zeros
     final wtStr = entry.weight == entry.weight.truncateToDouble()
         ? '${entry.weight.toInt()} kg'
         : '${entry.weight.toStringAsFixed(2)} kg';
 
+    // Footer: prefer note (operator's freeform observation); otherwise
+    // show the entry timestamp plus "By <name>" when the audit field
+    // is populated. Both lines are squeezed into the 12pt strip.
+    final dateLine = _fmtDate(entry.enteredAt);
+    final byLine   = (entry.enteredByName != null &&
+                      entry.enteredByName!.trim().isNotEmpty)
+        ? 'By ${entry.enteredByName}'
+        : null;
+
     return pw.Container(
-      // ── Outer border: 1.2pt black ──────────────────────
       decoration: pw.BoxDecoration(
         border: pw.Border.all(color: _black, width: _outerW),
       ),
@@ -132,12 +114,6 @@ class CoveringBeamLabelPdf {
         crossAxisAlignment: pw.CrossAxisAlignment.stretch,
         children: [
 
-          // ════════════════════════════════════════
-          //  HEADER — 14 pt
-          //  Left : "Job #XXXX"   9pt bold
-          //  Right: "COVERING"    5pt ltgray
-          //  Separator: 1.2pt black rule below
-          // ════════════════════════════════════════
           pw.Container(
             height: _headerH,
             decoration: const pw.BoxDecoration(
@@ -168,18 +144,11 @@ class CoveringBeamLabelPdf {
             ),
           ),
 
-          // ════════════════════════════════════════
-          //  BODY — 48 pt (Expanded)
-          //  Left 30pt  : Beam number column
-          //  Divider 0.8pt
-          //  Right flex : 2×2 field grid
-          // ════════════════════════════════════════
           pw.Expanded(
             child: pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.stretch,
               children: [
 
-                // ── Left: beam number + weight ────
                 pw.Container(
                   width: _beamColW,
                   decoration: const pw.BoxDecoration(
@@ -200,14 +169,12 @@ class CoveringBeamLabelPdf {
                         ),
                       ),
                       pw.SizedBox(height: 0.5),
-                      // Big beam digit
                       pw.Text(
                         '${entry.beamNo}',
                         style: pw.TextStyle(
                           font: bold, fontSize: 22, color: _black,
                         ),
                       ),
-                      // Weight below digit
                       pw.Text(
                         wtStr,
                         style: pw.TextStyle(
@@ -218,7 +185,6 @@ class CoveringBeamLabelPdf {
                   ),
                 ),
 
-                // ── Right: 2×2 field grid ─────────
                 pw.Expanded(
                   child: pw.Padding(
                     padding: const pw.EdgeInsets.fromLTRB(6, 5, 5, 3),
@@ -226,7 +192,6 @@ class CoveringBeamLabelPdf {
                       mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
                       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
                       children: [
-                        // Row 1 — WARP SPANDEX | COVERING YARN
                         pw.Row(
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
@@ -242,16 +207,19 @@ class CoveringBeamLabelPdf {
                             ),
                           ],
                         ),
-                        // Row 2 — SP. ENDS | WARP SP. ENDS
                         pw.Row(
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
                             _field(
                               '$spandexEnds',
-                              'ENDS',
+                              'SP. ENDS',
                               bold, reg,
                             ),
-
+                            _field(
+                              '$warpSpandexEnds',
+                              'WARP ENDS',
+                              bold, reg,
+                            ),
                           ],
                         ),
                       ],
@@ -262,11 +230,7 @@ class CoveringBeamLabelPdf {
             ),
           ),
 
-          // ════════════════════════════════════════
-          //  FOOTER — 10 pt
-          //  Beam note if present, else date/time
-          //  0.6pt black rule above
-          // ════════════════════════════════════════
+          // Footer: date and operator ("By <name>") on one line.
           pw.Container(
             height: _footerH,
             decoration: const pw.BoxDecoration(
@@ -275,28 +239,36 @@ class CoveringBeamLabelPdf {
               ),
             ),
             padding: const pw.EdgeInsets.symmetric(
-                horizontal: 5, vertical: 0),
-            child: pw.Align(
-              alignment: pw.Alignment.centerLeft,
-              child: pw.Text(
-                entry.note.isNotEmpty
-                    ? entry.note
-                    : _fmtDate(entry.enteredAt),
-                style: pw.TextStyle(
-                  font: reg, fontSize: 5, color: _gray,
+                horizontal: 5, vertical: 1),
+            child: pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                pw.Text(
+                  dateLine,
+                  style: pw.TextStyle(
+                    font: reg, fontSize: 5, color: _gray,
+                  ),
+                  maxLines: 1,
+                  overflow: pw.TextOverflow.clip,
                 ),
-                maxLines: 1,
-                overflow: pw.TextOverflow.clip,
-              ),
+                if (byLine != null)
+                  pw.Text(
+                    _trim(byLine, 18),
+                    style: pw.TextStyle(
+                      font: bold, fontSize: 5, color: _black,
+                    ),
+                    maxLines: 1,
+                    overflow: pw.TextOverflow.clip,
+                  ),
+              ],
             ),
           ),
-
         ],
       ),
     );
   }
 
-  // ── Field cell: label (4.5pt ltgray) + value (8pt bold black) ─
   static pw.Expanded _field(
       String value,
       String label,
@@ -328,11 +300,9 @@ class CoveringBeamLabelPdf {
         ),
       );
 
-  // ── Trim string to max chars ──────────────────────────────
   static String _trim(String s, int max) =>
-      s.length > max ? '${s.substring(0, max - 1)}\u2026' : s;
+      s.length > max ? '${s.substring(0, max - 1)}…' : s;
 
-  // ── Format date for footer ────────────────────────────────
   static String _fmtDate(DateTime d) {
     final p = (int v, [int w = 2]) => v.toString().padLeft(w, '0');
     return '${p(d.day)}/${p(d.month)}/${d.year}  ${p(d.hour)}:${p(d.minute)}';

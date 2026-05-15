@@ -2,15 +2,6 @@
 //  COVERING MODELS — unified single file
 // ══════════════════════════════════════════════════════════════
 
-// ─────────────────────────────────────────────────────────────
-//  CoveringListItem  (list page row)
-//
-//  FIX: original CoveringModel.fromJson used json['job']['jobOrderNo']
-//       with no null guard → crashes when job field is null or
-//       not populated. Also stored date as DateTime but the field
-//       can be null or malformed from the API.
-// ─────────────────────────────────────────────────────────────
-
 class CoveringListItem {
   final String id;
   final String status;
@@ -48,21 +39,6 @@ class CoveringListItem {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────
-//  CoveringDetail  (detail page)
-//
-//  FIX: original covering.dart imported covering_detail.dart
-//       which is the CONTROLLER file containing ApiService —
-//       circular import causing compile error.
-//  FIX: WarpSpandex.fromJson / CoveringSpandex.fromJson both
-//       used json["id"]["name"] with no null guard → crash if
-//       raw material was deleted or not populated.
-//  FIX: ElasticTechnical.fromJson accessed warpSpandex,
-//       spandexCovering, testingParameters without null guards.
-//  FIX: CoveringElasticDetail.fromJson had no null guard on
-//       the elastic field.
-// ─────────────────────────────────────────────────────────────
 
 class CoveringDetail {
   final String id;
@@ -116,10 +92,6 @@ class CoveringDetail {
   bool get isCompleted  => status == 'completed';
   bool get isCancelled  => status == 'cancelled';
 
-  // ── Expected produce weight ───────────────────────────────
-  // Formula per elastic:
-  //   (warpSpandex.weight + spandexCovering.weight) × quantity
-  // Weights are in g/m, quantity in meters → raw grams ÷ 1000 = kg
   double get expectedProduceWeight {
     double totalGrams = 0;
     for (final ep in elasticPlanned) {
@@ -127,13 +99,9 @@ class CoveringDetail {
       final sc  = ep.elastic.spandexCovering?.weight ?? 0.0;
       totalGrams += (ws + sc) * ep.quantity;
     }
-    return totalGrams / 1000; // kg
+    return totalGrams / 1000;
   }
 }
-
-// ─────────────────────────────────────────────────────────────
-//  JobSummary
-// ─────────────────────────────────────────────────────────────
 
 class JobSummary {
   final String id;
@@ -172,10 +140,6 @@ class JobSummary {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  CoveringElasticDetail
-// ─────────────────────────────────────────────────────────────
-
 class CoveringElasticDetail {
   final ElasticTechnical elastic;
   final int quantity;
@@ -187,8 +151,6 @@ class CoveringElasticDetail {
 
   factory CoveringElasticDetail.fromJson(Map<String, dynamic> json) {
     return CoveringElasticDetail(
-      // FIX: null guard — elastic is always a populated Map at this
-      // point (filtered in CoveringDetail.fromJson) but guarded anyway
       elastic:  json['elastic'] is Map
           ? ElasticTechnical.fromJson(
           json['elastic'] as Map<String, dynamic>)
@@ -197,10 +159,6 @@ class CoveringElasticDetail {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────
-//  ElasticTechnical
-// ─────────────────────────────────────────────────────────────
 
 class ElasticTechnical {
   final String id;
@@ -244,7 +202,6 @@ class ElasticTechnical {
       noOfHook:       (json['noOfHook']     as num?)?.toInt()    ?? 0,
       weight:         (json['weight']       as num?)?.toDouble() ?? 0.0,
       weaveType:      json['weaveType']?.toString()    ?? '—',
-      // FIX: null-guard all nested objects
       warpSpandex:    json['warpSpandex'] is Map
           ? WarpSpandex.fromJson(
           json['warpSpandex'] as Map<String, dynamic>)
@@ -260,14 +217,6 @@ class ElasticTechnical {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────
-//  WarpSpandex
-//
-//  FIX: original used json["id"]["name"] which crashed when the
-//       "id" field (ObjectId ref to RawMaterial) wasn't populated
-//       or the material was deleted. Now null-safe.
-// ─────────────────────────────────────────────────────────────
 
 class WarpSpandex {
   final String materialId;
@@ -295,12 +244,6 @@ class WarpSpandex {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  CoveringSpandex
-//
-//  FIX: same json["id"]["name"] null crash as WarpSpandex.
-// ─────────────────────────────────────────────────────────────
-
 class CoveringSpandex {
   final String materialId;
   final String materialName;
@@ -323,10 +266,6 @@ class CoveringSpandex {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────
-//  TestingParams
-// ─────────────────────────────────────────────────────────────
 
 class TestingParams {
   final double? width;
@@ -360,6 +299,10 @@ class BeamEntry {
   final double weight;
   final String note;
   final DateTime enteredAt;
+  // Operator who recorded the beam entry; shown on the printable label.
+  // Populated server-side from req.user; may be null on legacy rows.
+  final String? enteredById;
+  final String? enteredByName;
 
   const BeamEntry({
     required this.id,
@@ -367,15 +310,22 @@ class BeamEntry {
     required this.weight,
     required this.note,
     required this.enteredAt,
+    this.enteredById,
+    this.enteredByName,
   });
 
-  factory BeamEntry.fromJson(Map<String, dynamic> j) => BeamEntry(
-    id:        j['_id']?.toString()   ?? '',
-    beamNo:    (j['beamNo'] as num?)?.toInt()    ?? 0,
-    weight:    (j['weight'] as num?)?.toDouble() ?? 0,
-    note:      j['note']?.toString()  ?? '',
-    enteredAt: j['enteredAt'] != null
-        ? DateTime.parse(j['enteredAt'] as String).toLocal()
-        : DateTime.now(),
-  );
+  factory BeamEntry.fromJson(Map<String, dynamic> j) {
+    final eb = j['enteredBy'];
+    return BeamEntry(
+      id:        j['_id']?.toString()   ?? '',
+      beamNo:    (j['beamNo'] as num?)?.toInt()    ?? 0,
+      weight:    (j['weight'] as num?)?.toDouble() ?? 0,
+      note:      j['note']?.toString()  ?? '',
+      enteredAt: j['enteredAt'] != null
+          ? DateTime.parse(j['enteredAt'] as String).toLocal()
+          : DateTime.now(),
+      enteredById:   (eb is Map ? eb['_id'] : eb)?.toString(),
+      enteredByName: eb is Map ? eb['name']?.toString() : null,
+    );
+  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/employee.dart';
+import '../../../core/api_client.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -10,13 +11,7 @@ import '../models/employee.dart';
 // ══════════════════════════════════════════════════════════════
 
 class EmployeeApiService {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ),
-  );
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   static Future<List<EmployeeListItem>> fetchAll() async {
     final res = await _dio.get('/employee/get-employees');

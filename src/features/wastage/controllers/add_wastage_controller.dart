@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/checkingJobModel.dart';
+import '../../../core/api_client.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -10,20 +11,8 @@ import '../models/checkingJobModel.dart';
 // ══════════════════════════════════════════════════════════════
 
 class WastageApi {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2/wastage',
-      connectTimeout: const Duration(seconds: 12),
-      receiveTimeout: const Duration(seconds: 12),
-    ),
-  );
-  static final Dio _jobDio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2/job',
-      connectTimeout: const Duration(seconds: 12),
-      receiveTimeout: const Duration(seconds: 12),
-    ),
-  );
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/wastage');
+  static final Dio _jobDio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/job');
 
   static Future<List<WastageJobSummary>> fetchJobsWithWastage({
     String? status,

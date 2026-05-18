@@ -7,7 +7,8 @@ import '../../../core/api_client.dart';
 // ══════════════════════════════════════════════════════════════
 //  DashboardController
 //  Fetches the consolidated KPI roll-up from the backend so the
-//  admin home renders in one round-trip.
+//  admin home renders in one round-trip, plus a tiny second call
+//  for the count of shifts pending admin verification.
 // ══════════════════════════════════════════════════════════════
 class DashboardController extends GetxController {
   final loading  = false.obs;
@@ -15,6 +16,7 @@ class DashboardController extends GetxController {
 
   final openJobs      = 0.obs;
   final pendingLeaves = 0.obs;
+  final pendingShifts = 0.obs;
 
   final attTotalMarked    = 0.obs;
   final attTotalEmployees = 0.obs;
@@ -29,11 +31,13 @@ class DashboardController extends GetxController {
   final lowStockCount = 0.obs;
   final lowStockItems = <Map<String, dynamic>>[].obs;
 
-  // Use the cookie-attaching factory so the request carries the JWT
-  // and clears the new isAuthenticated + isAdmin('admin') gate on
-  // /api/v2/dashboard/kpis. A bare Dio() would 401.
   final _dio = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/dashboard',
+  );
+  // Pending-shifts count is on the shift router — separate client so
+  // we hit the right base URL without changing the existing /kpis call.
+  final _shiftDio = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/shift',
   );
 
   @override
@@ -46,8 +50,17 @@ class DashboardController extends GetxController {
     try {
       loading.value  = true;
       errorMsg.value = null;
-      final res = await _dio.get('/kpis');
-      final data = (res.data['data'] as Map?) ?? {};
+
+      // Fetch the consolidated KPIs and the pending-shifts count in
+      // parallel. Pending-shifts failure must not block the rest of
+      // the dashboard — catch separately.
+      final results = await Future.wait([
+        _dio.get('/kpis'),
+        _shiftDio.get('/pending-verification').catchError((_) => null),
+      ]);
+
+      final kpiRes = results[0]!;
+      final data   = (kpiRes.data['data'] as Map?) ?? {};
 
       openJobs.value      = (data['openJobs']      as num?)?.toInt() ?? 0;
       pendingLeaves.value = (data['pendingLeaves'] as num?)?.toInt() ?? 0;
@@ -68,6 +81,13 @@ class DashboardController extends GetxController {
       attHalfDay.value  = (breakdown['half_day'] as num?)?.toInt() ?? 0;
       attAbsent.value   = (breakdown['absent']   as num?)?.toInt() ?? 0;
       attOnLeave.value  = (breakdown['on_leave'] as num?)?.toInt() ?? 0;
+
+      final shiftsRes = results[1];
+      if (shiftsRes != null) {
+        final list = (shiftsRes.data['shifts'] as List?) ??
+            (shiftsRes.data['data'] as List?) ?? [];
+        pendingShifts.value = list.length;
+      }
     } on DioException catch (e) {
       errorMsg.value =
           e.response?.data?['message'] as String? ?? 'Failed to load KPIs';

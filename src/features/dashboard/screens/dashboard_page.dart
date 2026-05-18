@@ -7,16 +7,12 @@ import '../../feedback/screens/feedback_admin_list.dart';
 import '../../Job/screens/job_list_screen.dart';
 import '../../employees/screens/empList.dart';
 import '../../materials/screens/material_list_screenn.dart';
+import '../../shift/screens/pending_verification_page.dart';
+import '../../elastic/screens/stock_map_page.dart';
 import '../controllers/dashboard_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  ADMIN DASHBOARD
-//  Replaces "Employees" as the home tab. Shows a single roll-up:
-//    • Open jobs
-//    • Pending leaves
-//    • Today's attendance
-//    • Low-stock materials
-//  Each card taps through to the matching feature page.
 // ══════════════════════════════════════════════════════════════
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -69,6 +65,8 @@ class DashboardPage extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
             children: [
               _KpiGrid(ctrl: ctrl),
+              const SizedBox(height: 12),
+              _PendingShiftsBanner(ctrl: ctrl),
               const SizedBox(height: 18),
               _AttendanceCard(ctrl: ctrl),
               const SizedBox(height: 14),
@@ -83,7 +81,93 @@ class DashboardPage extends StatelessWidget {
   }
 }
 
-// ── KPI counters: open jobs, pending leaves, low stock ──────
+// Full-width banner sitting between the 2x2 KPI grid and the
+// attendance card. Keeps the existing grid layout intact and gives
+// pending-verification its own visual presence.
+class _PendingShiftsBanner extends StatelessWidget {
+  final DashboardController ctrl;
+  const _PendingShiftsBanner({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final n = ctrl.pendingShifts.value;
+      final highlight = n > 0;
+      return Material(
+        color: ErpColors.bgSurface,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: () => Get.to(() => const PendingVerificationPage())
+              ?.then((_) => ctrl.fetch()),
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: highlight
+                    ? ErpColors.warningAmber.withOpacity(0.55)
+                    : ErpColors.borderLight,
+              ),
+              borderRadius: BorderRadius.circular(8),
+              color: highlight
+                  ? ErpColors.warningAmber.withOpacity(0.08)
+                  : ErpColors.bgSurface,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36, height: 36,
+                  decoration: BoxDecoration(
+                    color: ErpColors.warningAmber.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.hourglass_top_rounded,
+                      color: ErpColors.warningAmber, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('SHIFTS PENDING VERIFICATION',
+                          style: TextStyle(
+                              color: ErpColors.textSecondary,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.6)),
+                      const SizedBox(height: 2),
+                      Row(children: [
+                        Text('$n',
+                            style: const TextStyle(
+                                color: ErpColors.textPrimary,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.5)),
+                        const SizedBox(width: 8),
+                        Text(
+                          highlight
+                              ? 'submitted shifts waiting for admin sign-off'
+                              : 'nothing to verify right now',
+                          style: const TextStyle(
+                              color: ErpColors.textSecondary,
+                              fontSize: 12),
+                        ),
+                      ]),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right,
+                    color: ErpColors.textMuted, size: 20),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+
 class _KpiGrid extends StatelessWidget {
   final DashboardController ctrl;
   const _KpiGrid({required this.ctrl});
@@ -181,8 +265,7 @@ class _KpiTile extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: 32, height: 32,
                     decoration: BoxDecoration(
                       color: color.withOpacity(0.10),
                       borderRadius: BorderRadius.circular(6),
@@ -196,25 +279,19 @@ class _KpiTile extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              Text(
-                value,
-                style: const TextStyle(
-                  color: ErpColors.textPrimary,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                ),
-              ),
+              Text(value,
+                  style: const TextStyle(
+                      color: ErpColors.textPrimary,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5)),
               const SizedBox(height: 2),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: ErpColors.textSecondary,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.8,
-                ),
-              ),
+              Text(label,
+                  style: const TextStyle(
+                      color: ErpColors.textSecondary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8)),
               if (sub != null) ...[
                 const SizedBox(height: 4),
                 Text(sub!,
@@ -231,7 +308,6 @@ class _KpiTile extends StatelessWidget {
   }
 }
 
-// ── Attendance card with status breakdown ────────────────────
 class _AttendanceCard extends StatelessWidget {
   final DashboardController ctrl;
   const _AttendanceCard({required this.ctrl});
@@ -312,7 +388,6 @@ class _AttPill extends StatelessWidget {
   final int count;
   final Color color;
   const _AttPill(this.label, this.count, this.color);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -326,26 +401,19 @@ class _AttPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 8,
-            height: 8,
+            width: 8, height: 8,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 6),
-          Text(
-            '$label · $count',
-            style: TextStyle(
-              color: color,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          Text('$label · $count',
+              style: TextStyle(
+                  color: color, fontSize: 11, fontWeight: FontWeight.w700)),
         ],
       ),
     );
   }
 }
 
-// ── Low-stock list ──────────────────────────────────────────
 class _LowStockCard extends StatelessWidget {
   final DashboardController ctrl;
   const _LowStockCard({required this.ctrl});
@@ -435,15 +503,13 @@ class _LowStockRow extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  name,
-                  style: const TextStyle(
-                      color: ErpColors.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                child: Text(name,
+                    style: const TextStyle(
+                        color: ErpColors.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
               ),
               Text(
                 '${stock.toStringAsFixed(stock.truncateToDouble() == stock ? 0 : 1)} / ${minStock.toStringAsFixed(minStock.truncateToDouble() == minStock ? 0 : 1)}',
@@ -478,7 +544,6 @@ class _LowStockRow extends StatelessWidget {
   }
 }
 
-// ── Quick links to related admin features ───────────────────
 class _QuickLinks extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -490,6 +555,11 @@ class _QuickLinks extends StatelessWidget {
       ),
       child: Column(
         children: [
+          _LinkRow(
+            icon: Icons.inventory_outlined,
+            label: 'Elastic Stock',
+            onTap: () => Get.to(() => const StockMapPage()),
+          ),
           _LinkRow(
             icon: Icons.people_outline_rounded,
             label: 'Employees',
@@ -561,7 +631,6 @@ class _ErrorState extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
   const _ErrorState({required this.message, required this.onRetry});
-
   @override
   Widget build(BuildContext context) {
     return Center(

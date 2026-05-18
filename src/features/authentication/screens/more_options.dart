@@ -14,11 +14,13 @@ import 'package:production/src/features/authentication/screens/login.dart';
 // import 'package:production/src/features/customer/screens/customerList.dart';
 import 'package:production/src/features/customer/screens/list.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
+import 'package:production/src/features/elastic/screens/stock_map_page.dart';
 import 'package:production/src/features/employees/screens/empList.dart';
 import 'package:production/src/features/feedback/screens/feedback_admin_list.dart';
 import 'package:production/src/features/materials/screens/stock_adjust.dart';
 import 'package:production/src/features/packing/screens/AddPacking.dart';
 import 'package:production/src/features/payroll/screens/payroll_page.dart';
+import 'package:production/src/features/shift/screens/pending_verification_page.dart';
 import 'package:production/src/features/supplier/screen/supplier_list_page.dart';
 import 'package:production/src/features/wastage/screens/wastage_list.dart';
 import '../../PurchaseOrder/controllers/add_po.dart';
@@ -35,7 +37,6 @@ import '../../shift/screens/shift_list_page.dart';
 class MoreOptionsPage extends StatelessWidget {
   const MoreOptionsPage({super.key});
 
-  // ── Module sections ─────────────────────────────────────────
   static final _sections = <_Section>[
     _Section('PEOPLE', [
       _Tile(Icons.people_alt_rounded, 'Employees', _Nav.employees),
@@ -50,6 +51,7 @@ class MoreOptionsPage extends StatelessWidget {
     ]),
     _Section('PRODUCTION', [
       _Tile(Icons.linear_scale_rounded, 'Elastics', _Nav.elasticList),
+      _Tile(Icons.inventory_outlined, 'Elastic Stock', _Nav.elasticStock),
       _Tile(Icons.inventory_2_outlined, 'Raw Materials', _Nav.rawMaterials),
       _Tile(Icons.inventory_2_outlined, 'Stock Adjust', _Nav.stockAdjust),
       _Tile(Icons.layers_outlined, 'Warping', _Nav.warping),
@@ -73,6 +75,8 @@ class MoreOptionsPage extends StatelessWidget {
         _Nav.createShiftPlan,
       ),
       _Tile(Icons.access_time_outlined, 'Shift Production', _Nav.shiftList),
+      _Tile(Icons.hourglass_top_rounded,
+          'Pending Verifications', _Nav.pendingVerification),
       _Tile(Icons.access_time_outlined, 'Attendence', _Nav.attendence),
       _Tile(Icons.access_time_outlined, 'Payroll', _Nav.payroll),
     ]),
@@ -157,7 +161,6 @@ class MoreOptionsPage extends StatelessWidget {
   }
 }
 
-// ── Static navigation helpers ──────────────────────────────
 class _Nav {
   static void employees() => Get.to(() => const EmployeeListPage());
   static void customerList() => Get.to(() => CustomerListPage());
@@ -167,6 +170,7 @@ class _Nav {
   static void poList() => Get.to(() => POListPage());
   static void addPO() => Get.to(() => AddPOPage(mode: POFormMode.create));
   static void elasticList() => Get.to(() => ElasticListPage());
+  static void elasticStock() => Get.to(() => const StockMapPage());
   static void rawMaterials() => Get.to(() => RawMaterialListPage());
   static void warping() => Get.to(() => WarpingListPage());
   static void covering() => Get.to(() => CoveringListPage());
@@ -181,6 +185,8 @@ class _Nav {
       Get.to(() => AddPOPage(mode: POFormMode.create));
   static void createShiftPlan() => Get.to(() => CreateShiftPlanPage());
   static void shiftList() => Get.to(() => ShiftListPage());
+  static void pendingVerification() =>
+      Get.to(() => const PendingVerificationPage());
 
   static void analytics() => Get.to(() => ProductionAnalyticsPage());
 
@@ -237,7 +243,6 @@ class _Nav {
   }
 }
 
-// ── Data classes ───────────────────────────────────────────
 class _Section {
   final String title;
   final List<_Tile> tiles;
@@ -252,7 +257,6 @@ class _Tile {
   const _Tile(this.icon, this.label, this.onTap, {this.isDanger = false});
 }
 
-// ── Tile widget ────────────────────────────────────────────
 class _TileWidget extends StatelessWidget {
   final _Tile tile;
   const _TileWidget({required this.tile});
@@ -281,8 +285,7 @@ class _TileWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 40, height: 40,
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   shape: BoxShape.circle,

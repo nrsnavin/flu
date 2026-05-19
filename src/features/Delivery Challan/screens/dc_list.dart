@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/api_client.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
 import 'DCdetail.dart';
@@ -12,11 +13,14 @@ import 'addDCpage.dart';
 //  CONTROLLER
 // ════════════════════════════════════════════════════════════════
 class DCListController extends GetxController {
-  final _dio = Dio(BaseOptions(
+  // FIX: was constructing a bare Dio(BaseOptions(...)), which
+  // skipped the cookie interceptor in ApiClient.buildClient and
+  // produced 401 ("login to continue") against the gated backend.
+  // The factory below attaches the JWT cookie on every request.
+  final _dio = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+    timeout: const Duration(seconds: 10),
+  );
 
   final isLoading  = false.obs;
   final dcs        = <DCListItem>[].obs;

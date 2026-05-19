@@ -5,13 +5,9 @@ import 'package:intl/intl.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/elastic_stock_controller.dart';
 
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════
 //  ElasticStockPage — single elastic stock view
-//
-//  Routed from the Stock Map (and any future link from the elastic
-//  detail page). Shows current on-hand stock, the movement ledger,
-//  and a Manual Adjust action.
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════
 class ElasticStockPage extends StatefulWidget {
   final String elasticId;
   final String? elasticName;
@@ -41,9 +37,41 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ErpColors.bgBase,
-      appBar: ErpAppBar(
-        title: widget.elasticName ?? 'Elastic Stock',
-        subtitle: 'Stock ledger',
+      appBar: AppBar(
+        backgroundColor: ErpColors.navyDark,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new,
+              size: 16, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(widget.elasticName ?? 'Elastic Stock',
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800)),
+            const Text('Stock ledger',
+                style: TextStyle(
+                    color: ErpColors.textOnDarkSub, fontSize: 10)),
+          ],
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
+            onSelected: (v) {
+              if (v == 'min_stock') _openMinStockDialog(context);
+              if (v == 'refresh')   c.fetchStock(widget.elasticId);
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'min_stock', child: Text('Set min stock')),
+              PopupMenuItem(value: 'refresh',   child: Text('Refresh')),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: Obx(() => FloatingActionButton.extended(
             backgroundColor: ErpColors.accentBlue,
@@ -125,6 +153,70 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
           ),
         );
       }),
+    );
+  }
+
+  void _openMinStockDialog(BuildContext ctx) {
+    final ctrl = TextEditingController(
+      text: c.minStock.value > 0 ? c.minStock.value.toStringAsFixed(0) : '',
+    );
+    showDialog(
+      context: ctx,
+      builder: (_) => AlertDialog(
+        backgroundColor: ErpColors.bgSurface,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10)),
+        title: const Text('Set Min Stock',
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: ErpColors.textPrimary)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'When on-hand stock falls at or below this value the elastic is flagged as LOW. Set to 0 to disable.',
+              style: TextStyle(
+                  color: ErpColors.textSecondary, fontSize: 11),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: ctrl,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: false),
+              decoration: ErpDecorations.formInput('Threshold (m)'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ErpColors.accentBlue,
+              elevation: 0,
+            ),
+            onPressed: () async {
+              final v = double.tryParse(ctrl.text.trim());
+              if (v == null || v < 0) {
+                Get.snackbar('Validation', 'Enter a non-negative number',
+                    backgroundColor: ErpColors.errorRed,
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.BOTTOM);
+                return;
+              }
+              final ok = await c.setMinStock(widget.elasticId, v);
+              if (ok) Navigator.of(ctx).pop();
+            },
+            child: const Text('Save',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -283,21 +375,47 @@ class _OnHandHero extends StatelessWidget {
           lastLabel = 'Last movement: ${DateFormat('dd MMM, hh:mm a').format(dt)}';
         } catch (_) {}
       }
+      final low = c.isLowStock.value;
+      final heroColor = low ? const Color(0xFF7C2D12) : ErpColors.navyDark;
       return Container(
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
         decoration: BoxDecoration(
-          color: ErpColors.navyDark,
+          color: heroColor,
           borderRadius: BorderRadius.circular(10),
+          border: low
+              ? Border.all(color: ErpColors.warningAmber, width: 1.5)
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('ON HAND',
-                style: TextStyle(
-                    color: ErpColors.textOnDarkSub,
-                    fontSize: 10,
-                    letterSpacing: 0.8,
-                    fontWeight: FontWeight.w700)),
+            Row(
+              children: [
+                const Text('ON HAND',
+                    style: TextStyle(
+                        color: ErpColors.textOnDarkSub,
+                        fontSize: 10,
+                        letterSpacing: 0.8,
+                        fontWeight: FontWeight.w700)),
+                if (low) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: ErpColors.warningAmber,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: const Text('LOW',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.6)),
+                  ),
+                ],
+              ],
+            ),
             const SizedBox(height: 4),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -326,13 +444,29 @@ class _OnHandHero extends StatelessWidget {
                         color: ErpColors.textOnDarkSub, fontSize: 11)),
               ),
             const SizedBox(height: 10),
-            Row(
+            Wrap(
+              spacing: 10,
+              runSpacing: 6,
               children: [
                 _MiniStat(
                   label: 'Produced',
                   value: _fmtNum(c.quantityProduced.value),
                 ),
-                const SizedBox(width: 14),
+                _MiniStat(
+                  label: 'Available',
+                  value: _fmtNum(c.available.value),
+                ),
+                if (c.reservedStock.value > 0)
+                  _MiniStat(
+                    label: 'Reserved',
+                    value: _fmtNum(c.reservedStock.value),
+                  ),
+                _MiniStat(
+                  label: 'Min',
+                  value: c.minStock.value > 0
+                      ? _fmtNum(c.minStock.value)
+                      : 'off',
+                ),
                 _MiniStat(
                   label: 'Movements',
                   value: '${c.movements.length}',
@@ -384,13 +518,20 @@ class _MovementRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final type    = mv['type']?.toString() ?? '';
-    final qty     = (mv['quantity'] as num?)?.toDouble() ?? 0;
+    final type = mv['type']?.toString() ?? '';
+    final applied = (mv['applied'] as num?)?.toDouble()
+        ?? (mv['quantity'] as num?)?.toDouble() ?? 0;
+    final requested = (mv['requested'] as num?)?.toDouble() ?? applied;
     final balance = (mv['balance']  as num?)?.toDouble() ?? 0;
     final dateRaw = mv['date'] as String?;
     final refType = mv['refType']?.toString();
     final refId   = mv['refId']?.toString();
     final reason  = mv['reason']?.toString();
+
+    final isInfoOnly =
+        type == 'RESERVATION_HOLD' || type == 'RESERVATION_RELEASE';
+    final clamped =
+        !isInfoOnly && (requested - applied).abs() > 0.0001;
 
     String when = '';
     if (dateRaw != null) {
@@ -400,20 +541,32 @@ class _MovementRow extends StatelessWidget {
       } catch (_) {}
     }
 
-    final isInward = qty >= 0;
+    final isInward = applied >= 0;
     Color color;
     String label;
     switch (type) {
-      case 'PACKING_INWARD':     color = ErpColors.successGreen; label = 'Packing'; break;
-      case 'PACKING_REVERSE':    color = ErpColors.errorRed;     label = 'Packing reversed'; break;
-      case 'DC_OUT':             color = ErpColors.warningAmber; label = 'Dispatched (DC)'; break;
-      case 'DC_CANCEL_RETURN':   color = ErpColors.successGreen; label = 'DC cancelled'; break;
-      case 'WASTAGE_OUT':        color = ErpColors.errorRed;     label = 'Wastage'; break;
+      case 'PACKING_INWARD':
+        color = ErpColors.successGreen; label = 'Packing'; break;
+      case 'PACKING_REVERSE':
+        color = ErpColors.errorRed;     label = 'Packing reversed'; break;
+      case 'DC_OUT':
+        color = ErpColors.warningAmber; label = 'Dispatched (DC)'; break;
+      case 'DC_CANCEL_RETURN':
+        color = ErpColors.successGreen; label = 'DC cancelled'; break;
+      case 'WASTAGE_OUT':
+        color = ErpColors.errorRed;     label = 'Wastage'; break;
+      case 'WASTAGE_RETURN':
+        color = ErpColors.successGreen; label = 'Wastage reversed'; break;
+      case 'RESERVATION_HOLD':
+        color = ErpColors.accentBlue;   label = 'Reserved (hold)'; break;
+      case 'RESERVATION_RELEASE':
+        color = ErpColors.accentBlue;   label = 'Reserve released'; break;
       case 'MANUAL_ADJUST':
         color = isInward ? ErpColors.successGreen : ErpColors.errorRed;
         label = 'Manual adjust';
         break;
-      default: color = ErpColors.accentBlue; label = type;
+      default:
+        color = ErpColors.accentBlue; label = type;
     }
 
     String sub = '';
@@ -421,7 +574,8 @@ class _MovementRow extends StatelessWidget {
       final short = refId.length > 6 ? refId.substring(refId.length - 6) : refId;
       sub = '$refType #$short';
     }
-    if (type == 'MANUAL_ADJUST' && reason != null && reason.isNotEmpty) {
+    if ((type == 'MANUAL_ADJUST' || isInfoOnly) &&
+        reason != null && reason.isNotEmpty) {
       sub = reason;
     }
 
@@ -443,7 +597,11 @@ class _MovementRow extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isInward ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+              isInfoOnly
+                  ? Icons.bookmark_outline_rounded
+                  : (isInward
+                      ? Icons.arrow_downward_rounded
+                      : Icons.arrow_upward_rounded),
               color: color, size: 16,
             ),
           ),
@@ -468,12 +626,35 @@ class _MovementRow extends StatelessWidget {
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.5)),
                   ),
+                  if (clamped) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: ErpColors.warningAmber.withOpacity(0.15),
+                        border: Border.all(
+                            color: ErpColors.warningAmber.withOpacity(0.6)),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text('CLAMPED',
+                          style: TextStyle(
+                              color: ErpColors.warningAmber,
+                              fontSize: 8,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.4)),
+                    ),
+                  ],
                   const Spacer(),
-                  Text('${qty > 0 ? '+' : ''}${_fmtNum(qty)} m',
-                      style: TextStyle(
-                          color: color,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800)),
+                  Text(
+                    isInfoOnly
+                        ? '${requested > 0 ? '+' : ''}${_fmtNum(requested)} m'
+                        : '${applied > 0 ? '+' : ''}${_fmtNum(applied)} m',
+                    style: TextStyle(
+                        color: color,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800),
+                  ),
                 ]),
                 const SizedBox(height: 4),
                 Row(children: [
@@ -486,12 +667,23 @@ class _MovementRow extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text('Bal: ${_fmtNum(balance)} m',
-                      style: const TextStyle(
-                          color: ErpColors.textMuted,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700)),
+                  if (!isInfoOnly)
+                    Text('Bal: ${_fmtNum(balance)} m',
+                        style: const TextStyle(
+                            color: ErpColors.textMuted,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700)),
                 ]),
+                if (clamped) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    'Requested ${_fmtNum(requested)} m — reduced to ${_fmtNum(applied)} m by zero-floor',
+                    style: const TextStyle(
+                        color: ErpColors.warningAmber,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
                 if (sub.isNotEmpty && when.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(when,

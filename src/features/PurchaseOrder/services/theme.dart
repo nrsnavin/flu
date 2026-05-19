@@ -295,6 +295,11 @@ class ErpSectionCard extends StatelessWidget {
   final IconData icon;
   final Widget child;
   final Color accentColor;
+  // Optional widget rendered at the end of the section header.
+  // Used by the elastic stock screens to surface a low-stock filter
+  // chip / movement count alongside the title without re-wrapping
+  // the whole card.
+  final Widget? trailing;
 
   const ErpSectionCard({
     super.key,
@@ -302,6 +307,7 @@ class ErpSectionCard extends StatelessWidget {
     required this.icon,
     required this.child,
     this.accentColor = ErpColors.accentBlue,
+    this.trailing,
   });
 
   @override
@@ -345,6 +351,10 @@ class ErpSectionCard extends StatelessWidget {
               Icon(icon, size: 13, color: ErpColors.textSecondary),
               const SizedBox(width: 6),
               Text(title, style: ErpTextStyles.sectionHeader),
+              if (trailing != null) ...[
+                const Spacer(),
+                trailing!,
+              ],
             ]),
           ),
           Padding(

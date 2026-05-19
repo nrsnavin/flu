@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -8,10 +9,11 @@ import '../controllers/elastic_stock_controller.dart';
 // ═════════════════════════════════════════════════════════════
 //  ElasticStockPage — single elastic stock view
 //
-//  P2-7: optional initialAdjustDelta + initialAdjustReason params
-//  let the Reconcile sheet deep-link straight into a pre-filled
-//  Manual Adjust dialog. When both are set, the dialog opens once
-//  after first frame.
+//  P2-3 manual adjust upgrade (reason min length, preview,
+//       magnitude warning + force-retry confirm),
+//  P2-4 tappable movement rows → detail bottom sheet,
+//  P2-5 timeline filters (date range / type / ref search),
+//  P2-6 CSV export to clipboard.
 // ═════════════════════════════════════════════════════════════
 class ElasticStockPage extends StatefulWidget {
   final String elasticId;
@@ -33,6 +35,46 @@ class ElasticStockPage extends StatefulWidget {
 class _ElasticStockPageState extends State<ElasticStockPage> {
   late final ElasticStockController c;
 
+  // ── P2-5 timeline filter state ────────────────────────────
+  String _typeFilter = 'all';
+  int    _dayRange   = 0; // 0 = all, otherwise rolling N days
+  final  _refSearchCtrl = TextEditingController();
+
+  static const _typeGroups = {
+    'packing':     ['PACKING_INWARD', 'PACKING_REVERSE'],
+    'dc':          ['DC_OUT', 'DC_CANCEL_RETURN'],
+    'wastage':     ['WASTAGE_OUT', 'WASTAGE_RETURN'],
+    'manual':      ['MANUAL_ADJUST'],
+    'reservation': ['RESERVATION_HOLD', 'RESERVATION_RELEASE'],
+  };
+
+  List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> src) {
+    DateTime? cutoff;
+    if (_dayRange > 0) {
+      cutoff = DateTime.now().subtract(Duration(days: _dayRange));
+    }
+    final search = _refSearchCtrl.text.trim().toLowerCase();
+    return src.where((m) {
+      if (cutoff != null) {
+        final d = DateTime.tryParse(m['date']?.toString() ?? '');
+        if (d == null || d.isBefore(cutoff)) return false;
+      }
+      if (_typeFilter != 'all') {
+        final t = m['type']?.toString() ?? '';
+        if (!(_typeGroups[_typeFilter] ?? const []).contains(t)) return false;
+      }
+      if (search.isNotEmpty) {
+        final refId   = (m['refId']   ?? '').toString().toLowerCase();
+        final refType = (m['refType'] ?? '').toString().toLowerCase();
+        final reason  = (m['reason']  ?? '').toString().toLowerCase();
+        if (!refId.contains(search) &&
+            !refType.contains(search) &&
+            !reason.contains(search)) return false;
+      }
+      return true;
+    }).toList();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -40,9 +82,8 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
     Get.delete<ElasticStockController>(tag: tag, force: true);
     c = Get.put(ElasticStockController(), tag: tag);
     c.fetchStock(widget.elasticId);
+    _refSearchCtrl.addListener(() => setState(() {}));
 
-    // Auto-open adjust dialog if we were navigated here with a
-    // prefilled correction (e.g. from the reconcile sheet).
     final d = widget.initialAdjustDelta;
     final r = widget.initialAdjustReason;
     if (d != null && d != 0 && r != null && r.isNotEmpty) {
@@ -50,6 +91,12 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
         if (mounted) _openAdjustDialog(context, prefillDelta: d, prefillReason: r);
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _refSearchCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -79,6 +126,12 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'Export CSV',
+            icon: const Icon(Icons.file_download_outlined,
+                color: Colors.white),
+            onPressed: () => _exportCsv(context),
+          ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
             onSelected: (v) {
@@ -139,6 +192,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
             ),
           );
         }
+        final filtered = _applyFilters(c.movements);
         return RefreshIndicator(
           onRefresh: () => c.fetchStock(widget.elasticId),
           child: ListView(
@@ -149,29 +203,110 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
               ErpSectionCard(
                 title: 'MOVEMENT TIMELINE',
                 icon: Icons.history_rounded,
-                child: c.movements.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
+                trailing: Text(
+                  '${filtered.length}/${c.movements.length}',
+                  style: const TextStyle(
+                      color: ErpColors.textMuted,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700),
+                ),
+                child: Column(
+                  children: [
+                    _TimelineFilters(
+                      typeFilter:  _typeFilter,
+                      dayRange:    _dayRange,
+                      searchCtrl:  _refSearchCtrl,
+                      onTypeChanged: (v) => setState(() => _typeFilter = v),
+                      onRangeChanged: (v) => setState(() => _dayRange = v),
+                      onClear: () => setState(() {
+                        _typeFilter = 'all';
+                        _dayRange = 0;
+                        _refSearchCtrl.clear();
+                      }),
+                    ),
+                    const Divider(
+                      height: 1, color: ErpColors.borderLight),
+                    if (filtered.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                            'No stock movements yet',
+                            'No movements match the current filters',
                             style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 12)),
                       )
-                    : Column(
-                        children: List.generate(c.movements.length, (i) {
-                          final m = c.movements[i];
+                    else
+                      Column(
+                        children: List.generate(filtered.length, (i) {
+                          final m = filtered[i];
                           return _MovementRow(
                             mv: m,
-                            isLast: i == c.movements.length - 1,
+                            isLast: i == filtered.length - 1,
+                            onTap: () => _openMovementSheet(context, m),
                           );
                         }),
                       ),
+                  ],
+                ),
               ),
             ],
           ),
         );
       }),
+    );
+  }
+
+  // ── P2-6 CSV export ───────────────────────────────────────
+  String _escape(String s) =>
+      s.contains(',') || s.contains('"') || s.contains('\n')
+          ? '"${s.replaceAll('"', '""')}"'
+          : s;
+
+  String _buildCsv(List<Map<String, dynamic>> rows) {
+    final out = StringBuffer();
+    out.writeln('Date,Type,Requested,Applied,Balance,RefType,RefId,Reason,By');
+    for (final m in rows) {
+      final date = m['date']?.toString() ?? '';
+      final type = m['type']?.toString() ?? '';
+      final req  = (m['requested'] as num?)?.toString()
+          ?? (m['quantity'] as num?)?.toString() ?? '';
+      final app  = (m['applied'] as num?)?.toString()
+          ?? (m['quantity'] as num?)?.toString() ?? '';
+      final bal  = (m['balance'] as num?)?.toString() ?? '';
+      final rt   = m['refType']?.toString() ?? '';
+      final ri   = m['refId']?.toString()   ?? '';
+      final rsn  = (m['reason']?.toString() ?? '').replaceAll('\n', ' ');
+      final by   = m['by']?.toString()      ?? '';
+      out.writeln([date, type, req, app, bal, rt, ri, rsn, by]
+          .map(_escape).join(','));
+    }
+    return out.toString();
+  }
+
+  Future<void> _exportCsv(BuildContext ctx) async {
+    final filtered = _applyFilters(c.movements);
+    final csv = _buildCsv(filtered);
+    await Clipboard.setData(ClipboardData(text: csv));
+    if (!mounted) return;
+    Get.snackbar(
+      'CSV Copied',
+      '${filtered.length} row(s) copied to clipboard — paste into a spreadsheet',
+      backgroundColor: const Color(0xFF16A34A),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 4),
+    );
+  }
+
+  // ── P2-4 movement detail sheet ────────────────────────────
+  void _openMovementSheet(BuildContext ctx, Map<String, dynamic> mv) {
+    showModalBottomSheet(
+      context: ctx,
+      backgroundColor: ErpColors.bgSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+      ),
+      builder: (_) => _MovementDetailSheet(mv: mv),
     );
   }
 
@@ -239,13 +374,12 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
     );
   }
 
+  // ── P2-3 manual adjust upgrade ────────────────────────────
   void _openAdjustDialog(
     BuildContext ctx, {
     double? prefillDelta,
     String? prefillReason,
   }) {
-    // Prefilled flows (e.g. reconcile shortcut) decide ADD vs REMOVE
-    // from the sign of the delta and present the absolute value.
     final hasPrefill = prefillDelta != null && prefillDelta != 0;
     final qtyCtrl = TextEditingController(
       text: hasPrefill ? prefillDelta!.abs().toStringAsFixed(0) : '',
@@ -256,6 +390,22 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
     showDialog(
       context: ctx,
       builder: (_) => StatefulBuilder(builder: (_, setSheetState) {
+        // Listen to controllers so the preview + counters refresh live.
+        void rebuild() => setSheetState(() {});
+        qtyCtrl.removeListener(rebuild);
+        qtyCtrl.addListener(rebuild);
+        reasonCtrl.removeListener(rebuild);
+        reasonCtrl.addListener(rebuild);
+
+        final qtyNum   = double.tryParse(qtyCtrl.text.trim()) ?? 0;
+        final delta    = isAdd ? qtyNum : -qtyNum;
+        final currentStock = c.stock.value;
+        final newBalance   = (currentStock + delta).clamp(0.0, double.infinity);
+        final reasonLen    = reasonCtrl.text.trim().length;
+        final reasonValid  = reasonLen >= 8;
+        final magnitudeRisky = qtyNum > 0 &&
+            (qtyNum > 100 || qtyNum > currentStock * 0.2);
+
         return AlertDialog(
           backgroundColor: ErpColors.bgSurface,
           shape: RoundedRectangleBorder(
@@ -266,107 +416,176 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: ErpColors.textPrimary)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (hasPrefill)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.08),
-                    border: Border.all(
-                        color: ErpColors.accentBlue.withOpacity(0.4)),
-                    borderRadius: BorderRadius.circular(6),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (hasPrefill)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: ErpColors.accentBlue.withOpacity(0.08),
+                      border: Border.all(
+                          color: ErpColors.accentBlue.withOpacity(0.4)),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Row(children: [
+                      Icon(Icons.fact_check_outlined,
+                          color: ErpColors.accentBlue, size: 16),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Pre-filled from reconcile drift. Confirm and apply.',
+                          style: TextStyle(
+                              color: ErpColors.accentBlue,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ]),
                   ),
-                  child: const Row(children: [
-                    Icon(Icons.fact_check_outlined,
-                        color: ErpColors.accentBlue, size: 16),
-                    SizedBox(width: 6),
+                Row(
+                  children: [
                     Expanded(
-                      child: Text(
-                        'Pre-filled from reconcile drift. Confirm and apply.',
-                        style: TextStyle(
-                            color: ErpColors.accentBlue,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600),
+                      child: GestureDetector(
+                        onTap: () => setSheetState(() => isAdd = true),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: isAdd
+                                ? ErpColors.successGreen.withOpacity(0.18)
+                                : ErpColors.bgMuted,
+                            border: Border.all(
+                                color: isAdd
+                                    ? ErpColors.successGreen
+                                    : ErpColors.borderLight),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Center(
+                            child: Text('+ ADD',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: ErpColors.successGreen)),
+                          ),
+                        ),
                       ),
                     ),
-                  ]),
-                ),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setSheetState(() => isAdd = true),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: isAdd
-                              ? ErpColors.successGreen.withOpacity(0.18)
-                              : ErpColors.bgMuted,
-                          border: Border.all(
-                              color: isAdd
-                                  ? ErpColors.successGreen
-                                  : ErpColors.borderLight),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Center(
-                          child: Text('+ ADD',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  color: ErpColors.successGreen)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setSheetState(() => isAdd = false),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: !isAdd
+                                ? ErpColors.errorRed.withOpacity(0.18)
+                                : ErpColors.bgMuted,
+                            border: Border.all(
+                                color: !isAdd
+                                    ? ErpColors.errorRed
+                                    : ErpColors.borderLight),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Center(
+                            child: Text('− REMOVE',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: ErpColors.errorRed)),
+                          ),
                         ),
                       ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: qtyCtrl,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: ErpDecorations.formInput('Quantity *'),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: reasonCtrl,
+                  maxLines: 2,
+                  decoration: ErpDecorations.formInput(
+                    'Reason *',
+                    hint: 'Min 8 characters',
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    reasonValid
+                        ? '$reasonLen chars'
+                        : '$reasonLen / 8 chars',
+                    style: TextStyle(
+                      color: reasonValid
+                          ? ErpColors.successGreen
+                          : ErpColors.errorRed,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setSheetState(() => isAdd = false),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: !isAdd
-                              ? ErpColors.errorRed.withOpacity(0.18)
-                              : ErpColors.bgMuted,
-                          border: Border.all(
-                              color: !isAdd
-                                  ? ErpColors.errorRed
-                                  : ErpColors.borderLight),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Center(
-                          child: Text('− REMOVE',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  color: ErpColors.errorRed)),
+                ),
+                if (qtyNum > 0) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: ErpColors.bgMuted,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: ErpColors.borderLight),
+                    ),
+                    child: Row(children: [
+                      const Icon(Icons.preview_outlined,
+                          size: 14, color: ErpColors.textSecondary),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Stock will go from ${_fmtNum(currentStock)} → ${_fmtNum(newBalance)} m',
+                          style: const TextStyle(
+                              color: ErpColors.textPrimary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700),
                         ),
                       ),
-                    ),
+                    ]),
                   ),
                 ],
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: qtyCtrl,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: ErpDecorations.formInput('Quantity *'),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: reasonCtrl,
-                maxLines: 2,
-                decoration: ErpDecorations.formInput(
-                  'Reason *',
-                  hint: 'Why is the stock being adjusted?',
-                ),
-              ),
-            ],
+                if (magnitudeRisky) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: ErpColors.warningAmber.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                          color: ErpColors.warningAmber.withOpacity(0.6)),
+                    ),
+                    child: Row(children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          size: 14, color: ErpColors.warningAmber),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Large adjust — ${_fmtNum(qtyNum)} m is over 20% of on-hand or > 100 m. A second confirm will be required.',
+                          style: const TextStyle(
+                              color: ErpColors.warningAmber,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ]),
+                  ),
+                ],
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -379,29 +598,41 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                 elevation: 0,
               ),
               onPressed: () async {
-                final qty = double.tryParse(qtyCtrl.text.trim());
-                final reason = reasonCtrl.text.trim();
-                if (qty == null || qty <= 0) {
+                if (qtyNum <= 0) {
                   Get.snackbar('Validation', 'Enter a valid quantity',
                       backgroundColor: ErpColors.errorRed,
                       colorText: Colors.white,
                       snackPosition: SnackPosition.BOTTOM);
                   return;
                 }
-                if (reason.isEmpty) {
-                  Get.snackbar('Validation', 'Reason is required',
+                if (!reasonValid) {
+                  Get.snackbar('Validation',
+                      'Reason must be at least 8 characters',
                       backgroundColor: ErpColors.errorRed,
                       colorText: Colors.white,
                       snackPosition: SnackPosition.BOTTOM);
                   return;
                 }
-                final delta = isAdd ? qty : -qty;
-                final ok = await c.adjust(
-                  elasticId: widget.elasticId,
-                  delta: delta,
-                  reason: reason,
+
+                // First confirm for big adjusts (P2-3): show the
+                // before → after balance prominently before posting.
+                if (magnitudeRisky) {
+                  final ok = await _confirmBigAdjust(
+                    ctx,
+                    qty: qtyNum,
+                    isAdd: isAdd,
+                    before: currentStock,
+                    after: newBalance,
+                  );
+                  if (ok != true) return;
+                }
+
+                await _submitAdjust(
+                  qty: qtyNum,
+                  isAdd: isAdd,
+                  reason: reasonCtrl.text.trim(),
+                  dialogContext: ctx,
                 );
-                if (ok) Navigator.of(ctx).pop();
               },
               child: const Text('Apply',
                   style: TextStyle(
@@ -412,8 +643,314 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
       }),
     );
   }
+
+  Future<bool?> _confirmBigAdjust(
+    BuildContext ctx, {
+    required double qty,
+    required bool isAdd,
+    required double before,
+    required double after,
+  }) {
+    return showDialog<bool>(
+      context: ctx,
+      builder: (_) => AlertDialog(
+        backgroundColor: ErpColors.bgSurface,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10)),
+        title: const Text('Confirm large adjust',
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: ErpColors.textPrimary)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'You are ${isAdd ? 'adding' : 'removing'} '
+              '${_fmtNum(qty)} m (${(qty / (before == 0 ? qty : before) * 100).toStringAsFixed(0)}% of on-hand).',
+              style: const TextStyle(
+                  color: ErpColors.textPrimary, fontSize: 13),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Balance: ${_fmtNum(before)} → ${_fmtNum(after)} m',
+              style: const TextStyle(
+                  color: ErpColors.warningAmber,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Back'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ErpColors.errorRed,
+              elevation: 0,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Apply anyway',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submitAdjust({
+    required double qty,
+    required bool isAdd,
+    required String reason,
+    required BuildContext dialogContext,
+  }) async {
+    final delta = isAdd ? qty : -qty;
+    var res = await c.adjust(
+      elasticId: widget.elasticId,
+      delta:     delta,
+      reason:    reason,
+    );
+
+    // Backend percentage cap rejected — offer one more confirm with
+    // force:true. We already required the magnitudeRisky local
+    // confirm, so this is a second-tier safety net for cases where
+    // our threshold heuristic is more permissive than the backend.
+    if (!res.ok && res.magnitudeCap) {
+      final retry = await showDialog<bool>(
+        context: dialogContext,
+        builder: (_) => AlertDialog(
+          backgroundColor: ErpColors.bgSurface,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10)),
+          title: const Text('Override magnitude cap?',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: ErpColors.textPrimary)),
+          content: Text(
+            res.message ?? 'Backend cap triggered.',
+            style: const TextStyle(
+                color: ErpColors.textSecondary, fontSize: 12),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ErpColors.errorRed,
+                elevation: 0,
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Force apply',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      );
+      if (retry == true) {
+        res = await c.adjust(
+          elasticId: widget.elasticId,
+          delta:     delta,
+          reason:    reason,
+          force:     true,
+        );
+      } else {
+        Get.snackbar('Cancelled', 'Adjustment not applied',
+            backgroundColor: ErpColors.textMuted,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    }
+
+    if (res.ok && Navigator.canPop(dialogContext)) {
+      Navigator.of(dialogContext).pop();
+    }
+  }
 }
 
+// ═════════════════════════════════════════════════════════════
+//  P2-5 — TIMELINE FILTERS STRIP
+// ═════════════════════════════════════════════════════════════
+class _TimelineFilters extends StatelessWidget {
+  final String typeFilter;
+  final int    dayRange;
+  final TextEditingController searchCtrl;
+  final ValueChanged<String> onTypeChanged;
+  final ValueChanged<int>    onRangeChanged;
+  final VoidCallback         onClear;
+  const _TimelineFilters({
+    required this.typeFilter,
+    required this.dayRange,
+    required this.searchCtrl,
+    required this.onTypeChanged,
+    required this.onRangeChanged,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool anyActive = typeFilter != 'all' ||
+        dayRange != 0 ||
+        searchCtrl.text.trim().isNotEmpty;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 6, 2, 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(children: [
+              _RangeChip(label: 'All',  active: dayRange == 0,  onTap: () => onRangeChanged(0)),
+              const SizedBox(width: 4),
+              _RangeChip(label: '7d',   active: dayRange == 7,  onTap: () => onRangeChanged(7)),
+              const SizedBox(width: 4),
+              _RangeChip(label: '30d',  active: dayRange == 30, onTap: () => onRangeChanged(30)),
+              const SizedBox(width: 4),
+              _RangeChip(label: '90d',  active: dayRange == 90, onTap: () => onRangeChanged(90)),
+              const SizedBox(width: 12),
+              _TypeChip(label: 'All',         value: 'all',         current: typeFilter, onTap: onTypeChanged),
+              const SizedBox(width: 4),
+              _TypeChip(label: 'Packing',     value: 'packing',     current: typeFilter, onTap: onTypeChanged),
+              const SizedBox(width: 4),
+              _TypeChip(label: 'DC',          value: 'dc',          current: typeFilter, onTap: onTypeChanged),
+              const SizedBox(width: 4),
+              _TypeChip(label: 'Wastage',     value: 'wastage',     current: typeFilter, onTap: onTypeChanged),
+              const SizedBox(width: 4),
+              _TypeChip(label: 'Manual',      value: 'manual',      current: typeFilter, onTap: onTypeChanged),
+              const SizedBox(width: 4),
+              _TypeChip(label: 'Reservation', value: 'reservation', current: typeFilter, onTap: onTypeChanged),
+            ]),
+          ),
+          const SizedBox(height: 8),
+          Row(children: [
+            Expanded(
+              child: SizedBox(
+                height: 34,
+                child: TextField(
+                  controller: searchCtrl,
+                  style: const TextStyle(fontSize: 12),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 8),
+                    hintText: 'Search ref id / type / reason',
+                    hintStyle: const TextStyle(
+                        color: ErpColors.textMuted, fontSize: 11),
+                    prefixIcon: const Icon(Icons.search,
+                        size: 14, color: ErpColors.textMuted),
+                    prefixIconConstraints:
+                        const BoxConstraints(minWidth: 28, minHeight: 28),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide:
+                          const BorderSide(color: ErpColors.borderLight),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide:
+                          const BorderSide(color: ErpColors.borderLight),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (anyActive)
+              TextButton.icon(
+                onPressed: onClear,
+                icon: const Icon(Icons.clear_rounded, size: 14),
+                label: const Text('Clear',
+                    style: TextStyle(fontSize: 11)),
+                style: TextButton.styleFrom(
+                  foregroundColor: ErpColors.textMuted,
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+          ]),
+        ],
+      ),
+    );
+  }
+}
+
+class _RangeChip extends StatelessWidget {
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+  const _RangeChip({required this.label, required this.active, required this.onTap});
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: active
+                ? ErpColors.accentBlue
+                : ErpColors.bgMuted,
+            border: Border.all(
+                color: active
+                    ? ErpColors.accentBlue
+                    : ErpColors.borderLight),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(label,
+              style: TextStyle(
+                  color: active ? Colors.white : ErpColors.textSecondary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800)),
+        ),
+      );
+}
+
+class _TypeChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final String current;
+  final ValueChanged<String> onTap;
+  const _TypeChip({
+    required this.label,
+    required this.value,
+    required this.current,
+    required this.onTap,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final active = current == value;
+    return GestureDetector(
+      onTap: () => onTap(value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: active
+              ? ErpColors.successGreen
+              : ErpColors.bgMuted,
+          border: Border.all(
+              color: active
+                  ? ErpColors.successGreen
+                  : ErpColors.borderLight),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(label,
+            style: TextStyle(
+                color: active ? Colors.white : ErpColors.textSecondary,
+                fontSize: 10,
+                fontWeight: FontWeight.w800)),
+      ),
+    );
+  }
+}
+
+// ═════════════════════════════════════════════════════════════
+//  ON-HAND HERO
+// ═════════════════════════════════════════════════════════════
 class _OnHandHero extends StatelessWidget {
   final ElasticStockController c;
   const _OnHandHero({required this.c});
@@ -430,10 +967,6 @@ class _OnHandHero extends StatelessWidget {
         } catch (_) {}
       }
       final low = c.isLowStock.value;
-      // P2-9: detect over-reserved state (reservedStock > stock).
-      // Possible when reservation was created before stock dropped,
-      // or when a release was missed — flagged in red so an admin
-      // notices.
       final overReserved = c.reservedStock.value > c.stock.value;
       final heroColor = low ? const Color(0xFF7C2D12) : ErpColors.navyDark;
       return Container(
@@ -598,10 +1131,18 @@ class _MiniStat extends StatelessWidget {
       );
 }
 
+// ═════════════════════════════════════════════════════════════
+//  MOVEMENT ROW (tappable — P2-4)
+// ═════════════════════════════════════════════════════════════
 class _MovementRow extends StatelessWidget {
   final Map<String, dynamic> mv;
   final bool isLast;
-  const _MovementRow({required this.mv, required this.isLast});
+  final VoidCallback? onTap;
+  const _MovementRow({
+    required this.mv,
+    required this.isLast,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -629,32 +1170,7 @@ class _MovementRow extends StatelessWidget {
     }
 
     final isInward = applied >= 0;
-    Color color;
-    String label;
-    switch (type) {
-      case 'PACKING_INWARD':
-        color = ErpColors.successGreen; label = 'Packing'; break;
-      case 'PACKING_REVERSE':
-        color = ErpColors.errorRed;     label = 'Packing reversed'; break;
-      case 'DC_OUT':
-        color = ErpColors.warningAmber; label = 'Dispatched (DC)'; break;
-      case 'DC_CANCEL_RETURN':
-        color = ErpColors.successGreen; label = 'DC cancelled'; break;
-      case 'WASTAGE_OUT':
-        color = ErpColors.errorRed;     label = 'Wastage'; break;
-      case 'WASTAGE_RETURN':
-        color = ErpColors.successGreen; label = 'Wastage reversed'; break;
-      case 'RESERVATION_HOLD':
-        color = ErpColors.accentBlue;   label = 'Reserved (hold)'; break;
-      case 'RESERVATION_RELEASE':
-        color = ErpColors.accentBlue;   label = 'Reserve released'; break;
-      case 'MANUAL_ADJUST':
-        color = isInward ? ErpColors.successGreen : ErpColors.errorRed;
-        label = 'Manual adjust';
-        break;
-      default:
-        color = ErpColors.accentBlue; label = type;
-    }
+    final (color, label) = _movementColorLabel(type, isInward);
 
     String sub = '';
     if (refType != null && refType.isNotEmpty && refId != null) {
@@ -666,8 +1182,8 @@ class _MovementRow extends StatelessWidget {
       sub = reason;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+    final row = Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -783,7 +1299,236 @@ class _MovementRow extends StatelessWidget {
         ],
       ),
     );
+
+    return onTap == null
+        ? row
+        : InkWell(onTap: onTap, child: row);
   }
+}
+
+(Color, String) _movementColorLabel(String type, bool isInward) {
+  switch (type) {
+    case 'PACKING_INWARD':       return (ErpColors.successGreen, 'Packing');
+    case 'PACKING_REVERSE':      return (ErpColors.errorRed,     'Packing reversed');
+    case 'DC_OUT':               return (ErpColors.warningAmber, 'Dispatched (DC)');
+    case 'DC_CANCEL_RETURN':     return (ErpColors.successGreen, 'DC cancelled');
+    case 'WASTAGE_OUT':          return (ErpColors.errorRed,     'Wastage');
+    case 'WASTAGE_RETURN':       return (ErpColors.successGreen, 'Wastage reversed');
+    case 'RESERVATION_HOLD':     return (ErpColors.accentBlue,   'Reserved (hold)');
+    case 'RESERVATION_RELEASE': return (ErpColors.accentBlue,   'Reserve released');
+    case 'MANUAL_ADJUST':
+      return (isInward ? ErpColors.successGreen : ErpColors.errorRed,
+          'Manual adjust');
+    default: return (ErpColors.accentBlue, type);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════
+//  P2-4 — MOVEMENT DETAIL BOTTOM SHEET
+// ═════════════════════════════════════════════════════════════
+class _MovementDetailSheet extends StatelessWidget {
+  final Map<String, dynamic> mv;
+  const _MovementDetailSheet({required this.mv});
+
+  @override
+  Widget build(BuildContext context) {
+    final type      = mv['type']?.toString() ?? '';
+    final applied   = (mv['applied']   as num?)?.toDouble()
+        ?? (mv['quantity'] as num?)?.toDouble() ?? 0;
+    final requested = (mv['requested'] as num?)?.toDouble() ?? applied;
+    final balance   = (mv['balance']   as num?)?.toDouble() ?? 0;
+    final dateRaw   = mv['date'] as String?;
+    final refType   = mv['refType']?.toString();
+    final refId     = mv['refId']?.toString();
+    final reason    = mv['reason']?.toString();
+    final byRaw     = mv['by'];
+
+    final clamped = (requested - applied).abs() > 0.0001 &&
+        type != 'RESERVATION_HOLD' &&
+        type != 'RESERVATION_RELEASE';
+
+    String when = '—';
+    if (dateRaw != null) {
+      try {
+        when = DateFormat('dd MMM yyyy, hh:mm a')
+            .format(DateTime.parse(dateRaw).toLocal());
+      } catch (_) {}
+    }
+
+    final (color, label) = _movementColorLabel(type, applied >= 0);
+
+    return Padding(
+      padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(
+                  color: ErpColors.borderLight,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Row(children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.swap_vert, color: color, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(label,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: ErpColors.textPrimary)),
+              ),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: const Icon(Icons.close_rounded,
+                    color: ErpColors.textMuted, size: 20),
+              ),
+            ]),
+            const SizedBox(height: 14),
+            // Requested vs Applied side by side
+            Row(children: [
+              Expanded(
+                child: _ValueBox(
+                  label: 'REQUESTED',
+                  value:
+                      '${requested > 0 ? '+' : ''}${_fmtNum(requested)} m',
+                  highlight: clamped ? ErpColors.warningAmber : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _ValueBox(
+                  label: 'APPLIED',
+                  value:
+                      '${applied > 0 ? '+' : ''}${_fmtNum(applied)} m',
+                  highlight: clamped ? ErpColors.warningAmber : null,
+                ),
+              ),
+            ]),
+            if (clamped) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: ErpColors.warningAmber.withOpacity(0.10),
+                  border: Border.all(
+                      color: ErpColors.warningAmber.withOpacity(0.5)),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(children: const [
+                  Icon(Icons.warning_amber_rounded,
+                      size: 14, color: ErpColors.warningAmber),
+                  SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'Clamped at zero floor — requested magnitude exceeded available stock.',
+                      style: TextStyle(
+                          color: ErpColors.warningAmber,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ]),
+              ),
+            ],
+            const SizedBox(height: 12),
+            _Row(icon: Icons.event_outlined, label: 'When',
+                value: when),
+            _Row(icon: Icons.straighten_rounded, label: 'Balance after',
+                value: '${_fmtNum(balance)} m'),
+            if (refType != null && refType.isNotEmpty)
+              _Row(icon: Icons.link, label: 'Source',
+                  value: '$refType ${refId ?? ''}'),
+            if (reason != null && reason.isNotEmpty)
+              _Row(icon: Icons.notes_rounded, label: 'Reason',
+                  value: reason),
+            if (byRaw != null && byRaw.toString().isNotEmpty)
+              _Row(icon: Icons.person_outline_rounded, label: 'By',
+                  value: byRaw.toString()),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ValueBox extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? highlight;
+  const _ValueBox({required this.label, required this.value, this.highlight});
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: ErpColors.bgMuted,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+              color: highlight ?? ErpColors.borderLight,
+              width: highlight != null ? 1.4 : 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label,
+                style: const TextStyle(
+                    color: ErpColors.textMuted,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5)),
+            const SizedBox(height: 4),
+            Text(value,
+                style: TextStyle(
+                    color: highlight ?? ErpColors.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900)),
+          ],
+        ),
+      );
+}
+
+class _Row extends StatelessWidget {
+  final IconData icon;
+  final String label, value;
+  const _Row({required this.icon, required this.label, required this.value});
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(children: [
+          Icon(icon, size: 14, color: ErpColors.textMuted),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 100,
+            child: Text(label,
+                style: const TextStyle(
+                    color: ErpColors.textSecondary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600)),
+          ),
+          Expanded(
+            child: Text(value,
+                style: const TextStyle(
+                    color: ErpColors.textPrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700),
+                overflow: TextOverflow.ellipsis),
+          ),
+        ]),
+      );
 }
 
 String _fmtNum(double v) {

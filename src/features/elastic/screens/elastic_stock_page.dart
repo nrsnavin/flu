@@ -530,7 +530,14 @@ class _MovementRow extends StatelessWidget {
     final refId   = mv['refId']?.toString();
     final reason  = mv['reason']?.toString();
 
-    final clamped = (requested - applied).abs() > 0.0001;
+    // RESERVATION_HOLD / RESERVATION_RELEASE are info-only rows:
+    // applied is always 0 by design and requested carries the held
+    // amount. They must not be marked as "clamped" — the zero-floor
+    // never touched them.
+    final isInfoOnly =
+        type == 'RESERVATION_HOLD' || type == 'RESERVATION_RELEASE';
+    final clamped =
+        !isInfoOnly && (requested - applied).abs() > 0.0001;
 
     String when = '';
     if (dateRaw != null) {
@@ -567,9 +574,6 @@ class _MovementRow extends StatelessWidget {
       default:
         color = ErpColors.accentBlue; label = type;
     }
-
-    final isInfoOnly =
-        type == 'RESERVATION_HOLD' || type == 'RESERVATION_RELEASE';
 
     String sub = '';
     if (refType != null && refType.isNotEmpty && refId != null) {

@@ -11,7 +11,7 @@ import '../../../core/api_client.dart';
 //    GET   /api/v2/elastic/stock-summary    (ADMIN)
 //    GET   /api/v2/elastic/reconcile        (ADMIN)
 //    POST  /api/v2/elastic/:id/adjust-stock (ADMIN)
-//    PUT   /api/v2/elastic/update-elastic   (ADMIN) — used by setMinStock
+//    PATCH /api/v2/elastic/:id/min-stock    (ADMIN) — used by setMinStock
 // ═════════════════════════════════════════════════════════════
 class ElasticStockController extends GetxController {
   // ── Per-elastic detail state ────────────────
@@ -143,20 +143,22 @@ class ElasticStockController extends GetxController {
     }
   }
 
-  /// Persist the low-stock threshold via the existing update-elastic
-  /// route. The route also rebuilds the costing snapshot as a side
-  /// effect, but minStock is independent of cost so the re-run is cheap.
+  /// Persist the low-stock threshold via the dedicated PATCH route.
+  /// Avoids the heavier /update-elastic flow, which would otherwise
+  /// recompute the costing snapshot on a partial payload and zero
+  /// out materialCost as a side effect.
   Future<bool> setMinStock(String elasticId, double value) async {
     try {
-      await _dio.put('/update-elastic', data: {
-        '_id':      elasticId,
+      final res = await _dio.patch('/$elasticId/min-stock', data: {
         'minStock': value,
       });
-      minStock.value = value;
-      isLowStock.value = value > 0 && stock.value <= value;
+      final body = res.data as Map<String, dynamic>;
+      minStock.value = (body['minStock'] as num?)?.toDouble() ?? value;
+      isLowStock.value = (body['isLowStock'] as bool?) ??
+          (minStock.value > 0 && stock.value <= minStock.value);
       Get.snackbar(
         'Min Stock Updated',
-        'Threshold set to ${value.toStringAsFixed(0)}',
+        'Threshold set to ${minStock.value.toStringAsFixed(0)}',
         backgroundColor: const Color(0xFF16A34A),
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,

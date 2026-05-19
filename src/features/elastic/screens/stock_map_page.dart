@@ -191,7 +191,7 @@ class _StockMapPageState extends State<StockMapPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
-      builder: (_) => DraggableScrollableSheet(
+      builder: (sheetCtx) => DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.6,
         minChildSize: 0.3,
@@ -219,7 +219,7 @@ class _StockMapPageState extends State<StockMapPage> {
                     ],
                   ),
                   const Text(
-                    'Compares Elastic.stock with the sum of ledger movements. Flagged rows need an admin manual-adjust to reconcile.',
+                    'Compares Elastic.stock with the sum of ledger movements. Tap "Write correction" on a drift row to open a pre-filled manual adjust.',
                     style: TextStyle(
                         color: ErpColors.textSecondary, fontSize: 11),
                   ),
@@ -264,14 +264,23 @@ class _StockMapPageState extends State<StockMapPage> {
                         itemCount: c.drifts.length,
                         itemBuilder: (_, i) {
                           final d = c.drifts[i];
+                          final id    = d['elasticId']?.toString() ?? '';
+                          final name  = d['name']?.toString() ?? '—';
                           final drift =
-                              (d['drift'] as num?)?.toDouble() ?? 0;
+                              (d['drift']     as num?)?.toDouble() ?? 0;
                           final stock =
-                              (d['stock'] as num?)?.toDouble() ?? 0;
+                              (d['stock']     as num?)?.toDouble() ?? 0;
                           final sum =
                               (d['ledgerSum'] as num?)?.toDouble() ?? 0;
-                          final moves = (d['moveCount'] as num?)?.toInt() ?? 0;
+                          final moves =
+                              (d['moveCount'] as num?)?.toInt()    ?? 0;
                           final positive = drift > 0;
+                          // Correction delta brings stock back in
+                          // line with the ledger: delta = -drift.
+                          final correctionDelta = -drift;
+                          final reasonText =
+                              'Reconciliation ${DateFormat('yyyy-MM-dd').format(DateTime.now())}';
+
                           return Container(
                             margin: const EdgeInsets.symmetric(vertical: 4),
                             padding: const EdgeInsets.all(10),
@@ -287,7 +296,7 @@ class _StockMapPageState extends State<StockMapPage> {
                                 Row(children: [
                                   Expanded(
                                     child: Text(
-                                      d['name']?.toString() ?? '—',
+                                      name,
                                       style: const TextStyle(
                                           color: ErpColors.textPrimary,
                                           fontSize: 13,
@@ -328,6 +337,43 @@ class _StockMapPageState extends State<StockMapPage> {
                                   style: const TextStyle(
                                       color: ErpColors.textSecondary,
                                       fontSize: 11),
+                                ),
+                                const SizedBox(height: 8),
+                                // P2-7: Write correction shortcut →
+                                // closes the sheet, navigates to the
+                                // per-elastic page with the manual
+                                // adjust dialog pre-opened.
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton.icon(
+                                    onPressed: id.isEmpty
+                                        ? null
+                                        : () {
+                                            Navigator.of(sheetCtx).pop();
+                                            Get.to(() => ElasticStockPage(
+                                                  elasticId:           id,
+                                                  elasticName:         name,
+                                                  initialAdjustDelta:  correctionDelta,
+                                                  initialAdjustReason: reasonText,
+                                                ));
+                                          },
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: ErpColors.accentBlue,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    icon: const Icon(
+                                        Icons.tune_rounded, size: 14),
+                                    label: Text(
+                                      'Write correction (${correctionDelta > 0 ? '+' : ''}${_fmtNum(correctionDelta)} m)',
+                                      style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w800),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -564,6 +610,7 @@ class _SummaryRow extends StatelessWidget {
     final available = (row['available']     as num?)?.toDouble() ?? stock;
     final minStock  = (row['minStock']      as num?)?.toDouble() ?? 0;
     final low       = (row['isLowStock']    as bool?) ?? false;
+    final overReserved = reserved > stock; // P2-9
     final lastRaw   = row['lastMovementAt'] as String?;
     String lastLbl  = '—';
     if (lastRaw != null) {
@@ -621,6 +668,23 @@ class _SummaryRow extends StatelessWidget {
                                 letterSpacing: 0.4)),
                       ),
                     ],
+                    if (overReserved) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: ErpColors.errorRed,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: const Text('OVER-RESERVED',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.4)),
+                      ),
+                    ],
                   ]),
                   const SizedBox(height: 2),
                   Text(
@@ -638,9 +702,11 @@ class _SummaryRow extends StatelessWidget {
             ),
             Text('${_fmtNum(stock)} m',
                 style: TextStyle(
-                    color: low
-                        ? ErpColors.warningAmber
-                        : ErpColors.accentBlue,
+                    color: overReserved
+                        ? ErpColors.errorRed
+                        : (low
+                            ? ErpColors.warningAmber
+                            : ErpColors.accentBlue),
                     fontSize: 14,
                     fontWeight: FontWeight.w900)),
             const SizedBox(width: 6),

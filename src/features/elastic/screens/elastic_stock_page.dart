@@ -7,14 +7,23 @@ import '../controllers/elastic_stock_controller.dart';
 
 // ═════════════════════════════════════════════════════════════
 //  ElasticStockPage — single elastic stock view
+//
+//  P2-7: optional initialAdjustDelta + initialAdjustReason params
+//  let the Reconcile sheet deep-link straight into a pre-filled
+//  Manual Adjust dialog. When both are set, the dialog opens once
+//  after first frame.
 // ═════════════════════════════════════════════════════════════
 class ElasticStockPage extends StatefulWidget {
   final String elasticId;
   final String? elasticName;
+  final double? initialAdjustDelta;
+  final String? initialAdjustReason;
   const ElasticStockPage({
     super.key,
     required this.elasticId,
     this.elasticName,
+    this.initialAdjustDelta,
+    this.initialAdjustReason,
   });
 
   @override
@@ -31,6 +40,16 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
     Get.delete<ElasticStockController>(tag: tag, force: true);
     c = Get.put(ElasticStockController(), tag: tag);
     c.fetchStock(widget.elasticId);
+
+    // Auto-open adjust dialog if we were navigated here with a
+    // prefilled correction (e.g. from the reconcile sheet).
+    final d = widget.initialAdjustDelta;
+    final r = widget.initialAdjustReason;
+    if (d != null && d != 0 && r != null && r.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openAdjustDialog(context, prefillDelta: d, prefillReason: r);
+      });
+    }
   }
 
   @override
@@ -220,10 +239,19 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
     );
   }
 
-  void _openAdjustDialog(BuildContext ctx) {
-    final qtyCtrl = TextEditingController();
-    final reasonCtrl = TextEditingController();
-    bool isAdd = true;
+  void _openAdjustDialog(
+    BuildContext ctx, {
+    double? prefillDelta,
+    String? prefillReason,
+  }) {
+    // Prefilled flows (e.g. reconcile shortcut) decide ADD vs REMOVE
+    // from the sign of the delta and present the absolute value.
+    final hasPrefill = prefillDelta != null && prefillDelta != 0;
+    final qtyCtrl = TextEditingController(
+      text: hasPrefill ? prefillDelta!.abs().toStringAsFixed(0) : '',
+    );
+    final reasonCtrl = TextEditingController(text: prefillReason ?? '');
+    bool isAdd = hasPrefill ? (prefillDelta! > 0) : true;
 
     showDialog(
       context: ctx,
@@ -232,8 +260,9 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
           backgroundColor: ErpColors.bgSurface,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10)),
-          title: const Text('Manual Stock Adjust',
-              style: TextStyle(
+          title: Text(
+              hasPrefill ? 'Reconcile Adjust' : 'Manual Stock Adjust',
+              style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: ErpColors.textPrimary)),
@@ -241,6 +270,31 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (hasPrefill)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: ErpColors.accentBlue.withOpacity(0.08),
+                    border: Border.all(
+                        color: ErpColors.accentBlue.withOpacity(0.4)),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Row(children: [
+                    Icon(Icons.fact_check_outlined,
+                        color: ErpColors.accentBlue, size: 16),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Pre-filled from reconcile drift. Confirm and apply.',
+                        style: TextStyle(
+                            color: ErpColors.accentBlue,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ]),
+                ),
               Row(
                 children: [
                   Expanded(
@@ -376,6 +430,11 @@ class _OnHandHero extends StatelessWidget {
         } catch (_) {}
       }
       final low = c.isLowStock.value;
+      // P2-9: detect over-reserved state (reservedStock > stock).
+      // Possible when reservation was created before stock dropped,
+      // or when a release was missed — flagged in red so an admin
+      // notices.
+      final overReserved = c.reservedStock.value > c.stock.value;
       final heroColor = low ? const Color(0xFF7C2D12) : ErpColors.navyDark;
       return Container(
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
@@ -414,6 +473,23 @@ class _OnHandHero extends StatelessWidget {
                             letterSpacing: 0.6)),
                   ),
                 ],
+                if (overReserved) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: ErpColors.errorRed,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: const Text('OVER-RESERVED',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.6)),
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 4),
@@ -442,6 +518,17 @@ class _OnHandHero extends StatelessWidget {
                 child: Text(lastLabel,
                     style: const TextStyle(
                         color: ErpColors.textOnDarkSub, fontSize: 11)),
+              ),
+            if (overReserved)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  'Reservations (${_fmtNum(c.reservedStock.value)} m) exceed on-hand stock — investigate or run reconcile.',
+                  style: const TextStyle(
+                      color: Color(0xFFFCA5A5),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600),
+                ),
               ),
             const SizedBox(height: 10),
             Wrap(

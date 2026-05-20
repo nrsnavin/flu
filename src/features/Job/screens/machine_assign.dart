@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import '../../PurchaseOrder/services/theme.dart';
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -86,11 +87,11 @@ class _AssignMachineController extends GetxController {
     required this.elasticOptions,
   });
 
-  final _dio = Dio(BaseOptions(
-    baseUrl:        'http://13.233.117.153:2701/api/v2',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  // Route through ApiClient.buildClient so the JWT cookie attaches —
+  // every machine-assign endpoint is admin-gated and 401s on bare Dio.
+  final _dio = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2',
+  );
 
   // State
   final machines       = <_FreeMachine>[].obs;

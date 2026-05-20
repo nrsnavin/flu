@@ -46,10 +46,9 @@ class OrderListController extends GetxController {
         "/order/list",
         queryParameters: {"status": selectedStatus.value},
       );
+      final list = (res.data is Map ? res.data["orders"] : null) as List? ?? [];
       orders.assignAll(
-        (res.data["orders"] as List)
-            .map((e) => OrderListItem.fromJson(e))
-            .toList(),
+        list.map((e) => OrderListItem.fromJson(e)).toList(),
       );
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to load orders";

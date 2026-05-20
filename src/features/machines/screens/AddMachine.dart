@@ -64,11 +64,17 @@ class _AddMachinePageState extends State<AddMachinePage> {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
 
+    final heads = int.tryParse(_headsCtrl.text.trim());
+    final hooks = int.tryParse(_hooksCtrl.text.trim());
+    if (heads == null || hooks == null) {
+      Get.snackbar('Invalid input', 'Heads and hooks must be whole numbers.');
+      return;
+    }
     final machine = MachineCreate(
       machineCode:    _idCtrl.text.trim().toUpperCase(),
       manufacturer:   _manufacturerCtrl.text.trim(),
-      noOfHeads:      int.parse(_headsCtrl.text.trim()),
-      noOfHooks:      int.parse(_hooksCtrl.text.trim()),
+      noOfHeads:      heads,
+      noOfHooks:      hooks,
       dateOfPurchase: _dateCtrl.text.trim().isNotEmpty
           ? _dateCtrl.text.trim()
           : null,

@@ -45,7 +45,7 @@ class BulkEntry {
 
   Map<String, dynamic> toPayload() => {
     'id':         shift.id,
-    'production': int.parse(productionCtrl.text.trim()),
+    'production': int.tryParse(productionCtrl.text.trim()) ?? 0,
     'timer':      timerCtrl.text.trim().isNotEmpty
         ? timerCtrl.text.trim()
         : '00:00:00',

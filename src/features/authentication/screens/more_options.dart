@@ -135,8 +135,8 @@ class MoreOptionsPage extends StatelessWidget {
               GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 140,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                   childAspectRatio: 1.0,

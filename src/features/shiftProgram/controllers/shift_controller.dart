@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/painting.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:production/src/core/api_client.dart';
 // import 'package:production/src/features/job/controllers/new_job_controller.dart';
 // import 'package:production/src/features/job/screens/jobDetailScreen.dart';
 import 'package:production/src/features/shiftProgram/models/employee.dart';
@@ -19,6 +20,13 @@ import '../models/ProductionDataModel.dart';
 
 class ShiftController extends GetxController {
   static ShiftController get find => Get.find();
+
+  // Route Dio through ApiClient.buildClient so the JWT cookie
+  // attaches; bare Dio() 401s on the admin-gated shift routes.
+  final _dio = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2',
+  );
+
   RxList<Employee> employeesWeave = (List<Employee>.of([])).obs;
   RxList<ShiftOpenListModel> shiftsOpen = (List<ShiftOpenListModel>.of([])).obs;
 
@@ -135,8 +143,8 @@ class ShiftController extends GetxController {
   ) async {
     try {
       isLoadingSp.value = true;
-      final response = await Dio().post(
-        'http://13.233.117.153:2701/api/v2/shift/create-shift',
+      final response = await _dio.post(
+        '/shift/create-shift',
         data: {
           'plan': plan,
           'date': date.toString(),
@@ -185,8 +193,8 @@ class ShiftController extends GetxController {
     String timer,
     String feedback,
   ) async {
-    final response = await Dio().post(
-      'http://13.233.117.153:2701/api/v2/shift/enter-shift-production',
+    final response = await _dio.post(
+      '/shift/enter-shift-production',
       data: {
         'production': production,
         'id': id,

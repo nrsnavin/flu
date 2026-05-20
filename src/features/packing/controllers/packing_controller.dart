@@ -259,6 +259,8 @@ class AddPackingController extends GetxController {
     super.onClose();
   }
 
+  Future<void> retry() => _loadInitialData();
+
   Future<void> _loadInitialData() async {
     isLoading.value = true;
     errorMsg.value  = null;

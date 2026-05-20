@@ -131,8 +131,11 @@ class _ShiftCard extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: () async {
       await Get.to(() => ShiftDetailPage(shiftId: shift.id));
-      // Refresh after returning from detail
-      Get.find<ShiftControllerView>().fetchOpenShifts();
+      // Refresh after returning from detail. Guard against the
+      // controller being disposed if the list page was popped.
+      if (Get.isRegistered<ShiftControllerView>()) {
+        Get.find<ShiftControllerView>().fetchOpenShifts();
+      }
     },
     child: Container(
       margin: const EdgeInsets.only(bottom: 10),

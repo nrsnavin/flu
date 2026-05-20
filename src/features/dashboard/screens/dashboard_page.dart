@@ -467,10 +467,25 @@ class _LowStockCard extends StatelessWidget {
                         color: ErpColors.textSecondary, fontSize: 12)),
               );
             }
+            // Cap the inline preview so a long list doesn't blow out
+            // the dashboard. Full list lives on StockMapPage.
+            final items = ctrl.lowStockItems;
+            const previewCap = 8;
+            final shown = items.take(previewCap).toList();
+            final overflow = items.length - shown.length;
             return Column(
-              children: ctrl.lowStockItems
-                  .map((m) => _LowStockRow(item: m))
-                  .toList(),
+              children: [
+                ...shown.map((m) => _LowStockRow(item: m)),
+                if (overflow > 0)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 2, 14, 10),
+                    child: Text(
+                      '+ $overflow more — open Stock Map for the full list',
+                      style: const TextStyle(
+                          color: ErpColors.textSecondary, fontSize: 11),
+                    ),
+                  ),
+              ],
             );
           }),
         ],

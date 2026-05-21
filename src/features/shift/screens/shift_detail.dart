@@ -161,7 +161,10 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
             ),
             const SizedBox(height: 2),
             Text(
-              DateFormat.yMMMEd().format(DateTime.parse(shift.date)),
+              (() {
+                final d = DateTime.tryParse(shift.date);
+                return d != null ? DateFormat.yMMMEd().format(d) : '—';
+              })(),
               style: const TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 12),
             ),

@@ -36,8 +36,10 @@ class WastageApi {
   static Future<WastageRecord> fetchDetail(String id) async {
     final res =
     await _dio.get('/get-detail', queryParameters: {'id': id});
+    final body = res.data is Map ? res.data['wastage'] : null;
     return WastageRecord.fromJson(
-        res.data['wastage'] as Map<String, dynamic>);
+      body is Map ? Map<String, dynamic>.from(body) : const <String, dynamic>{},
+    );
   }
 
   static Future<WastageRecord> addWastage({
@@ -56,8 +58,10 @@ class WastageApi {
       'penalty':  penalty,
       'reason':   reason,
     });
+    final body = res.data is Map ? res.data['wastage'] : null;
     return WastageRecord.fromJson(
-        res.data['wastage'] as Map<String, dynamic>);
+      body is Map ? Map<String, dynamic>.from(body) : const <String, dynamic>{},
+    );
   }
 
   /// Admin-only undo. Calls `DELETE /api/v2/wastage/:id`. Backend

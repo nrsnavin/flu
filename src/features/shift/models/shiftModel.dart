@@ -24,7 +24,7 @@ class ShiftModel {
   factory ShiftModel.fromJson(Map<String, dynamic> json) {
     return ShiftModel(
       id: json["_id"],
-      date: DateTime.parse(json["date"]),
+      date: DateTime.tryParse(json["date"]?.toString() ?? '') ?? DateTime(1970),
       shift: json["shift"],
       operatorName: json["employee"]?["name"] ?? "",
       machineName: json["machine"]?["ID"] ?? "",

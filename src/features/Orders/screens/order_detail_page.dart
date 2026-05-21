@@ -111,12 +111,12 @@ class _HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fmt        = DateFormat('dd MMM yyyy');
-    final supplyDate = order["supplyDate"] != null
-        ? fmt.format(DateTime.parse(order["supplyDate"].toString()))
-        : "—";
-    final orderDate  = order["date"] != null
-        ? fmt.format(DateTime.parse(order["date"].toString()))
-        : "—";
+    String safeFormat(dynamic raw) {
+      final d = DateTime.tryParse(raw?.toString() ?? '');
+      return d != null ? fmt.format(d) : '—';
+    }
+    final supplyDate = safeFormat(order["supplyDate"]);
+    final orderDate  = safeFormat(order["date"]);
 
     return Container(
       decoration: BoxDecoration(

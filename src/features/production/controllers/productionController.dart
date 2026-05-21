@@ -46,7 +46,7 @@ class BulkEntry {
   Map<String, dynamic> toPayload() => {
     'machineId':  machine.machineId,
     'rowIndex':   machine.rowIndex,
-    'production': int.parse(productionCtrl.text.trim()),
+    'production': int.tryParse(productionCtrl.text.trim()) ?? 0,
     'timer':      timerCtrl.text.trim(),
     'remarks':    remarksCtrl.text.trim(),
   };

@@ -28,11 +28,14 @@ class ProductionRow {
 
     Duration parseHHmmss(String time) {
       final parts = time.split(':');
-
+      // Bad strings ("7h 30m", "", non-3-part) fall back to zero so a
+      // single malformed shift row doesn't crash the whole list.
+      int part(int i) =>
+          (parts.length > i ? int.tryParse(parts[i]) : null) ?? 0;
       return Duration(
-        hours: int.parse(parts[0]),
-        minutes: int.parse(parts[1]),
-        seconds: int.parse(parts[2]),
+        hours:   part(0),
+        minutes: part(1),
+        seconds: part(2),
       );
     }
     return switch (json) {
@@ -45,10 +48,11 @@ class ProductionRow {
           ProductionRow(
             machineCode: machine['ID'],
             operatorName: emp['name'],
-            heads: machine['NoOfHead'],
-            hooks: machine['NoOfHooks'],
+            heads: (machine['NoOfHead'] as num?)?.toInt() ?? 0,
+            hooks: (machine['NoOfHooks'] as num?)?.toInt() ?? 0,
             production: production,
-            totalProduction: (production * machine['NoOfHead']) as int,
+            totalProduction:
+                production * (((machine['NoOfHead'] as num?)?.toInt()) ?? 1),
             timer: parseHHmmss(timer),
             efficiency: parseHHmmss(timer).inMinutes*100/Duration(hours: 12).inMinutes,
             downtimeMinutes:Duration(hours: 12) -parseHHmmss(timer),

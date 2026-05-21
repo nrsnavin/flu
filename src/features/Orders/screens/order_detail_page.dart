@@ -869,7 +869,7 @@ class _ElasticTable extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           ...elastics.map((e) {
-            final pending = (e["pending"] ?? 0) as int;
+            final pending = (e["pending"] as num?)?.toInt() ?? 0;
             return Container(
               margin: const EdgeInsets.only(bottom: 4),
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),

@@ -195,9 +195,13 @@ class _HeroCard extends StatelessWidget {
               ),
             ),
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text(DateFormat('dd MMM yyyy').format(DateTime.parse(p.date)),
-                  style: const TextStyle(
-                      color: ErpColors.textOnDarkSub, fontSize: 10)),
+              Text(
+                (() {
+                  final d = DateTime.tryParse(p.date);
+                  return d != null ? DateFormat('dd MMM yyyy').format(d) : '—';
+                })(),
+                style: const TextStyle(
+                    color: ErpColors.textOnDarkSub, fontSize: 10)),
             ]),
           ]),
         ),

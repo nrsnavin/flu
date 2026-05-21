@@ -47,9 +47,7 @@ class AdjustHistoryEntry {
         materialName: j['materialName']?.toString() ?? '—',
         category:     j['category']?.toString()     ?? '—',
         currentStock: (j['currentStock'] as num?)?.toDouble() ?? 0,
-        date: j['date'] != null
-            ? DateTime.parse(j['date'] as String).toLocal()
-            : DateTime.now(),
+        date: (DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now()).toLocal(),
         adjustment: (j['adjustment'] as num?)?.toDouble() ?? 0,
         balance:    (j['balance']    as num?)?.toDouble(),
         reason:     j['reason']?.toString()         ?? '',

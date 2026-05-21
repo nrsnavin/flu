@@ -310,7 +310,10 @@ class _PackingCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
                     Text(
-                      DateFormat('dd MMM yyyy').format(DateTime.parse(pack.date)),
+                      (() {
+                        final d = DateTime.tryParse(pack.date);
+                        return d != null ? DateFormat('dd MMM yyyy').format(d) : '—';
+                      })(),
                       style: const TextStyle(
                           color: ErpColors.textSecondary, fontSize: 11),
                     ),

@@ -74,7 +74,9 @@ class AttendanceController extends GetxController {
         'shift': selectedShift.value,
       });
       dailyData.value = DailyAttendanceData.fromJson(
-          res.data as Map<String, dynamic>);
+          res.data is Map
+              ? Map<String, dynamic>.from(res.data)
+              : const <String, dynamic>{});
 
       // Pre-fill drafts with existing records
       for (final r in dailyData.value!.records) {
@@ -191,11 +193,15 @@ class AttendanceController extends GetxController {
         'endDate':   _fmtDate(summaryEnd.value),
         'shift':     summaryShift.value,
       });
-      final body = res.data as Map<String, dynamic>;
+      final Map<String, dynamic> body = res.data is Map
+          ? Map<String, dynamic>.from(res.data)
+          : const <String, dynamic>{};
       factorySummary.value = FactorySummary.fromJson(
-          body['factory'] as Map<String, dynamic>? ?? {});
-      summaryList.value = (body['employees'] as List? ?? [])
-          .map((e) => EmployeeSummaryRow.fromJson(e as Map<String, dynamic>))
+          body['factory'] as Map<String, dynamic>? ?? const {});
+      summaryList.value = (body['employees'] as List? ?? const [])
+          .whereType<Map>()
+          .map((e) => EmployeeSummaryRow.fromJson(
+                Map<String, dynamic>.from(e)))
           .toList();
     } on DioException catch (e) {
       summaryError.value = e.response?.data?['message']?.toString()
@@ -221,7 +227,9 @@ class AttendanceController extends GetxController {
           'month': calendarMonth.value,
         },
       );
-      final body = res.data as Map<String, dynamic>;
+      final Map<String, dynamic> body = res.data is Map
+          ? Map<String, dynamic>.from(res.data)
+          : const <String, dynamic>{};
       calendarEmployee.value = body['employee'] as Map<String,dynamic>?;
       calendarDays.value = (body['calendar'] as List? ?? [])
           .map((e) => CalendarDay.fromJson(e as Map<String, dynamic>))

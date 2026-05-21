@@ -57,7 +57,10 @@ class AnalyticsController extends GetxController {
       if (filterEmployeeId.value != null) params['employeeId'] = filterEmployeeId.value;
 
       final res = await _dio.get('/analytics', queryParameters: params);
-      data.value = AnalyticsData.fromJson(res.data['data'] as Map<String,dynamic>);
+      final body = res.data is Map ? res.data['data'] : null;
+      data.value = AnalyticsData.fromJson(
+        body is Map ? Map<String, dynamic>.from(body) : const <String, dynamic>{},
+      );
     } on DioException catch (e) {
       errorMsg.value = e.response?.data?['message']?.toString() ?? 'Failed to fetch analytics';
     } catch (e) {

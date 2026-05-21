@@ -481,7 +481,7 @@ class AddElasticController extends GetxController {
           return PlanSection(
             warpYarnId:   yarnId,
             warpYarnName: mat?.name ?? s["warpYarnName"]?.toString() ?? "",
-            initialEnds:  (s["ends"] ?? 0) as int,
+            initialEnds:  (s["ends"] as num?)?.toInt() ?? 0,
           );
         }).toList();
         planBeams.add(PlanBeam(

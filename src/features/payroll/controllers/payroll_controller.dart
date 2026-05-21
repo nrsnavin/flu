@@ -71,7 +71,9 @@ class PayrollController extends GetxController {
       final res = await _dio.get('/payroll/dashboard', queryParameters: {
         'year': selectedYear.value, 'month': selectedMonth.value,
       });
-      dashboard.value = PayrollDashboard.fromJson(res.data as Map<String, dynamic>);
+      dashboard.value = PayrollDashboard.fromJson(
+        res.data is Map ? Map<String, dynamic>.from(res.data) : const <String, dynamic>{},
+      );
     } on DioException catch (e) {
       dashError.value = e.response?.data?['message'] as String? ?? 'Failed to load dashboard';
     } finally { isLoadingDash.value = false; }
@@ -132,7 +134,7 @@ class PayrollController extends GetxController {
       final res = await _dio.get('/payroll/slip/$employeeId', queryParameters: {
         'year': selectedYear.value, 'month': selectedMonth.value,
       });
-      payslip.value = PayrollDoc.fromJson(res.data as Map<String, dynamic>);
+      payslip.value = PayrollDoc.fromJson((res.data is Map ? Map<String, dynamic>.from(res.data) : const <String, dynamic>{}));
     } on DioException catch (e) {
       payslipError.value = e.response?.data?['message'] as String? ?? 'Failed to load payslip';
     } finally { isLoadingPayslip.value = false; }
@@ -145,7 +147,7 @@ class PayrollController extends GetxController {
       final res = await _dio.get('/payroll/attendance', queryParameters: {
         'employeeId': employeeId, 'year': year, 'month': month,
       });
-      return DailyAttendance.fromJson(res.data as Map<String, dynamic>);
+      return DailyAttendance.fromJson((res.data is Map ? Map<String, dynamic>.from(res.data) : const <String, dynamic>{}));
     } catch (_) { return null; }
   }
 
@@ -415,9 +417,10 @@ class PayrollController extends GetxController {
         'year':  anaYear.value,
         if (anaMonth.value != 0) 'month': anaMonth.value,
       });
-      final data = res.data as Map<String, dynamic>;
+      final Map<String, dynamic> data =
+          res.data is Map ? Map<String, dynamic>.from(res.data) : const <String, dynamic>{};
       anaSummary.value = AnalyticsSummary.fromJson(
-          data['summary'] as Map<String, dynamic>? ?? {});
+          data['summary'] as Map<String, dynamic>? ?? const {});
       analytics.value = (data['data'] as List? ?? [])
           .map((e) => AnalyticsEmployee.fromJson(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {

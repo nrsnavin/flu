@@ -80,8 +80,9 @@ class CoveringDetail {
           .where((e) => e is Map && e['elastic'] != null)
           .map((e) => CoveringElasticDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
-      beamEntries: (json['beamEntries'] as List? ?? [])
-          .map((e) => BeamEntry.fromJson(e as Map<String, dynamic>))
+      beamEntries: (json['beamEntries'] as List? ?? const [])
+          .whereType<Map>()
+          .map((e) => BeamEntry.fromJson(Map<String, dynamic>.from(e)))
           .toList(),
       producedWeight: (json['producedWeight'] as num?)?.toDouble() ?? 0,
     );

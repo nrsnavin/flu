@@ -81,8 +81,19 @@ class PayrollDashboard {
         totalBonuses: _d(s['totalBonuses']), perfectCount: _i(s['perfectCount']),
         paidCount: _i(s['paidCount']), finalizedCount: _i(s['finalizedCount']),
         draftCount: _i(s['draftCount']),
-        employees: (j['employees'] as List? ?? [])
-            .map((e) => PayrollRow.fromJson(e as Map<String, dynamic>)).toList());
+        employees: (j['employees'] as List? ?? const [])
+            .whereType<Map>()
+            .map((e) {
+              try {
+                return PayrollRow.fromJson(Map<String, dynamic>.from(e));
+              } catch (_) {
+                // One malformed row shouldn't crash the whole payroll
+                // dashboard; skip it.
+                return null;
+              }
+            })
+            .whereType<PayrollRow>()
+            .toList());
   }
 }
 

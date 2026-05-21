@@ -65,13 +65,12 @@ class MachineModel {
       manufacturer: json['manufacturer'] ?? '',
       status: json['status'] ?? 'free',
       orderRunning: json['orderRunning'],
-      headElasticMap: json['headElasticMap'] != null
-          ? (json['headElasticMap'] as Map<String, dynamic>).map(
-            (k, v) => MapEntry(
-          int.parse(k),
-          ElasticMini.fromJson(v),
-        ),
-      )
+      headElasticMap: json['headElasticMap'] is Map
+          ? Map<String, dynamic>.from(json['headElasticMap'] as Map)
+              .map((k, v) => MapEntry(
+                    int.tryParse(k) ?? 0,
+                    ElasticMini.fromJson(v),
+                  ))
           : null,
     );
   }

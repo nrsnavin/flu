@@ -39,8 +39,11 @@ class FeedbackAdminController extends GetxController {
         "type":     type.value,
         "category": category.value,
       });
-      final List list = res.data['data'] ?? [];
-      items.value = List<Map<String, dynamic>>.from(list);
+      final raw = (res.data is Map ? res.data['data'] : null) as List? ?? const [];
+      items.value = raw
+          .whereType<Map>()
+          .map((m) => Map<String, dynamic>.from(m))
+          .toList();
     } on DioException catch (e) {
       errorMsg.value =
           e.response?.data?['message'] as String? ?? 'Failed to load feedback';

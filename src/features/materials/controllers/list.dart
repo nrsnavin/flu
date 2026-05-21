@@ -50,8 +50,11 @@ class RawMaterialListController extends GetxController {
 
       final res = await _dio.get('/get-raw-materials',
           queryParameters: query);
-      materials.value = (res.data['materials'] as List)
-          .map((e) => RawMaterialListItem.fromJson(e as Map<String, dynamic>))
+      final rows = (res.data is Map ? res.data['materials'] : null) as List? ?? const [];
+      materials.value = rows
+          .whereType<Map>()
+          .map((e) => RawMaterialListItem.fromJson(
+                Map<String, dynamic>.from(e)))
           .toList();
     } on DioException catch (e) {
       Get.snackbar('Error',

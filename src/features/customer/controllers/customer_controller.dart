@@ -219,7 +219,12 @@ class CustomerDetailController extends GetxController {
     try {
       loading.value = true;
       final res = await _dio.get("/customerDetail?id=$customerId");
-      _customer.value = Map<String, dynamic>.from(res.data['customer']);
+      final body = res.data is Map ? res.data['customer'] : null;
+      if (body is Map) {
+        _customer.assignAll(Map<String, dynamic>.from(body));
+      } else {
+        _customer.clear();
+      }
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to load customer";
       Get.snackbar("Error", msg,

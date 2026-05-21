@@ -45,8 +45,8 @@ class OrderModel {
     return OrderModel(
       id: json['_id'],
       orderNo: json['orderNo'],
-      date: DateTime.parse(json['date']),
-      supplyDate: DateTime.parse(json['supplyDate']),
+      date:       DateTime.tryParse(json['date']?.toString() ?? '') ?? DateTime(1970),
+      supplyDate: DateTime.tryParse(json['supplyDate']?.toString() ?? '') ?? DateTime(1970),
       po: json['po'],
       description: json['description'] ?? '',
       status: json['status'],

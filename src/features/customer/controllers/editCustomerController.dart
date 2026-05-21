@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
+import '../../../core/api_client.dart';
+
 
 class EditCustomerController extends GetxController {
   final Map customer;
@@ -21,7 +23,10 @@ class EditCustomerController extends GetxController {
   final status = "".obs;
   final paymentTerms = "".obs;
 
-  final dio = Dio(  BaseOptions(baseUrl: "http://13.233.117.153:2701/api/v2/customer"),);
+  // Route through ApiClient.buildClient so the JWT cookie attaches.
+  final dio = ApiClient.buildClient(
+    baseUrl: "http://13.233.117.153:2701/api/v2/customer",
+  );
 
   @override
   void onInit() {

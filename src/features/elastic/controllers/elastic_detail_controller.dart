@@ -82,13 +82,17 @@ class ElasticDetailController extends GetxController {
   /// Warp yarn options for plan dropdowns — extracted from elastic's
   /// warpYarn array after population (id is a Map with _id/name).
   List<Map<String, String>> get warpYarnOptions {
-    final yarns = elastic["warpYarn"] as List? ?? [];
+    final yarns = elastic["warpYarn"] as List? ?? const [];
     return yarns
-        .where((w) => w["id"] is Map && w["id"]["_id"] != null)
-        .map<Map<String, String>>((w) => {
-      "id":   w["id"]["_id"].toString(),
-      "name": w["id"]["name"]?.toString() ?? "—",
-    })
+        .whereType<Map>()
+        .where((w) => w["id"] is Map && (w["id"] as Map)["_id"] != null)
+        .map<Map<String, String>>((w) {
+          final id = w["id"] as Map;
+          return {
+            "id":   id["_id"].toString(),
+            "name": id["name"]?.toString() ?? "—",
+          };
+        })
         .toList();
   }
 

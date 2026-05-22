@@ -498,6 +498,10 @@ class WarpingPlanController extends GetxController {
     try {
       final plan = await WarpingApi.createPlan(warpingId: warpingId, beams: beams);
       _snack('Warping plan saved', isError: false);
+      // Give the snackbar time to attach to the overlay before the
+      // current route pops, otherwise the success toast is torn down
+      // with the screen and the user sees no feedback.
+      await Future.delayed(const Duration(milliseconds: 250));
       Get.back(result: plan);
     } on DioException catch (e) {
       _snack(e.response?.data?['message'] as String? ?? 'Failed to save', isError: true);

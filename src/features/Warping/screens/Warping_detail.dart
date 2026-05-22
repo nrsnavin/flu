@@ -701,7 +701,22 @@ class _NoPlanView extends StatelessWidget {
                 warpingId: warpingId,
               ),
             );
-            if (result != null) c.fetchDetail();
+            if (result != null) {
+              // Success snackbar fires from the detail page's
+              // overlay (not the plan editor's) so it survives the
+              // route pop. The plan controller used to fire its own
+              // snack before Get.back but the overlay was torn down
+              // before the toast could render.
+              Get.snackbar(
+                'Success',
+                'Warping plan saved',
+                backgroundColor: const Color(0xFF16A34A),
+                colorText: Colors.white,
+                snackPosition: SnackPosition.BOTTOM,
+                duration: const Duration(seconds: 4),
+              );
+              c.fetchDetail();
+            }
           },
         ),
     ]),

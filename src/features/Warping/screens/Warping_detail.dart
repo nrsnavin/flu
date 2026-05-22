@@ -354,20 +354,38 @@ class _StatusActions extends StatelessWidget {
     ));
   }
 
-  void _confirm(BuildContext ctx, String title, String msg,
-      Future<bool> Function() action) {
-    Get.defaultDialog(
-      title: title,
-      middleText: msg,
-      textConfirm: 'Confirm',
-      textCancel: 'Cancel',
-      confirmTextColor: Colors.white,
-      buttonColor: ErpColors.accentBlue,
-      onConfirm: () {
-        Get.back();
-        action();
-      },
+  Future<void> _confirm(BuildContext ctx, String title, String msg,
+      Future<bool> Function() action) async {
+    // Await the user's choice so we can dismiss the dialog cleanly
+    // before kicking off the action — leaves a single overlay path
+    // for the success / failure snackbar instead of racing it
+    // against the dialog teardown.
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text(title),
+        content: Text(msg),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back<bool>(result: false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ErpColors.accentBlue,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Get.back<bool>(result: true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+      barrierDismissible: true,
     );
+    if (confirmed == true) {
+      // Snackbar fired by the controller's _snack helper on the
+      // detail-page overlay (dialog is already closed).
+      await action();
+    }
   }
 }
 

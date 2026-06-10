@@ -246,8 +246,11 @@ class _CustomerCard extends StatelessWidget {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      (customer['name'] as String? ?? '?')
-                          .substring(0, 1)
+                      // Empty-string name would crash substring(0,1)
+                      // with a RangeError — fall back to '?'.
+                      ((customer['name'] as String?)?.isNotEmpty == true
+                              ? (customer['name'] as String).substring(0, 1)
+                              : '?')
                           .toUpperCase(),
                       style: const TextStyle(
                         color: ErpColors.accentBlue,

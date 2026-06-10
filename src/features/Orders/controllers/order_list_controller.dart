@@ -5,6 +5,7 @@ import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
 import 'package:production/src/features/Orders/models/order_list_item.dart';
+import 'package:production/src/features/Orders/widgets/force_approval_dialog.dart';
 
 class OrderListController extends GetxController {
   // Use the shared singleton so the JWT cookie is attached automatically
@@ -66,21 +67,48 @@ class OrderListController extends GetxController {
     fetchOrders();
   }
 
-  Future<void> approveOrder(String id) async {
+  Future<void> approveOrder(String id,
+      {bool force = false, String? forceReason}) async {
     actioningId.value = id;
     try {
-      await _dio.post("/order/approve",
-          data: {"orderId": id, "actor": buildActorPayload()});
+      await _dio.post("/order/approve", data: {
+        "orderId": id,
+        "actor":   buildActorPayload(),
+        if (force) "force": true,
+        if (force && forceReason != null) "forceReason": forceReason,
+      });
       Get.snackbar(
-        "Order Approved",
-        "Stock deducted successfully",
-        backgroundColor: const Color(0xFF16A34A),
+        force ? "Order Force-Approved" : "Order Approved",
+        force
+            ? "Approval forced despite insufficient raw stock"
+            : "Stock deducted successfully",
+        backgroundColor: force
+            ? const Color(0xFFD97706)
+            : const Color(0xFF16A34A),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
       );
       await fetchOrders();
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? "Approval failed";
+      final data = e.response?.data;
+      if (data is Map &&
+          data['code'] == 'INSUFFICIENT_STOCK' &&
+          data['shortfall'] is Map &&
+          Get.context != null) {
+        actioningId.value = null;
+        final reason = await showForceApprovalDialog(
+          context: Get.context!,
+          shortfall: Map<String, dynamic>.from(data['shortfall'] as Map),
+          originalMessage: data['message']?.toString() ?? '',
+        );
+        if (reason != null) {
+          await approveOrder(id, force: true, forceReason: reason);
+        }
+        return;
+      }
+      final msg = (data is Map ? data['message']?.toString() : null) ??
+          "Approval failed";
       Get.snackbar("Error", msg,
           backgroundColor: const Color(0xFFDC2626),
           colorText: Colors.white,

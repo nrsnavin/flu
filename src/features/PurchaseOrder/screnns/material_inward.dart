@@ -272,7 +272,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
       onPressed: () => Get.back(),
     ),
     flexibleSpace: FlexibleSpaceBar(
-      background: _POSummaryHeader(po: _ctrl.po),
+      background: _POSummaryHeader(po: _ctrl!.po),
     ),
   );
 
@@ -282,11 +282,11 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
     children: [
       _DatePickerRow(),
       const SizedBox(height: 20),
-      _SectionLabel(label: 'ITEMS TO RECEIVE', count: _ctrl.rows.length),
+      _SectionLabel(label: 'ITEMS TO RECEIVE', count: _ctrl!.rows.length),
       const SizedBox(height: 10),
       // One card per pending item
-      ...List.generate(_ctrl.rows.length, (i) {
-        final row = _ctrl.rows[i];
+      ...List.generate(_ctrl!.rows.length, (i) {
+        final row = _ctrl!.rows[i];
         return _ItemCard(row: row, onChanged: () => setState(() {}));
       }),
     ],
@@ -328,7 +328,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
     ),
     child: Column(mainAxisSize: MainAxisSize.min, children: [
       // Summary pill — how many items will be received
-      if (_ctrl.hasAnyQty.value)
+      if (_ctrl!.hasAnyQty.value)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: _receivingSummary(),
@@ -337,8 +337,8 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
         width: double.infinity,
         height: 50,
         child: ElevatedButton.icon(
-          onPressed: (_ctrl.hasAnyQty.value && !_ctrl.isSubmitting.value)
-              ? _ctrl.submit
+          onPressed: (_ctrl!.hasAnyQty.value && !_ctrl!.isSubmitting.value)
+              ? _ctrl!.submit
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: _C.accentBlue,
@@ -348,7 +348,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10)),
           ),
-          icon: _ctrl.isSubmitting.value
+          icon: _ctrl!.isSubmitting.value
               ? const SizedBox(
               width: 18, height: 18,
               child: CircularProgressIndicator(
@@ -356,7 +356,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
               : const Icon(Icons.move_to_inbox_rounded,
               size: 18, color: Colors.white),
           label: Text(
-            _ctrl.isSubmitting.value
+            _ctrl!.isSubmitting.value
                 ? 'Recording Inward…'
                 : 'Confirm Stock Inward',
             style: const TextStyle(
@@ -369,7 +369,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
   ));
 
   Widget _receivingSummary() {
-    final activeRows = _ctrl.rows.where((r) => r.receivingQty > 0).toList();
+    final activeRows = _ctrl!.rows.where((r) => r.receivingQty > 0).toList();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(

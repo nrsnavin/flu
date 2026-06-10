@@ -219,30 +219,45 @@ class MaterialInwardPage extends StatefulWidget {
 }
 
 class _MaterialInwardPageState extends State<MaterialInwardPage> {
-  late final MaterialInwardController _ctrl;
+  MaterialInwardController? _ctrl;
 
   @override
   void initState() {
     super.initState();
-    final po = Get.arguments as POModel;
-    _ctrl = Get.put(MaterialInwardController(po));
+    // Guard the route argument — navigating here without a POModel
+    // (hot reload, bad deep link) used to crash on the cast. Bail
+    // back to the previous screen instead.
+    final arg = Get.arguments;
+    if (arg is POModel) {
+      _ctrl = Get.put(MaterialInwardController(arg));
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.back();
+        Get.snackbar('Error', 'No purchase order supplied');
+      });
+    }
   }
 
   @override
   void dispose() {
-    Get.delete<MaterialInwardController>();
+    if (_ctrl != null) Get.delete<MaterialInwardController>();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Argument guard failed in initState — render a blank scaffold
+    // for the single frame before the scheduled Get.back() fires.
+    if (_ctrl == null) {
+      return const Scaffold(backgroundColor: _C.bgBase);
+    }
     return Scaffold(
       backgroundColor: _C.bgBase,
       body: NestedScrollView(
         headerSliverBuilder: (_, __) => [_appBar()],
-        body: _ctrl.rows.isEmpty ? _emptyState() : _body(),
+        body: _ctrl!.rows.isEmpty ? _emptyState() : _body(),
       ),
-      bottomNavigationBar: _ctrl.rows.isEmpty ? null : _footer(),
+      bottomNavigationBar: _ctrl!.rows.isEmpty ? null : _footer(),
     );
   }
 

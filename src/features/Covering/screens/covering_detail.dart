@@ -22,7 +22,10 @@ class _CoveringDetailPageState extends State<CoveringDetailPage> {
   @override
   void initState() {
     super.initState();
-    final id = Get.arguments as String;
+    // Guard the route argument — navigating here without arguments
+    // (deep link, programmatic Get.to) used to crash on the cast.
+    final arg = Get.arguments;
+    final id = (arg is String && arg.isNotEmpty) ? arg : '';
     Get.delete<CoveringDetailController>(force: true);
     c = Get.put(CoveringDetailController(id));
   }

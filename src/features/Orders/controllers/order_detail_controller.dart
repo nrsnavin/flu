@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
+import 'package:production/src/features/Orders/widgets/force_approval_dialog.dart';
 
 class OrderDetailController extends GetxController {
   final String orderId;
@@ -40,24 +41,52 @@ class OrderDetailController extends GetxController {
     }
   }
 
-  Future<void> approveOrder() async {
+  Future<void> approveOrder({bool force = false, String? forceReason}) async {
+    isActioning.value = true;
     try {
-      isActioning.value = true;
       // 🪪 Actor attached so the backend records who approved
       await _dio.post("/order/approve", data: {
         "orderId": orderId,
         "actor":   buildActorPayload(),
+        if (force) "force": true,
+        if (force && forceReason != null) "forceReason": forceReason,
       });
       Get.snackbar(
-        "Order Approved", "Raw materials deducted from stock",
-        backgroundColor: const Color(0xFF16A34A),
+        force ? "Order Force-Approved" : "Order Approved",
+        force
+            ? "Approval forced despite insufficient raw stock"
+            : "Raw materials deducted from stock",
+        backgroundColor: force
+            ? const Color(0xFFD97706)
+            : const Color(0xFF16A34A),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 3),
       );
       await fetchOrderDetail();
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? "Approval failed";
+      // Backend returns `code: "INSUFFICIENT_STOCK"` + a structured
+      // `shortfall` payload when raw material is short. Surface the
+      // dialog so the admin can confirm + supply a reason; on
+      // confirm, retry with force.
+      final data = e.response?.data;
+      if (data is Map &&
+          data['code'] == 'INSUFFICIENT_STOCK' &&
+          data['shortfall'] is Map &&
+          Get.context != null) {
+        isActioning.value = false;
+        final reason = await showForceApprovalDialog(
+          context: Get.context!,
+          shortfall: Map<String, dynamic>.from(data['shortfall'] as Map),
+          originalMessage: data['message']?.toString() ?? '',
+        );
+        if (reason != null) {
+          await approveOrder(force: true, forceReason: reason);
+        }
+        return;
+      }
+      final msg = (data is Map ? data['message']?.toString() : null) ??
+          "Approval failed";
       Get.snackbar("Error", msg,
           backgroundColor: const Color(0xFFDC2626),
           colorText: Colors.white,

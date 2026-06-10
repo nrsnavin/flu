@@ -17,6 +17,7 @@ import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
 import 'package:production/src/features/elastic/screens/stock_map_page.dart';
 import 'package:production/src/features/employees/screens/empList.dart';
 import 'package:production/src/features/feedback/screens/feedback_admin_list.dart';
+import 'package:production/src/features/machine_issue/screens/machine_issue_admin_list.dart';
 import 'package:production/src/features/materials/screens/stock_adjust.dart';
 import 'package:production/src/features/packing/screens/AddPacking.dart';
 import 'package:production/src/features/payroll/screens/payroll_page.dart';
@@ -83,6 +84,7 @@ class MoreOptionsPage extends StatelessWidget {
 
     _Section('HR & COMMUNICATION', [
       _Tile(Icons.feedback_outlined, 'Employee Feedback', _Nav.feedback),
+      _Tile(Icons.build_circle_outlined, 'Machine Issues', _Nav.machineIssues),
       _Tile(Icons.campaign_outlined, 'Notice Board', _Nav.noticeBoard),
     ]),
 
@@ -195,6 +197,8 @@ class _Nav {
   static void attendence() => Get.to(() => AttendancePage());
 
   static void feedback() => Get.to(() => const FeedbackAdminListPage());
+  static void machineIssues() =>
+      Get.to(() => const MachineIssueAdminListPage());
   static void noticeBoard() => Get.to(() => const AnnouncementListPage());
 
   static void logout() {

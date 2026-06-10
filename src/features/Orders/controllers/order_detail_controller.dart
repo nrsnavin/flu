@@ -41,7 +41,11 @@ class OrderDetailController extends GetxController {
     }
   }
 
-  Future<void> approveOrder({bool force = false, String? forceReason}) async {
+  Future<void> approveOrder({
+    bool force = false,
+    String? forceReason,
+    BuildContext? alertContext,
+  }) async {
     isActioning.value = true;
     try {
       // 🪪 Actor attached so the backend records who approved
@@ -69,28 +73,56 @@ class OrderDetailController extends GetxController {
       // `shortfall` payload when raw material is short. Surface the
       // dialog so the admin can confirm + supply a reason; on
       // confirm, retry with force.
+      //
+      // Fallback: older backends without the structured payload would
+      // just send a message — match on the substring as a safety net
+      // so the alert still fires in mixed-deploy windows.
       final data = e.response?.data;
-      if (data is Map &&
-          data['code'] == 'INSUFFICIENT_STOCK' &&
-          data['shortfall'] is Map &&
-          Get.context != null) {
+      final isMap = data is Map;
+      final code = isMap ? data['code'] : null;
+      final msg  = (isMap ? data['message']?.toString() : null) ?? '';
+      final shortfall = isMap && data['shortfall'] is Map
+          ? Map<String, dynamic>.from(data['shortfall'] as Map)
+          : null;
+      final looksLikeStockShort = code == 'INSUFFICIENT_STOCK' ||
+          msg.toLowerCase().contains('insufficient stock');
+
+      final ctx = alertContext ?? Get.overlayContext ?? Get.context;
+      if (looksLikeStockShort && ctx != null) {
+        // Free the spinner so the page reads "Approve again" while
+        // the dialog is up.
         isActioning.value = false;
         final reason = await showForceApprovalDialog(
-          context: Get.context!,
-          shortfall: Map<String, dynamic>.from(data['shortfall'] as Map),
-          originalMessage: data['message']?.toString() ?? '',
+          context: ctx,
+          shortfall: shortfall ??
+              {
+                // Backend didn't send the structured payload; render a
+                // generic placeholder so the dialog still works.
+                'materialName': 'Raw materials',
+                'available':    0,
+                'required':     0,
+                'short':        0,
+              },
+          originalMessage: msg.isNotEmpty
+              ? msg
+              : 'Raw-material stock is short of the order requirement.',
         );
         if (reason != null) {
-          await approveOrder(force: true, forceReason: reason);
+          await approveOrder(
+            force: true,
+            forceReason: reason,
+            alertContext: alertContext,
+          );
         }
         return;
       }
-      final msg = (data is Map ? data['message']?.toString() : null) ??
-          "Approval failed";
-      Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Error",
+        msg.isNotEmpty ? msg : "Approval failed",
+        backgroundColor: const Color(0xFFDC2626),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isActioning.value = false;
     }

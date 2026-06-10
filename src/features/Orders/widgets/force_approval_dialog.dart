@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 
@@ -130,7 +129,11 @@ Future<String?> showForceApprovalDialog({
           actionsPadding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
           actions: [
             TextButton(
-              onPressed: () => Get.back<String?>(result: null),
+              // Navigator.pop on the dialog's own context — Get.back
+              // pops the topmost GetX overlay, which is the snackbar
+              // (not this dialog) whenever an error toast from the
+              // failed approve is still on screen.
+              onPressed: () => Navigator.of(dialogCtx).pop(null),
               child: const Text('Cancel',
                   style: TextStyle(color: ErpColors.textSecondary)),
             ),
@@ -141,7 +144,7 @@ Future<String?> showForceApprovalDialog({
               ),
               onPressed: () {
                 if (formKey.currentState?.validate() != true) return;
-                Get.back<String?>(result: reasonCtrl.text.trim());
+                Navigator.of(dialogCtx).pop(reasonCtrl.text.trim());
               },
               icon: const Icon(Icons.bolt, size: 16),
               label: const Text('Force Approve',
@@ -152,6 +155,10 @@ Future<String?> showForceApprovalDialog({
       },
     );
   } finally {
-    reasonCtrl.dispose();
+    // Defer disposal past the dialog's pop animation — the
+    // TextFormField can rebuild one final frame while the route is
+    // animating out, and a synchronous dispose here would throw
+    // "used after being disposed".
+    Future.delayed(const Duration(milliseconds: 400), reasonCtrl.dispose);
   }
 }

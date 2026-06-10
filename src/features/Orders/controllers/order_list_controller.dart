@@ -91,16 +91,35 @@ class OrderListController extends GetxController {
       );
       await fetchOrders();
     } on DioException catch (e) {
+      // Mirror order_detail_controller: strict match on the
+      // structured code, with a message-substring fallback so the
+      // alert still fires against backends that predate the
+      // code/shortfall payload.
       final data = e.response?.data;
-      if (data is Map &&
-          data['code'] == 'INSUFFICIENT_STOCK' &&
-          data['shortfall'] is Map &&
-          Get.context != null) {
+      final isMap = data is Map;
+      final code = isMap ? data['code'] : null;
+      final emsg = (isMap ? data['message']?.toString() : null) ?? '';
+      final shortfall = isMap && data['shortfall'] is Map
+          ? Map<String, dynamic>.from(data['shortfall'] as Map)
+          : null;
+      final looksLikeStockShort = code == 'INSUFFICIENT_STOCK' ||
+          emsg.toLowerCase().contains('insufficient stock');
+
+      final ctx = Get.overlayContext ?? Get.context;
+      if (looksLikeStockShort && ctx != null) {
         actioningId.value = null;
         final reason = await showForceApprovalDialog(
-          context: Get.context!,
-          shortfall: Map<String, dynamic>.from(data['shortfall'] as Map),
-          originalMessage: data['message']?.toString() ?? '',
+          context: ctx,
+          shortfall: shortfall ??
+              {
+                'materialName': 'Raw materials',
+                'available':    0,
+                'required':     0,
+                'short':        0,
+              },
+          originalMessage: emsg.isNotEmpty
+              ? emsg
+              : 'Raw-material stock is short of the order requirement.',
         );
         if (reason != null) {
           await approveOrder(id, force: true, forceReason: reason);

@@ -6,6 +6,8 @@ import 'package:production/src/features/Job/screens/job_list_screen.dart';
 import 'package:production/src/features/Orders/screens/add_order_page.dart';
 import 'package:production/src/features/Orders/screens/order_list_page.dart';
 import 'package:production/src/features/PurchaseOrder/screnns/po_list.dart';
+import 'package:production/src/features/PurchaseOrder/screnns/po_aging_page.dart';
+import 'package:production/src/features/machines/screens/maintenance_due_page.dart';
 import 'package:production/src/features/ShiftPlan/screens/shift_plan_create.dart';
 import 'package:production/src/features/Warping/screens/warping_list.dart';
 import 'package:production/src/features/addendence/screens/attendence.dart';
@@ -49,6 +51,7 @@ class MoreOptionsPage extends StatelessWidget {
       _Tile(Icons.military_tech_outlined, 'Jobs', _Nav.jobList),
       _Tile(Icons.request_quote_outlined, 'Purchase Orders', _Nav.poList),
       _Tile(Icons.add_shopping_cart_rounded, 'Add PO', _Nav.addPO),
+      _Tile(Icons.hourglass_bottom_rounded, 'PO Aging', _Nav.poAging),
     ]),
     _Section('PRODUCTION', [
       _Tile(Icons.linear_scale_rounded, 'Elastics', _Nav.elasticList),
@@ -85,6 +88,7 @@ class MoreOptionsPage extends StatelessWidget {
     _Section('HR & COMMUNICATION', [
       _Tile(Icons.feedback_outlined, 'Employee Feedback', _Nav.feedback),
       _Tile(Icons.build_circle_outlined, 'Machine Issues', _Nav.machineIssues),
+      _Tile(Icons.engineering_outlined, 'Maintenance Due', _Nav.maintenanceDue),
       _Tile(Icons.campaign_outlined, 'Notice Board', _Nav.noticeBoard),
     ]),
 
@@ -199,6 +203,8 @@ class _Nav {
   static void feedback() => Get.to(() => const FeedbackAdminListPage());
   static void machineIssues() =>
       Get.to(() => const MachineIssueAdminListPage());
+  static void maintenanceDue() => Get.to(() => const MaintenanceDuePage());
+  static void poAging() => Get.to(() => const POAgingPage());
   static void noticeBoard() => Get.to(() => const AnnouncementListPage());
 
   static void logout() {

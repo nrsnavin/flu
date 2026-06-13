@@ -27,19 +27,34 @@ class ShiftDetailViewModel {
 
   factory ShiftDetailViewModel.fromJson(Map<String, dynamic> s) {
 
+    // Server may return any of `employee`, `machine`, `orderRunning`,
+    // or per-row `elastic` as null when the populate didn't resolve.
+    // Guard every chain so the page renders something useful instead
+    // of crashing on NoSuchMethodError.
+    final emp     = s["employee"]     as Map?;
+    final machine = s["machine"]      as Map?;
+    final order   = machine?["orderRunning"] as Map?;
+    final elasticsRaw = s["elastics"] as List? ?? const [];
+
     return ShiftDetailViewModel(
-      id: s["_id"],
-      status: s["status"],
-      date: s["date"],
-      shift: s["shift"],
-      employeeName: s["employee"]["name"],
-      machineName: s["machine"]["ID"],
-      jobNo: s["machine"]["orderRunning"]!=null?s["machine"]["orderRunning"]["jobOrderNo"].toString():"",
-      production: s["productionMeters"] ?? 0,
-      timer: s["timer"] ?? "00:00:00",
-      feedback: s["feedback"] ?? "",
-      runningElastics: (s["elastics"] as List)
-          .map((e) => e["elastic"]["name"].toString())
+      id: s["_id"]?.toString() ?? '',
+      status: s["status"]?.toString() ?? '',
+      date: s["date"]?.toString() ?? '',
+      shift: s["shift"]?.toString() ?? '',
+      employeeName: emp?["name"]?.toString() ?? '',
+      machineName: machine?["ID"]?.toString() ?? '',
+      jobNo: order?["jobOrderNo"]?.toString() ?? '',
+      production: (s["productionMeters"] as num?)?.toInt() ?? 0,
+      timer: s["timer"]?.toString() ?? "00:00:00",
+      feedback: s["feedback"]?.toString() ?? "",
+      runningElastics: elasticsRaw
+          .map((e) {
+            final m = e is Map ? e : const {};
+            final el = m["elastic"];
+            if (el is Map) return el["name"]?.toString() ?? '';
+            return '';
+          })
+          .where((n) => n.isNotEmpty)
           .toList(),
     );
   }

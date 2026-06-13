@@ -9,13 +9,10 @@ import 'package:production/src/features/Orders/controllers/add_order_controller.
     show buildActorPayload;
 
 
+import '../../../core/api_client.dart';
 // ── API ───────────────────────────────────────────────────────
 class WarpingApi {
-  static final Dio _dio = Dio(BaseOptions(
-    baseUrl:        'http://13.233.117.153:2701/api/v2/warping',
-    connectTimeout: const Duration(seconds: 12),
-    receiveTimeout: const Duration(seconds: 12),
-  ));
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/warping');
 
   static Future<Map<String, dynamic>> listWarpings({
     required String status, String search = '', int page = 1, int limit = 20,
@@ -310,11 +307,7 @@ class WarpingPlanController extends GetxController {
   final String warpingId;
   WarpingPlanController(this.jobId, this.warpingId);
 
-  static final _aiDio = Dio(BaseOptions(
-    baseUrl:        'http://13.233.117.153:2701/api/v2',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 60),
-  ));
+  static final _aiDio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   final warpYarns    = <WarpYarnOption>[].obs;
   final beams        = <EditableBeam>[].obs;
@@ -504,7 +497,11 @@ class WarpingPlanController extends GetxController {
     isSaving.value = true;
     try {
       final plan = await WarpingApi.createPlan(warpingId: warpingId, beams: beams);
-      _snack('Warping plan saved', isError: false);
+      // Pop with the result; the caller (Warping_detail.dart) shows
+      // the success snackbar on the parent overlay so it survives
+      // the route teardown. Firing the snack from this controller
+      // before/after pop racing the overlay teardown is what made
+      // the toast invisible.
       Get.back(result: plan);
     } on DioException catch (e) {
       _snack(e.response?.data?['message'] as String? ?? 'Failed to save', isError: true);

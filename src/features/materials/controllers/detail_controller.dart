@@ -3,6 +3,7 @@
 //  File: lib/src/features/rawMaterial/controllers/raw_material_detail_controller.dart
 // ══════════════════════════════════════════════════════════════
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/detail_model.dart';
@@ -11,11 +12,7 @@ class RawMaterialDetailController extends GetxController {
   final String materialId;
   RawMaterialDetailController({required this.materialId});
 
-  static final Dio _dio = Dio(BaseOptions(
-    baseUrl:        'http://13.233.117.153:2701/api/v2/materials',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/materials');
 
   // ── State ──────────────────────────────────────────────────
   final isLoading    = true.obs;

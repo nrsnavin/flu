@@ -5,6 +5,7 @@
 // category filter and date-range (days) filter.
 
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -46,9 +47,7 @@ class AdjustHistoryEntry {
         materialName: j['materialName']?.toString() ?? '—',
         category:     j['category']?.toString()     ?? '—',
         currentStock: (j['currentStock'] as num?)?.toDouble() ?? 0,
-        date: j['date'] != null
-            ? DateTime.parse(j['date'] as String).toLocal()
-            : DateTime.now(),
+        date: (DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now()).toLocal(),
         adjustment: (j['adjustment'] as num?)?.toDouble() ?? 0,
         balance:    (j['balance']    as num?)?.toDouble(),
         reason:     j['reason']?.toString()         ?? '',
@@ -74,11 +73,7 @@ class StockAdjustHistoryController extends GetxController {
 
   static const List<int> kDayOptions = [7, 30, 90, 180, 365];
 
-  final _dio = Dio(BaseOptions(
-    baseUrl:        'http://13.233.117.153:2701/api/v2/materials',
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 20),
-  ));
+  final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/materials');
 
   // ── Filter state ───────────────────────────────────────────
   final searchQuery    = ''.obs;

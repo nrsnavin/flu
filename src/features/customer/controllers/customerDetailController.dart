@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
+import '../../../core/api_client.dart';
+
 class CustomerDetailController extends GetxController {
   final String customerId;
 
@@ -9,8 +11,9 @@ class CustomerDetailController extends GetxController {
   final loading = false.obs;
   final customer = <String, dynamic>{}.obs;
 
-  final Dio dio = Dio(
-    BaseOptions(baseUrl: "http://13.233.117.153:2701/api/v2/customer"),
+  // Route through ApiClient.buildClient so the JWT cookie attaches.
+  final Dio dio = ApiClient.buildClient(
+    baseUrl: "http://13.233.117.153:2701/api/v2/customer",
   );
 
   @override
@@ -27,7 +30,12 @@ class CustomerDetailController extends GetxController {
         "/customerDetail?id=$customerId",
       );
 
-      customer.value = res.data['customer'];
+      final body = res.data is Map ? res.data['customer'] : null;
+      if (body is Map) {
+        customer.assignAll(Map<String, dynamic>.from(body));
+      } else {
+        customer.clear();
+      }
     } catch (e) {
       Get.snackbar("Error", "Failed to load customer details");
     } finally {

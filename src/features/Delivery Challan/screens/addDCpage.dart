@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/api_client.dart';
 import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
@@ -11,11 +12,15 @@ import '../models/dc_model.dart';
 //  ADD DC CONTROLLER
 // ════════════════════════════════════════════════════════════════
 class AddDCController extends GetxController {
-  final _dio = Dio(BaseOptions(
+  // FIX: was constructing a bare Dio(BaseOptions(...)), which
+  // skipped the cookie interceptor in ApiClient.buildClient and
+  // produced 401 ("login to continue") on /order/list, /dc/order-info
+  // and /dc/create against the gated backend. The factory below
+  // attaches the JWT cookie on every request.
+  final _dio = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 15),
-  ));
+    timeout: const Duration(seconds: 15),
+  );
 
   // ── Type ───────────────────────────────────────────────────
   final selectedType = 'elastic'.obs; // 'elastic' | 'machine_part'

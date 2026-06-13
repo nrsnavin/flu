@@ -77,7 +77,7 @@ class _AddPackingPageState extends State<AddPackingPage> {
                       color: ErpColors.textSecondary, fontSize: 12)),
               const SizedBox(height: 14),
               ElevatedButton.icon(
-                onPressed:(){},
+                onPressed: c.isLoading.value ? null : () => c.retry(),
                 style: ElevatedButton.styleFrom(
                     backgroundColor: ErpColors.accentBlue, elevation: 0),
                 icon: const Icon(Icons.refresh,

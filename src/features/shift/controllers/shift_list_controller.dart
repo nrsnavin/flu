@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/shiftModel.dart';
+import '../../../core/api_client.dart';
 
 // ── Per-shift entry holder ────────────────────────────────────
 class BulkEntry {
@@ -44,7 +45,7 @@ class BulkEntry {
 
   Map<String, dynamic> toPayload() => {
     'id':         shift.id,
-    'production': int.parse(productionCtrl.text.trim()),
+    'production': int.tryParse(productionCtrl.text.trim()) ?? 0,
     'timer':      timerCtrl.text.trim().isNotEmpty
         ? timerCtrl.text.trim()
         : '00:00:00',
@@ -64,13 +65,7 @@ class ShiftControllerView extends GetxController {
   final isBulkSaving    = false.obs;
   final bulkTotalMeters = 0.obs; // live sum across all entries
 
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ),
-  );
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   @override
   void onInit() {

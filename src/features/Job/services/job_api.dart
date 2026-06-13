@@ -1,37 +1,61 @@
 import 'package:dio/dio.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:get/get.dart';
+
+import '../../../core/api_client.dart';
 
 class JobApi {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: "http://13.233.117.153:2701/api/v2", // 🔁 CHANGE
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ),
+  // Route through ApiClient.buildClient so the JWT cookie attaches
+  // (job routes are now all behind isAuthenticated).
+  static final Dio _dio = ApiClient.buildClient(
+    baseUrl: "http://13.233.117.153:2701/api/v2",
   );
 
   static Future<void> createOrder(Map<String, dynamic> payload) async {
-    final res = await _dio.post("/job/create", data: payload);
-    if (res.statusCode == 201) {
-      Get.snackbar("Success", "Job Created");
-      Get.back();
+    try {
+      final res = await _dio.post("/job/create", data: payload);
+      if (res.statusCode == 201) {
+        Get.snackbar("Success", "Job Created");
+        // Only pop if there's a navigation context to pop. GetX
+        // would silently no-op, but calling it explicitly inside
+        // the success branch avoids future regressions.
+        if (Get.key.currentState?.canPop() ?? false) {
+          Get.back();
+        }
+      } else {
+        Get.snackbar(
+          "Could not create job",
+          "Server returned ${res.statusCode}",
+        );
+      }
+    } on DioException catch (e) {
+      final msg = e.response?.data is Map
+          ? (e.response?.data?['message']?.toString() ?? 'Failed to create job')
+          : (e.message ?? 'Failed to create job');
+      Get.snackbar("Error", msg);
     }
   }
 
   static Future<void> updateJobStatus(String id, String next) async {
-    final res = await _dio.post(
-      "/job/update-status",
-      data: {'jobId': id, 'nextStatus': next},
-    );
-    if (res.statusCode == 201) {
-      Get.snackbar("Success", "Job Status Updated");
+    try {
+      final res = await _dio.post(
+        "/job/update-status",
+        data: {'jobId': id, 'nextStatus': next},
+      );
+      if (res.statusCode == 201) {
+        Get.snackbar("Success", "Job Status Updated");
+      }
+    } on DioException catch (e) {
+      final msg = e.response?.data is Map
+          ? (e.response?.data?['message']?.toString() ?? 'Failed to update status')
+          : (e.message ?? 'Failed to update status');
+      Get.snackbar("Error", msg);
     }
   }
 
   static Future<Map<String, dynamic>> fetchDetail(String id) async {
     final res = await _dio.get("/job/detail", queryParameters: {"id": id});
-    return res.data["job"];
+    final body = res.data is Map ? res.data["job"] : null;
+    return body is Map ? Map<String, dynamic>.from(body) : const {};
   }
 
   static Future<Response> getJobs({

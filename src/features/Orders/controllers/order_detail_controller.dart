@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
+import 'package:production/src/features/Orders/widgets/force_approval_dialog.dart';
 
 class OrderDetailController extends GetxController {
   final String orderId;
@@ -40,28 +41,88 @@ class OrderDetailController extends GetxController {
     }
   }
 
-  Future<void> approveOrder() async {
+  Future<void> approveOrder({
+    bool force = false,
+    String? forceReason,
+    BuildContext? alertContext,
+  }) async {
+    isActioning.value = true;
     try {
-      isActioning.value = true;
       // 🪪 Actor attached so the backend records who approved
       await _dio.post("/order/approve", data: {
         "orderId": orderId,
         "actor":   buildActorPayload(),
+        if (force) "force": true,
+        if (force && forceReason != null) "forceReason": forceReason,
       });
       Get.snackbar(
-        "Order Approved", "Raw materials deducted from stock",
-        backgroundColor: const Color(0xFF16A34A),
+        force ? "Order Force-Approved" : "Order Approved",
+        force
+            ? "Approval forced despite insufficient raw stock"
+            : "Raw materials deducted from stock",
+        backgroundColor: force
+            ? const Color(0xFFD97706)
+            : const Color(0xFF16A34A),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 3),
       );
       await fetchOrderDetail();
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? "Approval failed";
-      Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM);
+      // Backend returns `code: "INSUFFICIENT_STOCK"` + a structured
+      // `shortfall` payload when raw material is short. Surface the
+      // dialog so the admin can confirm + supply a reason; on
+      // confirm, retry with force.
+      //
+      // Fallback: older backends without the structured payload would
+      // just send a message — match on the substring as a safety net
+      // so the alert still fires in mixed-deploy windows.
+      final data = e.response?.data;
+      final isMap = data is Map;
+      final code = isMap ? data['code'] : null;
+      final msg  = (isMap ? data['message']?.toString() : null) ?? '';
+      final shortfall = isMap && data['shortfall'] is Map
+          ? Map<String, dynamic>.from(data['shortfall'] as Map)
+          : null;
+      final looksLikeStockShort = code == 'INSUFFICIENT_STOCK' ||
+          msg.toLowerCase().contains('insufficient stock');
+
+      final ctx = alertContext ?? Get.overlayContext ?? Get.context;
+      if (looksLikeStockShort && ctx != null) {
+        // Free the spinner so the page reads "Approve again" while
+        // the dialog is up.
+        isActioning.value = false;
+        final reason = await showForceApprovalDialog(
+          context: ctx,
+          shortfall: shortfall ??
+              {
+                // Backend didn't send the structured payload; render a
+                // generic placeholder so the dialog still works.
+                'materialName': 'Raw materials',
+                'available':    0,
+                'required':     0,
+                'short':        0,
+              },
+          originalMessage: msg.isNotEmpty
+              ? msg
+              : 'Raw-material stock is short of the order requirement.',
+        );
+        if (reason != null) {
+          await approveOrder(
+            force: true,
+            forceReason: reason,
+            alertContext: alertContext,
+          );
+        }
+        return;
+      }
+      Get.snackbar(
+        "Error",
+        msg.isNotEmpty ? msg : "Approval failed",
+        backgroundColor: const Color(0xFFDC2626),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isActioning.value = false;
     }

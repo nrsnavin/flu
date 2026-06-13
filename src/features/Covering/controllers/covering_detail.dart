@@ -6,23 +6,18 @@ import '../models/covering.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
 
-// ══════════════════════════════════════════════════════════════
+import '../../../core/api_client.dart';
+// ═════════════════════════════════════════════════════════════════
 //  COVERING API SERVICE
 //
 //  FIX: original covering_detail.dart (controller file) imported
 //       both package:dio/dio.dart AND package:http/http.dart —
 //       http package was never used, only Dio was. Dead import
 //       removed. ApiService is now a clean Dio-only singleton.
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
 
 class CoveringApiService {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2',
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
-    ),
-  );
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   static Future<Map<String, dynamic>> _get(
       String path, {
@@ -76,7 +71,7 @@ class CoveringApiService {
       });
 }
 
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
 //  COVERING LIST CONTROLLER
 //
 //  FIX: original CoveringController was used in a StatelessWidget
@@ -84,7 +79,7 @@ class CoveringApiService {
 //       re-navigation.
 //  FIX: fetch(reset: true) was called from build() causing infinite
 //       refetch on every widget rebuild.
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
 
 class CoveringListController extends GetxController {
   final list      = <CoveringListItem>[].obs;
@@ -161,7 +156,7 @@ class CoveringListController extends GetxController {
   int get completedCount  => list.where((c) => c.status == 'completed').length;
 }
 
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
 //  COVERING DETAIL CONTROLLER
 //
 //  FIX: original controller imported http package (unused).
@@ -169,7 +164,7 @@ class CoveringListController extends GetxController {
 //       LOCAL variable inside the method — always null, so remarks
 //       were NEVER sent to the API. Now an observable field.
 //  FIX: Get.put() inside build() → controller re-created every rebuild.
-// ══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
 
 class CoveringDetailController extends GetxController {
   final String coveringId;
@@ -243,7 +238,7 @@ class CoveringDetailController extends GetxController {
   }
 }
 
-// ── Shared snackbar ───────────────────────────────────────────
+// ── Shared snackbar ─────────────────────────────────────────────
 void _snack(String title, String message, {required bool isError}) {
   Get.snackbar(
     title, message,

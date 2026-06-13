@@ -3,17 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
+import '../../../core/api_client.dart';
 
 class StockInwardPage extends StatelessWidget {
   final String poId = Get.arguments;
 
-  final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: "http://10.0.2.2:2701/api/v2", // 🔁 CHANGE
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ),
-  );
+  final Dio _dio = ApiClient.buildClient(baseUrl: "http://10.0.2.2:2701/api/v2");
 
   @override
   Widget build(BuildContext context) {

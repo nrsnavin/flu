@@ -89,7 +89,7 @@ class POModel {
     return POModel(
       id: j["_id"] ?? "",
       poNo: j["poNo"] ?? 0,
-      date: j["date"] != null ? DateTime.parse(j["date"]) : DateTime.now(),
+      date: DateTime.tryParse(j["date"]?.toString() ?? '') ?? DateTime.now(),
       supplier: sup is Map<String, dynamic> ? SupplierMini.fromJson(sup) : null,
       items: (j["items"] as List? ?? []).map((e) => POItem.fromJson(e)).toList(),
       status: j["status"] ?? "Open",
@@ -150,9 +150,8 @@ class InwardRecord {
       rawMaterial:
       rm is Map<String, dynamic> ? MaterialMini.fromJson(rm) : null,
       quantity: (j["quantity"] ?? 0).toDouble(),
-      inwardDate: j["inwardDate"] != null
-          ? DateTime.parse(j["inwardDate"])
-          : DateTime.now(),
+      inwardDate: DateTime.tryParse(j["inwardDate"]?.toString() ?? '') ??
+          DateTime.now(),
       remarks: j["remarks"],
     );
   }

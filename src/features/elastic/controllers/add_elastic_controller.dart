@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import 'package:production/src/features/elastic/models/cost.dart';
 import 'package:production/src/features/elastic/models/raw_material.dart';
 import 'package:production/src/features/elastic/models/warp_yarn_input.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
 
 class AddElasticController extends GetxController {
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl:        "http://13.233.117.153:2701/api/v2",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final Dio _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2");
 
   final Map<String, dynamic>? cloneData;
   final Map<String, dynamic>? editData;
@@ -484,7 +481,7 @@ class AddElasticController extends GetxController {
           return PlanSection(
             warpYarnId:   yarnId,
             warpYarnName: mat?.name ?? s["warpYarnName"]?.toString() ?? "",
-            initialEnds:  (s["ends"] ?? 0) as int,
+            initialEnds:  (s["ends"] as num?)?.toInt() ?? 0,
           );
         }).toList();
         planBeams.add(PlanBeam(

@@ -16,7 +16,7 @@ class ShiftDetailModelView {
   factory ShiftDetailModelView.fromJson(Map<String, dynamic> json) {
     return ShiftDetailModelView(
       id: json["_id"],
-      date: DateTime.parse(json["date"]),
+      date: DateTime.tryParse(json["date"]?.toString() ?? '') ?? DateTime(1970),
       shift: json["shift"] ?? "",
       operatorName: json["employee"]?["name"] ?? "Not Assigned",
       production: (json["productionMeters"] ?? 0).toDouble(),

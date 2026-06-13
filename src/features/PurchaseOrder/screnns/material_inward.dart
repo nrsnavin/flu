@@ -219,30 +219,45 @@ class MaterialInwardPage extends StatefulWidget {
 }
 
 class _MaterialInwardPageState extends State<MaterialInwardPage> {
-  late final MaterialInwardController _ctrl;
+  MaterialInwardController? _ctrl;
 
   @override
   void initState() {
     super.initState();
-    final po = Get.arguments as POModel;
-    _ctrl = Get.put(MaterialInwardController(po));
+    // Guard the route argument — navigating here without a POModel
+    // (hot reload, bad deep link) used to crash on the cast. Bail
+    // back to the previous screen instead.
+    final arg = Get.arguments;
+    if (arg is POModel) {
+      _ctrl = Get.put(MaterialInwardController(arg));
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.back();
+        Get.snackbar('Error', 'No purchase order supplied');
+      });
+    }
   }
 
   @override
   void dispose() {
-    Get.delete<MaterialInwardController>();
+    if (_ctrl != null) Get.delete<MaterialInwardController>();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Argument guard failed in initState — render a blank scaffold
+    // for the single frame before the scheduled Get.back() fires.
+    if (_ctrl == null) {
+      return const Scaffold(backgroundColor: _C.bgBase);
+    }
     return Scaffold(
       backgroundColor: _C.bgBase,
       body: NestedScrollView(
         headerSliverBuilder: (_, __) => [_appBar()],
-        body: _ctrl.rows.isEmpty ? _emptyState() : _body(),
+        body: _ctrl!.rows.isEmpty ? _emptyState() : _body(),
       ),
-      bottomNavigationBar: _ctrl.rows.isEmpty ? null : _footer(),
+      bottomNavigationBar: _ctrl!.rows.isEmpty ? null : _footer(),
     );
   }
 
@@ -257,7 +272,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
       onPressed: () => Get.back(),
     ),
     flexibleSpace: FlexibleSpaceBar(
-      background: _POSummaryHeader(po: _ctrl.po),
+      background: _POSummaryHeader(po: _ctrl!.po),
     ),
   );
 
@@ -267,11 +282,11 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
     children: [
       _DatePickerRow(),
       const SizedBox(height: 20),
-      _SectionLabel(label: 'ITEMS TO RECEIVE', count: _ctrl.rows.length),
+      _SectionLabel(label: 'ITEMS TO RECEIVE', count: _ctrl!.rows.length),
       const SizedBox(height: 10),
       // One card per pending item
-      ...List.generate(_ctrl.rows.length, (i) {
-        final row = _ctrl.rows[i];
+      ...List.generate(_ctrl!.rows.length, (i) {
+        final row = _ctrl!.rows[i];
         return _ItemCard(row: row, onChanged: () => setState(() {}));
       }),
     ],
@@ -313,7 +328,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
     ),
     child: Column(mainAxisSize: MainAxisSize.min, children: [
       // Summary pill — how many items will be received
-      if (_ctrl.hasAnyQty.value)
+      if (_ctrl!.hasAnyQty.value)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: _receivingSummary(),
@@ -322,8 +337,8 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
         width: double.infinity,
         height: 50,
         child: ElevatedButton.icon(
-          onPressed: (_ctrl.hasAnyQty.value && !_ctrl.isSubmitting.value)
-              ? _ctrl.submit
+          onPressed: (_ctrl!.hasAnyQty.value && !_ctrl!.isSubmitting.value)
+              ? _ctrl!.submit
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: _C.accentBlue,
@@ -333,7 +348,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10)),
           ),
-          icon: _ctrl.isSubmitting.value
+          icon: _ctrl!.isSubmitting.value
               ? const SizedBox(
               width: 18, height: 18,
               child: CircularProgressIndicator(
@@ -341,7 +356,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
               : const Icon(Icons.move_to_inbox_rounded,
               size: 18, color: Colors.white),
           label: Text(
-            _ctrl.isSubmitting.value
+            _ctrl!.isSubmitting.value
                 ? 'Recording Inward…'
                 : 'Confirm Stock Inward',
             style: const TextStyle(
@@ -354,7 +369,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
   ));
 
   Widget _receivingSummary() {
-    final activeRows = _ctrl.rows.where((r) => r.receivingQty > 0).toList();
+    final activeRows = _ctrl!.rows.where((r) => r.receivingQty > 0).toList();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(

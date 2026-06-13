@@ -2,29 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
-const _kBase = "http://13.233.117.153:2701/api/v2/feedback";
+import '../../../core/api_client.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  FeedbackAdminController
 //  Lists employee feedback (complaints + suggestions) for admin
-//  with filtering by status / type / category. Backend route:
-//    GET /api/v2/feedback?status=&type=&category=
+//  with filtering by status / type / category.
 // ══════════════════════════════════════════════════════════════
 class FeedbackAdminController extends GetxController {
   final items   = <Map<String, dynamic>>[].obs;
   final loading = false.obs;
   final errorMsg = Rxn<String>();
 
-  // Filters — defaulting to "all" matches the backend's "no filter" path.
   final status   = "all".obs;
   final type     = "all".obs;
   final category = "all".obs;
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: _kBase,
-    connectTimeout: const Duration(seconds: 12),
-    receiveTimeout: const Duration(seconds: 12),
-  ));
+  // Cookie-attaching factory — the GET /api/v2/feedback admin route is
+  // gated by isAdmin('admin'); a bare Dio() request 401s.
+  final _dio = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/feedback',
+  );
 
   @override
   void onInit() {
@@ -41,8 +39,11 @@ class FeedbackAdminController extends GetxController {
         "type":     type.value,
         "category": category.value,
       });
-      final List list = res.data['data'] ?? [];
-      items.value = List<Map<String, dynamic>>.from(list);
+      final raw = (res.data is Map ? res.data['data'] : null) as List? ?? const [];
+      items.value = raw
+          .whereType<Map>()
+          .map((m) => Map<String, dynamic>.from(m))
+          .toList();
     } on DioException catch (e) {
       errorMsg.value =
           e.response?.data?['message'] as String? ?? 'Failed to load feedback';
@@ -60,8 +61,7 @@ class FeedbackAdminController extends GetxController {
 
 // ══════════════════════════════════════════════════════════════
 //  FeedbackRespondController
-//  Used inside the detail / respond dialog. Backend route:
-//    PUT /api/v2/feedback/:id/respond
+//  Used inside the detail / respond dialog.
 // ══════════════════════════════════════════════════════════════
 class FeedbackRespondController extends GetxController {
   final String feedbackId;
@@ -80,11 +80,9 @@ class FeedbackRespondController extends GetxController {
   final status  = "in_review".obs;
   final loading = false.obs;
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: _kBase,
-    connectTimeout: const Duration(seconds: 12),
-    receiveTimeout: const Duration(seconds: 12),
-  ));
+  final _dio = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/feedback',
+  );
 
   @override
   void onInit() {

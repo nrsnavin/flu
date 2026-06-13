@@ -285,7 +285,7 @@ class _WarpingPlanSection extends StatelessWidget {
         _PlanChip("${beams.length} beam${beams.length != 1 ? 's' : ''}",
             Icons.view_week_outlined),
         _PlanChip(
-          "${beams.fold<int>(0, (s, b) => s + ((b["totalEnds"] ?? 0) as int))} total ends",
+          "${beams.fold<int>(0, (s, b) => s + ((b["totalEnds"] as num?)?.toInt() ?? 0))} total ends",
           Icons.settings_ethernet,
         ),
       ]),
@@ -485,7 +485,7 @@ class _WarpingPlanSheetState extends State<_WarpingPlanSheet> {
     final beams = _beams.map((b) {
       final sections = b.sections
           .where((s) => s.yarnId.isNotEmpty && (int.tryParse(s.endsCtrl.text) ?? 0) > 0)
-          .map((s) => {"warpYarn": s.yarnId, "ends": int.parse(s.endsCtrl.text)})
+          .map((s) => {"warpYarn": s.yarnId, "ends": int.tryParse(s.endsCtrl.text) ?? 0})
           .toList();
       if (sections.isNotEmpty) any = true;
       final total = sections.fold<int>(0, (sum, s) => sum + (s["ends"] as int));

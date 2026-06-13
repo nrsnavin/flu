@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:production/src/features/authentication/models/user.dart';
 import 'package:production/src/features/authentication/screens/more_options.dart';
-import 'package:production/src/features/employees/screens/empList.dart';
+import 'package:production/src/features/dashboard/screens/dashboard_page.dart';
 import 'package:production/src/features/machines/screens/machineList.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../../production/screens/productionView.dart';
@@ -17,9 +17,10 @@ const bool kUseNewShell = true;
 
 // ══════════════════════════════════════════════════════════════
 //  HOME / SHELL — entry point.
-//  By default delegates to `ErpShell` (adaptive bottom nav / rail
-//  + global search + NavRegistry-driven module catalogue). Set
-//  `kUseNewShell = false` to fall back to the legacy 5-tab shell.
+//  Defaults to `ErpShell` (adaptive bottom nav / side rail + global
+//  search + NavRegistry-driven module catalogue). Set
+//  `kUseNewShell = false` to fall back to the legacy 5-tab shell
+//  (Dashboard / Machines / Production / Shift / More).
 // ══════════════════════════════════════════════════════════════
 
 class Home extends StatefulWidget {
@@ -46,7 +47,7 @@ class _HomeState extends State<Home> {
   }
 
   static const _tabs = [
-    _TabDef(icon: Icons.people_outline_rounded,         activeIcon: Icons.people_rounded,           label: 'Employees'),
+    _TabDef(icon: Icons.dashboard_outlined,             activeIcon: Icons.dashboard_rounded,        label: 'Dashboard'),
     _TabDef(icon: Icons.precision_manufacturing_outlined, activeIcon: Icons.precision_manufacturing,  label: 'Machines'),
     _TabDef(icon: Icons.analytics_outlined,             activeIcon: Icons.analytics_rounded,        label: 'Production'),
     _TabDef(icon: Icons.calendar_today_outlined,        activeIcon: Icons.calendar_today_rounded,   label: 'Shift'),
@@ -57,7 +58,7 @@ class _HomeState extends State<Home> {
   Widget _pageFor(int index) {
     return _pages.putIfAbsent(index, () {
       switch (index) {
-        case 0: return const EmployeeListPage();
+        case 0: return const DashboardPage();
         case 1: return const MachineListPage();
         case 2: return const ProductionRangePage();
         case 3: return const TodayShiftPage();

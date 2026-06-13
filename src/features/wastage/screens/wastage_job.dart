@@ -104,7 +104,6 @@ class _WastageJobPageState extends State<WastageJobPage> {
   );
 }
 
-// ── Summary strip ──────────────────────────────────────────
 class _SummaryStrip extends StatelessWidget {
   final WastageJobController c;
   const _SummaryStrip({required this.c});
@@ -148,7 +147,6 @@ class _Pill extends StatelessWidget {
   );
 }
 
-// ── Body ───────────────────────────────────────────────────
 class _Body extends StatelessWidget {
   final WastageJobController c;
   const _Body({required this.c});
@@ -173,18 +171,23 @@ class _Body extends StatelessWidget {
         itemCount: c.wastages.length,
         itemBuilder: (_, i) => _WastageCard(
           record: c.wastages[i],
-          index: i,
+          index:  i,
+          c:      c,
         ),
       ),
     );
   });
 }
 
-// ── Wastage record card ────────────────────────────────────
 class _WastageCard extends StatelessWidget {
   final WastageRecord record;
   final int index;
-  const _WastageCard({required this.record, required this.index});
+  final WastageJobController c;
+  const _WastageCard({
+    required this.record,
+    required this.index,
+    required this.c,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +209,6 @@ class _WastageCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 11, 14, 11),
           child: Row(children: [
-            // Index circle
             Container(
               width: 34, height: 34,
               decoration: BoxDecoration(
@@ -222,7 +224,6 @@ class _WastageCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            // Info
             Expanded(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,7 +308,7 @@ class _WastageCard extends StatelessWidget {
 
   void _showDetail(BuildContext ctx, WastageRecord r) {
     Get.bottomSheet(
-      _WastageDetailSheet(record: r),
+      _WastageDetailSheet(record: r, c: c),
       isScrollControlled: true,
       backgroundColor: ErpColors.bgSurface,
       shape: const RoundedRectangleBorder(
@@ -319,11 +320,16 @@ class _WastageCard extends StatelessWidget {
 
 // ══════════════════════════════════════════════════════════════
 //  WASTAGE DETAIL BOTTOM SHEET
+//
+//  P2-1: now carries a Delete action (admin-only undo). Confirms
+//  with a small dialog before calling the controller's removeOne.
+//  Closes the sheet on success.
 // ══════════════════════════════════════════════════════════════
 
 class _WastageDetailSheet extends StatelessWidget {
   final WastageRecord record;
-  const _WastageDetailSheet({required this.record});
+  final WastageJobController c;
+  const _WastageDetailSheet({required this.record, required this.c});
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +341,6 @@ class _WastageDetailSheet extends StatelessWidget {
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Handle
               Center(
                 child: Container(
                   width: 36, height: 4,
@@ -346,7 +351,6 @@ class _WastageDetailSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // Title
               Row(children: [
                 Container(
                   width: 44, height: 44,
@@ -409,7 +413,6 @@ class _WastageDetailSheet extends StatelessWidget {
                       ? 'Job #${record.jobNo}${record.jobStatus != null ? "  (${record.jobStatus!})" : ""}'
                       : '—'),
               const SizedBox(height: 8),
-              // Reason box
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
@@ -436,7 +439,92 @@ class _WastageDetailSheet extends StatelessWidget {
                     ]),
               ),
               const SizedBox(height: 16),
+
+              // ── Admin delete action ───────────────────────
+              Obx(() => SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: c.deleting.value
+                      ? null
+                      : () => _confirmDelete(context, record, c),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: ErpColors.errorRed,
+                    side: BorderSide(
+                        color: ErpColors.errorRed.withOpacity(0.6)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  icon: c.deleting.value
+                      ? const SizedBox(
+                          width: 14, height: 14,
+                          child: CircularProgressIndicator(
+                              color: ErpColors.errorRed,
+                              strokeWidth: 2),
+                        )
+                      : const Icon(Icons.delete_outline_rounded, size: 18),
+                  label: Text(
+                    c.deleting.value ? 'Deleting…' : 'Delete this entry',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800, fontSize: 13),
+                  ),
+                ),
+              )),
+              const SizedBox(height: 8),
+              const Text(
+                'Removes the wastage record and rolls back the per-job counter. Stock is unaffected for new entries.',
+                style: TextStyle(
+                    color: ErpColors.textMuted, fontSize: 10),
+              ),
             ]),
+      ),
+    );
+  }
+
+  void _confirmDelete(
+    BuildContext ctx,
+    WastageRecord r,
+    WastageJobController c,
+  ) {
+    showDialog(
+      context: ctx,
+      builder: (_) => AlertDialog(
+        backgroundColor: ErpColors.bgSurface,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10)),
+        title: const Text('Delete wastage?',
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: ErpColors.textPrimary)),
+        content: Text(
+          'Removes the ${r.quantity.toStringAsFixed(1)} m wastage entry by ${r.employeeName}. This cannot be undone.',
+          style: const TextStyle(
+              color: ErpColors.textSecondary, fontSize: 12),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ErpColors.errorRed,
+              elevation: 0,
+            ),
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              final ok = await c.removeOne(r.id);
+              if (ok && Get.isBottomSheetOpen == true) {
+                Get.back(); // close the detail sheet
+              }
+            },
+            child: const Text('Delete',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
       ),
     );
   }
@@ -478,7 +566,6 @@ class _Row extends StatelessWidget {
   );
 }
 
-// ── State widgets ──────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   const _EmptyState();
   @override

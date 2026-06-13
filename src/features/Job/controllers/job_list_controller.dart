@@ -3,12 +3,9 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:production/src/features/Job/models/JobListModel.dart';
 
+import '../../../core/api_client.dart';
 class JobListController extends GetxController {
-  static final _dio = Dio(BaseOptions(
-    baseUrl: "http://13.233.117.153:2701/api/v2",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  static final _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2");
 
   final jobs           = <JobListModel>[].obs;
   final isLoading      = false.obs;

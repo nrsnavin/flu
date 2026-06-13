@@ -59,6 +59,22 @@ class _ElasticListPageState extends State<ElasticListPage> {
                 fontSize: 17,
                 fontWeight: FontWeight.w700)),
         actions: [
+          // Toggle archived SKUs in/out of the list.
+          Obx(() => IconButton(
+                tooltip: _c.showArchived.value
+                    ? 'Hide archived'
+                    : 'Show archived',
+                icon: Icon(
+                  _c.showArchived.value
+                      ? Icons.inventory_2
+                      : Icons.inventory_2_outlined,
+                  color: _c.showArchived.value
+                      ? ErpColors.warningAmber
+                      : Colors.white,
+                  size: 20,
+                ),
+                onPressed: _c.toggleShowArchived,
+              )),
           Obx(() => Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Center(
@@ -174,7 +190,7 @@ class _Body extends StatelessWidget {
                         color: ErpColors.accentBlue)),
               );
             }
-            return _ElasticCard(e: c.elastics[i]);
+            return _ElasticCard(e: c.elastics[i], c: c);
           },
         ),
       );
@@ -184,7 +200,42 @@ class _Body extends StatelessWidget {
 
 class _ElasticCard extends StatelessWidget {
   final ElasticListModel e;
-  const _ElasticCard({required this.e});
+  final ElasticListController c;
+  const _ElasticCard({required this.e, required this.c});
+
+  void _confirmArchiveToggle(BuildContext context) {
+    final archiving = !e.archived;
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: Text(archiving ? 'Archive elastic?' : 'Restore elastic?'),
+        content: Text(archiving
+            ? '"${e.name}" will be hidden from lists and stock maps. '
+              'History and ledger stay intact. You can restore it any '
+              'time via the archived toggle.'
+            : '"${e.name}" will reappear in active lists.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: const Text('Cancel',
+                style: TextStyle(color: ErpColors.textSecondary)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  archiving ? ErpColors.warningAmber : ErpColors.accentBlue,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              c.setArchived(e.id, archiving);
+            },
+            child: Text(archiving ? 'Archive' : 'Restore'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -199,6 +250,7 @@ class _ElasticCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () => Get.to(() => ElasticDetailPage(elasticId: e.id)),
+      onLongPress: () => _confirmArchiveToggle(context),
       child: Container(
         decoration: BoxDecoration(
           color: ErpColors.bgSurface,
@@ -233,12 +285,33 @@ class _ElasticCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(e.name,
-                            style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: ErpColors.textPrimary),
-                            overflow: TextOverflow.ellipsis),
+                        Row(children: [
+                          Flexible(
+                            child: Text(e.name,
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: ErpColors.textPrimary),
+                                overflow: TextOverflow.ellipsis),
+                          ),
+                          if (e.archived) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFEF3C7),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              child: const Text('ARCHIVED',
+                                  style: TextStyle(
+                                      color: ErpColors.warningAmber,
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.4)),
+                            ),
+                          ],
+                        ]),
                         Text("Weave Type: ${e.weaveType}",
                             style: const TextStyle(
                                 fontSize: 12,

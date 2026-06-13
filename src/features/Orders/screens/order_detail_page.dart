@@ -111,12 +111,12 @@ class _HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fmt        = DateFormat('dd MMM yyyy');
-    final supplyDate = order["supplyDate"] != null
-        ? fmt.format(DateTime.parse(order["supplyDate"].toString()))
-        : "—";
-    final orderDate  = order["date"] != null
-        ? fmt.format(DateTime.parse(order["date"].toString()))
-        : "—";
+    String safeFormat(dynamic raw) {
+      final d = DateTime.tryParse(raw?.toString() ?? '');
+      return d != null ? fmt.format(d) : '—';
+    }
+    final supplyDate = safeFormat(order["supplyDate"]);
+    final orderDate  = safeFormat(order["date"]);
 
     return Container(
       decoration: BoxDecoration(
@@ -635,7 +635,14 @@ class _ActionBar extends StatelessWidget {
                   c:      c,
                   label:  "Approve",
                   color:  ErpColors.accentBlue,
-                  action: c.approveOrder,
+                  // Close the confirm dialog first so the
+                  // force-approval AlertDialog (when raw stock is
+                  // short) isn't competing with another route in
+                  // the overlay stack. Hand the page context down
+                  // so the alert anchors there.
+                  popDialogBeforeAction: true,
+                  action: () =>
+                      c.approveOrder(alertContext: ctx),
                 ),
               ),
             ]),
@@ -869,7 +876,7 @@ class _ElasticTable extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           ...elastics.map((e) {
-            final pending = (e["pending"] ?? 0) as int;
+            final pending = (e["pending"] as num?)?.toInt() ?? 0;
             return Container(
               margin: const EdgeInsets.only(bottom: 4),
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
@@ -1227,6 +1234,11 @@ class _DialogActionButton extends StatelessWidget {
   final Color color;
   final Future<void> Function() action;
   final bool popDetailOnSuccess; // for Delete — pops the detail page
+  // For Approve: close the confirm dialog BEFORE the action runs so
+  // any secondary dialog the action might open (the force-approval
+  // alert on INSUFFICIENT_STOCK) isn't fighting the confirm dialog
+  // for overlay space.
+  final bool popDialogBeforeAction;
 
   const _DialogActionButton({
     required this.c,
@@ -1234,6 +1246,7 @@ class _DialogActionButton extends StatelessWidget {
     required this.color,
     required this.action,
     this.popDetailOnSuccess = false,
+    this.popDialogBeforeAction = false,
   });
 
   @override
@@ -1247,9 +1260,13 @@ class _DialogActionButton extends StatelessWidget {
           elevation: 0,
         ),
         onPressed: busy ? null : () async {
+          if (popDialogBeforeAction && (Get.isDialogOpen ?? false)) {
+            Get.back();
+          }
           await action();
           // Close the dialog regardless of success/error — feedback
-          // is delivered via the controller's snackbar.
+          // is delivered via the controller's snackbar. (No-op when
+          // popDialogBeforeAction already dismissed it above.)
           if (Get.isDialogOpen ?? false) Get.back();
           // For Delete: also pop the detail page if status flipped to
           // "Deleted" (the controller already updated `order` via

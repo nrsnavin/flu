@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import 'package:production/src/features/elastic/models/elastic_list_model.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -10,16 +11,16 @@ import 'package:production/src/features/elastic/models/elastic_list_model.dart';
 //       loading.value = true forever (spinner never cleared).
 // ══════════════════════════════════════════════════════════════
 class ElasticListController extends GetxController {
-  final _dio = Dio(BaseOptions(
-    baseUrl: "http://13.233.117.153:2701/api/v2/elastic",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2/elastic");
 
   final elastics  = <ElasticListModel>[].obs;
   final loading   = false.obs;
   final hasMore   = true.obs;
   final search    = "".obs;
+
+  // Soft-deleted SKUs are hidden server-side by default; flipping
+  // this re-fetches with ?includeArchived=true.
+  final showArchived = false.obs;
 
   int _page = 1;
   static const _limit = 20;
@@ -47,6 +48,7 @@ class ElasticListController extends GetxController {
         "search": search.value,
         "page":   _page,
         "limit":  _limit,
+        if (showArchived.value) "includeArchived": "true",
       });
 
       final fetched = (res.data["elastics"] as List? ?? [])
@@ -79,6 +81,36 @@ class ElasticListController extends GetxController {
     if (!loading.value && hasMore.value) fetchElastics();
   }
 
+  void toggleShowArchived() {
+    showArchived.value = !showArchived.value;
+    fetchElastics(reset: true);
+  }
+
+  /// PATCH /elastic/:id/archive — archive or restore a SKU, then
+  /// refresh the list. Backend refuses archiving while reservations
+  /// are live; that message surfaces in the snackbar.
+  Future<void> setArchived(String id, bool archived) async {
+    try {
+      final res = await _dio.patch('/$id/archive', data: {'archived': archived});
+      final msg = (res.data is Map ? res.data['message']?.toString() : null) ??
+          (archived ? 'Elastic archived' : 'Elastic restored');
+      Get.snackbar('Done', msg,
+          backgroundColor: const Color(0xFF16A34A),
+          colorText: const Color(0xFFFFFFFF),
+          snackPosition: SnackPosition.BOTTOM);
+      await fetchElastics(reset: true);
+    } on DioException catch (e) {
+      final msg = (e.response?.data is Map
+              ? e.response?.data['message']?.toString()
+              : null) ??
+          'Failed to update archive state';
+      Get.snackbar('Error', msg,
+          backgroundColor: const Color(0xFFDC2626),
+          colorText: const Color(0xFFFFFFFF),
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
   @override
   void onClose() {
     _debounce?.cancel();
@@ -92,11 +124,7 @@ class ElasticListController extends GetxController {
 //       no snackbar, no reset of loading.
 // ══════════════════════════════════════════════════════════════
 class ElasticDetailController extends GetxController {
-  final _dio = Dio(BaseOptions(
-    baseUrl: "http://13.233.117.153:2701/api/v2/elastic",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2/elastic");
 
   final String elasticId;
   ElasticDetailController(this.elasticId);

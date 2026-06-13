@@ -2,23 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
-const _kBase = "http://13.233.117.153:2701/api/v2/announcement";
+import '../../../core/api_client.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  AnnouncementListController
-//  Admin view — full list (active + inactive). Backend route:
-//    GET /api/v2/announcement
+//  Admin view — full list (active + inactive).
 // ══════════════════════════════════════════════════════════════
 class AnnouncementListController extends GetxController {
   final items    = <Map<String, dynamic>>[].obs;
   final loading  = false.obs;
   final errorMsg = Rxn<String>();
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: _kBase,
-    connectTimeout: const Duration(seconds: 12),
-    receiveTimeout: const Duration(seconds: 12),
-  ));
+  // Cookie-attaching factory — announcement admin routes (GET /, POST,
+  // PUT, DELETE) are gated by isAdmin('admin') so a bare Dio() 401s.
+  final _dio = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/announcement',
+  );
 
   @override
   void onInit() {
@@ -43,7 +42,6 @@ class AnnouncementListController extends GetxController {
     }
   }
 
-  /// Soft-delete via DELETE /:id (backend flips isActive=false)
   Future<void> deactivate(String id) async {
     try {
       await _dio.delete("/$id");
@@ -64,8 +62,8 @@ class AnnouncementListController extends GetxController {
 
 // ══════════════════════════════════════════════════════════════
 //  AnnouncementFormController
-//  Drives create + edit screens. When `existing` is null, submits
-//  POST /; otherwise PUT /:id.
+//  Drives create + edit screens. POST when `existing` is null,
+//  otherwise PUT /:id.
 // ══════════════════════════════════════════════════════════════
 class AnnouncementFormController extends GetxController {
   final Map<String, dynamic>? existing;
@@ -89,11 +87,9 @@ class AnnouncementFormController extends GetxController {
 
   bool get isEdit => existing != null;
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: _kBase,
-    connectTimeout: const Duration(seconds: 12),
-    receiveTimeout: const Duration(seconds: 12),
-  ));
+  final _dio = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/announcement',
+  );
 
   @override
   void onInit() {

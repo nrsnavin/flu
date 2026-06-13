@@ -6,12 +6,6 @@ import '../../../core/api_client.dart';
 
 // ═════════════════════════════════════════════════════════════
 //  ElasticStockController
-//  Wraps the admin-facing elastic stock endpoints:
-//    GET   /api/v2/elastic/:id/stock        (AUTH)
-//    GET   /api/v2/elastic/stock-summary    (ADMIN)
-//    GET   /api/v2/elastic/reconcile        (ADMIN)
-//    POST  /api/v2/elastic/:id/adjust-stock (ADMIN)
-//    PATCH /api/v2/elastic/:id/min-stock    (ADMIN) — used by setMinStock
 // ═════════════════════════════════════════════════════════════
 class ElasticStockController extends GetxController {
   // ── Per-elastic detail state ────────────────
@@ -109,16 +103,28 @@ class ElasticStockController extends GetxController {
     }
   }
 
-  Future<bool> adjust({
+  /// Manual stock adjustment.
+  ///
+  /// [force] passes `force: true` in the request body so the backend
+  /// percentage cap (|delta| > max(100, 50% of currentStock)) lets
+  /// the write through. The UI should set this only after a second
+  /// confirm dialog acknowledging the large magnitude.
+  ///
+  /// Returns a result struct with `ok`, the raw error message (so the
+  /// caller can render the threshold-cap explainer), and whether the
+  /// failure looks like the magnitude cap.
+  Future<AdjustResult> adjust({
     required String elasticId,
     required double delta,
     required String reason,
+    bool force = false,
   }) async {
     try {
       adjusting.value = true;
       await _dio.post('/$elasticId/adjust-stock', data: {
-        'delta': delta,
+        'delta':  delta,
         'reason': reason,
+        if (force) 'force': true,
       });
       Get.snackbar(
         'Stock Adjusted',
@@ -130,23 +136,27 @@ class ElasticStockController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
       await fetchStock(elasticId);
-      return true;
+      return const AdjustResult(ok: true);
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? 'Failed to adjust stock';
-      Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
-          colorText: const Color(0xFFFFFFFF),
-          snackPosition: SnackPosition.BOTTOM);
-      return false;
+      final msg = (e.response?.data?['message'] as String?)
+          ?? 'Failed to adjust stock';
+      // Heuristic: the backend message starts with "Magnitude " when
+      // the percentage cap kicked in. Used by the page to offer the
+      // force-retry confirm.
+      final isCap = msg.startsWith('Magnitude ');
+      if (!isCap) {
+        Get.snackbar('Error', msg,
+            backgroundColor: const Color(0xFFDC2626),
+            colorText: const Color(0xFFFFFFFF),
+            snackPosition: SnackPosition.BOTTOM);
+      }
+      return AdjustResult(ok: false, message: msg, magnitudeCap: isCap);
     } finally {
       adjusting.value = false;
     }
   }
 
   /// Persist the low-stock threshold via the dedicated PATCH route.
-  /// Avoids the heavier /update-elastic flow, which would otherwise
-  /// recompute the costing snapshot on a partial payload and zero
-  /// out materialCost as a side effect.
   Future<bool> setMinStock(String elasticId, double value) async {
     try {
       final res = await _dio.patch('/$elasticId/min-stock', data: {
@@ -173,4 +183,15 @@ class ElasticStockController extends GetxController {
       return false;
     }
   }
+}
+
+class AdjustResult {
+  final bool ok;
+  final String? message;
+  final bool magnitudeCap;
+  const AdjustResult({
+    required this.ok,
+    this.message,
+    this.magnitudeCap = false,
+  });
 }

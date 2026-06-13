@@ -17,7 +17,7 @@ class PreparatoryView {
     return PreparatoryView(
       id: json['_id'],
       status: json['status'],
-      date: DateTime.parse(json['date']),
+      date: DateTime.tryParse(json['date']?.toString() ?? '') ?? DateTime(1970),
       elastics: (json['elasticOrdered'] ??
           json['elasticPlanned'] ??
           [])

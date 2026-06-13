@@ -5,6 +5,7 @@ import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
 import 'package:production/src/features/Orders/models/order_list_item.dart';
+import 'package:production/src/features/Orders/widgets/force_approval_dialog.dart';
 
 class OrderListController extends GetxController {
   // Use the shared singleton so the JWT cookie is attached automatically
@@ -46,10 +47,9 @@ class OrderListController extends GetxController {
         "/order/list",
         queryParameters: {"status": selectedStatus.value},
       );
+      final list = (res.data is Map ? res.data["orders"] : null) as List? ?? [];
       orders.assignAll(
-        (res.data["orders"] as List)
-            .map((e) => OrderListItem.fromJson(e))
-            .toList(),
+        list.map((e) => OrderListItem.fromJson(e)).toList(),
       );
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to load orders";
@@ -67,21 +67,67 @@ class OrderListController extends GetxController {
     fetchOrders();
   }
 
-  Future<void> approveOrder(String id) async {
+  Future<void> approveOrder(String id,
+      {bool force = false, String? forceReason}) async {
     actioningId.value = id;
     try {
-      await _dio.post("/order/approve",
-          data: {"orderId": id, "actor": buildActorPayload()});
+      await _dio.post("/order/approve", data: {
+        "orderId": id,
+        "actor":   buildActorPayload(),
+        if (force) "force": true,
+        if (force && forceReason != null) "forceReason": forceReason,
+      });
       Get.snackbar(
-        "Order Approved",
-        "Stock deducted successfully",
-        backgroundColor: const Color(0xFF16A34A),
+        force ? "Order Force-Approved" : "Order Approved",
+        force
+            ? "Approval forced despite insufficient raw stock"
+            : "Stock deducted successfully",
+        backgroundColor: force
+            ? const Color(0xFFD97706)
+            : const Color(0xFF16A34A),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
       );
       await fetchOrders();
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? "Approval failed";
+      // Mirror order_detail_controller: strict match on the
+      // structured code, with a message-substring fallback so the
+      // alert still fires against backends that predate the
+      // code/shortfall payload.
+      final data = e.response?.data;
+      final isMap = data is Map;
+      final code = isMap ? data['code'] : null;
+      final emsg = (isMap ? data['message']?.toString() : null) ?? '';
+      final shortfall = isMap && data['shortfall'] is Map
+          ? Map<String, dynamic>.from(data['shortfall'] as Map)
+          : null;
+      final looksLikeStockShort = code == 'INSUFFICIENT_STOCK' ||
+          emsg.toLowerCase().contains('insufficient stock');
+
+      final ctx = Get.overlayContext ?? Get.context;
+      if (looksLikeStockShort && ctx != null) {
+        actioningId.value = null;
+        final reason = await showForceApprovalDialog(
+          context: ctx,
+          shortfall: shortfall ??
+              {
+                'materialName': 'Raw materials',
+                'available':    0,
+                'required':     0,
+                'short':        0,
+              },
+          originalMessage: emsg.isNotEmpty
+              ? emsg
+              : 'Raw-material stock is short of the order requirement.',
+        );
+        if (reason != null) {
+          await approveOrder(id, force: true, forceReason: reason);
+        }
+        return;
+      }
+      final msg = (data is Map ? data['message']?.toString() : null) ??
+          "Approval failed";
       Get.snackbar("Error", msg,
           backgroundColor: const Color(0xFFDC2626),
           colorText: Colors.white,

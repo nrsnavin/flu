@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 
 
 // ──────────────────────────────────────────────────────────────
@@ -43,11 +44,7 @@ class CustomerController extends GetxController {
   final paymentTerms = "30".obs;
   final loading      = false.obs;
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: _kBase,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final _dio = ApiClient.buildClient(baseUrl: _kBase);
 
   Future<void> submitCustomer() async {
     try {
@@ -130,11 +127,7 @@ class CustomerListController extends GetxController {
   static const _limit = 20;
   Timer? _debounce;
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: _kBase,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final _dio = ApiClient.buildClient(baseUrl: _kBase);
 
   @override
   void onInit() {
@@ -214,7 +207,7 @@ class CustomerDetailController extends GetxController {
 
   Map<String, dynamic> get customerData => _customer;
 
-  final _dio = Dio(BaseOptions(baseUrl: _kBase));
+  final _dio = ApiClient.buildClient(baseUrl: _kBase);
 
   @override
   void onInit() {
@@ -226,7 +219,12 @@ class CustomerDetailController extends GetxController {
     try {
       loading.value = true;
       final res = await _dio.get("/customerDetail?id=$customerId");
-      _customer.value = Map<String, dynamic>.from(res.data['customer']);
+      final body = res.data is Map ? res.data['customer'] : null;
+      if (body is Map) {
+        _customer.assignAll(Map<String, dynamic>.from(body));
+      } else {
+        _customer.clear();
+      }
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to load customer";
       Get.snackbar("Error", msg,
@@ -281,7 +279,7 @@ class EditCustomerController extends GetxController {
   final status       = "Active".obs;
   final paymentTerms = "30".obs;
 
-  final _dio = Dio(BaseOptions(baseUrl: _kBase));
+  final _dio = ApiClient.buildClient(baseUrl: _kBase);
 
   @override
   void onInit() {
@@ -369,11 +367,7 @@ class CustomerOrdersController extends GetxController {
   bool _hasMore = true;
   static const _limit = 10;
 
-  final _dio = Dio(BaseOptions(
-    baseUrl: _kBase,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final _dio = ApiClient.buildClient(baseUrl: _kBase);
 
   @override
   void onInit() {

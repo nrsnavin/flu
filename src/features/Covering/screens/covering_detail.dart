@@ -1,23 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:production/src/features/Covering/screens/label.dart';
 import 'package:production/src/features/Covering/screens/pdf.dart' hide Expanded;
 
 import '../../PurchaseOrder/services/theme.dart';
 
 import '../controllers/detail_controller.dart';
 import '../models/covering.dart';
-
-// ══════════════════════════════════════════════════════════════
-//  COVERING DETAIL PAGE
-//
-//  FIX: original used Get.put() in build() → new controller every
-//       rebuild. Converted to StatefulWidget with initState().
-//  FIX: _header/_elasticCard/_jobSection all typed dynamic → no
-//       null safety. All widgets now use typed parameters.
-//  FIX: remarks in completeCovering was always null local var.
-//       Now uses controller.remarksCtrl.
-// ══════════════════════════════════════════════════════════════
 
 class CoveringDetailPage extends StatefulWidget {
   const CoveringDetailPage({super.key});
@@ -32,8 +22,10 @@ class _CoveringDetailPageState extends State<CoveringDetailPage> {
   @override
   void initState() {
     super.initState();
-    // FIX: Get.arguments is String (id), not List
-    final id = Get.arguments as String;
+    // Guard the route argument — navigating here without arguments
+    // (deep link, programmatic Get.to) used to crash on the cast.
+    final arg = Get.arguments;
+    final id = (arg is String && arg.isNotEmpty) ? arg : '';
     Get.delete<CoveringDetailController>(force: true);
     c = Get.put(CoveringDetailController(id));
   }
@@ -71,17 +63,14 @@ class _CoveringDetailPageState extends State<CoveringDetailPage> {
                 _RemarksCard(remarks: data.remarks!),
               if (data.remarks != null && data.remarks!.isNotEmpty)
                 const SizedBox(height: 12),
-              // Elastic program cards
               ...data.elasticPlanned
                   .map((e) => _ElasticProgramCard(detail: e))
                   .toList(),
               const SizedBox(height: 12),
-              // Action buttons
               _ActionSection(data: data, c: c),
               const SizedBox(height: 12),
               _BeamEntriesSection(data: data, c: c),
               const SizedBox(height: 12),
-              // PDF button
               _PdfButton(data: data),
             ]),
           ),
@@ -138,9 +127,6 @@ class _CoveringDetailPageState extends State<CoveringDetailPage> {
   }
 }
 
-// ══════════════════════════════════════════════════════════════
-//  HERO CARD
-// ══════════════════════════════════════════════════════════════
 class _HeroCard extends StatelessWidget {
   final CoveringDetail data;
   final CoveringDetailController c;
@@ -164,7 +150,6 @@ class _HeroCard extends StatelessWidget {
         ],
       ),
       child: Column(children: [
-        // Navy header
         Container(
           padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
           decoration: const BoxDecoration(
@@ -219,7 +204,6 @@ class _HeroCard extends StatelessWidget {
             ),
           ]),
         ),
-        // Stats strip
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
           child: Row(children: [
@@ -297,9 +281,6 @@ class _Stat extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  JOB CARD
-// ══════════════════════════════════════════════════════════════
 class _JobCard extends StatelessWidget {
   final JobSummary job;
   const _JobCard({required this.job});
@@ -321,9 +302,6 @@ class _JobCard extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  REMARKS CARD
-// ══════════════════════════════════════════════════════════════
 class _RemarksCard extends StatelessWidget {
   final String remarks;
   const _RemarksCard({required this.remarks});
@@ -353,10 +331,6 @@ class _RemarksCard extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  ELASTIC PROGRAM CARD
-//  (warpSpandex, spandexCovering, testingParameters per elastic)
-// ══════════════════════════════════════════════════════════════
 class _ElasticProgramCard extends StatelessWidget {
   final CoveringElasticDetail detail;
   const _ElasticProgramCard({required this.detail});
@@ -372,7 +346,6 @@ class _ElasticProgramCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // Header
         Container(
           padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
           decoration: const BoxDecoration(
@@ -412,13 +385,11 @@ class _ElasticProgramCard extends StatelessWidget {
           ]),
         ),
 
-        // Body
         Padding(
           padding: const EdgeInsets.all(14),
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Specs row ──────────────────────────────
                 Row(children: [
                   _SpecBox(Icons.straighten_outlined, 'WEIGHT',
                       '${el.weight} g'),
@@ -429,7 +400,6 @@ class _ElasticProgramCard extends StatelessWidget {
                 ]),
                 const SizedBox(height: 12),
 
-                // ── Warp Spandex ────────────────────────────
                 if (el.warpSpandex != null) ...[
                   _SectionLabel('🧶 Warp Spandex'),
                   const SizedBox(height: 6),
@@ -445,7 +415,6 @@ class _ElasticProgramCard extends StatelessWidget {
                   const SizedBox(height: 10),
                 ],
 
-                // ── Spandex Covering ────────────────────────
                 if (el.spandexCovering != null) ...[
                   _SectionLabel('🧵 Spandex Covering'),
                   const SizedBox(height: 6),
@@ -460,7 +429,6 @@ class _ElasticProgramCard extends StatelessWidget {
                   const SizedBox(height: 10),
                 ],
 
-                // ── Testing Parameters ─────────────────────
                 if (el.testing != null) ...[
                   _SectionLabel('📐 Testing Parameters'),
                   const SizedBox(height: 6),
@@ -582,9 +550,6 @@ class _SectionLabel extends StatelessWidget {
           letterSpacing: 0.3));
 }
 
-// ══════════════════════════════════════════════════════════════
-//  ACTION SECTION  (Start / Complete buttons)
-// ══════════════════════════════════════════════════════════════
 class _ActionSection extends StatelessWidget {
   final CoveringDetail data;
   final CoveringDetailController c;
@@ -599,7 +564,6 @@ class _ActionSection extends StatelessWidget {
 
       if (data.isOpen) {
         return Column(children: [
-          // Running indicator placeholder
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(14),
@@ -652,7 +616,6 @@ class _ActionSection extends StatelessWidget {
 
       if (data.isInProgress) {
         return Column(children: [
-          // Running indicator
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(14),
@@ -679,7 +642,6 @@ class _ActionSection extends StatelessWidget {
             ]),
           ),
           const SizedBox(height: 10),
-          // Remarks field
           TextFormField(
             controller: c.remarksCtrl,
             maxLines: 2,
@@ -723,9 +685,6 @@ class _ActionSection extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════
-//  PDF BUTTON
-// ══════════════════════════════════════════════════════════════
 class _PdfButton extends StatelessWidget {
   final CoveringDetail data;
   const _PdfButton({required this.data});
@@ -761,9 +720,6 @@ class _PdfButton extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  BEAM ENTRIES SECTION
-// ══════════════════════════════════════════════════════════════
 class _BeamEntriesSection extends StatefulWidget {
   final CoveringDetail data;
   final CoveringDetailController c;
@@ -780,7 +736,6 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
   void initState() {
     super.initState();
     c.isAddingBeam.listen((_) { if (mounted) setState(() {}); });
-    // Pre-fill next beam number
     c.beamNoCtrl.text = '${c.nextBeamNo}';
   }
 
@@ -796,7 +751,6 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
         border: Border.all(color: ErpColors.borderLight),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        // ── Section header ────────────────────────────────
         Container(
           padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
           decoration: const BoxDecoration(
@@ -824,7 +778,6 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.4)),
             ),
-            // Produced weight pill
             if (widget.data.producedWeight > 0)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -842,7 +795,6 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
                       fontWeight: FontWeight.w800),
                 ),
               ),
-            // Expected produce weight pill
             if (widget.data.expectedProduceWeight > 0) ...[
               const SizedBox(width: 6),
               Container(
@@ -912,12 +864,10 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
           ]),
         ),
 
-        // ── Add beam form ─────────────────────────────────
         if (_showForm && canEdit) _BeamEntryForm(c: c, onSaved: () {
           setState(() { _showForm = false; });
         }),
 
-        // ── Summary row ───────────────────────────────────
         if (entries.isNotEmpty)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -954,7 +904,6 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
             ),
           ),
 
-        // ── Entries list ──────────────────────────────────
         if (entries.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
@@ -973,9 +922,10 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
                 final be = entry.value;
                 final isLast = i == entries.length - 1;
                 return _BeamEntryRow(
-                  entry:   be,
-                  isLast:  isLast,
-                  canEdit: canEdit,
+                  entry:    be,
+                  covering: widget.data,
+                  isLast:   isLast,
+                  canEdit:  canEdit,
                   onDelete: canEdit
                       ? () => _confirmDelete(context, be)
                       : null,
@@ -1025,7 +975,6 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
   }
 }
 
-// ── Beam entry form ───────────────────────────────────────────
 class _BeamEntryForm extends StatelessWidget {
   final CoveringDetailController c;
   final VoidCallback onSaved;
@@ -1047,7 +996,6 @@ class _BeamEntryForm extends StatelessWidget {
                 fontWeight: FontWeight.w800)),
         const SizedBox(height: 12),
         Row(children: [
-          // Beam No
           Expanded(
             flex: 1,
             child: TextFormField(
@@ -1063,7 +1011,6 @@ class _BeamEntryForm extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          // Weight
           Expanded(
             flex: 2,
             child: TextFormField(
@@ -1131,18 +1078,33 @@ class _BeamEntryForm extends StatelessWidget {
   }
 }
 
-// ── Single beam entry row ─────────────────────────────────────
 class _BeamEntryRow extends StatelessWidget {
   final BeamEntry entry;
+  final CoveringDetail covering;
   final bool isLast;
   final bool canEdit;
   final VoidCallback? onDelete;
   const _BeamEntryRow({
     required this.entry,
+    required this.covering,
     required this.isLast,
     required this.canEdit,
     this.onDelete,
   });
+
+  Future<void> _printLabel() async {
+    try {
+      await CoveringBeamLabelPdf.generate(
+        entry: entry,
+        covering: covering,
+      );
+    } catch (e) {
+      Get.snackbar('Label Error', e.toString(),
+          backgroundColor: const Color(0xFFDC2626),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1155,7 +1117,6 @@ class _BeamEntryRow extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
       ),
       child: Row(children: [
-        // Beam number badge
         Container(
           width: 40, height: 40,
           decoration: BoxDecoration(
@@ -1194,6 +1155,22 @@ class _BeamEntryRow extends StatelessWidget {
                       color: ErpColors.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w900)),
+              if (entry.enteredByName != null) ...[
+                const SizedBox(width: 8),
+                const Icon(Icons.person_outline,
+                    size: 11, color: ErpColors.textMuted),
+                const SizedBox(width: 2),
+                Flexible(
+                  child: Text(
+                    entry.enteredByName!,
+                    style: const TextStyle(
+                        color: ErpColors.textSecondary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ]),
             const SizedBox(height: 2),
             Text(
@@ -1212,6 +1189,23 @@ class _BeamEntryRow extends StatelessWidget {
             ],
           ],
         )),
+        // Print label button — always visible (even when row is read-only,
+        // admins may want to re-print labels on closed coverings).
+        GestureDetector(
+          onTap: _printLabel,
+          child: Container(
+            width: 32, height: 32,
+            margin: const EdgeInsets.only(right: 6),
+            decoration: BoxDecoration(
+              color: ErpColors.accentBlue.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                  color: ErpColors.accentBlue.withOpacity(0.3)),
+            ),
+            child: const Icon(Icons.print_outlined,
+                size: 15, color: ErpColors.accentBlue),
+          ),
+        ),
         if (canEdit && onDelete != null)
           GestureDetector(
             onTap: onDelete,
@@ -1251,12 +1245,10 @@ class _BeamStat extends StatelessWidget {
 
 String _wt(double v) {
   if (v == v.truncateToDouble()) return v.toInt().toString();
-  // 3 decimal places max, trim trailing zeros
   final s = v.toStringAsFixed(3);
   return s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
 }
 
-// ── Error state ───────────────────────────────────────────────
 class _ErrorState extends StatelessWidget {
   final String msg;
   final VoidCallback retry;

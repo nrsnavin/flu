@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../models/PackingModel.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
+import '../../../core/api_client.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -12,13 +13,7 @@ import 'package:production/src/features/Orders/controllers/add_order_controller.
 // ══════════════════════════════════════════════════════════════
 
 class PackingApiService {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2',
-      connectTimeout: const Duration(seconds: 12),
-      receiveTimeout: const Duration(seconds: 12),
-    ),
-  );
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   /// GET /packing/grouped  → list of jobs with packing summary
   static Future<List<PackingJobSummary>> fetchGrouped() async {
@@ -264,6 +259,8 @@ class AddPackingController extends GetxController {
     super.onClose();
   }
 
+  Future<void> retry() => _loadInitialData();
+
   Future<void> _loadInitialData() async {
     isLoading.value = true;
     errorMsg.value  = null;
@@ -290,14 +287,18 @@ class AddPackingController extends GetxController {
     if (!_validate()) return false;
     isSaving.value = true;
     try {
+      // Defence in depth: form-level validate() should have caught
+      // these, but a field cleared after validation would crash the
+      // submit on `parse`. tryParse with sensible fallbacks keeps the
+      // POST going so the backend can apply its own validation.
       await PackingApiService.createPacking({
         'job':         selectedJob.value!.id,
         'elastic':     selectedElastic.value,
-        'meter':       double.parse(meterCtrl.text.trim()),
-        'joints':      int.parse(jointsCtrl.text.trim()),
-        'tareWeight':  double.parse(tareCtrl.text.trim()),
-        'netWeight':   double.parse(netCtrl.text.trim()),
-        'grossWeight': double.parse(grossCtrl.text.trim()),
+        'meter':       double.tryParse(meterCtrl.text.trim())  ?? 0,
+        'joints':      int.tryParse(jointsCtrl.text.trim())    ?? 0,
+        'tareWeight':  double.tryParse(tareCtrl.text.trim())   ?? 0,
+        'netWeight':   double.tryParse(netCtrl.text.trim())    ?? 0,
+        'grossWeight': double.tryParse(grossCtrl.text.trim())  ?? 0,
         'stretch':     stretchCtrl.text.trim(),
         'size':        sizeCtrl.text.trim(),
         'checkedBy':   selectedCheckedBy.value,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/checkingJobModel.dart';
+import '../../../core/api_client.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -10,20 +11,8 @@ import '../models/checkingJobModel.dart';
 // ══════════════════════════════════════════════════════════════
 
 class WastageApi {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2/wastage',
-      connectTimeout: const Duration(seconds: 12),
-      receiveTimeout: const Duration(seconds: 12),
-    ),
-  );
-  static final Dio _jobDio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2/job',
-      connectTimeout: const Duration(seconds: 12),
-      receiveTimeout: const Duration(seconds: 12),
-    ),
-  );
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/wastage');
+  static final Dio _jobDio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/job');
 
   static Future<List<WastageJobSummary>> fetchJobsWithWastage({
     String? status,
@@ -47,12 +36,12 @@ class WastageApi {
   static Future<WastageRecord> fetchDetail(String id) async {
     final res =
     await _dio.get('/get-detail', queryParameters: {'id': id});
+    final body = res.data is Map ? res.data['wastage'] : null;
     return WastageRecord.fromJson(
-        res.data['wastage'] as Map<String, dynamic>);
+      body is Map ? Map<String, dynamic>.from(body) : const <String, dynamic>{},
+    );
   }
 
-  // FIX: was calling /create-wastage on wrong router (wastage.js) with wrong
-  //      field names. Now calls /wastage/add-wastage with correct field names.
   static Future<WastageRecord> addWastage({
     required String jobId,
     required String elasticId,
@@ -69,12 +58,19 @@ class WastageApi {
       'penalty':  penalty,
       'reason':   reason,
     });
+    final body = res.data is Map ? res.data['wastage'] : null;
     return WastageRecord.fromJson(
-        res.data['wastage'] as Map<String, dynamic>);
+      body is Map ? Map<String, dynamic>.from(body) : const <String, dynamic>{},
+    );
   }
 
-  // FIX: was /job/jobs-checking (only "checking" status).
-  //      Now /wastage/jobs-for-wastage returns weaving/finishing/checking.
+  /// Admin-only undo. Calls `DELETE /api/v2/wastage/:id`. Backend
+  /// rolls back the per-job wastage counter and (for legacy entries
+  /// only) reverses any WASTAGE_OUT stock movement.
+  static Future<void> deleteWastage(String id) async {
+    await _dio.delete('/$id');
+  }
+
   static Future<List<WastageJobOption>> fetchJobsForWastage() async {
     final res = await _dio.get('/jobs-for-wastage');
     return (res.data['jobs'] as List? ?? [])
@@ -99,10 +95,6 @@ class WastageApi {
 
 // ══════════════════════════════════════════════════════════════
 //  WASTAGE LIST CONTROLLER  (jobs grouped)
-//
-//  BUGS FIXED:
-//  1. No filter/search support.
-//  2. No error state.
 // ══════════════════════════════════════════════════════════════
 
 class WastageListController extends GetxController {
@@ -111,7 +103,6 @@ class WastageListController extends GetxController {
   final errorMsg   = Rxn<String>();
   final statusFilter = Rxn<String>();
 
-  // Stats
   double get totalWastage =>
       jobs.fold(0.0, (s, j) => s + j.totalWastage);
   int get totalEntries =>
@@ -154,6 +145,7 @@ class WastageJobController extends GetxController {
   final wastages  = <WastageRecord>[].obs;
   final isLoading = true.obs;
   final errorMsg  = Rxn<String>();
+  final deleting  = false.obs;
 
   double get totalQty =>
       wastages.fold(0.0, (s, w) => s + w.quantity);
@@ -180,19 +172,51 @@ class WastageJobController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  /// Calls the admin DELETE endpoint and refetches the list so
+  /// totals stay accurate. Returns true on success.
+  Future<bool> removeOne(String id) async {
+    deleting.value = true;
+    try {
+      await WastageApi.deleteWastage(id);
+      // Optimistic local removal — refetch happens immediately
+      // after, but this keeps the UI snappy if the bottom sheet
+      // closes before fetch completes.
+      wastages.removeWhere((w) => w.id == id);
+      await fetch();
+      Get.snackbar(
+        'Deleted',
+        'Wastage entry removed',
+        backgroundColor: const Color(0xFF16A34A),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return true;
+    } on DioException catch (e) {
+      Get.snackbar(
+        'Error',
+        e.response?.data?['message'] as String? ?? 'Delete failed',
+        backgroundColor: const Color(0xFFDC2626),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    } catch (e) {
+      Get.snackbar(
+        'Error', e.toString(),
+        backgroundColor: const Color(0xFFDC2626),
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    } finally {
+      deleting.value = false;
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
 //  ADD WASTAGE CONTROLLER
-//
-//  BUGS FIXED:
-//  1. Fetched only "checking" jobs — now fetches weaving/finishing/checking.
-//  2. submitWastage() called wrong endpoint with wrong field names.
-//  3. int.parse(quantityController.text) crashed on empty field.
-//  4. double.parse(penaltyController.text) crashed on empty field.
-//  5. No try/catch on ANY API call — unhandled crashes.
-//  6. No loading state on submit.
-//  7. No error feedback on failed API calls.
 // ══════════════════════════════════════════════════════════════
 
 class AddWastageController extends GetxController {
@@ -233,7 +257,6 @@ class AddWastageController extends GetxController {
   Future<void> _fetchJobs() async {
     isLoadingJobs.value = true;
     try {
-      // FIX: was /jobs-checking (only checking). Now weaving/finishing/checking
       jobs.value = await WastageApi.fetchJobsForWastage();
     } on DioException catch (e) {
       errorMsg.value =
@@ -275,7 +298,6 @@ class AddWastageController extends GetxController {
     if (qStr.isEmpty) { _snack('Enter quantity',    isError: true); return false; }
     if (rsn.isEmpty)  { _snack('Enter a reason',    isError: true); return false; }
 
-    // FIX: was int.parse() — crashes on decimal / empty input
     final qty = double.tryParse(qStr);
     if (qty == null || qty <= 0) {
       _snack('Invalid quantity', isError: true);
@@ -285,9 +307,6 @@ class AddWastageController extends GetxController {
 
     isSaving.value = true;
     try {
-      // FIX: was calling /create-wastage with {job, elastic, employee}
-      //      field names while job.js /create-wastage expected {jobId, elasticId, employeeId}.
-      //      Now calls /wastage/add-wastage with correct {job, elastic, employee}.
       await WastageApi.addWastage(
         jobId:      job.id,
         elasticId:  el.id,
@@ -300,7 +319,6 @@ class AddWastageController extends GetxController {
       onSuccess?.call();
       return true;
     } on DioException catch (e) {
-      // FIX: was no try/catch at all
       _snack(
           e.response?.data?['message'] as String? ?? 'Failed to save',
           isError: true);

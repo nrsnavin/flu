@@ -3,15 +3,12 @@
 //  File: lib/src/features/production/controllers/analytics_controller.dart
 // ══════════════════════════════════════════════════════════════
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import 'package:get/get.dart';
 import '../models/analytics_model.dart';
 
 
-final _dio = Dio(BaseOptions(
-  baseUrl:        'http://13.233.117.153:2701/api/v2/production',
-  connectTimeout: const Duration(seconds: 15),
-  receiveTimeout: const Duration(seconds: 15),
-));
+final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/production');
 
 enum AnalyticsTab { overview, byMachine, byEmployee, arena, anomalies }
 
@@ -60,7 +57,10 @@ class AnalyticsController extends GetxController {
       if (filterEmployeeId.value != null) params['employeeId'] = filterEmployeeId.value;
 
       final res = await _dio.get('/analytics', queryParameters: params);
-      data.value = AnalyticsData.fromJson(res.data['data'] as Map<String,dynamic>);
+      final body = res.data is Map ? res.data['data'] : null;
+      data.value = AnalyticsData.fromJson(
+        body is Map ? Map<String, dynamic>.from(body) : const <String, dynamic>{},
+      );
     } on DioException catch (e) {
       errorMsg.value = e.response?.data?['message']?.toString() ?? 'Failed to fetch analytics';
     } catch (e) {

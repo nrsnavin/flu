@@ -3,15 +3,12 @@ import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 
 import '../screens/addElastic.dart';
 
 class ElasticDetailController extends GetxController {
-  final Dio dio = Dio(BaseOptions(
-    baseUrl:        "http://13.233.117.153:2701/api/v2/elastic",
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  final Dio dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2/elastic");
 
   final String elasticId;
   ElasticDetailController(this.elasticId);
@@ -85,13 +82,17 @@ class ElasticDetailController extends GetxController {
   /// Warp yarn options for plan dropdowns — extracted from elastic's
   /// warpYarn array after population (id is a Map with _id/name).
   List<Map<String, String>> get warpYarnOptions {
-    final yarns = elastic["warpYarn"] as List? ?? [];
+    final yarns = elastic["warpYarn"] as List? ?? const [];
     return yarns
-        .where((w) => w["id"] is Map && w["id"]["_id"] != null)
-        .map<Map<String, String>>((w) => {
-      "id":   w["id"]["_id"].toString(),
-      "name": w["id"]["name"]?.toString() ?? "—",
-    })
+        .whereType<Map>()
+        .where((w) => w["id"] is Map && (w["id"] as Map)["_id"] != null)
+        .map<Map<String, String>>((w) {
+          final id = w["id"] as Map;
+          return {
+            "id":   id["_id"].toString(),
+            "name": id["name"]?.toString() ?? "—",
+          };
+        })
         .toList();
   }
 

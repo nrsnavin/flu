@@ -151,8 +151,8 @@ class DCDetail {
     dcNumber:        j["dcNumber"]?.toString()       ?? "—",
     type:            j["type"]?.toString()           ?? "elastic",
     financialYear:   j["financialYear"]?.toString()  ?? "",
-    sequence:        (j["sequence"] ?? 0) as int,
-    orderNo:         j["orderNo"] as int?,
+    sequence:        (j["sequence"] as num?)?.toInt() ?? 0,
+    orderNo:         (j["orderNo"]  as num?)?.toInt(),
     customerName:    j["customerName"]?.toString()    ?? "—",
     customerPhone:   j["customerPhone"]?.toString()   ?? "",
     customerGstin:   j["customerGstin"]?.toString()   ?? "",
@@ -196,7 +196,7 @@ class OrderInfoForDC {
   });
 
   factory OrderInfoForDC.fromJson(Map<String, dynamic> j) => OrderInfoForDC(
-    orderNo:         (j["orderNo"] ?? 0) as int,
+    orderNo:         (j["orderNo"] as num?)?.toInt() ?? 0,
     customerName:    j["customer"]?["name"]?.toString()    ?? "",
     customerPhone:   j["customer"]?["phone"]?.toString()   ?? "",
     customerGstin:   j["customer"]?["gstin"]?.toString()   ?? "",

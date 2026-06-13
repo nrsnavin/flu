@@ -1,10 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/painting.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
+import 'package:production/src/core/api_client.dart';
 // import 'package:production/src/features/job/controllers/new_job_controller.dart';
 // import 'package:production/src/features/job/screens/jobDetailScreen.dart';
 import 'package:production/src/features/shiftProgram/models/employee.dart';
@@ -19,6 +18,13 @@ import '../models/ProductionDataModel.dart';
 
 class ShiftController extends GetxController {
   static ShiftController get find => Get.find();
+
+  // Route Dio through ApiClient.buildClient so the JWT cookie
+  // attaches; bare Dio() 401s on the admin-gated shift routes.
+  final _dio = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2',
+  );
+
   RxList<Employee> employeesWeave = (List<Employee>.of([])).obs;
   RxList<ShiftOpenListModel> shiftsOpen = (List<ShiftOpenListModel>.of([])).obs;
 
@@ -135,8 +141,8 @@ class ShiftController extends GetxController {
   ) async {
     try {
       isLoadingSp.value = true;
-      final response = await Dio().post(
-        'http://13.233.117.153:2701/api/v2/shift/create-shift',
+      final response = await _dio.post(
+        '/shift/create-shift',
         data: {
           'plan': plan,
           'date': date.toString(),
@@ -185,8 +191,8 @@ class ShiftController extends GetxController {
     String timer,
     String feedback,
   ) async {
-    final response = await Dio().post(
-      'http://13.233.117.153:2701/api/v2/shift/enter-shift-production',
+    final response = await _dio.post(
+      '/shift/enter-shift-production',
       data: {
         'production': production,
         'id': id,
@@ -208,107 +214,94 @@ class ShiftController extends GetxController {
     }
   }
 
+  // Five fetches below previously used bare `http.get` / `http.delete`
+  // against the hardcoded backend URL, bypassing the JWT cookie
+  // interceptor. Route everything through the `_dio` declared at
+  // the top of the class (built via ApiClient.buildClient).
+
   void getWeavingEmployees() async {
-    var url = Uri.parse(
-      "http://13.233.117.153:2701/api/v2/employee/get-employee-weave",
-    );
-    final response = await http.get(
-      url,
-      headers: {"Content-Type": "application/json"},
-    );
-    final Map<String, dynamic> body = json.decode(response.body);
-
-    var x = body['employees']
-        .map<Employee>((e) => Employee.fromJson(e))
-        .toList();
-
-    employeesWeave.value = x;
+    try {
+      final res = await _dio.get('/employee/get-employee-weave');
+      final body = res.data is Map ? res.data : const {};
+      final list = (body['employees'] as List?) ?? const [];
+      employeesWeave.value = list
+          .whereType<Map>()
+          .map((e) => Employee.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } on DioException catch (_) {
+      Get.snackbar('Error', 'Failed to load weaving employees');
+    }
   }
 
   void getShiftPlan(String id) async {
-    var url = Uri.parse(
-      "http://13.233.117.153:2701/api/v2/shift/shiftPlan?id=$id",
-    );
-    final response = await http.get(
-      url,
-      headers: {"Content-Type": "application/json"},
-    );
-    final Map<String, dynamic> body = json.decode(response.body);
+    try {
+      final res = await _dio.get('/shift/shiftPlan', queryParameters: {'id': id});
+      final body = res.data is Map ? res.data : const {};
+      final shift = (body['shift'] as Map?) ?? const {};
+      final planList = (shift['plan'] as List?) ?? const [];
 
-    var x = body['shift']['plan']
-        .map<ShiftOpenListModel>((e) => ShiftOpenListModel.fromJson(e))
-        .toList();
+      final x = planList
+          .whereType<Map>()
+          .map((e) => ShiftOpenListModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
 
-    var sPlan = ShiftPlanModel(
-      id: id,
-      description: body['shift']['description'],
-      production: body['shift']['totalProduction'],
-      shift: body['shift']['shift'],
-      date: body['shift']['date'],
-      plan: x,
-    );
+      shiftPLanRX.value = ShiftPlanModel(
+        id: id,
+        description: shift['description'],
+        production: shift['totalProduction'],
+        shift: shift['shift'],
+        date: shift['date'],
+        plan: x,
+      );
 
-    productionData.value = body['shift']['plan']
-        .map<ProductionRow>((e) => ProductionRow.fromJson(e))
-        .toList();
-
-    shiftPLanRX.value = sPlan;
-
-    // shiftsOpen.value = x;
+      productionData.value = planList
+          .whereType<Map>()
+          .map((e) => ProductionRow.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } on DioException catch (_) {
+      Get.snackbar('Error', 'Failed to load shift plan');
+    }
   }
 
   void getOpenShifts() async {
-    var url = Uri.parse(
-      "http://13.233.117.153:2701/api/v2/shift/all-open-shifts",
-    );
-    final response = await http.get(
-      url,
-      headers: {"Content-Type": "application/json"},
-    );
-    final Map<String, dynamic> body = json.decode(response.body);
-
-    var x = body['shifts']
-        .map<ShiftOpenListModel>((e) => ShiftOpenListModel.fromJson(e))
-        .toList();
-
-    shiftsOpen.value = x;
+    try {
+      final res = await _dio.get('/shift/all-open-shifts');
+      final body = res.data is Map ? res.data : const {};
+      final list = (body['shifts'] as List?) ?? const [];
+      shiftsOpen.value = list
+          .whereType<Map>()
+          .map((e) => ShiftOpenListModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } on DioException catch (_) {
+      Get.snackbar('Error', 'Failed to load open shifts');
+    }
   }
 
   void deleteShift(String id) async {
     try {
-      var url = Uri.parse(
-        "http://13.233.117.153:2701/api/v2/shift/deletePlan?id=" + id,
-      );
-      final response = await http.delete(
-        url,
-        headers: {"Content-Type": "application/json"},
-      );
-      if (response.statusCode == 200) {
-       // Get.to(SplashPage());
-        Get.snackbar("Success", "Deleted Successfully");
-        // exit(0);
+      final res = await _dio.delete('/shift/deletePlan', queryParameters: {'id': id});
+      if (res.statusCode == 200) {
+        Get.snackbar('Success', 'Deleted Successfully');
+      } else {
+        Get.snackbar('Failed', 'Not Deleted');
       }
-    } catch (e) {
-      Get.snackbar("Failed", "Not Deleteed ");
+    } catch (_) {
+      Get.snackbar('Failed', 'Not Deleted');
     }
   }
 
   void getOpenShiftDetail(String id) async {
     try {
       isLoading.value = true;
-
-      var url = Uri.parse(
-        "http://13.233.117.153:2701/api/v2/shift/shiftDetail?id=$id",
-      );
-      final response = await http.get(
-        url,
-        headers: {"Content-Type": "application/json"},
-      );
-      final Map<String, dynamic> body = json.decode(response.body);
-
-      shiftDetail.value = ShiftDetailModel.fromJson(body['shift']);
+      final res = await _dio.get('/shift/shiftDetail', queryParameters: {'id': id});
+      final body = res.data is Map ? res.data : const {};
+      final shift = body['shift'];
+      if (shift is Map) {
+        shiftDetail.value =
+            ShiftDetailModel.fromJson(Map<String, dynamic>.from(shift));
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load machines');
+      Get.snackbar('Error', 'Failed to load shift detail');
     } finally {
       isLoading.value = false;
     }

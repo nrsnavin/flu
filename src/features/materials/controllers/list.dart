@@ -5,16 +5,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 
 import '../models/RawMaterial.dart';
 
 
 class RawMaterialListController extends GetxController {
-  static final Dio _dio = Dio(BaseOptions(
-    baseUrl:        'http://13.233.117.153:2701/api/v2/materials',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/materials');
 
   // ── List state ─────────────────────────────────────────────
   final materials     = <RawMaterialListItem>[].obs;
@@ -53,8 +50,11 @@ class RawMaterialListController extends GetxController {
 
       final res = await _dio.get('/get-raw-materials',
           queryParameters: query);
-      materials.value = (res.data['materials'] as List)
-          .map((e) => RawMaterialListItem.fromJson(e as Map<String, dynamic>))
+      final rows = (res.data is Map ? res.data['materials'] : null) as List? ?? const [];
+      materials.value = rows
+          .whereType<Map>()
+          .map((e) => RawMaterialListItem.fromJson(
+                Map<String, dynamic>.from(e)))
           .toList();
     } on DioException catch (e) {
       Get.snackbar('Error',

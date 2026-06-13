@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../models/machine.dart';
+import '../../../core/api_client.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -11,13 +12,7 @@ import '../models/machine.dart';
 // ══════════════════════════════════════════════════════════════
 
 class MachineApiService {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ),
-  );
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   static Future<List<MachineListItem>> fetchAll() async {
     final res = await _dio.get('/machine/get-machines');
@@ -304,16 +299,12 @@ class MachineServiceLog {
 
   factory MachineServiceLog.fromJson(Map<String, dynamic> j) => MachineServiceLog(
     id:          j['_id']?.toString()          ?? '',
-    date:        j['date'] != null
-        ? DateTime.parse(j['date'] as String).toLocal()
-        : DateTime.now(),
+    date:        (DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now()).toLocal(),
     type:        j['type']?.toString()         ?? 'Other',
     description: j['description']?.toString()  ?? '',
     technician:  j['technician']?.toString()   ?? '',
     cost:        (j['cost'] as num?)?.toDouble() ?? 0,
-    nextServiceDate: j['nextServiceDate'] != null
-        ? DateTime.parse(j['nextServiceDate'] as String).toLocal()
-        : null,
+    nextServiceDate: DateTime.tryParse(j['nextServiceDate']?.toString() ?? '')?.toLocal(),
     resolved:    j['resolved'] as bool? ?? true,
   );
 }

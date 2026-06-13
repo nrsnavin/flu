@@ -4,6 +4,7 @@
 // Manages: config CRUD, bonus trigger, record listing, mark-paid, reset.
 
 import 'package:dio/dio.dart';
+import '../../../core/api_client.dart';
 import 'package:get/get.dart';
 
 // ─────────────────────────────────────────────────────────────
@@ -33,10 +34,10 @@ class BonusConfig {
     id:                j['_id'] as String? ?? '',
     year:              (j['year'] as num?)?.toInt() ?? DateTime.now().year,
     bonusLabel:        j['bonusLabel'] as String? ?? '',
-    bonusDate:         j['bonusDate'] != null ? DateTime.parse(j['bonusDate'] as String) : null,
+    bonusDate:         DateTime.tryParse(j['bonusDate']?.toString() ?? ''),
     yearlyWorkingDays: (j['yearlyWorkingDays'] as num?)?.toInt() ?? 300,
     status:            j['status'] as String? ?? 'pending',
-    triggeredAt:       j['triggeredAt'] != null ? DateTime.parse(j['triggeredAt'] as String) : null,
+    triggeredAt:       DateTime.tryParse(j['triggeredAt']?.toString() ?? ''),
   );
 }
 
@@ -124,7 +125,7 @@ class BonusRecord {
       multiplier:      (j['multiplier']     as num?)?.toDouble() ?? 0.25,
       bonusAmount:     (j['bonusAmount']    as num?)?.toDouble() ?? 0,
       status:          j['status']          as String? ?? 'pending',
-      paidAt:          j['paidAt'] != null ? DateTime.parse(j['paidAt'] as String) : null,
+      paidAt:          DateTime.tryParse(j['paidAt']?.toString() ?? ''),
     );
   }
 }
@@ -186,11 +187,7 @@ class EmployeeBonusRate {
 // ─────────────────────────────────────────────────────────────
 
 class _BonusApi {
-  static final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'http://13.233.117.153:2701/api/v2',
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 20),
-  ));
+  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
 
   static Future<Map<String, dynamic>> getConfig(int year) async {
     final r = await _dio.get('/bonus/config', queryParameters: {'year': year});

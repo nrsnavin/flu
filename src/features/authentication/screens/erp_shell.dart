@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
-import '../../dashboard/screens/dashboard_page.dart';
 import '../services/nav_registry.dart';
 import 'catalog_page.dart';
 import 'global_search_sheet.dart';
+import 'home_page.dart';
 import 'more_options.dart';
 import 'operations_page.dart';
 
@@ -55,7 +55,7 @@ class _ErpShellState extends State<ErpShell> {
 
   Widget _pageFor(int i) => _pages.putIfAbsent(i, () {
         switch (i) {
-          case 0: return const DashboardPage();
+          case 0: return const HomePage();
           case 1: return const OperationsPage();
           case 2: return const CatalogPage();
           case 3: return const MoreOptionsPage();

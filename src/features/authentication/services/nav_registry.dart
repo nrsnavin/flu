@@ -12,7 +12,6 @@ import 'package:production/src/features/Orders/screens/order_list_page.dart';
 import 'package:production/src/features/PurchaseOrder/controllers/add_po.dart';
 import 'package:production/src/features/PurchaseOrder/screnns/add_po.dart';
 import 'package:production/src/features/PurchaseOrder/screnns/po_list.dart';
-import 'package:production/src/features/PurchaseOrder/screnns/po_aging_page.dart';
 import 'package:production/src/features/ShiftPlan/screens/shift_plan_create.dart';
 import 'package:production/src/features/Warping/screens/warping_list.dart';
 import 'package:production/src/features/addendence/screens/attendence.dart';
@@ -23,15 +22,12 @@ import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
 import 'package:production/src/features/elastic/screens/stock_map_page.dart';
 import 'package:production/src/features/employees/screens/empList.dart';
 import 'package:production/src/features/feedback/screens/feedback_admin_list.dart';
-import 'package:production/src/features/machine_issue/screens/machine_issue_admin_list.dart';
 import 'package:production/src/features/machines/screens/machineList.dart';
-import 'package:production/src/features/machines/screens/maintenance_due_page.dart';
 import 'package:production/src/features/materials/screens/material_list_screenn.dart';
 import 'package:production/src/features/materials/screens/stock_adjust.dart';
 import 'package:production/src/features/packing/screens/AddPacking.dart';
 import 'package:production/src/features/packing/screens/PackingOverview.dart';
 import 'package:production/src/features/payroll/screens/payroll_page.dart';
-import 'package:production/src/features/shift/screens/pending_verification_page.dart';
 import 'package:production/src/features/shift/screens/shift_list_page.dart';
 import 'package:production/src/features/supplier/screen/supplier_list_page.dart';
 import 'package:production/src/features/wastage/screens/wastage_list.dart';
@@ -226,13 +222,6 @@ class NavRegistry extends GetxController {
       keywords: const ['new po', 'create po'],
       open: () => Get.to(() => AddPOPage(mode: POFormMode.create)),
     ),
-    NavModule(
-      id: 'po_aging', label: 'PO Aging',
-      icon: Icons.hourglass_bottom_rounded, section: 'CUSTOMERS & ORDERS',
-      keywords: const ['receipt aging', 'overdue po'],
-      open: () => Get.to(() => const POAgingPage()),
-    ),
-
     // PRODUCTION
     NavModule(
       id: 'elastics', label: 'Elastics',
@@ -318,12 +307,6 @@ class NavRegistry extends GetxController {
       open: () => Get.to(() => ShiftListPage()),
     ),
     NavModule(
-      id: 'pending_verification', label: 'Pending Verifications',
-      icon: Icons.hourglass_top_rounded, section: 'SHIFT MANAGEMENT',
-      keywords: const ['approve shifts', 'verify'],
-      open: () => Get.to(() => const PendingVerificationPage()),
-    ),
-    NavModule(
       id: 'attendance', label: 'Attendance',
       icon: Icons.event_available_outlined, section: 'SHIFT MANAGEMENT',
       keywords: const ['attendence'],
@@ -342,18 +325,6 @@ class NavRegistry extends GetxController {
       icon: Icons.feedback_outlined, section: 'HR & COMMUNICATION',
       keywords: const ['complaints', 'suggestions'],
       open: () => Get.to(() => const FeedbackAdminListPage()),
-    ),
-    NavModule(
-      id: 'machine_issues', label: 'Machine Issues',
-      icon: Icons.build_circle_outlined, section: 'HR & COMMUNICATION',
-      keywords: const ['breakdown', 'tickets'],
-      open: () => Get.to(() => const MachineIssueAdminListPage()),
-    ),
-    NavModule(
-      id: 'maintenance_due', label: 'Maintenance Due',
-      icon: Icons.engineering_outlined, section: 'HR & COMMUNICATION',
-      keywords: const ['service', 'preventive'],
-      open: () => Get.to(() => const MaintenanceDuePage()),
     ),
     NavModule(
       id: 'notice_board', label: 'Notice Board',

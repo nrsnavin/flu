@@ -9,18 +9,18 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../../production/screens/productionView.dart';
 import '../../shiftPlanView/screens/shiftPlanToday.dart';
 import '../controllers/login_controller.dart';
+import 'erp_shell.dart';
+
+// Flip to `false` to fall back to the legacy 5-tab shell while the
+// new adaptive shell rolls out.
+const bool kUseNewShell = true;
 
 // ══════════════════════════════════════════════════════════════
-//  HOME / SHELL — ERP Bottom Navigation
-//
-//  Tab 0 — Dashboard (KPI roll-up: jobs, leaves, attendance, stock)
-//  Tab 1 — Machines
-//  Tab 2 — Production
-//  Tab 3 — Today's Shift
-//  Tab 4 — More (Employees & every other module)
-//
-//  Previously tab 0 was the Employee list. With dashboard added,
-//  Employees moved into the More menu.
+//  HOME / SHELL — entry point.
+//  Defaults to `ErpShell` (adaptive bottom nav / side rail + global
+//  search + NavRegistry-driven module catalogue). Set
+//  `kUseNewShell = false` to fall back to the legacy 5-tab shell
+//  (Dashboard / Machines / Production / Shift / More).
 // ══════════════════════════════════════════════════════════════
 
 class Home extends StatefulWidget {
@@ -70,6 +70,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    if (kUseNewShell) return const ErpShell();
     return Scaffold(
       backgroundColor: ErpColors.bgBase,
       body: IndexedStack(

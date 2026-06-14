@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
+import 'package:get/get.dart' hide Response;
 import '../../../core/api_client.dart';
 
-/// Severity drives card colour + sort order. `high` floats to the
+/// Severity drives card colour + sort order. `high` floats
+/// to the
 /// front, `low` sinks to the back.
 enum AISuggestionPriority { high, med, low }
 

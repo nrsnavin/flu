@@ -125,7 +125,7 @@ class CoveringDetailController extends GetxController {
     try {
       await CoveringApiService.start(coveringId);
       await fetchDetail();
-      _snack('Started', 'Covering started for Job #${covering.value?.jobOrderNo ?? ''}',
+      _snack('Started', 'Covering started for Job #${covering.value?.job.jobOrderNo ?? ''}',
           isError: false);
     } on DioException catch (e) {
       _snack('Error',
@@ -146,7 +146,7 @@ class CoveringDetailController extends GetxController {
               : null);
       await fetchDetail();
       _snack('Completed',
-          'Covering marked complete for Job #${covering.value?.jobOrderNo ?? ''}',
+          'Covering marked complete for Job #${covering.value?.job.jobOrderNo ?? ''}',
           isError: false);
     } on DioException catch (e) {
       _snack('Error',

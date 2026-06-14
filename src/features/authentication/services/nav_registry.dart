@@ -25,6 +25,7 @@ import 'package:production/src/features/elastic/screens/stock_map_page.dart';
 import 'package:production/src/features/employees/screens/empList.dart';
 import 'package:production/src/features/feedback/screens/feedback_admin_list.dart';
 import 'package:production/src/features/machine_issue/screens/machine_issue_admin_list.dart';
+import 'package:production/src/features/ai_advisor/screens/advisor_settings_page.dart';
 import 'package:production/src/features/machines/screens/machineList.dart';
 import 'package:production/src/features/machines/screens/maintenance_due_page.dart';
 import 'package:production/src/features/materials/screens/material_list_screenn.dart';
@@ -238,6 +239,12 @@ class NavRegistry extends GetxController {
       icon: Icons.edit_note_rounded, section: 'CUSTOMERS & ORDERS',
       keywords: const ['low stock', 'auto po', 'reorder'],
       open: () => Get.to(() => const LowStockDraftPage()),
+    ),
+    NavModule(
+      id: 'advisor_settings', label: 'Advisor preferences',
+      icon: Icons.tune_rounded, section: 'CUSTOMERS & ORDERS',
+      keywords: const ['advisor', 'ai', 'suggestions', 'preferences'],
+      open: () => Get.to(() => const AdvisorSettingsPage()),
     ),
     // PRODUCTION
     NavModule(

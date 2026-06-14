@@ -5,6 +5,7 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../../authentication/services/nav_registry.dart';
 import '../screens/advisor_settings_page.dart';
 import '../services/ai_advisor.dart';
+import 'morning_briefing_card.dart';
 
 /// Horizontal strip of AI-generated action suggestions rendered above
 /// the KPI grid on the dashboard. Tapping a card opens the linked
@@ -28,6 +29,7 @@ class AISuggestionsStrip extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Header(advisor: advisor),
+          const MorningBriefingCard(),
           if (items.isNotEmpty)
             SizedBox(
               height: 116,

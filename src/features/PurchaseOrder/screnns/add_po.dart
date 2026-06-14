@@ -256,8 +256,10 @@ class _FormBody extends StatelessWidget {
                   index: i,
                   row: c.rows[i],
                   materials: c.materials,
+                  selectedSupplier: c.selectedSupplier.value,
                   onRemove: () => c.removeRow(i),
                   onChanged: () => c.rows.refresh(),
+                  onMaterialPicked: (mat) => c.setRowMaterial(i, mat),
                 )),
 
                 const SizedBox(height: 10),
@@ -384,15 +386,19 @@ class _ItemCard extends StatelessWidget {
   final int index;
   final POItemRow row;
   final List<MaterialMini> materials;
+  final SupplierMini? selectedSupplier;
   final VoidCallback onRemove;
   final VoidCallback onChanged;
+  final ValueChanged<MaterialMini?> onMaterialPicked;
 
   const _ItemCard({
     required this.index,
     required this.row,
     required this.materials,
+    required this.selectedSupplier,
     required this.onRemove,
     required this.onChanged,
+    required this.onMaterialPicked,
   });
 
   @override
@@ -484,11 +490,38 @@ class _ItemCard extends StatelessWidget {
                   ))
                       .toList(),
                   onChanged: (v) {
-                    row.material =
+                    final mat =
                         materials.firstWhereOrNull((m) => m.id == v);
-                    onChanged();
+                    onMaterialPicked(mat);
                   },
                 ),
+
+                // Hint when the picked material's usual supplier
+                // differs from the supplier already chosen on the
+                // form — purely informational, no action.
+                if (row.material?.defaultSupplierId != null &&
+                    selectedSupplier != null &&
+                    row.material!.defaultSupplierId != selectedSupplier!.id)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline_rounded,
+                            size: 12, color: ErpColors.textMuted),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            "Usually ordered from "
+                            "${row.material!.defaultSupplierName ?? 'another supplier'}",
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: ErpColors.textMuted,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
                 const SizedBox(height: 12),
 

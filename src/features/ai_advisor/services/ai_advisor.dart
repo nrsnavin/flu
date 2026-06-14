@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
@@ -62,11 +64,56 @@ class AIAdvisor extends GetxController {
   final _supplier = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/supplier',
   );
+  final _materials = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/materials',
+  );
+  final _leave = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/leave',
+  );
+  final _attendance = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/attendance',
+  );
+  final _employee = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/employee',
+  );
+  final _payroll = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/payroll',
+  );
+  final _job = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/job',
+  );
+  final _shiftAdvisor = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/shift',
+  );
+
+  /// `false` until we've issued the once-per-session payroll
+  /// auto-generate POST. Prevents the advisor from refiring the
+  /// trigger every 10 minutes when the periodic refresh kicks in.
+  bool _autoPayrollTriedThisSession = false;
+
+  /// How often the advisor re-fans its endpoints in the
+  /// background. 10 minutes is long enough that the network cost
+  /// is negligible and short enough that newly-breached thresholds
+  /// (low stock, late PO, conflict) surface within one shift.
+  static const _refreshInterval = Duration(minutes: 10);
+  Timer? _refreshTimer;
 
   @override
   void onInit() {
     super.onInit();
     refreshNow();
+    _refreshTimer = Timer.periodic(_refreshInterval, (_) {
+      // Skip if a refresh (manual or scheduled) is already in flight;
+      // back-pressure beats stacking parallel fan-outs.
+      if (!loading.value) refreshNow();
+    });
+  }
+
+  @override
+  void onClose() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+    super.onClose();
   }
 
   Future<void> refreshNow() async {
@@ -78,6 +125,16 @@ class AIAdvisor extends GetxController {
         _machine.get('/maintenance-due', queryParameters: {'days': 14})
             .catchError((_) => null),
         _supplier.get('/po-receipt-aging').catchError((_) => null),
+        _materials.get('/low-stock').catchError((_) => null),
+        _leave.get('/conflicts').catchError((_) => null),
+        _attendance.get('/recurring-latecomers').catchError((_) => null),
+        _employee.get('/performance-delta').catchError((_) => null),
+        _attendance.get('/repeatedly-unmarked').catchError((_) => null),
+        _autoGeneratePayrollIfDue(),
+        _job.get('/stale').catchError((_) => null),
+        _shiftAdvisor.get('/attendance-mismatch').catchError((_) => null),
+        _shiftAdvisor.get('/production-anomalies').catchError((_) => null),
+        _materials.get('/projected-stockout').catchError((_) => null),
       ]);
 
       final next = <AISuggestion>[];
@@ -85,6 +142,16 @@ class AIAdvisor extends GetxController {
       _fromPendingShifts(results[1], next);
       _fromMaintenance(results[2], next);
       _fromPoAging(results[3], next);
+      _fromLowStockMaterials(results[4], next);
+      _fromLeaveConflicts(results[5], next);
+      _fromLatecomers(results[6], next);
+      _fromPerfDelta(results[7], next);
+      _fromUnmarkedPattern(results[8], next);
+      _fromAutoPayroll(results[9], next);
+      _fromStaleJobs(results[10], next);
+      _fromShiftAttendanceMismatch(results[11], next);
+      _fromProductionAnomalies(results[12], next);
+      _fromProjectedStockout(results[13], next);
 
       // Stable sort by priority, then title.
       next.sort((a, b) {
@@ -232,5 +299,246 @@ class AIAdvisor extends GetxController {
         moduleId: 'po_aging',
       ));
     }
+  }
+
+  // ── Low-stock raw materials → auto-draft PO ─────────────────
+  void _fromLowStockMaterials(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final list = (body['materials'] as List?) ?? const [];
+    if (list.isEmpty) return;
+    final supplierIds = <String>{};
+    for (final m in list) {
+      if (m is Map) {
+        final sup = m['supplier'];
+        if (sup is Map && sup['_id'] != null) {
+          supplierIds.add(sup['_id'].toString());
+        }
+      }
+    }
+    final supplierCount = supplierIds.length;
+    out.add(AISuggestion(
+      id: 'low_stock_materials',
+      title:
+          '${list.length} material${list.length == 1 ? '' : 's'} below min stock',
+      subtitle: supplierCount > 1
+          ? 'Tap to draft POs to $supplierCount suppliers'
+          : 'Tap to draft a PO',
+      icon: Icons.edit_note_rounded,
+      priority: list.length >= 5
+          ? AISuggestionPriority.high
+          : AISuggestionPriority.med,
+      moduleId: 'low_stock_draft',
+    ));
+  }
+
+  // ── Leave ↔ shift schedule conflicts ────────────────────────
+  void _fromLeaveConflicts(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['conflicts'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    out.add(AISuggestion(
+      id: 'leave_shift_conflicts',
+      title: '$count schedule conflict${count == 1 ? '' : 's'}',
+      subtitle: 'Approved leave overlaps a confirmed shift',
+      icon: Icons.event_busy_outlined,
+      priority: AISuggestionPriority.high,
+      moduleId: 'pending_verification',
+    ));
+  }
+
+  // ── Recurring latecomers ────────────────────────────────────
+  void _fromLatecomers(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['employees'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    final days = (body['windowDays'] as num?)?.toInt() ?? 30;
+    final threshold = (body['threshold'] as num?)?.toInt() ?? 3;
+    out.add(AISuggestion(
+      id: 'recurring_latecomers',
+      title: '$count operator${count == 1 ? '' : 's'} frequently late',
+      subtitle: '>$threshold late marks in $days days',
+      icon: Icons.schedule_outlined,
+      priority: AISuggestionPriority.med,
+      moduleId: 'employees',
+    ));
+  }
+
+  // ── Performance-delta (efficiency drop MoM) ─────────────────
+  void _fromPerfDelta(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final list = (body['employees'] as List?) ?? const [];
+    if (list.isEmpty) return;
+    out.add(AISuggestion(
+      id: 'performance_delta',
+      title:
+          '${list.length} operator${list.length == 1 ? '' : 's'} dropping in efficiency',
+      subtitle: 'Down >15% vs last month — review training',
+      icon: Icons.trending_down_rounded,
+      priority: AISuggestionPriority.med,
+      moduleId: 'employees',
+    ));
+  }
+
+  // ── Repeatedly-unmarked attendance pattern ──────────────────
+  void _fromUnmarkedPattern(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['employees'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    final days = (body['windowDays'] as num?)?.toInt() ?? 7;
+    final threshold = (body['threshold'] as num?)?.toInt() ?? 2;
+    out.add(AISuggestion(
+      id: 'unmarked_pattern',
+      title: '$count operator${count == 1 ? '' : 's'} with attendance gaps',
+      subtitle: '>$threshold unmarked working days in $days',
+      icon: Icons.event_note_outlined,
+      priority: AISuggestionPriority.med,
+      moduleId: 'attendance',
+    ));
+  }
+
+  // ── Payroll auto-trigger (1st-of-month idempotent kick) ─────
+  //
+  // The advisor itself doesn't run payroll; it asks the backend to
+  // run it if the conditions are met. The backend's /auto-generate
+  // is idempotent (ALREADY_GENERATED short-circuits), so calling
+  // this every 10 minutes is technically safe, but we still gate
+  // it to once per session to keep the dashboard cheap.
+  Future<Response?> _autoGeneratePayrollIfDue() async {
+    if (_autoPayrollTriedThisSession) return null;
+    final day = DateTime.now().day;
+    if (day > 5) return null;            // miss-window safety
+    _autoPayrollTriedThisSession = true;
+    try {
+      return await _payroll.post('/auto-generate');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _fromAutoPayroll(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final triggered = body['triggered'] == true;
+    final period    = body['period']?.toString() ?? '';
+
+    if (triggered) {
+      final result    = (body['result'] as Map?) ?? const {};
+      final generated = (result['generated'] as num?)?.toInt() ?? 0;
+      if (generated <= 0) return;
+      out.add(AISuggestion(
+        id: 'payroll_auto_generated',
+        title: 'Payroll auto-generated for $period',
+        subtitle: '$generated operator${generated == 1 ? '' : 's'} processed',
+        icon: Icons.task_alt_rounded,
+        priority: AISuggestionPriority.low,
+        moduleId: 'payroll',
+      ));
+      return;
+    }
+
+    final reason = body['reason']?.toString();
+    if (reason == 'ATTENDANCE_INCOMPLETE') {
+      final pct = (body['completenessPct'] as num?)?.toInt() ?? 0;
+      out.add(AISuggestion(
+        id: 'payroll_blocked_attendance',
+        title: 'Payroll pending — attendance $pct% complete',
+        subtitle: 'Mark remaining days to unblock $period payroll',
+        icon: Icons.warning_amber_rounded,
+        priority: AISuggestionPriority.high,
+        moduleId: 'attendance',
+      ));
+    }
+    // ALREADY_GENERATED / NO_ACTIVE_EMPLOYEES → no card. Silence is correct.
+  }
+
+  // ── Stale jobs (idle > N days in same status) ───────────────
+  void _fromStaleJobs(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['jobs'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    final days = (body['windowDays'] as num?)?.toInt() ?? 14;
+    out.add(AISuggestion(
+      id: 'stale_jobs',
+      title: '$count job${count == 1 ? '' : 's'} idle >$days days',
+      subtitle: 'Stuck in same stage — review or close',
+      icon: Icons.history_toggle_off_rounded,
+      priority: AISuggestionPriority.low,
+      moduleId: 'jobs',
+    ));
+  }
+
+  // ── Shift ↔ attendance mismatch ─────────────────────────────
+  void _fromShiftAttendanceMismatch(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['mismatches'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    final days = (body['windowDays'] as num?)?.toInt() ?? 7;
+    out.add(AISuggestion(
+      id: 'shift_attendance_mismatch',
+      title:
+          '$count shift${count == 1 ? '' : 's'} without attendance',
+      subtitle: 'Closed shifts in last $days days lacking a mark',
+      icon: Icons.rule_folder_outlined,
+      priority: AISuggestionPriority.med,
+      moduleId: 'attendance',
+    ));
+  }
+
+  // ── Projected stockout (predictive low-stock) ───────────────
+  void _fromProjectedStockout(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final list = (body['materials'] as List?) ?? const [];
+    if (list.isEmpty) return;
+    final horizon = (body['horizonDays'] as num?)?.toInt() ?? 7;
+    // Soonest projected stockout drives the urgency copy.
+    double soonest = double.infinity;
+    for (final m in list) {
+      if (m is Map) {
+        final d = (m['daysToStockout'] as num?)?.toDouble();
+        if (d != null && d < soonest) soonest = d;
+      }
+    }
+    final soonestLabel = soonest.isFinite ? soonest.toStringAsFixed(0) : '?';
+    out.add(AISuggestion(
+      id: 'projected_stockout',
+      title:
+          '${list.length} material${list.length == 1 ? '' : 's'} projected to run out',
+      subtitle: 'Soonest in ~${soonestLabel}d — draft now to stay ahead',
+      icon: Icons.online_prediction_rounded,
+      priority: soonest <= 3
+          ? AISuggestionPriority.high
+          : AISuggestionPriority.med,
+      moduleId: 'low_stock_draft',
+    ));
+  }
+
+  // ── Production drop anomaly (per machine vs 30-day avg) ─────
+  void _fromProductionAnomalies(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final list = (body['machines'] as List?) ?? const [];
+    if (list.isEmpty) return;
+    out.add(AISuggestion(
+      id: 'production_anomaly',
+      title:
+          '${list.length} machine${list.length == 1 ? '' : 's'} producing below trend',
+      subtitle: 'Today is >30% under the 30-day average',
+      icon: Icons.trending_down_rounded,
+      priority: AISuggestionPriority.high,
+      moduleId: 'analytics',
+    ));
   }
 }

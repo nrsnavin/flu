@@ -59,12 +59,10 @@ class AISuggestionsStrip extends StatelessWidget {
                   : 'All clear',
               subtitle: advisor.lastFailureCount.value > 0
                   ? '${advisor.reachableRules}/${advisor.totalRules} '
-                    'signals reachable — '
-                    '${advisor.lastFailureCount.value} endpoint'
-                    '${advisor.lastFailureCount.value == 1 ? '' : 's'} '
-                    'unreachable'
-                  : '${advisor.totalRules} signals checked — '
-                    'nothing to flag right now',
+                    'signals reachable · tap for details'
+                  : '${advisor.totalRules} signals checked · '
+                    'tap for details',
+              onTap: () => _Header(advisor: advisor)._openDiagnostics(),
             ),
         ],
       );
@@ -347,56 +345,68 @@ class _StripMessage extends StatelessWidget {
   final Color tone;
   final String title;
   final String subtitle;
+  final VoidCallback? onTap;
 
   const _StripMessage({
     required this.icon,
     required this.tone,
     required this.title,
     required this.subtitle,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-      decoration: BoxDecoration(
-        color: ErpColors.bgSurface,
+    return Material(
+      color: ErpColors.bgSurface,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: ErpColors.borderLight),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: tone.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: tone, size: 18),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: ErpColors.borderLight),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: ErpColors.textPrimary,
-                    )),
-                const SizedBox(height: 2),
-                Text(subtitle,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: ErpColors.textSecondary,
-                    )),
-              ],
-            ),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: tone.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: tone, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: ErpColors.textPrimary,
+                        )),
+                    const SizedBox(height: 2),
+                    Text(subtitle,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: ErpColors.textSecondary,
+                        )),
+                  ],
+                ),
+              ),
+              if (onTap != null)
+                const Icon(Icons.chevron_right_rounded,
+                    size: 18, color: ErpColors.textMuted),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -65,6 +65,15 @@ class AIAdvisor extends GetxController {
   final _materials = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/materials',
   );
+  final _leave = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/leave',
+  );
+  final _attendance = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/attendance',
+  );
+  final _employee = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/employee',
+  );
 
   @override
   void onInit() {
@@ -82,6 +91,9 @@ class AIAdvisor extends GetxController {
             .catchError((_) => null),
         _supplier.get('/po-receipt-aging').catchError((_) => null),
         _materials.get('/low-stock').catchError((_) => null),
+        _leave.get('/conflicts').catchError((_) => null),
+        _attendance.get('/recurring-latecomers').catchError((_) => null),
+        _employee.get('/performance-delta').catchError((_) => null),
       ]);
 
       final next = <AISuggestion>[];
@@ -90,6 +102,9 @@ class AIAdvisor extends GetxController {
       _fromMaintenance(results[2], next);
       _fromPoAging(results[3], next);
       _fromLowStockMaterials(results[4], next);
+      _fromLeaveConflicts(results[5], next);
+      _fromLatecomers(results[6], next);
+      _fromPerfDelta(results[7], next);
 
       // Stable sort by priority, then title.
       next.sort((a, b) {
@@ -267,6 +282,59 @@ class AIAdvisor extends GetxController {
           ? AISuggestionPriority.high
           : AISuggestionPriority.med,
       moduleId: 'low_stock_draft',
+    ));
+  }
+
+  // ── Leave ↔ shift schedule conflicts ────────────────────────
+  void _fromLeaveConflicts(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['conflicts'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    out.add(AISuggestion(
+      id: 'leave_shift_conflicts',
+      title: '$count schedule conflict${count == 1 ? '' : 's'}',
+      subtitle: 'Approved leave overlaps a confirmed shift',
+      icon: Icons.event_busy_outlined,
+      priority: AISuggestionPriority.high,
+      moduleId: 'pending_verification',
+    ));
+  }
+
+  // ── Recurring latecomers ────────────────────────────────────
+  void _fromLatecomers(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['employees'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    final days = (body['windowDays'] as num?)?.toInt() ?? 30;
+    final threshold = (body['threshold'] as num?)?.toInt() ?? 3;
+    out.add(AISuggestion(
+      id: 'recurring_latecomers',
+      title: '$count operator${count == 1 ? '' : 's'} frequently late',
+      subtitle: '>$threshold late marks in $days days',
+      icon: Icons.schedule_outlined,
+      priority: AISuggestionPriority.med,
+      moduleId: 'employees',
+    ));
+  }
+
+  // ── Performance-delta (efficiency drop MoM) ─────────────────
+  void _fromPerfDelta(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final list = (body['employees'] as List?) ?? const [];
+    if (list.isEmpty) return;
+    out.add(AISuggestion(
+      id: 'performance_delta',
+      title:
+          '${list.length} operator${list.length == 1 ? '' : 's'} dropping in efficiency',
+      subtitle: 'Down >15% vs last month — review training',
+      icon: Icons.trending_down_rounded,
+      priority: AISuggestionPriority.med,
+      moduleId: 'employees',
     ));
   }
 }

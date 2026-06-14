@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import 'advisor_actions.dart';
 import 'advisor_prefs_store.dart';
 
 /// Severity drives card colour + sort order. `high` floats to the
@@ -43,6 +44,12 @@ class AISuggestion {
   final AISuggestionPriority priority;
   final String moduleId;
 
+  /// Optional "do it now" button that skips the navigation step. The
+  /// card body remains tap-to-open for the linked module — the
+  /// inline action is purely additive, never replaces it. Only set
+  /// for cards whose action is unambiguous and reversible.
+  final AdvisorInlineAction? inlineAction;
+
   const AISuggestion({
     required this.id,
     required this.title,
@@ -50,6 +57,22 @@ class AISuggestion {
     required this.icon,
     required this.priority,
     required this.moduleId,
+    this.inlineAction,
+  });
+}
+
+/// One-tap shortcut surfaced inline on a suggestion card. Only used
+/// for actions whose semantics are clear from the card itself, so
+/// the admin doesn't have to second-guess what happens.
+class AdvisorInlineAction {
+  final String label;
+  final IconData icon;
+  final Future<void> Function() onTap;
+
+  const AdvisorInlineAction({
+    required this.label,
+    required this.icon,
+    required this.onTap,
   });
 }
 
@@ -578,6 +601,11 @@ class AIAdvisor extends GetxController {
           ? AISuggestionPriority.high
           : AISuggestionPriority.med,
       moduleId: 'low_stock_draft',
+      inlineAction: AdvisorInlineAction(
+        label: supplierCount > 1 ? 'Draft POs' : 'Draft PO',
+        icon: Icons.edit_note_rounded,
+        onTap: AdvisorActions.draftLowStockPo,
+      ),
     ));
   }
 
@@ -771,6 +799,11 @@ class AIAdvisor extends GetxController {
           ? AISuggestionPriority.high
           : AISuggestionPriority.med,
       moduleId: 'low_stock_draft',
+      inlineAction: AdvisorInlineAction(
+        label: 'Draft now',
+        icon: Icons.online_prediction_rounded,
+        onTap: AdvisorActions.draftLowStockPo,
+      ),
     ));
   }
 

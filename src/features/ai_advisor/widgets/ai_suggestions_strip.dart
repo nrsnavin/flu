@@ -526,20 +526,91 @@ class _SuggestionCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Open',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: _accent,
+                if (s.inlineAction != null)
+                  _InlineActionBar(action: s.inlineAction!, tone: _accent)
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Open',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: _accent,
+                        ),
                       ),
-                    ),
-                    Icon(Icons.chevron_right_rounded,
-                        size: 16, color: _accent),
-                  ],
+                      Icon(Icons.chevron_right_rounded,
+                          size: 16, color: _accent),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The inline button surfaces a one-tap shortcut at the bottom of a
+/// card. Carries its own loading state so a slow draft fetch doesn't
+/// leave the admin tapping twice.
+class _InlineActionBar extends StatefulWidget {
+  final AdvisorInlineAction action;
+  final Color tone;
+  const _InlineActionBar({required this.action, required this.tone});
+
+  @override
+  State<_InlineActionBar> createState() => _InlineActionBarState();
+}
+
+class _InlineActionBarState extends State<_InlineActionBar> {
+  bool _busy = false;
+
+  Future<void> _run() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await widget.action.onTap();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = widget.tone;
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Material(
+        color: tone.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(6),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(6),
+          onTap: _busy ? null : _run,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 10, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_busy)
+                  SizedBox(
+                    width: 12, height: 12,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: tone),
+                  )
+                else
+                  Icon(widget.action.icon, size: 14, color: tone),
+                const SizedBox(width: 6),
+                Text(
+                  widget.action.label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: tone,
+                  ),
                 ),
               ],
             ),

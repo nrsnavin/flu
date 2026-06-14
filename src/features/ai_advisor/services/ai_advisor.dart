@@ -10,6 +10,25 @@ import '../../../core/api_client.dart';
 /// front, `low` sinks to the back.
 enum AISuggestionPriority { high, med, low }
 
+/// One row in the advisor diagnostic sheet. `count` is the raw
+/// signal volume the endpoint reported (e.g. number of pending
+/// shifts, number of low-stock materials) — when null it means the
+/// endpoint didn't return anything we could parse. `reached: false`
+/// means the catchError guard fired (network or auth failure).
+class EndpointDiagnostic {
+  final String label;
+  final String path;
+  final bool   reached;
+  final int?   count;
+
+  const EndpointDiagnostic({
+    required this.label,
+    required this.path,
+    required this.reached,
+    this.count,
+  });
+}
+
 /// One actionable nudge shown in the dashboard strip.
 ///
 /// `moduleId` is a NavRegistry id — tapping the card routes through
@@ -64,6 +83,11 @@ class AIAdvisor extends GetxController {
   /// silently masquerading as "all clear".
   final lastFailureCount = 0.obs;
   int _expectedFetchCount = 0;
+
+  /// Per-endpoint diagnostic so the strip can show "why is it
+  /// empty?" — every rule's last reach state plus the count it
+  /// found. Populated at the end of every refresh round.
+  final endpointDiagnostics = <EndpointDiagnostic>[].obs;
 
   final _dash = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/dashboard',
@@ -181,9 +205,73 @@ class AIAdvisor extends GetxController {
           results.where((r) => r == null).length -
               (results[9] == null ? 1 : 0);
       lastFetchAt.value = DateTime.now();
+
+      // Snapshot per-endpoint reach status so the user can pop the
+      // diagnostic sheet and answer "why is it empty?" themselves.
+      endpointDiagnostics.assignAll([
+        _diag('Dashboard KPIs',          '/dashboard/kpis',                results[0],  _countFromKpis),
+        _diag('Pending shifts',          '/shift/pending-verification',    results[1],  (b) => _list(b, 'shifts').length),
+        _diag('Maintenance due',         '/machine/maintenance-due',       results[2],  (b) => (b['overdueCount'] as num?)?.toInt() ?? _list(b, 'data').length),
+        _diag('PO receipt aging',        '/supplier/po-receipt-aging',     results[3],  _countFromPoAging),
+        _diag('Low-stock materials',     '/materials/low-stock',           results[4],  (b) => _list(b, 'materials').length),
+        _diag('Leave-shift conflicts',   '/leave/conflicts',               results[5],  (b) => _list(b, 'conflicts').length),
+        _diag('Recurring latecomers',    '/attendance/recurring-latecomers', results[6], (b) => _list(b, 'employees').length),
+        _diag('Performance delta',       '/employee/performance-delta',    results[7],  (b) => _list(b, 'employees').length),
+        _diag('Attendance gaps',         '/attendance/repeatedly-unmarked', results[8], (b) => _list(b, 'employees').length),
+        _diag('Payroll auto-trigger',    '/payroll/auto-generate',         results[9],  (_) => null),
+        _diag('Stale jobs',              '/job/stale',                     results[10], (b) => _list(b, 'jobs').length),
+        _diag('Shift-attendance mismatch', '/shift/attendance-mismatch',   results[11], (b) => _list(b, 'mismatches').length),
+        _diag('Production drop',         '/shift/production-anomalies',    results[12], (b) => _list(b, 'machines').length),
+        _diag('Projected stockout',      '/materials/projected-stockout',  results[13], (b) => _list(b, 'materials').length),
+      ]);
     } finally {
       loading.value = false;
     }
+  }
+
+  // ── Diagnostic helpers ──────────────────────────────────────
+  EndpointDiagnostic _diag(
+    String label,
+    String path,
+    Response? res,
+    int? Function(Map body) count,
+  ) {
+    if (res == null) {
+      return EndpointDiagnostic(label: label, path: path, reached: false);
+    }
+    final body = res.data is Map
+        ? Map<String, dynamic>.from(res.data as Map)
+        : <String, dynamic>{};
+    return EndpointDiagnostic(
+      label:   label,
+      path:    path,
+      reached: true,
+      count:   count(body),
+    );
+  }
+
+  List _list(Map body, String key) {
+    final v = body[key];
+    if (v is List) return v;
+    return const [];
+  }
+
+  int? _countFromKpis(Map body) {
+    final data = body['data'] is Map ? body['data'] as Map : null;
+    if (data == null) return null;
+    final low = data['lowStock'] is Map ? data['lowStock'] as Map : null;
+    return (low?['count'] as num?)?.toInt() ?? 0;
+  }
+
+  int? _countFromPoAging(Map body) {
+    final summary = (body['summary'] as Map?) ??
+        (body['buckets'] as Map?) ??
+        const {};
+    int total = 0;
+    for (final v in summary.values) {
+      if (v is num) total += v.toInt();
+    }
+    return total;
   }
 
   /// True when most fetches in the last round failed — the strip
@@ -194,6 +282,20 @@ class AIAdvisor extends GetxController {
       lastFetchAt.value != null &&
       _expectedFetchCount > 0 &&
       lastFailureCount.value * 2 > _expectedFetchCount;
+
+  /// Total number of rules evaluated in the last `refreshNow` round
+  /// (subtracting the side-effect payroll trigger). Used by the
+  /// strip's empty-state to communicate "X signals checked".
+  int get totalRules =>
+      _expectedFetchCount > 0 ? _expectedFetchCount - 1 : 0;
+
+  /// Number of rule endpoints that returned successfully — useful
+  /// for the empty-state to surface "11/13 reachable" so a partial
+  /// outage is visible even when it doesn't cross the offline gate.
+  int get reachableRules =>
+      _expectedFetchCount > 0
+          ? totalRules - lastFailureCount.value
+          : 0;
 
   // ── KPIs ────────────────────────────────────────────────────
   void _fromKpis(Response? res, List<AISuggestion> out) {
@@ -308,14 +410,21 @@ class AIAdvisor extends GetxController {
   void _fromPoAging(Response? res, List<AISuggestion> out) {
     if (res == null) return;
     final body = res.data is Map ? res.data : const {};
-    final buckets = (body['buckets'] as Map?) ?? const {};
-    final critical = (buckets['critical'] as num?)?.toInt() ?? 0;
-    final late = (buckets['late'] as num?)?.toInt() ?? 0;
+    // Backend returns the bucket counts under `summary` (legacy code
+    // here read `buckets` which never matched — POs over 30 days old
+    // were silently invisible to the advisor).
+    final summary = (body['summary'] as Map?) ??
+        (body['buckets'] as Map?) ??
+        const {};
+    final critical = (summary['critical'] as num?)?.toInt() ?? 0;
+    final late     = (summary['late']     as num?)?.toInt() ?? 0;
+    final watch    = (summary['watch']    as num?)?.toInt() ?? 0;
+
     if (critical > 0) {
       out.add(AISuggestion(
         id: 'po_critical',
         title: '$critical PO${critical == 1 ? '' : 's'} critically overdue',
-        subtitle: 'Escalate with suppliers today',
+        subtitle: 'Open >60 days — escalate with suppliers',
         icon: Icons.priority_high_rounded,
         priority: AISuggestionPriority.high,
         moduleId: 'po_aging',
@@ -324,9 +433,21 @@ class AIAdvisor extends GetxController {
       out.add(AISuggestion(
         id: 'po_late',
         title: '$late PO${late == 1 ? '' : 's'} late on receipt',
-        subtitle: 'Chase suppliers for status',
+        subtitle: 'Open 31–60 days — chase suppliers',
         icon: Icons.hourglass_bottom_rounded,
         priority: AISuggestionPriority.med,
+        moduleId: 'po_aging',
+      ));
+    } else if (watch > 0) {
+      // The "watch" bucket (8–30 days) used to be silent. Surfacing
+      // it as a low-priority nudge keeps overdue receipts visible
+      // before they age into the harder buckets.
+      out.add(AISuggestion(
+        id: 'po_watch',
+        title: '$watch PO${watch == 1 ? '' : 's'} pending receipt >7 days',
+        subtitle: 'Confirm expected delivery dates',
+        icon: Icons.schedule_rounded,
+        priority: AISuggestionPriority.low,
         moduleId: 'po_aging',
       ));
     }

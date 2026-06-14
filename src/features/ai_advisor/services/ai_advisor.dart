@@ -62,6 +62,9 @@ class AIAdvisor extends GetxController {
   final _supplier = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/supplier',
   );
+  final _materials = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/materials',
+  );
 
   @override
   void onInit() {
@@ -78,6 +81,7 @@ class AIAdvisor extends GetxController {
         _machine.get('/maintenance-due', queryParameters: {'days': 14})
             .catchError((_) => null),
         _supplier.get('/po-receipt-aging').catchError((_) => null),
+        _materials.get('/low-stock').catchError((_) => null),
       ]);
 
       final next = <AISuggestion>[];
@@ -85,6 +89,7 @@ class AIAdvisor extends GetxController {
       _fromPendingShifts(results[1], next);
       _fromMaintenance(results[2], next);
       _fromPoAging(results[3], next);
+      _fromLowStockMaterials(results[4], next);
 
       // Stable sort by priority, then title.
       next.sort((a, b) {
@@ -232,5 +237,36 @@ class AIAdvisor extends GetxController {
         moduleId: 'po_aging',
       ));
     }
+  }
+
+  // ── Low-stock raw materials → auto-draft PO ─────────────────
+  void _fromLowStockMaterials(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final list = (body['materials'] as List?) ?? const [];
+    if (list.isEmpty) return;
+    final supplierIds = <String>{};
+    for (final m in list) {
+      if (m is Map) {
+        final sup = m['supplier'];
+        if (sup is Map && sup['_id'] != null) {
+          supplierIds.add(sup['_id'].toString());
+        }
+      }
+    }
+    final supplierCount = supplierIds.length;
+    out.add(AISuggestion(
+      id: 'low_stock_materials',
+      title:
+          '${list.length} material${list.length == 1 ? '' : 's'} below min stock',
+      subtitle: supplierCount > 1
+          ? 'Tap to draft POs to $supplierCount suppliers'
+          : 'Tap to draft a PO',
+      icon: Icons.edit_note_rounded,
+      priority: list.length >= 5
+          ? AISuggestionPriority.high
+          : AISuggestionPriority.med,
+      moduleId: 'low_stock_draft',
+    ));
   }
 }

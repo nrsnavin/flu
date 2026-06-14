@@ -120,6 +120,23 @@ class AddPOController extends GetxController {
 
   void addRow() => rows.add(POItemRow());
 
+  /// Set the material on a row and, if the form's supplier slot is
+  /// still empty, auto-pick the material's default supplier. We never
+  /// override a supplier the user has already chosen — POs are
+  /// single-supplier and silently swapping it would invalidate other
+  /// rows.
+  void setRowMaterial(int rowIndex, MaterialMini? mat) {
+    if (rowIndex < 0 || rowIndex >= rows.length) return;
+    rows[rowIndex].material = mat;
+    rows.refresh();
+    if (mat == null) return;
+    if (selectedSupplier.value == null && mat.defaultSupplierId != null) {
+      final match =
+          suppliers.firstWhereOrNull((s) => s.id == mat.defaultSupplierId);
+      if (match != null) selectedSupplier.value = match;
+    }
+  }
+
   void removeRow(int index) {
     rows[index].dispose();
     rows.removeAt(index);

@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../../authentication/services/nav_registry.dart';
+import '../screens/advisor_settings_page.dart';
 import '../services/ai_advisor.dart';
+import 'morning_briefing_card.dart';
 
 /// Horizontal strip of AI-generated action suggestions rendered above
 /// the KPI grid on the dashboard. Tapping a card opens the linked
@@ -27,6 +29,7 @@ class AISuggestionsStrip extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Header(advisor: advisor),
+          const MorningBriefingCard(),
           if (items.isNotEmpty)
             SizedBox(
               height: 116,
@@ -215,19 +218,35 @@ class _DiagnosticsSheet extends StatelessWidget {
           Padding(
             padding: EdgeInsets.fromLTRB(
                 16, 12, 16, MediaQuery.of(context).padding.bottom + 14),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      advisor.refreshNow();
-                    },
-                    icon: const Icon(Icons.refresh_rounded, size: 16),
-                    label: const Text('Refresh now'),
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          advisor.refreshNow();
+                        },
+                        icon: const Icon(Icons.refresh_rounded, size: 16),
+                        label: const Text('Refresh now'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Get.back();
+                          Get.to(() => const AdvisorSettingsPage());
+                        },
+                        icon: const Icon(Icons.tune_rounded, size: 16),
+                        label: const Text('Preferences'),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Expanded(
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
                   child: FilledButton(
                     onPressed: () => Get.back(),
                     child: const Text('Close'),
@@ -509,20 +528,91 @@ class _SuggestionCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Open',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: _accent,
+                if (s.inlineAction != null)
+                  _InlineActionBar(action: s.inlineAction!, tone: _accent)
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Open',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: _accent,
+                        ),
                       ),
-                    ),
-                    Icon(Icons.chevron_right_rounded,
-                        size: 16, color: _accent),
-                  ],
+                      Icon(Icons.chevron_right_rounded,
+                          size: 16, color: _accent),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The inline button surfaces a one-tap shortcut at the bottom of a
+/// card. Carries its own loading state so a slow draft fetch doesn't
+/// leave the admin tapping twice.
+class _InlineActionBar extends StatefulWidget {
+  final AdvisorInlineAction action;
+  final Color tone;
+  const _InlineActionBar({required this.action, required this.tone});
+
+  @override
+  State<_InlineActionBar> createState() => _InlineActionBarState();
+}
+
+class _InlineActionBarState extends State<_InlineActionBar> {
+  bool _busy = false;
+
+  Future<void> _run() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await widget.action.onTap();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = widget.tone;
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Material(
+        color: tone.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(6),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(6),
+          onTap: _busy ? null : _run,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 10, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_busy)
+                  SizedBox(
+                    width: 12, height: 12,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: tone),
+                  )
+                else
+                  Icon(widget.action.icon, size: 14, color: tone),
+                const SizedBox(width: 6),
+                Text(
+                  widget.action.label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: tone,
+                  ),
                 ),
               ],
             ),

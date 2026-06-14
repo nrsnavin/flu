@@ -74,6 +74,14 @@ class AIAdvisor extends GetxController {
   final _employee = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/employee',
   );
+  final _payroll = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/payroll',
+  );
+
+  /// `false` until we've issued the once-per-session payroll
+  /// auto-generate POST. Prevents the advisor from refiring the
+  /// trigger every 10 minutes when the periodic refresh kicks in.
+  bool _autoPayrollTriedThisSession = false;
 
   @override
   void onInit() {
@@ -94,6 +102,8 @@ class AIAdvisor extends GetxController {
         _leave.get('/conflicts').catchError((_) => null),
         _attendance.get('/recurring-latecomers').catchError((_) => null),
         _employee.get('/performance-delta').catchError((_) => null),
+        _attendance.get('/repeatedly-unmarked').catchError((_) => null),
+        _autoGeneratePayrollIfDue(),
       ]);
 
       final next = <AISuggestion>[];
@@ -105,6 +115,8 @@ class AIAdvisor extends GetxController {
       _fromLeaveConflicts(results[5], next);
       _fromLatecomers(results[6], next);
       _fromPerfDelta(results[7], next);
+      _fromUnmarkedPattern(results[8], next);
+      _fromAutoPayroll(results[9], next);
 
       // Stable sort by priority, then title.
       next.sort((a, b) {
@@ -336,5 +348,79 @@ class AIAdvisor extends GetxController {
       priority: AISuggestionPriority.med,
       moduleId: 'employees',
     ));
+  }
+
+  // ── Repeatedly-unmarked attendance pattern ──────────────────
+  void _fromUnmarkedPattern(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['employees'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    final days = (body['windowDays'] as num?)?.toInt() ?? 7;
+    final threshold = (body['threshold'] as num?)?.toInt() ?? 2;
+    out.add(AISuggestion(
+      id: 'unmarked_pattern',
+      title: '$count operator${count == 1 ? '' : 's'} with attendance gaps',
+      subtitle: '>$threshold unmarked working days in $days',
+      icon: Icons.event_note_outlined,
+      priority: AISuggestionPriority.med,
+      moduleId: 'attendance',
+    ));
+  }
+
+  // ── Payroll auto-trigger (1st-of-month idempotent kick) ─────
+  //
+  // The advisor itself doesn't run payroll; it asks the backend to
+  // run it if the conditions are met. The backend's /auto-generate
+  // is idempotent (ALREADY_GENERATED short-circuits), so calling
+  // this every 10 minutes is technically safe, but we still gate
+  // it to once per session to keep the dashboard cheap.
+  Future<Response?> _autoGeneratePayrollIfDue() async {
+    if (_autoPayrollTriedThisSession) return null;
+    final day = DateTime.now().day;
+    if (day > 5) return null;            // miss-window safety
+    _autoPayrollTriedThisSession = true;
+    try {
+      return await _payroll.post('/auto-generate');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _fromAutoPayroll(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final triggered = body['triggered'] == true;
+    final period    = body['period']?.toString() ?? '';
+
+    if (triggered) {
+      final result    = (body['result'] as Map?) ?? const {};
+      final generated = (result['generated'] as num?)?.toInt() ?? 0;
+      if (generated <= 0) return;
+      out.add(AISuggestion(
+        id: 'payroll_auto_generated',
+        title: 'Payroll auto-generated for $period',
+        subtitle: '$generated operator${generated == 1 ? '' : 's'} processed',
+        icon: Icons.task_alt_rounded,
+        priority: AISuggestionPriority.low,
+        moduleId: 'payroll',
+      ));
+      return;
+    }
+
+    final reason = body['reason']?.toString();
+    if (reason == 'ATTENDANCE_INCOMPLETE') {
+      final pct = (body['completenessPct'] as num?)?.toInt() ?? 0;
+      out.add(AISuggestion(
+        id: 'payroll_blocked_attendance',
+        title: 'Payroll pending — attendance $pct% complete',
+        subtitle: 'Mark remaining days to unblock $period payroll',
+        icon: Icons.warning_amber_rounded,
+        priority: AISuggestionPriority.high,
+        moduleId: 'attendance',
+      ));
+    }
+    // ALREADY_GENERATED / NO_ACTIVE_EMPLOYEES → no card. Silence is correct.
   }
 }

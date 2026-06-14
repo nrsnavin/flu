@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
+import '../../ai_advisor/widgets/ai_suggestions_strip.dart';
+import '../../ai_advisor/services/ai_advisor.dart';
 import '../../announcement/screens/announcement_list.dart';
 import '../../feedback/screens/feedback_admin_list.dart';
 import '../../Job/screens/job_list_screen.dart';
@@ -60,10 +62,17 @@ class DashboardPage extends StatelessWidget {
           );
         }
         return RefreshIndicator(
-          onRefresh: ctrl.fetch,
+          onRefresh: () async {
+            await Future.wait([
+              ctrl.fetch(),
+              AIAdvisor.instance.refreshNow(),
+            ]);
+          },
           child: ListView(
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
             children: [
+              const AISuggestionsStrip(),
+              const SizedBox(height: 14),
               _KpiGrid(ctrl: ctrl),
               const SizedBox(height: 12),
               _PendingShiftsBanner(ctrl: ctrl),

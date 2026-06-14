@@ -122,6 +122,9 @@ class AIAdvisor extends GetxController {
   final _shiftAdvisor = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/shift',
   );
+  final _order = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/order',
+  );
 
   /// `false` until we've issued the once-per-session payroll
   /// auto-generate POST. Prevents the advisor from refiring the
@@ -193,6 +196,9 @@ class AIAdvisor extends GetxController {
         _safe(_shiftAdvisor,'/attendance-mismatch'),
         _safe(_shiftAdvisor,'/production-anomalies'),
         _safe(_materials,   '/projected-stockout'),
+        _safe(_job,         '/wastage-outliers'),
+        _safe(_order,       '/delivery-risk'),
+        _safe(_payroll,     '/outstanding-advances'),
       ]);
 
       // One-line debug summary so the user can copy-paste from the
@@ -218,6 +224,9 @@ class AIAdvisor extends GetxController {
       _fromShiftAttendanceMismatch(results[11], next);
       _fromProductionAnomalies(results[12], next);
       _fromProjectedStockout(results[13], next);
+      _fromWastageOutliers(results[14], next);
+      _fromDeliveryRisk(results[15], next);
+      _fromOutstandingAdvances(results[16], next);
 
       // Stable sort by priority, then title.
       next.sort((a, b) {
@@ -252,6 +261,9 @@ class AIAdvisor extends GetxController {
         _diag('Shift-attendance mismatch', '/shift/attendance-mismatch',   results[11], (b) => _list(b, 'mismatches').length),
         _diag('Production drop',         '/shift/production-anomalies',    results[12], (b) => _list(b, 'machines').length),
         _diag('Projected stockout',      '/materials/projected-stockout',  results[13], (b) => _list(b, 'materials').length),
+        _diag('Wastage outliers',        '/job/wastage-outliers',          results[14], (b) => _list(b, 'machines').length),
+        _diag('Order delivery risk',     '/order/delivery-risk',           results[15], (b) => _list(b, 'orders').length),
+        _diag('Outstanding advances',    '/payroll/outstanding-advances',  results[16], (b) => _list(b, 'advances').length),
       ]);
     } finally {
       loading.value = false;
@@ -720,6 +732,74 @@ class AIAdvisor extends GetxController {
       icon: Icons.trending_down_rounded,
       priority: AISuggestionPriority.high,
       moduleId: 'analytics',
+    ));
+  }
+
+  // ── Wastage outliers (per-machine vs trailing baseline) ─────
+  void _fromWastageOutliers(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final list = (body['machines'] as List?) ?? const [];
+    if (list.isEmpty) return;
+    out.add(AISuggestion(
+      id: 'wastage_outliers',
+      title:
+          '${list.length} machine${list.length == 1 ? '' : 's'} with high wastage',
+      subtitle: 'Last 7 days >2σ above their own baseline',
+      icon: Icons.report_problem_outlined,
+      priority: AISuggestionPriority.med,
+      moduleId: 'wastage',
+    ));
+  }
+
+  // ── Order delivery risk (due in N days, still pending) ──────
+  void _fromDeliveryRisk(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final list = (body['orders'] as List?) ?? const [];
+    if (list.isEmpty) return;
+    final horizon = (body['horizonDays'] as num?)?.toInt() ?? 7;
+    // Soonest due date drives the urgency copy.
+    int soonest = 1 << 30;
+    for (final o in list) {
+      if (o is Map) {
+        final d = (o['daysToSupply'] as num?)?.toInt();
+        if (d != null && d < soonest) soonest = d;
+      }
+    }
+    final soonestLabel = soonest < (1 << 30) ? soonest.toString() : '?';
+    out.add(AISuggestion(
+      id: 'order_delivery_risk',
+      title:
+          '${list.length} order${list.length == 1 ? '' : 's'} at delivery risk',
+      subtitle:
+          'Soonest in ${soonestLabel}d (horizon $horizon) with pending production',
+      icon: Icons.local_shipping_outlined,
+      priority: soonest <= 2
+          ? AISuggestionPriority.high
+          : AISuggestionPriority.med,
+      moduleId: 'orders',
+    ));
+  }
+
+  // ── Outstanding advances past recovery month ────────────────
+  void _fromOutstandingAdvances(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['advances'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    final total = (body['totalAmount'] as num?)?.toInt() ?? 0;
+    out.add(AISuggestion(
+      id: 'outstanding_advances',
+      title:
+          '$count advance${count == 1 ? '' : 's'} past recovery month',
+      subtitle: total > 0
+          ? '₹$total still to deduct — review payroll runs'
+          : 'Review payroll runs for missed deductions',
+      icon: Icons.account_balance_wallet_outlined,
+      priority: AISuggestionPriority.high,
+      moduleId: 'payroll',
     ));
   }
 }

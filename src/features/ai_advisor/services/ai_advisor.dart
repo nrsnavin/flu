@@ -153,26 +153,55 @@ class AIAdvisor extends GetxController {
     super.onClose();
   }
 
+  /// Explicit try/catch wrapper. The previous code chained
+  /// `.catchError((_) => null)` directly on `dio.get(...)`, but
+  /// since Dart 2.12+ catchError on a non-nullable Future<Response>
+  /// has an inferred return type of Response, not Response?. The
+  /// `null` returned from the handler got coerced through unsafe
+  /// cast paths and in some Dio configurations actually surfaced
+  /// the original error instead of swallowing it — which then
+  /// poisoned the whole `Future.wait`, leaving every result null.
+  /// An explicit Future<Response?> async wrapper sidesteps that.
+  Future<Response?> _safe(
+    Dio client,
+    String path, {
+    Map<String, dynamic>? query,
+  }) async {
+    try {
+      return await client.get(path, queryParameters: query);
+    } catch (e) {
+      debugPrint('[AIAdvisor] $path failed: $e');
+      return null;
+    }
+  }
+
   Future<void> refreshNow() async {
     loading.value = true;
     try {
-      final results = await Future.wait([
-        _dash.get('/kpis').catchError((_) => null),
-        _shift.get('/pending-verification').catchError((_) => null),
-        _machine.get('/maintenance-due', queryParameters: {'days': 14})
-            .catchError((_) => null),
-        _supplier.get('/po-receipt-aging').catchError((_) => null),
-        _materials.get('/low-stock').catchError((_) => null),
-        _leave.get('/conflicts').catchError((_) => null),
-        _attendance.get('/recurring-latecomers').catchError((_) => null),
-        _employee.get('/performance-delta').catchError((_) => null),
-        _attendance.get('/repeatedly-unmarked').catchError((_) => null),
+      final results = await Future.wait<Response?>([
+        _safe(_dash,        '/kpis'),
+        _safe(_shift,       '/pending-verification'),
+        _safe(_machine,     '/maintenance-due', query: {'days': 14}),
+        _safe(_supplier,    '/po-receipt-aging'),
+        _safe(_materials,   '/low-stock'),
+        _safe(_leave,       '/conflicts'),
+        _safe(_attendance,  '/recurring-latecomers'),
+        _safe(_employee,    '/performance-delta'),
+        _safe(_attendance,  '/repeatedly-unmarked'),
         _autoGeneratePayrollIfDue(),
-        _job.get('/stale').catchError((_) => null),
-        _shiftAdvisor.get('/attendance-mismatch').catchError((_) => null),
-        _shiftAdvisor.get('/production-anomalies').catchError((_) => null),
-        _materials.get('/projected-stockout').catchError((_) => null),
+        _safe(_job,         '/stale'),
+        _safe(_shiftAdvisor,'/attendance-mismatch'),
+        _safe(_shiftAdvisor,'/production-anomalies'),
+        _safe(_materials,   '/projected-stockout'),
       ]);
+
+      // One-line debug summary so the user can copy-paste from the
+      // console if the strip still looks empty. Counts non-null
+      // results and dumps a compact list of which slots reached.
+      debugPrint(
+        '[AIAdvisor] refresh complete — '
+        '${results.where((r) => r != null).length}/${results.length} reached',
+      );
 
       final next = <AISuggestion>[];
       _fromKpis(results[0], next);

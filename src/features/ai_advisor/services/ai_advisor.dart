@@ -52,6 +52,19 @@ class AIAdvisor extends GetxController {
   final suggestions = <AISuggestion>[].obs;
   final loading     = false.obs;
 
+  /// Tracks the most recent successful end of `refreshNow`. `null`
+  /// when the controller has never produced a response. Lets the
+  /// strip widget distinguish "first paint, still loading" from
+  /// "ran and got nothing".
+  final lastFetchAt = Rxn<DateTime>();
+
+  /// Number of endpoints that returned null in the last `refreshNow`
+  /// pass (i.e. tripped the catchError fall-back). Lets the strip
+  /// surface "Advisor offline" when most fetches failed, instead of
+  /// silently masquerading as "all clear".
+  final lastFailureCount = 0.obs;
+  int _expectedFetchCount = 0;
+
   final _dash = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/dashboard',
   );
@@ -159,10 +172,28 @@ class AIAdvisor extends GetxController {
         return p != 0 ? p : a.title.compareTo(b.title);
       });
       suggestions.assignAll(next);
+
+      _expectedFetchCount = results.length;
+      // results[9] is the payroll trigger, which legitimately returns
+      // null after the once-per-session flag flips — don't count it
+      // as a failed endpoint.
+      lastFailureCount.value =
+          results.where((r) => r == null).length -
+              (results[9] == null ? 1 : 0);
+      lastFetchAt.value = DateTime.now();
     } finally {
       loading.value = false;
     }
   }
+
+  /// True when most fetches in the last round failed — the strip
+  /// surfaces an "offline" empty state instead of pretending all is
+  /// well. Threshold: more than half of the expected endpoints
+  /// returned null.
+  bool get isOffline =>
+      lastFetchAt.value != null &&
+      _expectedFetchCount > 0 &&
+      lastFailureCount.value * 2 > _expectedFetchCount;
 
   // ── KPIs ────────────────────────────────────────────────────
   void _fromKpis(Response? res, List<AISuggestion> out) {

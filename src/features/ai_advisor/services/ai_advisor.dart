@@ -134,6 +134,7 @@ class AIAdvisor extends GetxController {
         _job.get('/stale').catchError((_) => null),
         _shiftAdvisor.get('/attendance-mismatch').catchError((_) => null),
         _shiftAdvisor.get('/production-anomalies').catchError((_) => null),
+        _materials.get('/projected-stockout').catchError((_) => null),
       ]);
 
       final next = <AISuggestion>[];
@@ -150,6 +151,7 @@ class AIAdvisor extends GetxController {
       _fromStaleJobs(results[10], next);
       _fromShiftAttendanceMismatch(results[11], next);
       _fromProductionAnomalies(results[12], next);
+      _fromProjectedStockout(results[13], next);
 
       // Stable sort by priority, then title.
       next.sort((a, b) {
@@ -491,6 +493,35 @@ class AIAdvisor extends GetxController {
       icon: Icons.rule_folder_outlined,
       priority: AISuggestionPriority.med,
       moduleId: 'attendance',
+    ));
+  }
+
+  // ── Projected stockout (predictive low-stock) ───────────────
+  void _fromProjectedStockout(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final list = (body['materials'] as List?) ?? const [];
+    if (list.isEmpty) return;
+    final horizon = (body['horizonDays'] as num?)?.toInt() ?? 7;
+    // Soonest projected stockout drives the urgency copy.
+    double soonest = double.infinity;
+    for (final m in list) {
+      if (m is Map) {
+        final d = (m['daysToStockout'] as num?)?.toDouble();
+        if (d != null && d < soonest) soonest = d;
+      }
+    }
+    final soonestLabel = soonest.isFinite ? soonest.toStringAsFixed(0) : '?';
+    out.add(AISuggestion(
+      id: 'projected_stockout',
+      title:
+          '${list.length} material${list.length == 1 ? '' : 's'} projected to run out',
+      subtitle: 'Soonest in ~${soonestLabel}d — draft now to stay ahead',
+      icon: Icons.online_prediction_rounded,
+      priority: soonest <= 3
+          ? AISuggestionPriority.high
+          : AISuggestionPriority.med,
+      moduleId: 'low_stock_draft',
     ));
   }
 

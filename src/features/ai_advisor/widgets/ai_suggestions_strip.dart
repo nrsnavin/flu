@@ -47,11 +47,24 @@ class AISuggestionsStrip extends StatelessWidget {
               subtitle: 'Could not reach most endpoints — tap refresh to retry',
             )
           else
-            const _StripMessage(
-              icon: Icons.check_circle_outline_rounded,
-              tone: ErpColors.successGreen,
-              title: 'All clear',
-              subtitle: 'No action items right now',
+            _StripMessage(
+              icon: advisor.lastFailureCount.value > 0
+                  ? Icons.info_outline_rounded
+                  : Icons.check_circle_outline_rounded,
+              tone: advisor.lastFailureCount.value > 0
+                  ? ErpColors.warningAmber
+                  : ErpColors.successGreen,
+              title: advisor.lastFailureCount.value > 0
+                  ? 'Partial picture'
+                  : 'All clear',
+              subtitle: advisor.lastFailureCount.value > 0
+                  ? '${advisor.reachableRules}/${advisor.totalRules} '
+                    'signals reachable — '
+                    '${advisor.lastFailureCount.value} endpoint'
+                    '${advisor.lastFailureCount.value == 1 ? '' : 's'} '
+                    'unreachable'
+                  : '${advisor.totalRules} signals checked — '
+                    'nothing to flag right now',
             ),
         ],
       );

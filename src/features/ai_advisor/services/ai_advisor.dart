@@ -195,6 +195,20 @@ class AIAdvisor extends GetxController {
       _expectedFetchCount > 0 &&
       lastFailureCount.value * 2 > _expectedFetchCount;
 
+  /// Total number of rules evaluated in the last `refreshNow` round
+  /// (subtracting the side-effect payroll trigger). Used by the
+  /// strip's empty-state to communicate "X signals checked".
+  int get totalRules =>
+      _expectedFetchCount > 0 ? _expectedFetchCount - 1 : 0;
+
+  /// Number of rule endpoints that returned successfully — useful
+  /// for the empty-state to surface "11/13 reachable" so a partial
+  /// outage is visible even when it doesn't cross the offline gate.
+  int get reachableRules =>
+      _expectedFetchCount > 0
+          ? totalRules - lastFailureCount.value
+          : 0;
+
   // ── KPIs ────────────────────────────────────────────────────
   void _fromKpis(Response? res, List<AISuggestion> out) {
     if (res == null) return;

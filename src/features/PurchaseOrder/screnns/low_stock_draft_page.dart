@@ -41,13 +41,14 @@ class LowStockDraftPage extends StatelessWidget {
         ],
       ),
       body: Obx(() {
-        if (c.loading.value && c.materials.isEmpty) {
+        final hasAny = c.materials.isNotEmpty || c.projected.isNotEmpty;
+        if (c.loading.value && !hasAny) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (c.errorMsg.value != null && c.materials.isEmpty) {
+        if (c.errorMsg.value != null && !hasAny) {
           return _Error(message: c.errorMsg.value!, onRetry: c.fetch);
         }
-        if (c.materials.isEmpty) {
+        if (!hasAny) {
           return const _EmptyState();
         }
         final groups = c.groupedBySupplier;
@@ -181,6 +182,24 @@ class _MaterialRow extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         color: ErpColors.textPrimary)),
               ),
+              if (m.isPredictive) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: ErpColors.warningAmber.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    '~${m.daysToStockout!.toStringAsFixed(0)}d',
+                    style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: ErpColors.warningAmber),
+                  ),
+                ),
+                const SizedBox(width: 6),
+              ],
               Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 7, vertical: 2),
@@ -206,13 +225,19 @@ class _MaterialRow extends StatelessWidget {
               minHeight: 4,
               backgroundColor: ErpColors.borderLight,
               valueColor: AlwaysStoppedAnimation<Color>(
-                m.stock <= 0 ? ErpColors.errorRed : ErpColors.warningAmber,
+                m.stock <= 0
+                    ? ErpColors.errorRed
+                    : m.isPredictive
+                        ? ErpColors.accentBlue
+                        : ErpColors.warningAmber,
               ),
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Stock ${m.stock.toStringAsFixed(0)}  /  min ${m.minStock.toStringAsFixed(0)}',
+            m.isPredictive
+                ? 'Stock ${m.stock.toStringAsFixed(0)}  ·  projected to run out'
+                : 'Stock ${m.stock.toStringAsFixed(0)}  /  min ${m.minStock.toStringAsFixed(0)}',
             style: const TextStyle(
                 fontSize: 11, color: ErpColors.textSecondary),
           ),

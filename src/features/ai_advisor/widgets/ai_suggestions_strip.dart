@@ -19,73 +19,171 @@ class AISuggestionsStrip extends StatelessWidget {
     final advisor = AIAdvisor.instance;
     return Obx(() {
       final items = advisor.suggestions.toList();
-      if (items.isEmpty) {
-        if (advisor.loading.value) {
-          return const SizedBox(
-            height: 110,
-            child: Center(
-              child: SizedBox(
-                width: 18, height: 18,
-                child: CircularProgressIndicator(
-                    strokeWidth: 2, color: ErpColors.accentBlue),
-              ),
-            ),
-          );
-        }
-        return const SizedBox.shrink();
-      }
+      // Always render the header so the admin knows the advisor is
+      // there even when there's nothing to flag. The body switches
+      // between the carousel, a loading shimmer, an "offline" hint,
+      // and an "all clear" empty state.
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 2, bottom: 8),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: ErpColors.accentBlue,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'AI',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text('SUGGESTED ACTIONS',
-                    style: ErpTextStyles.sectionHeader),
-                const Spacer(),
-                InkWell(
-                  onTap: advisor.refreshNow,
-                  borderRadius: BorderRadius.circular(20),
-                  child: const Padding(
-                    padding: EdgeInsets.all(4),
-                    child: Icon(Icons.refresh_rounded,
-                        size: 16, color: ErpColors.textSecondary),
-                  ),
-                ),
-              ],
+          _Header(advisor: advisor),
+          if (items.isNotEmpty)
+            SizedBox(
+              height: 116,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: items.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (_, i) => _SuggestionCard(s: items[i]),
+              ),
+            )
+          else if (advisor.loading.value && advisor.lastFetchAt.value == null)
+            const _StripLoading()
+          else if (advisor.isOffline)
+            _StripMessage(
+              icon: Icons.cloud_off_rounded,
+              tone: ErpColors.warningAmber,
+              title: 'Advisor offline',
+              subtitle: 'Could not reach most endpoints — tap refresh to retry',
+            )
+          else
+            const _StripMessage(
+              icon: Icons.check_circle_outline_rounded,
+              tone: ErpColors.successGreen,
+              title: 'All clear',
+              subtitle: 'No action items right now',
             ),
-          ),
-          SizedBox(
-            height: 116,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
-              itemBuilder: (_, i) => _SuggestionCard(s: items[i]),
-            ),
-          ),
         ],
       );
     });
+  }
+}
+
+class _Header extends StatelessWidget {
+  final AIAdvisor advisor;
+  const _Header({required this.advisor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 2, bottom: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: ErpColors.accentBlue,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: const Text(
+              'AI',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.0,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Text('SUGGESTED ACTIONS',
+              style: ErpTextStyles.sectionHeader),
+          const Spacer(),
+          InkWell(
+            onTap: advisor.refreshNow,
+            borderRadius: BorderRadius.circular(20),
+            child: const Padding(
+              padding: EdgeInsets.all(4),
+              child: Icon(Icons.refresh_rounded,
+                  size: 16, color: ErpColors.textSecondary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StripLoading extends StatelessWidget {
+  const _StripLoading();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 80,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: ErpColors.bgSurface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: ErpColors.borderLight),
+      ),
+      child: const SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(
+            strokeWidth: 2, color: ErpColors.accentBlue),
+      ),
+    );
+  }
+}
+
+class _StripMessage extends StatelessWidget {
+  final IconData icon;
+  final Color tone;
+  final String title;
+  final String subtitle;
+
+  const _StripMessage({
+    required this.icon,
+    required this.tone,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+      decoration: BoxDecoration(
+        color: ErpColors.bgSurface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: ErpColors.borderLight),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: tone.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: tone, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: ErpColors.textPrimary,
+                    )),
+                const SizedBox(height: 2),
+                Text(subtitle,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: ErpColors.textSecondary,
+                    )),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

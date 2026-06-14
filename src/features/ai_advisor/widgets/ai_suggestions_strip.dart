@@ -76,32 +76,54 @@ class _Header extends StatelessWidget {
   final AIAdvisor advisor;
   const _Header({required this.advisor});
 
+  void _openDiagnostics() {
+    Get.bottomSheet(
+      _DiagnosticsSheet(advisor: advisor),
+      isScrollControlled: true,
+      backgroundColor: ErpColors.bgSurface,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 2, bottom: 8),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: ErpColors.accentBlue,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: const Text(
-              'AI',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.0,
+          InkWell(
+            onTap: _openDiagnostics,
+            borderRadius: BorderRadius.circular(4),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: ErpColors.accentBlue,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                'AI',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.0,
+                ),
               ),
             ),
           ),
           const SizedBox(width: 8),
           const Text('SUGGESTED ACTIONS',
               style: ErpTextStyles.sectionHeader),
+          const SizedBox(width: 6),
+          InkWell(
+            onTap: _openDiagnostics,
+            borderRadius: BorderRadius.circular(20),
+            child: const Padding(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.info_outline_rounded,
+                  size: 14, color: ErpColors.textSecondary),
+            ),
+          ),
           const Spacer(),
           InkWell(
             onTap: advisor.refreshNow,
@@ -110,6 +132,186 @@ class _Header extends StatelessWidget {
               padding: EdgeInsets.all(4),
               child: Icon(Icons.refresh_rounded,
                   size: 16, color: ErpColors.textSecondary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DiagnosticsSheet extends StatelessWidget {
+  final AIAdvisor advisor;
+  const _DiagnosticsSheet({required this.advisor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
+      decoration: const BoxDecoration(
+        color: ErpColors.bgSurface,
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 4),
+            child: Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: ErpColors.borderLight,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Row(
+              children: [
+                Text('Advisor diagnostics',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: ErpColors.textPrimary,
+                    )),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
+            child: Text(
+              'Each row is one signal the advisor checks. '
+              'A reached endpoint that returns zero is a genuine '
+              '"nothing to flag".',
+              style: TextStyle(
+                  fontSize: 11, color: ErpColors.textSecondary),
+            ),
+          ),
+          const Divider(height: 1, color: ErpColors.borderLight),
+          Flexible(
+            child: Obx(() {
+              final rows = advisor.endpointDiagnostics.toList();
+              if (rows.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(
+                    child: Text('No diagnostic data yet — refresh first.',
+                        style: TextStyle(
+                            color: ErpColors.textSecondary, fontSize: 12)),
+                  ),
+                );
+              }
+              return ListView.separated(
+                shrinkWrap: true,
+                itemCount: rows.length,
+                separatorBuilder: (_, __) => const Divider(
+                    height: 1, color: ErpColors.borderLight),
+                itemBuilder: (_, i) => _DiagRow(d: rows[i]),
+              );
+            }),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+                16, 12, 16, MediaQuery.of(context).padding.bottom + 14),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      advisor.refreshNow();
+                    },
+                    icon: const Icon(Icons.refresh_rounded, size: 16),
+                    label: const Text('Refresh now'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Get.back(),
+                    child: const Text('Close'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DiagRow extends StatelessWidget {
+  final EndpointDiagnostic d;
+  const _DiagRow({required this.d});
+
+  @override
+  Widget build(BuildContext context) {
+    final ok    = d.reached;
+    final tone  = !ok
+        ? ErpColors.errorRed
+        : (d.count != null && d.count! > 0)
+            ? ErpColors.warningAmber
+            : ErpColors.successGreen;
+    final icon  = !ok
+        ? Icons.cloud_off_rounded
+        : (d.count != null && d.count! > 0)
+            ? Icons.notifications_active_outlined
+            : Icons.check_circle_outline_rounded;
+    final trailing = !ok
+        ? 'UNREACHED'
+        : (d.count == null ? '—' : '${d.count}');
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      child: Row(
+        children: [
+          Container(
+            width: 28, height: 28,
+            decoration: BoxDecoration(
+              color: tone.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: Icon(icon, color: tone, size: 16),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(d.label,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: ErpColors.textPrimary,
+                    )),
+                const SizedBox(height: 2),
+                Text(d.path,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: ErpColors.textMuted,
+                    )),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: tone.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              trailing,
+              style: TextStyle(
+                color: tone,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.4,
+              ),
             ),
           ),
         ],

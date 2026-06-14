@@ -2765,7 +2765,6 @@ class _AssignMachineSheet extends StatefulWidget {
 }
 
 class _AssignMachineSheetState extends State<_AssignMachineSheet> {
-  static const _kFree = '__FREE__';
   MachineMini? _picked;
   Map<int, String?> _headMap = {};
   JobDetailController get _c => widget.ctrl;
@@ -2785,7 +2784,7 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
       if (_headMap[i] != null)
         {
           'head': i + 1,
-          'elastic': _headMap[i] == _kFree ? null : _headMap[i]!,
+          'elastic': _headMap[i]!,
         },
   ];
 
@@ -3051,7 +3050,6 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
         ...List.generate(machine.noOfHead, (i) {
           final assignedVal = _headMap[i];
           final isSet = assignedVal != null;
-          final isFree = assignedVal == _kFree;
           return AnimatedContainer(
             duration: const Duration(milliseconds: 140),
             margin: const EdgeInsets.only(bottom: 8),
@@ -3097,42 +3095,21 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
                     onChanged: (v) {
                       if (v != null) _setHead(i, v);
                     },
-                    items: [
-                      DropdownMenuItem<String>(
-                        value: _kFree,
-                        child: Row(children: [
-                          const Icon(Icons.do_not_disturb_on_rounded,
-                              size: 14, color: ErpColors.textMuted),
-                          const SizedBox(width: 8),
-                          const Text('Free — no elastic',
-                              style: TextStyle(
-                                  color: ErpColors.textMuted,
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: 13)),
-                        ]),
-                      ),
-                      ...jobElastics.map((e) {
-                        final val = e.elasticId ?? e.elasticName;
-                        return DropdownMenuItem<String>(
-                          value: val,
-                          child: Text(e.elasticName,
-                              overflow: TextOverflow.ellipsis),
-                        );
-                      }),
-                    ],
+                    items: jobElastics.map((e) {
+                      final val = e.elasticId ?? e.elasticName;
+                      return DropdownMenuItem<String>(
+                        value: val,
+                        child: Text(e.elasticName,
+                            overflow: TextOverflow.ellipsis),
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
               if (isSet) ...[
                 const SizedBox(width: 8),
-                Icon(
-                    isFree
-                        ? Icons.do_not_disturb_on_rounded
-                        : Icons.check_circle_rounded,
-                    color: isFree
-                        ? ErpColors.textMuted
-                        : ErpColors.successGreen,
-                    size: 18),
+                const Icon(Icons.check_circle_rounded,
+                    color: ErpColors.successGreen, size: 18),
               ],
             ]),
           );
@@ -3145,7 +3122,7 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
                   size: 12, color: ErpColors.textMuted),
               const SizedBox(width: 6),
               Text(
-                  'Assign an elastic or mark as free for all '
+                  'Assign an elastic to all '
                       '${machine.noOfHead} heads to confirm.',
                   style: const TextStyle(
                       fontSize: 11, color: ErpColors.textMuted)),

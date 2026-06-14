@@ -19,14 +19,37 @@ class MaterialMini {
   final String id;
   final String name;
   final String? unit;
+  final String? defaultSupplierId;
+  final String? defaultSupplierName;
 
-  MaterialMini({required this.id, required this.name, this.unit});
+  MaterialMini({
+    required this.id,
+    required this.name,
+    this.unit,
+    this.defaultSupplierId,
+    this.defaultSupplierName,
+  });
 
-  factory MaterialMini.fromJson(Map<String, dynamic> j) => MaterialMini(
-    id: j["_id"] ?? j["id"] ?? "",
-    name: j["name"] ?? "",
-    unit: j["unit"],
-  );
+  factory MaterialMini.fromJson(Map<String, dynamic> j) {
+    // supplier may arrive populated (Map), as a raw ObjectId string,
+    // or absent entirely. Only the populated form gives us a name.
+    final sup = j["supplier"];
+    String? supId;
+    String? supName;
+    if (sup is Map) {
+      supId   = sup["_id"]?.toString();
+      supName = sup["name"]?.toString();
+    } else if (sup is String && sup.isNotEmpty) {
+      supId = sup;
+    }
+    return MaterialMini(
+      id:                  j["_id"] ?? j["id"] ?? "",
+      name:                j["name"] ?? "",
+      unit:                j["unit"],
+      defaultSupplierId:   supId,
+      defaultSupplierName: supName,
+    );
+  }
 }
 
 // ─── A single line item inside a PO ─────────────────────────

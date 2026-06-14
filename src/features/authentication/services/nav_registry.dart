@@ -13,6 +13,7 @@ import 'package:production/src/features/PurchaseOrder/controllers/add_po.dart';
 import 'package:production/src/features/PurchaseOrder/screnns/add_po.dart';
 import 'package:production/src/features/PurchaseOrder/screnns/po_list.dart';
 import 'package:production/src/features/PurchaseOrder/screnns/po_aging_page.dart';
+import 'package:production/src/features/PurchaseOrder/screnns/low_stock_draft_page.dart';
 import 'package:production/src/features/ShiftPlan/screens/shift_plan_create.dart';
 import 'package:production/src/features/Warping/screens/warping_list.dart';
 import 'package:production/src/features/addendence/screens/attendence.dart';
@@ -231,6 +232,12 @@ class NavRegistry extends GetxController {
       icon: Icons.hourglass_bottom_rounded, section: 'CUSTOMERS & ORDERS',
       keywords: const ['receipt aging', 'overdue po'],
       open: () => Get.to(() => const POAgingPage()),
+    ),
+    NavModule(
+      id: 'low_stock_draft', label: 'Draft POs',
+      icon: Icons.edit_note_rounded, section: 'CUSTOMERS & ORDERS',
+      keywords: const ['low stock', 'auto po', 'reorder'],
+      open: () => Get.to(() => const LowStockDraftPage()),
     ),
     // PRODUCTION
     NavModule(

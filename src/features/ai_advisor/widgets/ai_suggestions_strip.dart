@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../../authentication/services/nav_registry.dart';
+import '../screens/advisor_settings_page.dart';
 import '../services/ai_advisor.dart';
 
 /// Horizontal strip of AI-generated action suggestions rendered above
@@ -215,19 +216,35 @@ class _DiagnosticsSheet extends StatelessWidget {
           Padding(
             padding: EdgeInsets.fromLTRB(
                 16, 12, 16, MediaQuery.of(context).padding.bottom + 14),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      advisor.refreshNow();
-                    },
-                    icon: const Icon(Icons.refresh_rounded, size: 16),
-                    label: const Text('Refresh now'),
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          advisor.refreshNow();
+                        },
+                        icon: const Icon(Icons.refresh_rounded, size: 16),
+                        label: const Text('Refresh now'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Get.back();
+                          Get.to(() => const AdvisorSettingsPage());
+                        },
+                        icon: const Icon(Icons.tune_rounded, size: 16),
+                        label: const Text('Preferences'),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Expanded(
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
                   child: FilledButton(
                     onPressed: () => Get.back(),
                     child: const Text('Close'),

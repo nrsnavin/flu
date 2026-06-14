@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import 'advisor_prefs_store.dart';
 
 /// Severity drives card colour + sort order. `high` floats to the
 /// front, `low` sinks to the back.
@@ -70,6 +71,11 @@ class AIAdvisor extends GetxController {
 
   final suggestions = <AISuggestion>[].obs;
   final loading     = false.obs;
+
+  /// Pre-filter snapshot kept so we can re-apply the category
+  /// filter the moment the admin toggles a preference, without
+  /// re-firing all 17 endpoints.
+  List<AISuggestion> _lastUnfiltered = const [];
 
   /// Tracks the most recent successful end of `refreshNow`. `null`
   /// when the controller has never produced a response. Lets the
@@ -147,6 +153,10 @@ class AIAdvisor extends GetxController {
       // back-pressure beats stacking parallel fan-outs.
       if (!loading.value) refreshNow();
     });
+    // When the admin flips a category toggle, re-derive `suggestions`
+    // from the cached unfiltered list — avoids hammering 17 endpoints
+    // just because a preference changed.
+    ever(AdvisorPrefsStore.instance.disabled, (_) => _applyCategoryFilter());
   }
 
   @override
@@ -233,7 +243,8 @@ class AIAdvisor extends GetxController {
         final p = a.priority.index.compareTo(b.priority.index);
         return p != 0 ? p : a.title.compareTo(b.title);
       });
-      suggestions.assignAll(next);
+      _lastUnfiltered = List.unmodifiable(next);
+      _applyCategoryFilter();
 
       _expectedFetchCount = results.length;
       // results[9] is the payroll trigger, which legitimately returns
@@ -337,6 +348,51 @@ class AIAdvisor extends GetxController {
       _expectedFetchCount > 0
           ? totalRules - lastFailureCount.value
           : 0;
+
+  /// Re-derives `suggestions` from `_lastUnfiltered` against the
+  /// current AdvisorPrefsStore disabled set. Called both at the end
+  /// of `refreshNow` and whenever the prefs change — lets the strip
+  /// react to a toggle without re-firing endpoints.
+  void _applyCategoryFilter() {
+    final disabled = AdvisorPrefsStore.instance.disabled;
+    final filtered = _lastUnfiltered.where((s) {
+      final cat = _categoryFor(s.moduleId);
+      if (cat == null) return true;
+      return !disabled.contains(cat);
+    }).toList(growable: false);
+    suggestions.assignAll(filtered);
+  }
+
+  // ── Category routing (D5 user preferences) ──────────────────
+  //
+  // Maps a card's moduleId to a coarse category the admin can mute.
+  // New rules pick this up for free as long as their moduleId is in
+  // a registered bucket; an unrecognised moduleId stays visible.
+  AdvisorCategory? _categoryFor(String moduleId) {
+    switch (moduleId) {
+      case 'elastic_stock':
+      case 'low_stock_draft':
+      case 'raw_materials':
+        return AdvisorCategory.inventory;
+      case 'pending_verification':
+      case 'attendance':
+      case 'employees':
+      case 'payroll':
+        return AdvisorCategory.people;
+      case 'jobs':
+      case 'analytics':
+      case 'machine_issues':
+      case 'wastage':
+      case 'machines':
+      case 'orders':
+        return AdvisorCategory.production;
+      case 'po_aging':
+      case 'po_list':
+        return AdvisorCategory.purchasing;
+      default:
+        return null;
+    }
+  }
 
   // ── KPIs ────────────────────────────────────────────────────
   void _fromKpis(Response? res, List<AISuggestion> out) {

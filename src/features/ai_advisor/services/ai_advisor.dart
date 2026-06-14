@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -89,10 +91,29 @@ class AIAdvisor extends GetxController {
   /// trigger every 10 minutes when the periodic refresh kicks in.
   bool _autoPayrollTriedThisSession = false;
 
+  /// How often the advisor re-fans its endpoints in the
+  /// background. 10 minutes is long enough that the network cost
+  /// is negligible and short enough that newly-breached thresholds
+  /// (low stock, late PO, conflict) surface within one shift.
+  static const _refreshInterval = Duration(minutes: 10);
+  Timer? _refreshTimer;
+
   @override
   void onInit() {
     super.onInit();
     refreshNow();
+    _refreshTimer = Timer.periodic(_refreshInterval, (_) {
+      // Skip if a refresh (manual or scheduled) is already in flight;
+      // back-pressure beats stacking parallel fan-outs.
+      if (!loading.value) refreshNow();
+    });
+  }
+
+  @override
+  void onClose() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+    super.onClose();
   }
 
   Future<void> refreshNow() async {

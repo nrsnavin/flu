@@ -77,6 +77,12 @@ class AIAdvisor extends GetxController {
   final _payroll = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/payroll',
   );
+  final _job = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/job',
+  );
+  final _shiftAdvisor = ApiClient.buildClient(
+    baseUrl: 'http://13.233.117.153:2701/api/v2/shift',
+  );
 
   /// `false` until we've issued the once-per-session payroll
   /// auto-generate POST. Prevents the advisor from refiring the
@@ -104,6 +110,9 @@ class AIAdvisor extends GetxController {
         _employee.get('/performance-delta').catchError((_) => null),
         _attendance.get('/repeatedly-unmarked').catchError((_) => null),
         _autoGeneratePayrollIfDue(),
+        _job.get('/stale').catchError((_) => null),
+        _shiftAdvisor.get('/attendance-mismatch').catchError((_) => null),
+        _shiftAdvisor.get('/production-anomalies').catchError((_) => null),
       ]);
 
       final next = <AISuggestion>[];
@@ -117,6 +126,9 @@ class AIAdvisor extends GetxController {
       _fromPerfDelta(results[7], next);
       _fromUnmarkedPattern(results[8], next);
       _fromAutoPayroll(results[9], next);
+      _fromStaleJobs(results[10], next);
+      _fromShiftAttendanceMismatch(results[11], next);
+      _fromProductionAnomalies(results[12], next);
 
       // Stable sort by priority, then title.
       next.sort((a, b) {
@@ -422,5 +434,59 @@ class AIAdvisor extends GetxController {
       ));
     }
     // ALREADY_GENERATED / NO_ACTIVE_EMPLOYEES → no card. Silence is correct.
+  }
+
+  // ── Stale jobs (idle > N days in same status) ───────────────
+  void _fromStaleJobs(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['jobs'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    final days = (body['windowDays'] as num?)?.toInt() ?? 14;
+    out.add(AISuggestion(
+      id: 'stale_jobs',
+      title: '$count job${count == 1 ? '' : 's'} idle >$days days',
+      subtitle: 'Stuck in same stage — review or close',
+      icon: Icons.history_toggle_off_rounded,
+      priority: AISuggestionPriority.low,
+      moduleId: 'jobs',
+    ));
+  }
+
+  // ── Shift ↔ attendance mismatch ─────────────────────────────
+  void _fromShiftAttendanceMismatch(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final count = (body['count'] as num?)?.toInt() ??
+        ((body['mismatches'] as List?)?.length ?? 0);
+    if (count <= 0) return;
+    final days = (body['windowDays'] as num?)?.toInt() ?? 7;
+    out.add(AISuggestion(
+      id: 'shift_attendance_mismatch',
+      title:
+          '$count shift${count == 1 ? '' : 's'} without attendance',
+      subtitle: 'Closed shifts in last $days days lacking a mark',
+      icon: Icons.rule_folder_outlined,
+      priority: AISuggestionPriority.med,
+      moduleId: 'attendance',
+    ));
+  }
+
+  // ── Production drop anomaly (per machine vs 30-day avg) ─────
+  void _fromProductionAnomalies(Response? res, List<AISuggestion> out) {
+    if (res == null) return;
+    final body = res.data is Map ? res.data : const {};
+    final list = (body['machines'] as List?) ?? const [];
+    if (list.isEmpty) return;
+    out.add(AISuggestion(
+      id: 'production_anomaly',
+      title:
+          '${list.length} machine${list.length == 1 ? '' : 's'} producing below trend',
+      subtitle: 'Today is >30% under the 30-day average',
+      icon: Icons.trending_down_rounded,
+      priority: AISuggestionPriority.high,
+      moduleId: 'analytics',
+    ));
   }
 }

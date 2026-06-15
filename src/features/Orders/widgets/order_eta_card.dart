@@ -136,6 +136,50 @@ class _Card extends StatelessWidget {
             ),
           ),
 
+          // ── Why N days? (machine vs order processing split) ─
+          if (r.weavingDays + r.leadDays > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'WHY ${r.workingDays} WORKING DAYS',
+                    style: const TextStyle(
+                      fontSize: 9, fontWeight: FontWeight.w800,
+                      color: ErpColors.textSecondary, letterSpacing: 0.6,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: _SplitPart(
+                          days: r.weavingDays,
+                          label: 'Machine planned',
+                          sub: '${r.machines} machine${r.machines == 1 ? '' : 's'} weaving'
+                              '${r.machineDays > 0 ? ' · ${r.machineDays} machine-days' : ''}',
+                          icon: Icons.precision_manufacturing_rounded,
+                          tone: ErpColors.accentBlue,
+                        ),
+                      ),
+                      const _Glyph('+'),
+                      Expanded(
+                        child: _SplitPart(
+                          days: r.leadDays,
+                          label: 'Order processing',
+                          sub: 'Prep + finishing',
+                          icon: Icons.inventory_2_rounded,
+                          tone: ErpColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
           // ── Range row ─────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
@@ -285,6 +329,78 @@ class _Stat extends StatelessWidget {
               )),
         ],
       ),
+    );
+  }
+}
+
+/// One side of the "why N days" breakdown — a labelled day count for
+/// either the machine-weaving portion or the order-processing buffer.
+class _SplitPart extends StatelessWidget {
+  final int days;
+  final String label, sub;
+  final IconData icon;
+  final Color tone;
+  const _SplitPart({
+    required this.days,
+    required this.label,
+    required this.sub,
+    required this.icon,
+    required this.tone,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: tone.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: tone.withOpacity(0.20)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 13, color: tone),
+              const SizedBox(width: 5),
+              Text('${days}d',
+                  style: TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w900, color: tone,
+                  )),
+            ],
+          ),
+          const SizedBox(height: 3),
+          Text(label,
+              style: const TextStyle(
+                fontSize: 10, fontWeight: FontWeight.w800,
+                color: ErpColors.textPrimary,
+              )),
+          const SizedBox(height: 1),
+          Text(sub,
+              style: const TextStyle(
+                fontSize: 9, color: ErpColors.textMuted, height: 1.3,
+              )),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tiny "+" separator between the two split parts.
+class _Glyph extends StatelessWidget {
+  final String symbol;
+  const _Glyph(this.symbol);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Text(symbol,
+          style: const TextStyle(
+            fontSize: 16, fontWeight: FontWeight.w900,
+            color: ErpColors.textMuted,
+          )),
     );
   }
 }

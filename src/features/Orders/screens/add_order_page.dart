@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart';
+import 'package:production/src/features/Orders/controllers/order_eta_controller.dart';
 import 'package:production/src/features/Orders/models/elasticLite.dart';
 import 'package:production/src/features/Orders/models/order_elastic_row.dart';
 import 'package:production/src/features/Orders/screens/searchable_picker.dart';
+import 'package:production/src/features/Orders/widgets/order_eta_card.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 
@@ -30,22 +32,48 @@ class AddOrderPage extends StatefulWidget {
 }
 
 class _AddOrderPageState extends State<AddOrderPage> {
+  late final OrderEtaController eta;
+  Worker? _etaListener;
+  Worker? _supplyListener;
   late final AddOrderController c;
 
   @override
   void initState() {
     super.initState();
     Get.delete<AddOrderController>(force: true);
+    Get.delete<OrderEtaController>(force: true);
     c = Get.put(AddOrderController(
       onSuccess:       () => Navigator.of(context).pop(true),
       editingOrderId:  widget.editingOrderId,
       initialOrder:    widget.initialOrder,
     ));
+    eta = Get.put(OrderEtaController());
+
+    // Recompute whenever rows change, an elastic is picked, qty
+    // typed, or the supply date moves. Both listeners route through
+    // the controller's debounce so we don't fire on every char.
+    _etaListener = ever(c.elasticRows, (_) => _kickEta());
+    _supplyListener = ever(c.supplyDate, (_) => _kickEta());
+  }
+
+  void _kickEta() {
+    final lines = <Map<String, dynamic>>[];
+    for (final r in c.elasticRows) {
+      final id = r.elasticId.value;
+      final qty = double.tryParse(r.qtyCtrl.text.trim()) ?? 0;
+      if (id != null && qty > 0) {
+        lines.add({'elastic': id, 'quantity': qty});
+      }
+    }
+    eta.scheduleEstimate(elasticOrdered: lines, supplyDate: c.supplyDate.value);
   }
 
   @override
   void dispose() {
+    _etaListener?.dispose();
+    _supplyListener?.dispose();
     Get.delete<AddOrderController>(force: true);
+    Get.delete<OrderEtaController>(force: true);
     super.dispose();
   }
 
@@ -90,6 +118,8 @@ class _AddOrderPageState extends State<AddOrderPage> {
                 _customerCard(context),
                 const SizedBox(height: 12),
                 _elasticsCard(context),
+                const SizedBox(height: 12),
+                OrderEtaCard(controller: eta),
                 const SizedBox(height: 8),
               ]),
             ),

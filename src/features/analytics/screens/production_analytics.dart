@@ -23,6 +23,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/analytics_controller.dart';
+import '../../machines/screens/maintenance_due_page.dart';
+import '../../PurchaseOrder/screnns/po_aging_page.dart';
 import '../models/analytics_model.dart';
 
 
@@ -88,8 +90,14 @@ class ProductionAnalyticsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.delete<AnalyticsController>(force: true);
-    final c = Get.put(AnalyticsController());
+    // Reuse an existing instance if the user came back via navigation,
+    // so prior data is shown instantly while the next fetch runs.
+    // The previous `Get.delete + put` here dropped in-flight requests
+    // and restarted from scratch on every rebuild (MediaQuery changes,
+    // keyboard, orientation).
+    final c = Get.isRegistered<AnalyticsController>()
+        ? Get.find<AnalyticsController>()
+        : Get.put(AnalyticsController());
 
     return Scaffold(
       backgroundColor: _C.bg,
@@ -485,64 +493,88 @@ class _OverviewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final d = c.data.value!;
-    return ListView(padding:const EdgeInsets.all(14), children: [
-      // KPI row 1
-      Row(children: [
-        Expanded(child: _KpiCard(
-          icon: Icons.straighten_rounded, iconColor: _C.cyan,
-          value: _fmt(d.summary.totalProduction),
-          unit: 'm', label: 'Total Production',
-          sub: '${d.summary.activeShifts} shifts',
-          gradient: [const Color(0xFF0F2030), const Color(0xFF0C2035)],
-        )),
-        const SizedBox(width:8),
-        Expanded(child: _KpiCard(
-          icon: Icons.speed_rounded, iconColor: _C.green,
-          value: _fmt(d.summary.avgPerShift),
-          unit: 'm', label: 'Avg Per Shift',
-          sub: 'fleet avg',
-          gradient: [const Color(0xFF0A2018), const Color(0xFF0C2518)],
-        )),
-      ]),
-      const SizedBox(height:8),
-      // KPI row 2
-      Row(children: [
-        Expanded(child: _KpiCard(
-          icon: Icons.precision_manufacturing_rounded, iconColor: _C.purple,
-          value: '${d.summary.activeMachines}',
-          label: 'Machines',
-          sub: '${d.summary.activeShifts} shifts logged',
-          gradient: [const Color(0xFF15102A), const Color(0xFF18122F)],
-        )),
-        const SizedBox(width:8),
-        Expanded(child: _KpiCard(
-          icon: Icons.group_rounded, iconColor: _C.amber,
-          value: '${d.summary.activeEmployees}',
-          label: 'Operators',
-          sub: 'active in period',
-          gradient: [const Color(0xFF201A08), const Color(0xFF251E08)],
-        )),
-      ]),
-      const SizedBox(height:8),
-      // KPI row 3: consistency + efficiency
-      Row(children: [
-        Expanded(child: _KpiCard(
-          icon: Icons.auto_graph_rounded, iconColor: _C.cyanLt,
-          value: '${d.summary.factoryConsistency}',
-          unit: '%', label: 'Consistency',
-          sub: 'factory-wide score',
-          gradient: [const Color(0xFF0A1F25), const Color(0xFF0C2228)],
-        )),
-        const SizedBox(width:8),
-        Expanded(child: _KpiCard(
-          icon: Icons.timer_rounded, iconColor: _C.orange,
-          value: _fmtMinutes(d.summary.totalRunMinutes),
-          label: 'Run Time',
-          sub: 'total machine hours',
-          gradient: [const Color(0xFF201408), const Color(0xFF25160A)],
-        )),
-      ]),
-      const SizedBox(height:14),
+
+    // Six KPI tiles ready to feed the responsive grid below. Order
+    // preserved from the original three-row layout (production/avg →
+    // machines/operators → consistency/run-time).
+    final kpis = <Widget>[
+      _KpiCard(
+        icon: Icons.straighten_rounded, iconColor: _C.cyan,
+        value: _fmt(d.summary.totalProduction),
+        unit: 'm', label: 'Total Production',
+        sub: '${d.summary.activeShifts} shifts',
+        gradient: const [Color(0xFF0F2030), Color(0xFF0C2035)],
+      ),
+      _KpiCard(
+        icon: Icons.speed_rounded, iconColor: _C.green,
+        value: _fmt(d.summary.avgPerShift),
+        unit: 'm', label: 'Avg Per Shift',
+        sub: 'fleet avg',
+        gradient: const [Color(0xFF0A2018), Color(0xFF0C2518)],
+      ),
+      _KpiCard(
+        icon: Icons.precision_manufacturing_rounded, iconColor: _C.purple,
+        value: '${d.summary.activeMachines}',
+        label: 'Machines',
+        sub: '${d.summary.activeShifts} shifts logged',
+        gradient: const [Color(0xFF15102A), Color(0xFF18122F)],
+      ),
+      _KpiCard(
+        icon: Icons.group_rounded, iconColor: _C.amber,
+        value: '${d.summary.activeEmployees}',
+        label: 'Operators',
+        sub: 'active in period',
+        gradient: const [Color(0xFF201A08), Color(0xFF251E08)],
+      ),
+      _KpiCard(
+        icon: Icons.auto_graph_rounded, iconColor: _C.cyanLt,
+        value: '${d.summary.factoryConsistency}',
+        unit: '%', label: 'Consistency',
+        sub: 'factory-wide score',
+        gradient: const [Color(0xFF0A1F25), Color(0xFF0C2228)],
+      ),
+      _KpiCard(
+        icon: Icons.timer_rounded, iconColor: _C.orange,
+        value: _fmtMinutes(d.summary.totalRunMinutes),
+        label: 'Run Time',
+        sub: 'total machine hours',
+        gradient: const [Color(0xFF201408), Color(0xFF25160A)],
+      ),
+    ];
+
+    return RefreshIndicator(
+      onRefresh: c.refreshAll,
+      color: _C.blueLt,
+      backgroundColor: _C.surface2,
+      child: ListView(
+        // PrimaryScroll + AlwaysScrollable so RefreshIndicator works
+        // even when the content fits within one screen.
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(14),
+        children: [
+          // Operations Risk strip — cross-data signals from
+          // maintenance-due + PO-aging + anomalies. Fetches are
+          // independent of /production/analytics so they survive
+          // 500s on the main endpoint.
+          _OperationsRiskStrip(c: c),
+          const SizedBox(height: 12),
+
+          // Responsive KPI grid — 2 cols on phone, 3-4 on tablet,
+          // 6+ on desktop. Replaces three hardcoded Row(Expanded)
+          // pairs that produced massive squares on wide windows.
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: kpis.length,
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 220,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 1.55,
+            ),
+            itemBuilder: (_, i) => kpis[i],
+          ),
+          const SizedBox(height: 14),
 
       // Anomaly banner
       if (d.summary.anomalyCount > 0)
@@ -584,7 +616,169 @@ class _OverviewTab extends StatelessWidget {
         _PodiumWidget(employees: d.byEmployee.take(3).toList()),
       ],
       const SizedBox(height:20),
-    ]);
+        ],
+      ),
+    );
+  }
+}
+
+// ── Operations Risk strip ─────────────────────────────────────
+// Cross-data signals stitched in from /machine/maintenance-due and
+// /supplier/po-receipt-aging. Each tile is a tap-target — Maintenance
+// opens MaintenanceDuePage, PO opens POAgingPage, Anomalies switches
+// to the Anomalies tab in-page. Null counts (failed fetch) collapse
+// to a single muted "Operations Risk" placeholder so the row never
+// goes empty mid-load.
+class _OperationsRiskStrip extends StatelessWidget {
+  final AnalyticsController c;
+  const _OperationsRiskStrip({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final maintTotal = c.riskMaintenanceTotal.value;
+      final maintOver  = c.riskMaintenanceOverdue.value;
+      final poLate     = c.riskPoCriticalLate.value;
+      final anomCount  = c.data.value?.summary.anomalyCount ?? 0;
+
+      final tiles = <Widget>[];
+
+      tiles.add(_RiskTile(
+        icon:    Icons.engineering_rounded,
+        label:   'Maintenance',
+        sub:     maintTotal == null
+                  ? 'tap to view'
+                  : (maintOver != null && maintOver > 0
+                      ? '$maintOver overdue'
+                      : '$maintTotal due in 14d'),
+        count:   maintTotal,
+        color:   (maintOver != null && maintOver > 0)
+                  ? _C.red
+                  : (maintTotal != null && maintTotal > 0 ? _C.amber : _C.textMuted),
+        onTap:   () => Get.to(() => const MaintenanceDuePage()),
+      ));
+
+      tiles.add(_RiskTile(
+        icon:    Icons.local_shipping_rounded,
+        label:   'PO Aging',
+        sub:     poLate == null
+                  ? 'tap to view'
+                  : (poLate > 0 ? 'late + critical' : 'all on time'),
+        count:   poLate,
+        color:   (poLate != null && poLate > 0) ? _C.orange : _C.textMuted,
+        onTap:   () => Get.to(() => const POAgingPage()),
+      ));
+
+      tiles.add(_RiskTile(
+        icon:    Icons.warning_amber_rounded,
+        label:   'Anomalies',
+        sub:     anomCount > 0 ? 'in selected range' : 'all green',
+        count:   anomCount,
+        color:   anomCount > 0 ? _C.red : _C.green,
+        onTap:   () => c.activeTab.value = AnalyticsTab.anomalies,
+      ));
+
+      return LayoutBuilder(builder: (ctx, constraints) {
+        // Stack tiles vertically on very narrow screens, otherwise
+        // share the row equally. Matches the page's broader
+        // responsive intent without hard-coded breakpoints.
+        if (constraints.maxWidth < 360) {
+          return Column(
+            children: tiles
+                .map((t) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SizedBox(width: double.infinity, child: t),
+                    ))
+                .toList(),
+          );
+        }
+        return Row(
+          children: [
+            for (int i = 0; i < tiles.length; i++) ...[
+              if (i > 0) const SizedBox(width: 8),
+              Expanded(child: tiles[i]),
+            ],
+          ],
+        );
+      });
+    });
+  }
+}
+
+class _RiskTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String sub;
+  final int? count;
+  final Color color;
+  final VoidCallback onTap;
+  const _RiskTile({
+    required this.icon,
+    required this.label,
+    required this.sub,
+    required this.count,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loading = count == null;
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        decoration: BoxDecoration(
+          color: _C.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: count != null && count! > 0
+                ? color.withOpacity(0.55)
+                : _C.border,
+          ),
+        ),
+        child: Row(children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 18, color: color),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(label, style: _t11b),
+                const SizedBox(height: 1),
+                Text(sub,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: _t10),
+              ],
+            ),
+          ),
+          if (loading)
+            const SizedBox(
+              width: 14, height: 14,
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: _C.textMuted),
+            )
+          else
+            Text('${count!}',
+                style: TextStyle(
+                    color: color,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5)),
+        ]),
+      ),
+    );
   }
 }
 
@@ -938,8 +1132,25 @@ class _MachinesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final machines = c.data.value?.byMachine ?? [];
     final avg      = c.data.value?.summary.avgPerShift ?? 0;
-    if (machines.isEmpty) return const Center(child:_EmptyView());
-    return ListView(padding:const EdgeInsets.all(14), children: [
+    if (machines.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: c.refreshAll,
+        color: _C.blueLt,
+        backgroundColor: _C.surface2,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: const [SizedBox(height: 160), Center(child: _EmptyView())],
+        ),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: c.refreshAll,
+      color: _C.blueLt,
+      backgroundColor: _C.surface2,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(14),
+        children: [
       // Summary mini-cards
       _SectionLabel(icon:Icons.precision_manufacturing_rounded, label:'Machine Performance', color:_C.green),
       const SizedBox(height:8),
@@ -956,7 +1167,9 @@ class _MachinesTab extends StatelessWidget {
         max: c.machineMax, avg: avg, c: c,
       )),
       const SizedBox(height:20),
-    ]);
+        ],
+      ),
+    );
   }
 }
 
@@ -1107,13 +1320,32 @@ class _EmployeesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final emps = c.data.value?.byEmployee ?? [];
-    if (emps.isEmpty) return const Center(child:_EmptyView());
-    return ListView(padding:const EdgeInsets.all(14), children: [
+    if (emps.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: c.refreshAll,
+        color: _C.blueLt,
+        backgroundColor: _C.surface2,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: const [SizedBox(height: 160), Center(child: _EmptyView())],
+        ),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: c.refreshAll,
+      color: _C.blueLt,
+      backgroundColor: _C.surface2,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(14),
+        children: [
       _SectionLabel(icon:Icons.people_rounded, label:'Employee Leaderboard', color:_C.gold),
       const SizedBox(height:8),
       ...emps.map((e) => _EmployeeDetailCard(emp:e, c:c)),
       const SizedBox(height:20),
-    ]);
+        ],
+      ),
+    );
   }
 }
 
@@ -1226,12 +1458,29 @@ class _ArenaTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final emps = c.data.value?.byEmployee ?? [];
-    if (emps.isEmpty) return const Center(child:_EmptyView());
+    if (emps.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: c.refreshAll,
+        color: _C.blueLt,
+        backgroundColor: _C.surface2,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: const [SizedBox(height: 160), Center(child: _EmptyView())],
+        ),
+      );
+    }
 
     // Sort by XP
     final ranked = [...emps]..sort((a,b)=>b.xp-a.xp);
 
-    return ListView(padding:const EdgeInsets.all(14), children: [
+    return RefreshIndicator(
+      onRefresh: c.refreshAll,
+      color: _C.blueLt,
+      backgroundColor: _C.surface2,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(14),
+        children: [
       // Arena header
       _ArenaHeader(leader: ranked.first),
       const SizedBox(height:14),
@@ -1251,7 +1500,9 @@ class _ArenaTab extends StatelessWidget {
       const SizedBox(height:8),
       _AchievementShowcase(emps: emps),
       const SizedBox(height:20),
-    ]);
+        ],
+      ),
+    );
   }
 }
 
@@ -1594,11 +1845,27 @@ class _AnomaliesTab extends StatelessWidget {
       _SeverityFilterBar(c: c),
       Expanded(child: Obx(() {
         final anomalies = c.filteredAnomalies;
-        if (anomalies.isEmpty) return const _NoAnomaliesView();
-        return ListView.builder(
-          padding: const EdgeInsets.all(14),
-          itemCount: anomalies.length,
-          itemBuilder: (_,i) => _AnomalyCard(a: anomalies[i]),
+        if (anomalies.isEmpty) {
+          return RefreshIndicator(
+            onRefresh: c.refreshAll,
+            color: _C.blueLt,
+            backgroundColor: _C.surface2,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: const [SizedBox(height: 160), _NoAnomaliesView()],
+            ),
+          );
+        }
+        return RefreshIndicator(
+          onRefresh: c.refreshAll,
+          color: _C.blueLt,
+          backgroundColor: _C.surface2,
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(14),
+            itemCount: anomalies.length,
+            itemBuilder: (_,i) => _AnomalyCard(a: anomalies[i]),
+          ),
         );
       })),
     ]);

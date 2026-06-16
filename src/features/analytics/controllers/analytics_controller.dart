@@ -10,6 +10,11 @@ import '../models/analytics_model.dart';
 
 final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/production');
 
+// Sibling client for the cross-data Operations Risk strip — talks
+// to the /machine and /supplier mounts, not /production. Sharing
+// the cookie interceptor via ApiClient.buildClient.
+final _riskDio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+
 enum AnalyticsTab { overview, byMachine, byEmployee, arena, anomalies }
 
 class AnalyticsController extends GetxController {
@@ -32,6 +37,13 @@ class AnalyticsController extends GetxController {
   // ── Expanded XP breakdown card ────────────────────────────
   final expandedXpId = RxnString();
 
+  // ── Operations Risk strip (Overview tab) ──────────────────
+  // Cross-data signals — null = not yet loaded / failed, separate
+  // so one endpoint failing doesn't dim the other indicators.
+  final riskMaintenanceTotal   = RxnInt();
+  final riskMaintenanceOverdue = RxnInt();
+  final riskPoCriticalLate     = RxnInt();
+
   // ── Lifecycle ──────────────────────────────────────────────
   @override
   void onInit() {
@@ -41,6 +53,7 @@ class AnalyticsController extends GetxController {
     endDate    = t.obs;
     startDate  = t.subtract(const Duration(days: 29)).obs;
     fetch();
+    fetchRisk();
   }
 
   // ── API ────────────────────────────────────────────────────
@@ -68,6 +81,50 @@ class AnalyticsController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// Pull-to-refresh entry — main analytics fetch + risk strip in
+  /// parallel. Returns a Future so RefreshIndicator can hold the
+  /// spinner until both settle.
+  Future<void> refreshAll() async {
+    await Future.wait([fetch(), fetchRisk()]);
+  }
+
+  /// Operations Risk strip — fetched independently of the main
+  /// analytics endpoint so a 500 on /production/analytics doesn't
+  /// dim these signals, and vice versa. Each leg in its own try.
+  Future<void> fetchRisk() async {
+    final maint = _riskDio
+        .get('/machine/maintenance-due', queryParameters: {'days': 14})
+        .then((res) {
+      final body = res.data is Map ? res.data as Map : const {};
+      riskMaintenanceTotal.value =
+          (body['count'] as num?)?.toInt() ?? 0;
+      riskMaintenanceOverdue.value =
+          (body['overdueCount'] as num?)?.toInt() ?? 0;
+    }).catchError((_) {
+      // Leave nulls — the strip widget will skip the chip.
+      riskMaintenanceTotal.value = null;
+      riskMaintenanceOverdue.value = null;
+    });
+
+    final po = _riskDio
+        .get('/supplier/po-receipt-aging')
+        .then((res) {
+      final body = res.data is Map ? res.data as Map : const {};
+      final summary = body['summary'];
+      if (summary is Map) {
+        final critical = (summary['critical'] as num?)?.toInt() ?? 0;
+        final late     = (summary['late']     as num?)?.toInt() ?? 0;
+        riskPoCriticalLate.value = critical + late;
+      } else {
+        riskPoCriticalLate.value = 0;
+      }
+    }).catchError((_) {
+      riskPoCriticalLate.value = null;
+    });
+
+    await Future.wait([maint, po]);
   }
 
   // ── Date helpers ──────────────────────────────────────────

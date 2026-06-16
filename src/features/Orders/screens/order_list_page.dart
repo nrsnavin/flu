@@ -341,18 +341,22 @@ class _OrderCard extends StatelessWidget {
                             final etaC = Get.find<OrderListEtaController>();
                             final summary = etaC.byOrderId[order.id];
                             final loading = etaC.loading.value;
+                            final lastError = etaC.lastError.value;
                             if (summary != null) {
                               return Padding(
                                 padding: const EdgeInsets.only(top: 5),
                                 child: OrderEtaChip(summary: summary),
                               );
                             }
-                            // Loading or no data yet — visible
-                            // placeholder so the row tells the admin
-                            // the chip is waiting on / missing data.
+                            // Loading / no data — visible placeholder.
+                            // When the last bulk fetch surfaced an
+                            // error, show it inline so the row tells
+                            // the admin *why* — they can act on it.
                             return Padding(
                               padding: const EdgeInsets.only(top: 5),
-                              child: _EtaPendingChip(loading: loading),
+                              child: _EtaPendingChip(
+                                loading: loading, error: lastError,
+                              ),
                             );
                           }),
                         // User fingerprint row
@@ -620,20 +624,49 @@ class _OrderCard extends StatelessWidget {
 
 // ── Inline placeholder when the ETA hasn't loaded for this row yet ──
 // Always visible for in-flight orders so the admin can tell the chip
-// tried — never silently empty.
+// tried. When the last bulk fetch surfaced an error, shows it inline
+// (e.g., "ETA: HTTP 404") so the row points at the actual cause.
 class _EtaPendingChip extends StatelessWidget {
   final bool loading;
-  const _EtaPendingChip({required this.loading});
+  final String? error;
+  const _EtaPendingChip({required this.loading, this.error});
 
   @override
   Widget build(BuildContext context) {
-    final tone = loading ? ErpColors.textSecondary : ErpColors.textMuted;
+    final hasError = error != null && error!.isNotEmpty;
+    final tone = loading
+        ? ErpColors.textSecondary
+        : hasError
+            ? ErpColors.errorRed
+            : ErpColors.textMuted;
+    String label;
+    IconData icon;
+    if (loading) {
+      label = 'Estimating…';
+      icon = Icons.hourglass_top_rounded;
+    } else if (hasError) {
+      // Keep it short for the chip — truncated diagnostic.
+      final e = error!;
+      final short = e.length > 36 ? '${e.substring(0, 36)}…' : e;
+      label = 'ETA: $short';
+      icon = Icons.error_outline_rounded;
+    } else {
+      label = 'ETA unavailable';
+      icon = Icons.help_outline_rounded;
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: ErpColors.bgMuted,
+        color: hasError
+            ? ErpColors.errorRed.withOpacity(0.06)
+            : ErpColors.bgMuted,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: ErpColors.borderLight),
+        border: Border.all(
+          color: hasError
+              ? ErpColors.errorRed.withOpacity(0.3)
+              : ErpColors.borderLight,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -644,13 +677,16 @@ class _EtaPendingChip extends StatelessWidget {
               child: CircularProgressIndicator(strokeWidth: 1.5, color: tone),
             )
           else
-            Icon(Icons.help_outline_rounded, size: 10, color: tone),
+            Icon(icon, size: 10, color: tone),
           const SizedBox(width: 5),
-          Text(
-            loading ? 'Estimating…' : 'ETA unavailable',
-            style: TextStyle(
-              color: tone, fontSize: 10, fontWeight: FontWeight.w800,
-              letterSpacing: 0.3,
+          Flexible(
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: tone, fontSize: 10, fontWeight: FontWeight.w800,
+                letterSpacing: 0.3,
+              ),
             ),
           ),
         ],

@@ -14,14 +14,88 @@ class RunningOrderEtaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      // Loading — first fetch, no prior result yet.
       if (controller.loading.value && controller.result.value == null) {
         return const _Loading();
       }
-      if (controller.notApplicable.value) return const SizedBox.shrink();
+      // Backend explicitly said "not applicable" (e.g. NOTHING_REMAINING
+      // or a status the route doesn't compute for) — show a calm,
+      // explicit message rather than silently hiding so the admin
+      // can tell the card is intentionally empty.
+      if (controller.notApplicable.value) {
+        return _Placeholder(
+          message: 'No estimate available for this order yet.',
+          onRetry: controller.refreshEta,
+        );
+      }
+      // Error path — backend or network failure. Visible state with
+      // a retry instead of a blank screen.
       final r = controller.result.value;
-      if (r == null) return const SizedBox.shrink();
+      if (r == null) {
+        return _Placeholder(
+          message: controller.errorMsg.value?.isNotEmpty == true
+              ? "Couldn't load estimate: ${controller.errorMsg.value}"
+              : "Couldn't load estimated completion date.",
+          tone: ErpColors.warningAmber,
+          onRetry: controller.refreshEta,
+        );
+      }
       return _Card(r: r, controller: controller);
     });
+  }
+}
+
+/// Visible empty / error state — replaces the prior silent SizedBox.shrink.
+/// In-flight orders should always show *something* so the admin can tell
+/// the card is alive (and click retry if it broke).
+class _Placeholder extends StatelessWidget {
+  final String message;
+  final Color tone;
+  final VoidCallback onRetry;
+  const _Placeholder({
+    required this.message,
+    required this.onRetry,
+    this.tone = ErpColors.textSecondary,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+      decoration: BoxDecoration(
+        color: ErpColors.bgSurface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: ErpColors.borderLight),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.event_busy_rounded, size: 16, color: tone),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: 12, color: tone, fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: onRetry,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text('Retry',
+                style: TextStyle(
+                  fontSize: 11, fontWeight: FontWeight.w800,
+                  color: ErpColors.accentBlue, letterSpacing: 0.4,
+                )),
+          ),
+        ],
+      ),
+    );
   }
 }
 

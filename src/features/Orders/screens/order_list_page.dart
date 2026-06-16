@@ -331,17 +331,28 @@ class _OrderCard extends StatelessWidget {
                         // Predicted-completion chip for in-flight orders.
                         // Reads from the singleton OrderListEtaController
                         // so the chip lights up reactively when the bulk
-                        // fetch returns. Renders nothing on terminal /
-                        // non-running statuses or before the ETA arrives.
+                        // fetch returns. Always shows *something* for
+                        // running orders — loading dots, the chip, or
+                        // an explicit "ETA unavailable" — so an admin
+                        // never has to guess whether the fetch failed.
                         if (order.status == "Approved" ||
                             order.status == "InProgress")
                           Obx(() {
                             final etaC = Get.find<OrderListEtaController>();
                             final summary = etaC.byOrderId[order.id];
-                            if (summary == null) return const SizedBox.shrink();
+                            final loading = etaC.loading.value;
+                            if (summary != null) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 5),
+                                child: OrderEtaChip(summary: summary),
+                              );
+                            }
+                            // Loading or no data yet — visible
+                            // placeholder so the row tells the admin
+                            // the chip is waiting on / missing data.
                             return Padding(
                               padding: const EdgeInsets.only(top: 5),
-                              child: OrderEtaChip(summary: summary),
+                              child: _EtaPendingChip(loading: loading),
                             );
                           }),
                         // User fingerprint row
@@ -602,6 +613,47 @@ class _OrderCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── Inline placeholder when the ETA hasn't loaded for this row yet ──
+// Always visible for in-flight orders so the admin can tell the chip
+// tried — never silently empty.
+class _EtaPendingChip extends StatelessWidget {
+  final bool loading;
+  const _EtaPendingChip({required this.loading});
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = loading ? ErpColors.textSecondary : ErpColors.textMuted;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: ErpColors.bgMuted,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: ErpColors.borderLight),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (loading)
+            SizedBox(
+              width: 10, height: 10,
+              child: CircularProgressIndicator(strokeWidth: 1.5, color: tone),
+            )
+          else
+            Icon(Icons.help_outline_rounded, size: 10, color: tone),
+          const SizedBox(width: 5),
+          Text(
+            loading ? 'Estimating…' : 'ETA unavailable',
+            style: TextStyle(
+              color: tone, fontSize: 10, fontWeight: FontWeight.w800,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
       ),
     );
   }

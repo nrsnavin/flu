@@ -114,8 +114,16 @@ class RunningEtaResult {
       }).toList();
     }
 
+    // Defensive — backend should always include expectedDate when
+    // ok:true, but if it's missing we fall back to "now" rather than
+    // throwing a parse exception that silently hides the card.
+    DateTime safeDate(dynamic v) {
+      if (v == null) return DateTime.now();
+      try { return parseDate(v); } catch (_) { return DateTime.now(); }
+    }
+
     return RunningEtaResult(
-      expectedDate:    parseDate(j['expectedDate']),
+      expectedDate:    safeDate(j['expectedDate']),
       workingDays:     (j['workingDays'] as num?)?.toInt() ?? 0,
       weavingDays:     (j['weavingDays'] as num?)?.toInt() ?? 0,
       leadDays:        (j['leadDays']    as num?)?.toInt() ?? 0,

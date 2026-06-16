@@ -8,6 +8,8 @@ import '../../Job/models/order_model.dart';
 import '../../Job/screens/add_job_page.dart';
 import '../../Job/screens/job_detail.dart';
 import '../../PurchaseOrder/services/theme.dart';
+import '../controllers/running_order_eta_controller.dart';
+import '../widgets/running_order_eta_card.dart';
 import 'add_order_page.dart' show AddOrderPage;
 
 class OrderDetailPage extends StatelessWidget {
@@ -19,6 +21,13 @@ class OrderDetailPage extends StatelessWidget {
 
     Get.delete<OrderDetailController>(force: true);
     final c = Get.put(OrderDetailController(args["orderId"] as String));
+
+    // Live running-order ETA — re-instantiated per detail page open so
+    // the controller's orderId tracks the routed order.
+    Get.delete<RunningOrderEtaController>(force: true);
+    final etaC = Get.put(
+      RunningOrderEtaController(args["orderId"] as String),
+    );
 
     return Scaffold(
       backgroundColor: ErpColors.bgBase,
@@ -66,7 +75,10 @@ class OrderDetailPage extends StatelessWidget {
 
         return RefreshIndicator(
           color: ErpColors.accentBlue,
-          onRefresh: c.fetchOrderDetail,
+          onRefresh: () async {
+            await c.fetchOrderDetail();
+            await etaC.refreshEta();
+          },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
@@ -76,6 +88,14 @@ class OrderDetailPage extends StatelessWidget {
                 if (order["status"] == "Deleted") ...[
                   const SizedBox(height: 10),
                   _DeletedBanner(order: order),
+                ],
+                // Live running-order ETA — only for in-flight orders.
+                // Open / Cancelled / Completed / Deleted orders don't
+                // need a forward prediction, so the card hides itself.
+                if (order["status"] == "Approved" ||
+                    order["status"] == "InProgress") ...[
+                  const SizedBox(height: 10),
+                  RunningOrderEtaCard(controller: etaC),
                 ],
                 const SizedBox(height: 10),
                 _ActivityTrail(order: order),

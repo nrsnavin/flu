@@ -4,9 +4,11 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:production/src/core/api_client.dart';
 import 'package:production/src/features/Orders/controllers/order_list_controller.dart';
+import 'package:production/src/features/Orders/controllers/order_list_eta_controller.dart';
 import 'package:production/src/features/Orders/models/order_list_item.dart';
 import 'package:production/src/features/Orders/screens/add_order_page.dart';
 import 'package:production/src/features/Orders/screens/order_detail_page.dart';
+import 'package:production/src/features/Orders/widgets/order_eta_chip.dart';
 
 
 import '../../PurchaseOrder/services/theme.dart';
@@ -20,12 +22,24 @@ class OrderListPage extends StatefulWidget {
 
 class _OrderListPageState extends State<OrderListPage> {
   late final OrderListController _c;
+  late final OrderListEtaController _etaC;
 
   @override
   void initState() {
     super.initState();
     Get.delete<OrderListController>(force: true);
     _c = Get.put(OrderListController());
+    Get.delete<OrderListEtaController>(force: true);
+    _etaC = Get.put(OrderListEtaController());
+
+    // Refetch ETAs whenever the visible list changes (status tab
+    // change, pull-to-refresh, optimistic mutations). Debounced via
+    // GetX's ever() — fires once per orders.assignAll().
+    ever(_c.orders, (orders) {
+      _etaC.fetchForOrders([
+        for (final o in orders) (id: o.id, status: o.status),
+      ]);
+    });
   }
 
   @override
@@ -314,6 +328,22 @@ class _OrderCard extends StatelessWidget {
                                     : FontWeight.w400),
                           ),
                         ]),
+                        // Predicted-completion chip for in-flight orders.
+                        // Reads from the singleton OrderListEtaController
+                        // so the chip lights up reactively when the bulk
+                        // fetch returns. Renders nothing on terminal /
+                        // non-running statuses or before the ETA arrives.
+                        if (order.status == "Approved" ||
+                            order.status == "InProgress")
+                          Obx(() {
+                            final etaC = Get.find<OrderListEtaController>();
+                            final summary = etaC.byOrderId[order.id];
+                            if (summary == null) return const SizedBox.shrink();
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 5),
+                              child: OrderEtaChip(summary: summary),
+                            );
+                          }),
                         // User fingerprint row
                         if (hasFingerprint) ...[
                           const SizedBox(height: 5),

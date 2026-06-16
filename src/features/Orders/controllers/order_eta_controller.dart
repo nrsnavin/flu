@@ -25,6 +25,8 @@ class OrderEtaResult {
   final DateTime optimistic;
   final DateTime pessimistic;
   final int workingDays;
+  final int weavingDays;
+  final int leadDays;
   final int optimisticDays;
   final int pessimisticDays;
   final int machineDays;
@@ -43,6 +45,8 @@ class OrderEtaResult {
     required this.optimistic,
     required this.pessimistic,
     required this.workingDays,
+    required this.weavingDays,
+    required this.leadDays,
     required this.optimisticDays,
     required this.pessimisticDays,
     required this.machineDays,
@@ -66,6 +70,8 @@ class OrderEtaResult {
       optimistic:      parse(j['optimistic']),
       pessimistic:     parse(j['pessimistic']),
       workingDays:     (j['workingDays']     as num?)?.toInt() ?? 0,
+      weavingDays:     (j['weavingDays']     as num?)?.toInt() ?? 0,
+      leadDays:        (j['leadDays']        as num?)?.toInt() ?? 0,
       optimisticDays:  (j['optimisticDays']  as num?)?.toInt() ?? 0,
       pessimisticDays: (j['pessimisticDays'] as num?)?.toInt() ?? 0,
       machineDays:     ((j['machineDays']    as num?) ?? 0).round(),

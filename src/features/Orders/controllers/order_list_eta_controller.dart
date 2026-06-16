@@ -43,6 +43,10 @@ class OrderEtaSummary {
 class OrderListEtaController extends GetxController {
   final byOrderId = <String, OrderEtaSummary>{}.obs;
   final loading   = false.obs;
+  // Captured on the last failed bulk fetch so each row's placeholder
+  // chip can show *why* the fetch failed instead of a silent "ETA
+  // unavailable". Cleared when the next fetch succeeds.
+  final lastError = RxnString();
 
   final _dio = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/order',
@@ -63,6 +67,7 @@ class OrderListEtaController extends GetxController {
       return;
     }
     loading.value = true;
+    lastError.value = null;
     try {
       // Backend caps at 50 per call — chunk if the visible list is bigger.
       final all = <String, OrderEtaSummary>{};
@@ -79,14 +84,39 @@ class OrderListEtaController extends GetxController {
         });
       }
       byOrderId.assignAll(all);
-    } on DioException catch (_) {
-      // Silent — the chip is decorative; surfacing an error toast on
-      // the list page would be more disruptive than helpful.
-    } catch (_) {
-      // Same.
+    } on DioException catch (e) {
+      // Don't toast — surface inline on the chip placeholder so an
+      // admin sees the failure but the page stays usable.
+      lastError.value = _formatDioError(e);
+    } catch (e) {
+      lastError.value = e.toString();
     } finally {
       loading.value = false;
     }
+  }
+
+  String _formatDioError(DioException e) {
+    final code = e.response?.statusCode;
+    final data = e.response?.data;
+    String? bodyMsg;
+    if (data is Map && data['message'] is String) {
+      bodyMsg = data['message'] as String;
+    } else if (data is String && data.isNotEmpty) {
+      bodyMsg = data.length > 60 ? '${data.substring(0, 60)}…' : data;
+    }
+    if (code != null) {
+      switch (code) {
+        case 401: return 'Auth failed (401)';
+        case 403: return 'Forbidden (403)';
+        case 404: return 'Bulk route 404 — backend not updated';
+        case 500: return 'Backend 500${bodyMsg != null ? ': $bodyMsg' : ''}';
+      }
+      return 'HTTP $code${bodyMsg != null ? ' — $bodyMsg' : ''}';
+    }
+    return e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.receiveTimeout
+        ? 'Timed out'
+        : 'Network: ${e.message ?? e.type.name}';
   }
 
   void clear() => byOrderId.clear();

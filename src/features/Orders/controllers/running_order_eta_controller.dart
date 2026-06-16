@@ -182,14 +182,47 @@ class RunningOrderEtaController extends GetxController {
       }
     } on DioException catch (e) {
       result.value = null;
-      errorMsg.value = e.response?.data is Map
-          ? (e.response?.data['message'] as String?)
-          : null;
+      // Surface as much detail as we can fit so the placeholder is a
+      // diagnostic instead of a generic shrug. Real errors we've
+      // hit in practice: 401 (auth), 404 (route not deployed), 500
+      // (backend crash, sometimes with no JSON body — just an HTML
+      // error page).
+      errorMsg.value = _formatDioError(e);
     } catch (e) {
       result.value = null;
       errorMsg.value = e.toString();
     } finally {
       loading.value = false;
     }
+  }
+
+  String _formatDioError(DioException e) {
+    final code = e.response?.statusCode;
+    final data = e.response?.data;
+    String? bodyMsg;
+    if (data is Map && data['message'] is String) {
+      bodyMsg = data['message'] as String;
+    } else if (data is String && data.isNotEmpty) {
+      // Truncate HTML/error pages — we just need a hint.
+      bodyMsg = data.length > 80 ? '${data.substring(0, 80)}…' : data;
+    }
+    if (code != null) {
+      switch (code) {
+        case 401:
+          return 'Auth failed (401) — please sign in again.';
+        case 403:
+          return 'Forbidden (403) — admin role required.';
+        case 404:
+          return 'ETA route not found (404) — backend update pending?';
+        case 500:
+          return 'Backend error (500)${bodyMsg != null ? ': $bodyMsg' : ''}';
+      }
+      return 'HTTP $code${bodyMsg != null ? ' — $bodyMsg' : ''}';
+    }
+    // No HTTP response → connection-level failure.
+    return e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.receiveTimeout
+        ? 'Request timed out — backend slow or unreachable.'
+        : 'Network error: ${e.message ?? e.type.name}';
   }
 }

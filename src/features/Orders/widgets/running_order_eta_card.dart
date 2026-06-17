@@ -18,13 +18,16 @@ class RunningOrderEtaCard extends StatelessWidget {
       if (controller.loading.value && controller.result.value == null) {
         return const _Loading();
       }
-      // Backend explicitly said "not applicable" (e.g. NOTHING_REMAINING
-      // or a status the route doesn't compute for) — show a calm,
-      // explicit message rather than silently hiding so the admin
-      // can tell the card is intentionally empty.
+      // Backend explicitly said "not applicable" (NOTHING_REMAINING,
+      // NO_ACTIVE_JOBS, NO_RATE, COMPUTE_ERROR, …). When the
+      // controller captured a reason, use it — otherwise fall back
+      // to the generic copy.
       if (controller.notApplicable.value) {
+        final reason = controller.errorMsg.value;
         return _Placeholder(
-          message: 'No estimate available for this order yet.',
+          message: (reason != null && reason.isNotEmpty)
+              ? reason
+              : 'No estimate available for this order yet.',
           onRetry: controller.refreshEta,
         );
       }

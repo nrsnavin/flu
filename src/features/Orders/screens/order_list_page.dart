@@ -342,20 +342,29 @@ class _OrderCard extends StatelessWidget {
                             final summary = etaC.byOrderId[order.id];
                             final loading = etaC.loading.value;
                             final lastError = etaC.lastError.value;
+                            // Per-order reason takes precedence over
+                            // the global lastError — it tells the
+                            // admin *this row* failed even when the
+                            // bulk fetch succeeded overall.
+                            final perRow = etaC.reasonByOrderId[order.id];
                             if (summary != null) {
                               return Padding(
                                 padding: const EdgeInsets.only(top: 5),
                                 child: OrderEtaChip(summary: summary),
                               );
                             }
-                            // Loading / no data — visible placeholder.
-                            // When the last bulk fetch surfaced an
-                            // error, show it inline so the row tells
-                            // the admin *why* — they can act on it.
+                            // NOTHING_REMAINING = order is functionally
+                            // done. No chip needed; the order list
+                            // already shows the produced quantity.
+                            if (perRow == 'NOTHING_REMAINING') {
+                              return const SizedBox.shrink();
+                            }
                             return Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: _EtaPendingChip(
-                                loading: loading, error: lastError,
+                                loading: loading,
+                                error: lastError,
+                                rowReason: perRow,
                               ),
                             );
                           }),
@@ -622,21 +631,41 @@ class _OrderCard extends StatelessWidget {
   }
 }
 
+// Maps a backend ok:false reason into a human-readable chip label
+// so admins can self-diagnose instead of seeing "ETA unavailable".
+String _humanReason(String reason) {
+  switch (reason) {
+    case 'NOT_FOUND':         return 'Order not found';
+    case 'NOT_RUNNING':       return 'Order not in production';
+    case 'NO_ACTIVE_JOBS':    return 'No active jobs yet';
+    case 'NOTHING_REMAINING': return 'Already produced';
+    case 'NO_RATE':           return 'No production rate data';
+    case 'COMPUTE_ERROR':     return 'Backend compute error';
+    case 'UNKNOWN':           return 'No estimate available';
+  }
+  // Surface raw reason for any unmapped backend value so the admin
+  // can report it.
+  return reason;
+}
+
 // ── Inline placeholder when the ETA hasn't loaded for this row yet ──
 // Always visible for in-flight orders so the admin can tell the chip
-// tried. When the last bulk fetch surfaced an error, shows it inline
-// (e.g., "ETA: HTTP 404") so the row points at the actual cause.
+// tried. When the last bulk fetch surfaced an error (HTTP, network)
+// OR the backend returned a per-row reason, shows it inline so the
+// row points at the actual cause.
 class _EtaPendingChip extends StatelessWidget {
   final bool loading;
   final String? error;
-  const _EtaPendingChip({required this.loading, this.error});
+  final String? rowReason; // backend ok:false reason for this specific order
+  const _EtaPendingChip({required this.loading, this.error, this.rowReason});
 
   @override
   Widget build(BuildContext context) {
     final hasError = error != null && error!.isNotEmpty;
+    final hasRowReason = rowReason != null && rowReason!.isNotEmpty;
     final tone = loading
         ? ErpColors.textSecondary
-        : hasError
+        : (hasError || hasRowReason)
             ? ErpColors.errorRed
             : ErpColors.textMuted;
     String label;
@@ -645,25 +674,28 @@ class _EtaPendingChip extends StatelessWidget {
       label = 'Estimating…';
       icon = Icons.hourglass_top_rounded;
     } else if (hasError) {
-      // Keep it short for the chip — truncated diagnostic.
       final e = error!;
       final short = e.length > 36 ? '${e.substring(0, 36)}…' : e;
       label = 'ETA: $short';
       icon = Icons.error_outline_rounded;
+    } else if (hasRowReason) {
+      label = 'ETA: ${_humanReason(rowReason!)}';
+      icon = Icons.info_outline_rounded;
     } else {
       label = 'ETA unavailable';
       icon = Icons.help_outline_rounded;
     }
 
+    final highlight = hasError || hasRowReason;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: hasError
+        color: highlight
             ? ErpColors.errorRed.withOpacity(0.06)
             : ErpColors.bgMuted,
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: hasError
+          color: highlight
               ? ErpColors.errorRed.withOpacity(0.3)
               : ErpColors.borderLight,
         ),

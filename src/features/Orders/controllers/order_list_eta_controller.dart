@@ -42,6 +42,11 @@ class OrderEtaSummary {
 /// re-fetch only the ETAs that matter.
 class OrderListEtaController extends GetxController {
   final byOrderId = <String, OrderEtaSummary>{}.obs;
+  // Per-order reason for orders the backend returned ok:false on.
+  // Lets the chip placeholder render 'ETA: <reason>' so the admin
+  // sees *why* a specific row has no estimate (NOT_FOUND,
+  // NOTHING_REMAINING, NO_RATE, COMPUTE_ERROR, NOT_RUNNING, …).
+  final reasonByOrderId = <String, String>{}.obs;
   final loading   = false.obs;
   // Captured on the last failed bulk fetch so each row's placeholder
   // chip can show *why* the fetch failed instead of a silent "ETA
@@ -70,20 +75,28 @@ class OrderListEtaController extends GetxController {
     lastError.value = null;
     try {
       // Backend caps at 50 per call — chunk if the visible list is bigger.
-      final all = <String, OrderEtaSummary>{};
+      final all     = <String, OrderEtaSummary>{};
+      final reasons = <String, String>{};
       for (var i = 0; i < ids.length; i += 50) {
         final chunk = ids.sublist(i, i + 50 > ids.length ? ids.length : i + 50);
         final res = await _dio.post('/running-eta-bulk', data: {'orderIds': chunk});
         final data = res.data is Map ? res.data as Map<String, dynamic> : const {};
         final etas = (data['etas'] as Map?) ?? const {};
         etas.forEach((k, v) {
-          if (v is Map && v['ok'] == true) {
+          if (v is! Map) return;
+          if (v['ok'] == true) {
             all[k.toString()] =
                 OrderEtaSummary.fromJson(Map<String, dynamic>.from(v));
+          } else {
+            // Capture the reason the backend gave so the chip
+            // placeholder is diagnostic, not generic.
+            reasons[k.toString()] =
+                (v['reason']?.toString() ?? 'UNKNOWN');
           }
         });
       }
       byOrderId.assignAll(all);
+      reasonByOrderId.assignAll(reasons);
     } on DioException catch (e) {
       // Don't toast — surface inline on the chip placeholder so an
       // admin sees the failure but the page stays usable.

@@ -171,11 +171,16 @@ class RunningOrderEtaController extends GetxController {
       if (data['ok'] == true) {
         result.value = RunningEtaResult.fromJson(Map<String, dynamic>.from(data));
       } else if (data['success'] == true) {
-        // Successful response, but no estimate produced — e.g. no
-        // active jobs yet, or every job missing rate data. Hide
-        // the card cleanly rather than showing an error.
+        // Successful response, but no estimate produced. Capture
+        // the backend's reason so the card placeholder can tell
+        // the admin *why* (NOTHING_REMAINING / NO_ACTIVE_JOBS /
+        // NO_RATE / COMPUTE_ERROR / …) instead of just hiding.
         result.value = null;
         notApplicable.value = true;
+        final reason = data['reason']?.toString();
+        errorMsg.value = reason != null && reason.isNotEmpty
+            ? _humanReason(reason)
+            : null;
       } else {
         result.value = null;
         errorMsg.value = data['message']?.toString();
@@ -194,6 +199,20 @@ class RunningOrderEtaController extends GetxController {
     } finally {
       loading.value = false;
     }
+  }
+
+  // Maps the backend's ok:false reason codes into human-readable
+  // strings the card placeholder can display directly.
+  String _humanReason(String reason) {
+    switch (reason) {
+      case 'NOT_FOUND':         return 'Order not found.';
+      case 'NOT_RUNNING':       return 'Order is not in production.';
+      case 'NO_ACTIVE_JOBS':    return 'No active jobs created for this order yet.';
+      case 'NOTHING_REMAINING': return 'Order has already been fully produced.';
+      case 'NO_RATE':           return 'No production-rate data available yet.';
+      case 'COMPUTE_ERROR':     return 'Backend hit an error computing this estimate.';
+    }
+    return reason;
   }
 
   String _formatDioError(DioException e) {

@@ -11,6 +11,12 @@ class OrderListItem {
   final String? createdByRole;
   final String? updatedByName;
   final String? updatedByRole;
+  // Approval provenance — populated by the backend on /approve.
+  //   "admin"     → approved from the admin app
+  //   "whatsapp"  → owner replied APPROVE to a WhatsApp ping
+  // Null on orders approved before the field shipped.
+  final String? approvalVia;
+  final String? approvalWhatsappFrom; // E.164 of the WhatsApp sender
 
   OrderListItem({
     required this.id,
@@ -23,7 +29,11 @@ class OrderListItem {
     this.createdByRole,
     this.updatedByName,
     this.updatedByRole,
+    this.approvalVia,
+    this.approvalWhatsappFrom,
   });
+
+  bool get approvedViaWhatsapp => approvalVia == "whatsapp";
 
   factory OrderListItem.fromJson(Map<String, dynamic> json) {
     final created = json["createdBy"];
@@ -39,6 +49,8 @@ class OrderListItem {
       createdByRole: created is Map ? created["role"] as String? : null,
       updatedByName: updated is Map ? updated["name"] as String? : null,
       updatedByRole: updated is Map ? updated["role"] as String? : null,
+      approvalVia:          json["approvalVia"]?.toString(),
+      approvalWhatsappFrom: json["approvalWhatsappFrom"]?.toString(),
     );
   }
 }

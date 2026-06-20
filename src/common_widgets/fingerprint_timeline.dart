@@ -276,63 +276,15 @@ class _FingerprintRow extends StatelessWidget {
                     const SizedBox(height: 6),
 
                     // ── Actor row ────────────────────────────────
-                    Row(
-                      children: [
-                        Container(
-                          width: 18, height: 18,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: ErpColors.accentBlue
-                                .withOpacity(0.12),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.person_outline,
-                              size: 11,
-                              color: ErpColors.accentBlue),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: RichText(
-                            overflow: TextOverflow.ellipsis,
-                            text: TextSpan(
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: ErpColors.textPrimary,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: actor['name'] ?? 'System',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700),
-                                ),
-                                if ((actor['role'] ?? '')
-                                    .toString()
-                                    .isNotEmpty)
-                                  TextSpan(
-                                    text:
-                                    "  ·  ${actor['role']}".toUpperCase(),
-                                    style: const TextStyle(
-                                      color:
-                                      ErpColors.textSecondary,
-                                      fontSize: 9.5,
-                                      fontWeight:
-                                      FontWeight.w700,
-                                      letterSpacing: 0.4,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Text(
-                          _formatTime(at),
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: ErpColors.textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                    // Special-cased when meta.via == 'whatsapp' so an
+                    // owner-initiated WhatsApp approval reads as
+                    // "WhatsApp · +91…" with the WhatsApp green
+                    // avatar, instead of the generic "WhatsApp Bot ·
+                    // ADMIN" the JWT actor would otherwise show.
+                    _ActorRow(
+                      actor: actor,
+                      meta:  meta,
+                      time:  _formatTime(at),
                     ),
 
                     if ((actor['email'] ?? '').toString().isNotEmpty)
@@ -469,13 +421,17 @@ class _MetaBlock extends StatelessWidget {
     final diffKeys = <String>{ ...prev.keys, ...next.keys }.toList()..sort();
 
     // Remaining meta entries that aren't part of the diff bookkeeping.
+    // We also drop `via` and `whatsappFrom` because the _ActorRow
+    // above consumes them to render the WhatsApp identity.
     final filteredEntries = meta.entries
         .where((e) =>
             e.value != null &&
             e.key != 'previousValues' &&
             e.key != 'newValues' &&
             // changedFields duplicates the diff so suppress it
-            e.key != 'changedFields')
+            e.key != 'changedFields' &&
+            e.key != 'via' &&
+            e.key != 'whatsappFrom')
         .toList();
 
     return Container(
@@ -572,6 +528,107 @@ class _DiffRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ── Actor row ────────────────────────────────────────────────────
+// In-app feedback: when a fingerprint's meta.via == 'whatsapp' we
+// re-style the actor row so the owner instantly sees the action was
+// initiated over WhatsApp, with the originating phone, instead of
+// the JWT actor (the internal "WhatsApp Bot" admin).
+class _ActorRow extends StatelessWidget {
+  final Map<String, dynamic> actor;
+  final Map<String, dynamic> meta;
+  final String time;
+  const _ActorRow({
+    required this.actor,
+    required this.meta,
+    required this.time,
+  });
+
+  static const _wa = Color(0xFF25D366);
+
+  @override
+  Widget build(BuildContext context) {
+    final viaWhatsApp = (meta['via']?.toString().toLowerCase() == 'whatsapp');
+    final waFrom      = meta['whatsappFrom']?.toString();
+
+    final avatarBg   = viaWhatsApp ? _wa.withOpacity(0.14) : ErpColors.accentBlue.withOpacity(0.12);
+    final avatarIco  = viaWhatsApp ? Icons.chat_rounded   : Icons.person_outline;
+    final avatarTint = viaWhatsApp ? _wa                   : ErpColors.accentBlue;
+
+    return Row(
+      children: [
+        Container(
+          width: 18, height: 18,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: avatarBg,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(avatarIco, size: 11, color: avatarTint),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: RichText(
+            overflow: TextOverflow.ellipsis,
+            text: viaWhatsApp
+                ? TextSpan(
+                    style: const TextStyle(
+                      fontSize: 11, color: ErpColors.textPrimary,
+                    ),
+                    children: [
+                      const TextSpan(
+                        text: "WhatsApp",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: _wa,
+                        ),
+                      ),
+                      if (waFrom != null && waFrom.isNotEmpty)
+                        TextSpan(
+                          text: "  ·  $waFrom",
+                          style: const TextStyle(
+                            color: ErpColors.textSecondary,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                    ],
+                  )
+                : TextSpan(
+                    style: const TextStyle(
+                      fontSize: 11, color: ErpColors.textPrimary,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: actor['name'] ?? 'System',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      if ((actor['role'] ?? '').toString().isNotEmpty)
+                        TextSpan(
+                          text: "  ·  ${actor['role']}".toUpperCase(),
+                          style: const TextStyle(
+                            color: ErpColors.textSecondary,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                    ],
+                  ),
+          ),
+        ),
+        Text(
+          time,
+          style: const TextStyle(
+            fontSize: 10,
+            color: ErpColors.textMuted,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }

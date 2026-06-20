@@ -283,6 +283,16 @@ class _OrderCard extends StatelessWidget {
                               style: ErpTextStyles.cardTitle,
                             ),
                             const Spacer(),
+                            // Visible in-app feedback: this order was
+                            // approved via the WhatsApp inbound webhook
+                            // rather than from the admin app. Subtle
+                            // green pill so it's glanceable while
+                            // scrolling but doesn't fight the status
+                            // badge for attention.
+                            if (order.approvedViaWhatsapp) ...[
+                              const _WhatsAppApprovedPill(),
+                              const SizedBox(width: 6),
+                            ],
                             OrderStatusBadge(order.status),
                             // 🪪 Quick edit / delete menu — Open only
                             if (isOpen)
@@ -719,6 +729,39 @@ class _EtaPendingChip extends StatelessWidget {
                 color: tone, fontSize: 10, fontWeight: FontWeight.w800,
                 letterSpacing: 0.3,
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── In-app feedback: this order was approved via the WhatsApp ──
+//    inbound webhook (not from the admin app). Subtle pill so it's
+//    visible at-a-glance without competing with the status badge.
+class _WhatsAppApprovedPill extends StatelessWidget {
+  const _WhatsAppApprovedPill();
+  @override
+  Widget build(BuildContext context) {
+    const tone = Color(0xFF25D366); // WhatsApp green
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: tone.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(color: tone.withOpacity(0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.chat_rounded, size: 10, color: tone),
+          SizedBox(width: 3),
+          Text(
+            "WA",
+            style: TextStyle(
+              fontSize: 9, fontWeight: FontWeight.w800,
+              color: tone, letterSpacing: 0.3,
             ),
           ),
         ],

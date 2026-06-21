@@ -26,6 +26,7 @@ import 'package:production/src/features/employees/screens/empList.dart';
 import 'package:production/src/features/feedback/screens/feedback_admin_list.dart';
 import 'package:production/src/features/machine_issue/screens/machine_issue_admin_list.dart';
 import 'package:production/src/features/ai_advisor/screens/advisor_settings_page.dart';
+import 'package:production/src/features/notification_settings/screens/notification_settings_page.dart';
 import 'package:production/src/features/data_io/screens/data_import_page.dart';
 import 'package:production/src/features/machines/screens/machineList.dart';
 import 'package:production/src/features/machines/screens/maintenance_due_page.dart';
@@ -380,6 +381,16 @@ class NavRegistry extends GetxController {
       icon: Icons.campaign_outlined, section: 'HR & COMMUNICATION',
       keywords: const ['announcement'],
       open: () => Get.to(() => const AnnouncementListPage()),
+    ),
+    NavModule(
+      id: 'whatsapp_notifications', label: 'WhatsApp Alerts',
+      icon: Icons.notifications_active_outlined,
+      section: 'HR & COMMUNICATION',
+      keywords: const [
+        'whatsapp', 'notifications', 'alerts', 'digest',
+        'evening report', 'recipients',
+      ],
+      open: () => Get.to(() => const NotificationSettingsPage()),
     ),
 
     // ANALYTICS

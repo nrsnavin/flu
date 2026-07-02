@@ -527,6 +527,86 @@ class JobDetailController extends GetxController {
       pdfLoading.value = false;
     }
   }
+
+  // ── Material Requirement Program (MRP) ─────────────────────────
+  final mrpLoading = false.obs;    // fetching MRP JSON
+  final mrpPdfLoading = false.obs; // fetching / opening MRP PDF
+  final savingMode = false.obs;    // PATCH production-mode in flight
+
+  /// GET the computed MRP for this job (productionMode, vendor,
+  /// elastics, material requirement with shortfall). Returns null on
+  /// failure (a snackbar is shown).
+  Future<Map<String, dynamic>?> fetchMrp() async {
+    final id = jobId;
+    if (id.isEmpty) return null;
+    try {
+      mrpLoading.value = true;
+      final res = await _dio.get('/job/$id/mrp');
+      final data = res.data is Map ? res.data['data'] : null;
+      return data is Map ? Map<String, dynamic>.from(data) : null;
+    } on DioException catch (e) {
+      Get.snackbar('Error',
+          e.response?.data?['message']?.toString() ?? 'Failed to load MRP',
+          backgroundColor: ErpColors.errorRed,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM);
+      return null;
+    } finally {
+      mrpLoading.value = false;
+    }
+  }
+
+  /// PATCH the production mode. Returns true on success.
+  Future<bool> setProductionMode(String mode, {String vendor = ''}) async {
+    final id = jobId;
+    if (id.isEmpty) return false;
+    try {
+      savingMode.value = true;
+      await _dio.patch('/job/$id/production-mode', data: {
+        'productionMode': mode,
+        if (mode == 'outsource') 'outsourceVendor': vendor,
+      });
+      await fetchJob(); // refresh the detail view
+      return true;
+    } on DioException catch (e) {
+      Get.snackbar('Error',
+          e.response?.data?['message']?.toString() ?? 'Failed to update mode',
+          backgroundColor: ErpColors.errorRed,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM);
+      return false;
+    } finally {
+      savingMode.value = false;
+    }
+  }
+
+  /// Fetch the server-rendered MRP PDF bytes (authenticated via the
+  /// shared Dio cookie interceptor) and open with the native viewer —
+  /// same pattern as exportPdf.
+  Future<void> openMrpPdf() async {
+    final id = jobId;
+    if (id.isEmpty) return;
+    try {
+      mrpPdfLoading.value = true;
+      final res = await _dio.get(
+        '/job/$id/mrp.pdf',
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final bytes = res.data as List<int>;
+      final dir = await getApplicationDocumentsDirectory();
+      final safe = id.replaceAll(RegExp(r'[^A-Za-z0-9_\-]'), '_');
+      final file = File('${dir.path}/MRP_$safe.pdf');
+      await file.writeAsBytes(bytes);
+      await OpenFile.open(file.path);
+    } catch (e) {
+      Get.snackbar('MRP PDF Failed', e.toString(),
+          backgroundColor: ErpColors.errorRed,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM);
+    } finally {
+      mrpPdfLoading.value = false;
+    }
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -558,6 +638,15 @@ class _JobDetailPageState extends State<JobDetailPage>
     super.dispose();
   }
 
+  void _openMrpSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _MrpSheet(ctrl: _ctrl),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -584,6 +673,18 @@ class _JobDetailPageState extends State<JobDetailPage>
                 onPressed: () => Navigator.maybePop(context),
               ),
               actions: [
+                // MRP sheet — production mode + material requirement.
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: IconButton(
+                    tooltip: 'MRP Sheet',
+                    onPressed: (isLoading || job == null)
+                        ? null
+                        : () => _openMrpSheet(context),
+                    icon: const Icon(Icons.assignment_outlined,
+                        color: Colors.white, size: 20),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: TextButton.icon(
@@ -4069,3 +4170,372 @@ final _sampleJobDetail = JobDetailModel(
   machineNoOfHead: 6,
   machineHeadPlan: const [],
 );
+
+// ════════════════════════════════════════════════════════════════
+//  MRP SHEET  —  production mode + material requirement + PDF
+// ════════════════════════════════════════════════════════════════
+
+class _MrpSheet extends StatefulWidget {
+  final JobDetailController ctrl;
+  const _MrpSheet({required this.ctrl});
+
+  @override
+  State<_MrpSheet> createState() => _MrpSheetState();
+}
+
+class _MrpSheetState extends State<_MrpSheet> {
+  Map<String, dynamic>? _data;
+  bool _loading = true;
+  late final TextEditingController _vendor = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void dispose() {
+    _vendor.dispose();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    setState(() => _loading = true);
+    final d = await widget.ctrl.fetchMrp();
+    if (!mounted) return;
+    setState(() {
+      _data = d;
+      _loading = false;
+      _vendor.text = (d?['outsourceVendor'] ?? '').toString();
+    });
+  }
+
+  bool get _isOutsource => (_data?['productionMode'] ?? 'in_house') == 'outsource';
+
+  Future<void> _setMode(String mode) async {
+    final ok = await widget.ctrl.setProductionMode(
+      mode,
+      vendor: mode == 'outsource' ? _vendor.text.trim() : '',
+    );
+    if (ok) await _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (_, scrollCtrl) => Container(
+        decoration: const BoxDecoration(
+          color: ErpColors.bgSurface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(
+                  color: ErpColors.borderMid,
+                  borderRadius: BorderRadius.circular(2)),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+              child: Row(children: [
+                const Icon(Icons.assignment_outlined,
+                    color: ErpColors.accentBlue, size: 20),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text('Material Requirement Program',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: ErpColors.textPrimary)),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ]),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _data == null
+                      ? const Center(child: Text('Could not load MRP.'))
+                      : ListView(
+                          controller: scrollCtrl,
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                          children: _buildBody(),
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildBody() {
+    final d = _data!;
+    final materials = (d['materials'] as List?) ?? const [];
+    final elastics = (d['elastics'] as List?) ?? const [];
+    final anyShort = materials.any((m) => ((m as Map)['shortfall'] as num? ?? 0) > 0);
+
+    return [
+      // ── Production mode toggle ──────────────────────────────
+      const _MrpLabel('Production mode'),
+      const SizedBox(height: 8),
+      Obx(() => Row(children: [
+            Expanded(
+              child: _ModeChip(
+                label: 'In-house',
+                icon: Icons.factory_outlined,
+                selected: !_isOutsource,
+                busy: widget.ctrl.savingMode.value,
+                onTap: () => _setMode('in_house'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _ModeChip(
+                label: 'Outsource',
+                icon: Icons.local_shipping_outlined,
+                selected: _isOutsource,
+                busy: widget.ctrl.savingMode.value,
+                onTap: () => _setMode('outsource'),
+              ),
+            ),
+          ])),
+      if (_isOutsource) ...[
+        const SizedBox(height: 12),
+        TextField(
+          controller: _vendor,
+          decoration: InputDecoration(
+            labelText: 'Vendor / subcontractor',
+            hintText: 'e.g. Weavers United',
+            isDense: true,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            suffixIcon: TextButton(
+              onPressed: () => _setMode('outsource'),
+              child: const Text('Save'),
+            ),
+          ),
+        ),
+      ],
+      const SizedBox(height: 20),
+
+      // ── Elastics ────────────────────────────────────────────
+      const _MrpLabel('Elastics to produce'),
+      const SizedBox(height: 6),
+      if (elastics.isEmpty)
+        const Text('No elastic lines on this job.',
+            style: TextStyle(color: ErpColors.textSecondary))
+      else
+        ...elastics.map((e) {
+          final m = e as Map;
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Text(
+              '• ${m['name'] ?? 'Unknown'} — ${_fmtNum(m['quantity'])} m',
+              style: const TextStyle(
+                  fontSize: 13, color: ErpColors.textPrimary),
+            ),
+          );
+        }),
+      const SizedBox(height: 20),
+
+      // ── Material requirement ────────────────────────────────
+      const _MrpLabel('Raw material requirement'),
+      const SizedBox(height: 8),
+      _MrpTableHeader(),
+      if (materials.isEmpty)
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: Text('No BOM materials resolved for these elastics.',
+              style: TextStyle(color: ErpColors.textSecondary)),
+        )
+      else
+        ...materials.map((m) => _MrpRow(m as Map)),
+      if (anyShort) ...[
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: ErpColors.errorRed.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Row(children: [
+            Icon(Icons.warning_amber_rounded,
+                color: ErpColors.errorRed, size: 18),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Some materials are short — raise a PO before starting.',
+                style: TextStyle(
+                    color: ErpColors.errorRed, fontSize: 12,
+                    fontWeight: FontWeight.w600),
+              ),
+            ),
+          ]),
+        ),
+      ],
+      const SizedBox(height: 20),
+
+      // ── View PDF ────────────────────────────────────────────
+      Obx(() => SizedBox(
+            width: double.infinity,
+            height: 46,
+            child: ElevatedButton.icon(
+              onPressed: widget.ctrl.mrpPdfLoading.value
+                  ? null
+                  : () => widget.ctrl.openMrpPdf(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ErpColors.accentBlue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              icon: widget.ctrl.mrpPdfLoading.value
+                  ? const SizedBox(
+                      width: 16, height: 16,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
+                  : const Icon(Icons.picture_as_pdf_rounded, size: 18),
+              label: Text(
+                  widget.ctrl.mrpPdfLoading.value
+                      ? 'Preparing…'
+                      : 'View MRP Sheet (PDF)',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 14)),
+            ),
+          )),
+    ];
+  }
+
+  static String _fmtNum(dynamic n) {
+    final v = (n as num?)?.toDouble() ?? 0;
+    return v.toStringAsFixed(v.truncateToDouble() == v ? 0 : 2);
+  }
+}
+
+class _MrpLabel extends StatelessWidget {
+  final String text;
+  const _MrpLabel(this.text);
+  @override
+  Widget build(BuildContext context) => Text(
+        text.toUpperCase(),
+        style: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.8,
+            color: ErpColors.textSecondary),
+      );
+}
+
+class _ModeChip extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected, busy;
+  final VoidCallback onTap;
+  const _ModeChip({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.busy,
+    required this.onTap,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: busy ? null : onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: selected
+              ? ErpColors.accentBlue.withOpacity(0.1)
+              : ErpColors.bgMuted,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+              color: selected ? ErpColors.accentBlue : ErpColors.borderLight,
+              width: selected ? 1.5 : 1),
+        ),
+        child: Column(children: [
+          Icon(icon,
+              size: 20,
+              color: selected ? ErpColors.accentBlue : ErpColors.textSecondary),
+          const SizedBox(height: 4),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: selected
+                      ? ErpColors.accentBlue
+                      : ErpColors.textSecondary)),
+        ]),
+      ),
+    );
+  }
+}
+
+class _MrpTableHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+      color: ErpColors.bgMuted,
+      child: Row(children: const [
+        Expanded(flex: 4, child: Text('Material',
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700))),
+        Expanded(flex: 2, child: Text('Req.', textAlign: TextAlign.right,
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700))),
+        Expanded(flex: 2, child: Text('Stock', textAlign: TextAlign.right,
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700))),
+        Expanded(flex: 2, child: Text('Short', textAlign: TextAlign.right,
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700))),
+      ]),
+    );
+  }
+}
+
+class _MrpRow extends StatelessWidget {
+  final Map m;
+  const _MrpRow(this.m);
+  @override
+  Widget build(BuildContext context) {
+    final short = ((m['shortfall'] as num?) ?? 0) > 0;
+    String kg(dynamic v) => '${((v as num?)?.toDouble() ?? 0)
+        .toStringAsFixed(3)} kg';
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      decoration: BoxDecoration(
+        color: short ? ErpColors.errorRed.withOpacity(0.05) : null,
+        border: const Border(
+            bottom: BorderSide(color: ErpColors.borderLight, width: 0.5)),
+      ),
+      child: Row(children: [
+        Expanded(flex: 4, child: Text(
+            (m['name'] ?? 'Unknown').toString(),
+            style: const TextStyle(fontSize: 12,
+                color: ErpColors.textPrimary))),
+        Expanded(flex: 2, child: Text(kg(m['requiredWeight']),
+            textAlign: TextAlign.right,
+            style: const TextStyle(fontSize: 11.5))),
+        Expanded(flex: 2, child: Text(kg(m['inStock']),
+            textAlign: TextAlign.right,
+            style: const TextStyle(fontSize: 11.5))),
+        Expanded(flex: 2, child: Text(
+            short ? kg(m['shortfall']) : '—',
+            textAlign: TextAlign.right,
+            style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: short ? FontWeight.w700 : FontWeight.w400,
+                color: short ? ErpColors.errorRed : ErpColors.textSecondary))),
+      ]),
+    );
+  }
+}

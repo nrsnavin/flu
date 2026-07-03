@@ -11,6 +11,7 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../../common_widgets/fingerprint_timeline.dart';
 import 'package:production/src/core/api_client.dart';
+import 'mrp_sheet_page.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  DATA MODELS
@@ -584,6 +585,32 @@ class _JobDetailPageState extends State<JobDetailPage>
                 onPressed: () => Navigator.maybePop(context),
               ),
               actions: [
+                // MRP sheet — material requirement + in-house/outsource
+                // + the signed PDF. Backed by the /job/:id/mrp endpoints.
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: TextButton.icon(
+                    style: TextButton.styleFrom(
+                      backgroundColor: ErpColors.navyLight,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                    ),
+                    onPressed: (isLoading || job == null)
+                        ? null
+                        : () => Get.to(() => MrpSheetPage(jobId: job.id)),
+                    icon: const Icon(Icons.assignment_outlined,
+                        color: Colors.white, size: 16),
+                    label: const Text(
+                      'MRP',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: TextButton.icon(

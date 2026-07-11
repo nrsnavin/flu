@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../../common_widgets/reason_dialog.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/shift_detail.dart';
 import '../models/shift_detail_view_model.dart';
@@ -268,8 +269,114 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
         ErpInfoRow("Production", "${s.production} meters"),
         ErpInfoRow("Run Time", s.timer),
         if (s.feedback.isNotEmpty) ErpInfoRow("Feedback", s.feedback),
+        // ── Correct / delete a verified entry (audit-logged) ──
+        if (s.status == "closed") ...[
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: ErpColors.borderLight),
+          const SizedBox(height: 12),
+          Obx(() => Row(children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: ErpColors.accentBlue,
+                      side: const BorderSide(color: ErpColors.accentBlue),
+                    ),
+                    onPressed: controller.isCorrecting.value ? null : () => _correctEntry(s),
+                    icon: const Icon(Icons.edit_outlined, size: 15),
+                    label: const Text("Correct"),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: ErpColors.errorRed,
+                      side: const BorderSide(color: ErpColors.errorRed),
+                    ),
+                    onPressed: controller.isCorrecting.value ? null : () => _deleteEntry(),
+                    icon: const Icon(Icons.delete_outline, size: 15),
+                    label: const Text("Delete"),
+                  ),
+                ),
+              ])),
+          const SizedBox(height: 4),
+          const Text(
+            "Corrections re-derive the order/job totals and are recorded in the audit log.",
+            style: TextStyle(fontSize: 10, color: ErpColors.textMuted),
+          ),
+        ],
       ]),
     );
+  }
+
+  Future<void> _correctEntry(ShiftDetailViewModel s) async {
+    final metersCtrl = TextEditingController(text: "${s.production}");
+    final reasonCtrl = TextEditingController();
+    final result = await Get.dialog<Map<String, dynamic>>(
+      StatefulBuilder(
+        builder: (ctx, setLocal) {
+          return AlertDialog(
+            backgroundColor: ErpColors.bgSurface,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            title: const Text("Correct production",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
+            content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+              TextField(
+                controller: metersCtrl,
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setLocal(() {}),
+                decoration: InputDecoration(
+                  labelText: "Production meters *",
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: reasonCtrl,
+                minLines: 2,
+                maxLines: 3,
+                onChanged: (_) => setLocal(() {}),
+                decoration: InputDecoration(
+                  labelText: "Reason *",
+                  hintText: "Why is this being corrected? (audit log)",
+                  hintStyle: const TextStyle(fontSize: 11, color: ErpColors.textMuted),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ]),
+            actions: [
+              TextButton(onPressed: () => Get.back(), child: const Text("Cancel")),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: ErpColors.accentBlue, elevation: 0),
+                onPressed: (int.tryParse(metersCtrl.text.trim()) == null ||
+                        reasonCtrl.text.trim().length < 3)
+                    ? null
+                    : () => Get.back(result: {
+                          "meters": int.parse(metersCtrl.text.trim()),
+                          "reason": reasonCtrl.text.trim(),
+                        }),
+                child: const Text("Save", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    _reasonCtrl.clear();
+    if (result != null) {
+      await controller.correctProduction(result["meters"] as int, result["reason"] as String);
+    }
+  }
+
+  Future<void> _deleteEntry() async {
+    final reason = await showReasonDialog(
+      title: "Delete production entry",
+      message: "Reverses this entry and returns the shift to pending verification.",
+      confirmLabel: "Delete",
+      danger: true,
+    );
+    if (reason == null) return;
+    await controller.deleteProduction(reason);
   }
 }
 // ══════════════════════════════════════════════════════════════

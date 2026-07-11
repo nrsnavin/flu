@@ -57,6 +57,61 @@ class ShiftDetailController extends GetxController {
     }
   }
 
+  var isCorrecting = false.obs;
+
+  /// Corrects a verified (closed) production entry to a new total. The
+  /// server re-derives the order/job cascade and stamps a
+  /// SHIFT_PRODUCTION_EDITED fingerprint. Requires an audit reason.
+  Future<bool> correctProduction(int newMeters, String auditReason) async {
+    try {
+      isCorrecting.value = true;
+      await _dio.put(
+        "/shift/production-entry/$shiftId",
+        data: {"productionMeters": newMeters, "auditReason": auditReason},
+      );
+      await fetchDetail();
+      Get.snackbar("Corrected", "Production entry updated",
+          backgroundColor: const Color(0xFF16A34A), colorText: const Color(0xFFFFFFFF));
+      return true;
+    } catch (e) {
+      Get.snackbar("Error", _msg(e, "Failed to correct entry"),
+          backgroundColor: const Color(0xFFDC2626), colorText: const Color(0xFFFFFFFF));
+      return false;
+    } finally {
+      isCorrecting.value = false;
+    }
+  }
+
+  /// Deletes (reverses + un-verifies) a closed production entry so it can
+  /// be re-entered. Requires an audit reason.
+  Future<bool> deleteProduction(String auditReason) async {
+    try {
+      isCorrecting.value = true;
+      await _dio.delete(
+        "/shift/production-entry/$shiftId",
+        queryParameters: {"auditReason": auditReason},
+      );
+      await fetchDetail();
+      Get.snackbar("Deleted", "Production entry reversed and un-verified",
+          backgroundColor: const Color(0xFF16A34A), colorText: const Color(0xFFFFFFFF));
+      return true;
+    } catch (e) {
+      Get.snackbar("Error", _msg(e, "Failed to delete entry"),
+          backgroundColor: const Color(0xFFDC2626), colorText: const Color(0xFFFFFFFF));
+      return false;
+    } finally {
+      isCorrecting.value = false;
+    }
+  }
+
+  String _msg(Object e, String fallback) {
+    if (e is DioException && e.response?.data is Map) {
+      final m = (e.response!.data as Map)["message"];
+      if (m != null) return m.toString();
+    }
+    return fallback;
+  }
+
   Future<void> saveShift() async {
     // Validate before parsing
     final productionText  = productionController.text.trim();

@@ -7,6 +7,7 @@ import '../../ai_advisor/services/ai_advisor.dart';
 import '../../announcement/screens/announcement_list.dart';
 import '../../assistant/screens/assistant_chat_page.dart';
 import '../../Orders/screens/delivery_risk_page.dart';
+import '../../planning/screens/auto_planner_page.dart';
 import '../../qc/screens/qc_list_page.dart';
 import '../../feedback/screens/feedback_admin_list.dart';
 import '../../Job/screens/job_list_screen.dart';
@@ -601,6 +602,11 @@ class _QuickLinks extends StatelessWidget {
             icon: Icons.campaign_outlined,
             label: 'Notice Board',
             onTap: () => Get.to(() => const AnnouncementListPage()),
+          ),
+          _LinkRow(
+            icon: Icons.auto_fix_high_outlined,
+            label: 'Auto Planner',
+            onTap: () => Get.to(() => const AutoPlannerPage()),
           ),
           _LinkRow(
             icon: Icons.local_shipping_outlined,

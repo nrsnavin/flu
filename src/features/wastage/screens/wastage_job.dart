@@ -487,44 +487,61 @@ class _WastageDetailSheet extends StatelessWidget {
     WastageRecord r,
     WastageJobController c,
   ) {
+    final reasonCtrl = TextEditingController();
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
-        backgroundColor: ErpColors.bgSurface,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10)),
-        title: const Text('Delete wastage?',
-            style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-                color: ErpColors.textPrimary)),
-        content: Text(
-          'Removes the ${r.quantity.toStringAsFixed(1)} m wastage entry by ${r.employeeName}. This cannot be undone.',
-          style: const TextStyle(
-              color: ErpColors.textSecondary, fontSize: 12),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
+      builder: (_) => StatefulBuilder(
+        builder: (dctx, setLocal) => AlertDialog(
+          backgroundColor: ErpColors.bgSurface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          title: const Text('Delete wastage?',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Removes the ${r.quantity.toStringAsFixed(1)} m wastage entry by ${r.employeeName} and rolls back the per-job counter.',
+                style: const TextStyle(color: ErpColors.textSecondary, fontSize: 12),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: reasonCtrl,
+                autofocus: true,
+                minLines: 2,
+                maxLines: 3,
+                onChanged: (_) => setLocal(() {}),
+                decoration: InputDecoration(
+                  labelText: 'Reason *',
+                  hintText: 'Why is this being deleted? (recorded in the audit log)',
+                  hintStyle: const TextStyle(fontSize: 11, color: ErpColors.textMuted),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ErpColors.errorRed,
-              elevation: 0,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dctx).pop(),
+              child: const Text('Cancel'),
             ),
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              final ok = await c.removeOne(r.id);
-              if (ok && Get.isBottomSheetOpen == true) {
-                Get.back(); // close the detail sheet
-              }
-            },
-            child: const Text('Delete',
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w700)),
-          ),
-        ],
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: ErpColors.errorRed, elevation: 0),
+              onPressed: reasonCtrl.text.trim().length < 3
+                  ? null
+                  : () async {
+                      final reason = reasonCtrl.text.trim();
+                      Navigator.of(dctx).pop();
+                      final ok = await c.removeOne(r.id, reason);
+                      if (ok && Get.isBottomSheetOpen == true) {
+                        Get.back(); // close the detail sheet
+                      }
+                    },
+              child: const Text('Delete',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
       ),
     );
   }

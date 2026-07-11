@@ -67,8 +67,8 @@ class WastageApi {
   /// Admin-only undo. Calls `DELETE /api/v2/wastage/:id`. Backend
   /// rolls back the per-job wastage counter and (for legacy entries
   /// only) reverses any WASTAGE_OUT stock movement.
-  static Future<void> deleteWastage(String id) async {
-    await _dio.delete('/$id');
+  static Future<void> deleteWastage(String id, {required String auditReason}) async {
+    await _dio.delete('/$id', queryParameters: {'auditReason': auditReason});
   }
 
   static Future<List<WastageJobOption>> fetchJobsForWastage() async {
@@ -175,10 +175,10 @@ class WastageJobController extends GetxController {
 
   /// Calls the admin DELETE endpoint and refetches the list so
   /// totals stay accurate. Returns true on success.
-  Future<bool> removeOne(String id) async {
+  Future<bool> removeOne(String id, String auditReason) async {
     deleting.value = true;
     try {
-      await WastageApi.deleteWastage(id);
+      await WastageApi.deleteWastage(id, auditReason: auditReason);
       // Optimistic local removal — refetch happens immediately
       // after, but this keeps the UI snappy if the bottom sheet
       // closes before fetch completes.

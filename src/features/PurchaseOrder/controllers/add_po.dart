@@ -5,6 +5,7 @@ import 'package:production/src/features/Orders/models/elasticLite.dart';
 import 'package:production/src/features/Orders/models/order_elastic_row.dart';
 import '../models/po_models.dart';
 import '../services/api.dart';
+import '../../../common_widgets/reason_dialog.dart';
 
 enum POFormMode { create, edit, clone }
 
@@ -168,6 +169,18 @@ class AddPOController extends GetxController {
   Future<void> submit() async {
     if (!_validate()) return;
 
+    // Editing an existing PO writes an audit fingerprint on the server,
+    // which requires a reason. Prompt before we start submitting.
+    String? auditReason;
+    if (mode == POFormMode.edit) {
+      auditReason = await showReasonDialog(
+        title: 'Edit Purchase Order',
+        message: 'Editing replaces the items. A reason is recorded in the audit log.',
+        confirmLabel: 'Save changes',
+      );
+      if (auditReason == null) return; // cancelled
+    }
+
     try {
       isSubmitting.value = true;
 
@@ -183,7 +196,9 @@ class AddPOController extends GetxController {
       };
 
       if (mode == POFormMode.edit) {
-        payload["_id"] = seedData!["_id"] as String;
+        // Backend reads `poId` (not `_id`) and requires `auditReason`.
+        payload["poId"] = seedData!["_id"] as String;
+        payload["auditReason"] = auditReason;
         await POApiService.dio.put("/edit-po", data: payload);
         Get.snackbar("Success", "Purchase Order updated");
       } else {

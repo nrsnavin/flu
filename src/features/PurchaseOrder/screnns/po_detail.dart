@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:production/src/features/PurchaseOrder/screnns/pdf.dart';
+import '../../../common_widgets/reason_dialog.dart';
 import '../controllers/add_po.dart';
 import '../controllers/po_detail.dart';
 
@@ -187,6 +188,25 @@ class _PODetailViewState extends State<_PODetailView>
                 seedData: po.toEditData(),
               ));
               if (res == true) c.fetchDetail();
+            },
+          ),
+        // ── Delete / cancel (Open only) ────────────────
+        if (po != null && po.status == 'Open')
+          IconButton(
+            icon: const Icon(Icons.delete_outline,
+                color: Colors.white, size: 20),
+            tooltip: "Cancel PO",
+            onPressed: () async {
+              final reason = await showReasonDialog(
+                title: 'Cancel Purchase Order',
+                message:
+                    'This cancels PO #${po.poNo}. Only allowed while Open with no receipts.',
+                confirmLabel: 'Cancel PO',
+                danger: true,
+              );
+              if (reason == null) return;
+              final ok = await c.deletePO(reason);
+              if (ok) Get.back(result: true);
             },
           ),
         const SizedBox(width: 4),

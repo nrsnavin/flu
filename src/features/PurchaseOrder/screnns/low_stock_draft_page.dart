@@ -6,12 +6,15 @@ import '../controllers/low_stock_draft_controller.dart';
 import '../services/theme.dart';
 import 'add_po.dart';
 
-/// Picker that lists materials currently at or below their min-stock
-/// floor, grouped by supplier. Each group has a "Draft PO" button
-/// that opens AddPOPage with the supplier + suggested rows already
-/// seeded, so the admin only has to review and submit.
+/// Forecast-driven replenishment. Projects each material's stock from
+/// on-hand − committed demand (Open orders) − run-rate × horizon, and
+/// lists those about to breach their safety floor, grouped by supplier.
+/// Each group has a "Draft PO" button that opens AddPOPage with the
+/// supplier + suggested rows seeded, so the admin only reviews and submits.
 class LowStockDraftPage extends StatelessWidget {
   const LowStockDraftPage({super.key});
+
+  static const _horizons = [7, 14, 30, 60];
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +30,9 @@ class LowStockDraftPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Draft POs', style: ErpTextStyles.pageTitle),
-            Text('Materials below min stock',
-                style: TextStyle(
-                    color: ErpColors.textOnDarkSub, fontSize: 10)),
+            Text('Replenishment forecast', style: ErpTextStyles.pageTitle),
+            Text('Draft POs before you run out',
+                style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 10)),
           ],
         ),
         actions: [
@@ -41,15 +43,12 @@ class LowStockDraftPage extends StatelessWidget {
         ],
       ),
       body: Obx(() {
-        final hasAny = c.materials.isNotEmpty || c.projected.isNotEmpty;
+        final hasAny = c.materials.isNotEmpty;
         if (c.loading.value && !hasAny) {
           return const Center(child: CircularProgressIndicator());
         }
         if (c.errorMsg.value != null && !hasAny) {
           return _Error(message: c.errorMsg.value!, onRetry: c.fetch);
-        }
-        if (!hasAny) {
-          return const _EmptyState();
         }
         final groups = c.groupedBySupplier;
         return RefreshIndicator(
@@ -57,21 +56,124 @@ class LowStockDraftPage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
             children: [
-              for (final entry in groups.entries)
-                _SupplierGroupCard(
-                  supplierId:   entry.key,
-                  supplierName: entry.value.first.supplierName,
-                  items:        entry.value,
-                  onDraft: () => Get.to(() => AddPOPage(
-                        mode: POFormMode.create,
-                        seedData: c.seedDataFor(entry.key),
-                      )),
-                ),
-              if (c.skippedNoSupplier.value > 0) _SkippedNote(c: c),
+              _HorizonSelector(c: c),
+              const SizedBox(height: 12),
+              if (!hasAny)
+                const _EmptyState()
+              else ...[
+                _StatsRow(c: c),
+                if (c.aiSummary.value != null) ...[
+                  const SizedBox(height: 12),
+                  _AiSummaryCard(text: c.aiSummary.value!),
+                ],
+                const SizedBox(height: 12),
+                for (final entry in groups.entries)
+                  _SupplierGroupCard(
+                    supplierId:   entry.key,
+                    supplierName: entry.value.first.supplierName,
+                    items:        entry.value,
+                    onDraft: () => Get.to(() => AddPOPage(
+                          mode: POFormMode.create,
+                          seedData: c.seedDataFor(entry.key),
+                        )),
+                  ),
+                if (c.skippedNoSupplier.value > 0) _SkippedNote(c: c),
+              ],
             ],
           ),
         );
       }),
+    );
+  }
+}
+
+class _HorizonSelector extends StatelessWidget {
+  final LowStockDraftController c;
+  const _HorizonSelector({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() => Row(
+          children: LowStockDraftPage._horizons.map((d) {
+            final sel = c.horizon.value == d;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ChoiceChip(
+                label: Text('${d}d'),
+                selected: sel,
+                onSelected: (_) => c.setHorizon(d),
+                selectedColor: ErpColors.accentBlue,
+                labelStyle: TextStyle(
+                    color: sel ? Colors.white : ErpColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700),
+                backgroundColor: ErpColors.bgSurface,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    side: const BorderSide(color: ErpColors.borderLight)),
+              ),
+            );
+          }).toList(),
+        ));
+  }
+}
+
+class _StatsRow extends StatelessWidget {
+  final LowStockDraftController c;
+  const _StatsRow({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      _tile('To reorder', '${c.flaggedN.value}', ErpColors.warningAmber),
+      const SizedBox(width: 10),
+      _tile('Critical', '${c.criticalN.value}',
+          c.criticalN.value > 0 ? ErpColors.errorRed : ErpColors.textPrimary),
+      const SizedBox(width: 10),
+      _tile('Est. spend', '₹${c.estSpend.value.toStringAsFixed(0)}', ErpColors.textPrimary),
+    ]);
+  }
+
+  Widget _tile(String label, String value, Color color) => Expanded(
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: ErpColors.bgSurface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: ErpColors.borderLight),
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(label, style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+            const SizedBox(height: 4),
+            Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: color)),
+          ]),
+        ),
+      );
+}
+
+class _AiSummaryCard extends StatelessWidget {
+  final String text;
+  const _AiSummaryCard({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: ErpColors.bgSurface,
+        borderRadius: BorderRadius.circular(10),
+        border: const Border(left: BorderSide(color: ErpColors.accentBlue, width: 4)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Row(children: [
+          Icon(Icons.auto_awesome, size: 14, color: ErpColors.accentBlue),
+          SizedBox(width: 6),
+          Text('AI PROCUREMENT SUMMARY',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.accentBlue)),
+        ]),
+        const SizedBox(height: 8),
+        Text(text, style: const TextStyle(fontSize: 13, color: ErpColors.textPrimary, height: 1.4)),
+      ]),
     );
   }
 }
@@ -91,8 +193,7 @@ class _SupplierGroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalValue =
-        items.fold<double>(0, (s, m) => s + m.suggestedValue);
+    final totalValue = items.fold<double>(0, (s, m) => s + m.suggestedValue);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -107,10 +208,8 @@ class _SupplierGroupCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
             decoration: const BoxDecoration(
               color: ErpColors.bgMuted,
-              borderRadius:
-                  BorderRadius.vertical(top: Radius.circular(10)),
-              border: Border(
-                  bottom: BorderSide(color: ErpColors.borderLight)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+              border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
             ),
             child: Row(
               children: [
@@ -129,8 +228,7 @@ class _SupplierGroupCard extends StatelessWidget {
                         '${items.length == 1 ? '' : 's'}  ·  '
                         '₹${totalValue.toStringAsFixed(0)}',
                         style: const TextStyle(
-                            fontSize: 11,
-                            color: ErpColors.textSecondary),
+                            fontSize: 11, color: ErpColors.textSecondary),
                       ),
                     ],
                   ),
@@ -143,12 +241,9 @@ class _SupplierGroupCard extends StatelessWidget {
                     backgroundColor: ErpColors.accentBlue,
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
-                    textStyle: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w700),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6)),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                   ),
                 ),
               ],
@@ -182,37 +277,34 @@ class _MaterialRow extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         color: ErpColors.textPrimary)),
               ),
-              if (m.isPredictive) ...[
+              if (m.daysToStockout != null) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: ErpColors.warningAmber.withOpacity(0.12),
+                    color: (m.isCritical ? ErpColors.errorRed : ErpColors.warningAmber)
+                        .withOpacity(0.12),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     '~${m.daysToStockout!.toStringAsFixed(0)}d',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: ErpColors.warningAmber),
+                        color: m.isCritical ? ErpColors.errorRed : ErpColors.warningAmber),
                   ),
                 ),
                 const SizedBox(width: 6),
               ],
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 7, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
                   color: ErpColors.accentBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  '+${m.suggestedQty.toStringAsFixed(0)}',
+                  '+${m.suggestedQty.toStringAsFixed(0)}${m.unit.isNotEmpty ? ' ${m.unit}' : ''}',
                   style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: ErpColors.accentBlue),
+                      fontSize: 11, fontWeight: FontWeight.w800, color: ErpColors.accentBlue),
                 ),
               ),
             ],
@@ -225,21 +317,16 @@ class _MaterialRow extends StatelessWidget {
               minHeight: 4,
               backgroundColor: ErpColors.borderLight,
               valueColor: AlwaysStoppedAnimation<Color>(
-                m.stock <= 0
-                    ? ErpColors.errorRed
-                    : m.isPredictive
-                        ? ErpColors.accentBlue
-                        : ErpColors.warningAmber,
+                m.projectedStock < 0 ? ErpColors.errorRed : ErpColors.warningAmber,
               ),
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            m.isPredictive
-                ? 'Stock ${m.stock.toStringAsFixed(0)}  ·  projected to run out'
-                : 'Stock ${m.stock.toStringAsFixed(0)}  /  min ${m.minStock.toStringAsFixed(0)}',
-            style: const TextStyle(
-                fontSize: 11, color: ErpColors.textSecondary),
+            'on-hand ${m.stock.toStringAsFixed(0)}'
+            '${m.committedDemand > 0 ? '  ·  committed ${m.committedDemand.toStringAsFixed(0)}' : ''}'
+            '  ·  proj ${m.projectedStock.toStringAsFixed(0)}',
+            style: const TextStyle(fontSize: 11, color: ErpColors.textSecondary),
           ),
         ],
       ),
@@ -263,16 +350,14 @@ class _SkippedNote extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded,
-              size: 14, color: ErpColors.warningAmber),
+          const Icon(Icons.info_outline_rounded, size: 14, color: ErpColors.warningAmber),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              '${c.skippedNoSupplier.value} low-stock '
+              '${c.skippedNoSupplier.value} '
               'material${c.skippedNoSupplier.value == 1 ? '' : 's'} '
-              'skipped — no default supplier set.',
-              style: const TextStyle(
-                  fontSize: 12, color: ErpColors.warningAmber),
+              'need reordering but have no default supplier set.',
+              style: const TextStyle(fontSize: 12, color: ErpColors.warningAmber),
             ),
           ),
         ],
@@ -292,18 +377,15 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.check_circle_outline_rounded,
-                size: 48, color: ErpColors.successGreen),
+            Icon(Icons.check_circle_outline_rounded, size: 48, color: ErpColors.successGreen),
             SizedBox(height: 12),
-            Text('All materials are above min stock',
+            Text('No replenishment needed',
                 style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: ErpColors.textPrimary)),
+                    fontSize: 14, fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
             SizedBox(height: 4),
-            Text('Nothing to draft right now.',
-                style: TextStyle(
-                    fontSize: 12, color: ErpColors.textSecondary)),
+            Text('No material is projected to drop below its safety stock in this window.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: ErpColors.textSecondary)),
           ],
         ),
       ),
@@ -324,18 +406,13 @@ class _Error extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline_rounded,
-                size: 40, color: ErpColors.errorRed),
+            const Icon(Icons.error_outline_rounded, size: 40, color: ErpColors.errorRed),
             const SizedBox(height: 12),
             Text(message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 13, color: ErpColors.textSecondary)),
+                style: const TextStyle(fontSize: 13, color: ErpColors.textSecondary)),
             const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
+            OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
           ],
         ),
       ),

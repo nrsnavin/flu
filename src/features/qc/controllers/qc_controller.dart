@@ -113,16 +113,81 @@ class QcApi {
   static Future<void> create(Map<String, dynamic> body) async {
     await _dio.post('/create', data: body);
   }
+
+  static Future<TrainingReadiness> trainingReadiness() async {
+    final res = await _dio.get('/training-readiness');
+    return TrainingReadiness.fromJson(Map<String, dynamic>.from(res.data));
+  }
+}
+
+// Mirrors GET /api/v2/qc/training-readiness (prod/api/qc.js). Tracks how
+// close the labelled QC photos are to a trainable defect dataset — the
+// flywheel where every AI draft an inspector corrects becomes a sample.
+class ReadinessClass {
+  final String defectCode;
+  final int count;
+  ReadinessClass(this.defectCode, this.count);
+}
+
+class TrainingReadiness {
+  final int minSamples, minClasses, minPerClass;
+  final int qcRecords, labelledImages, aiAssisted, aiAssistedShare;
+  final List<ReadinessClass> classes;
+  final int classesReady, progressPct;
+  final bool ready;
+  final String recommendation;
+
+  TrainingReadiness({
+    required this.minSamples,
+    required this.minClasses,
+    required this.minPerClass,
+    required this.qcRecords,
+    required this.labelledImages,
+    required this.aiAssisted,
+    required this.aiAssistedShare,
+    required this.classes,
+    required this.classesReady,
+    required this.progressPct,
+    required this.ready,
+    required this.recommendation,
+  });
+
+  factory TrainingReadiness.fromJson(Map<String, dynamic> j) {
+    final th = Map<String, dynamic>.from(j['thresholds'] ?? {});
+    final t = Map<String, dynamic>.from(j['totals'] ?? {});
+    int n(dynamic v) => (v as num?)?.toInt() ?? 0;
+    return TrainingReadiness(
+      minSamples: n(th['MIN_SAMPLES']),
+      minClasses: n(th['MIN_CLASSES']),
+      minPerClass: n(th['MIN_PER_CLASS']),
+      qcRecords: n(t['qcRecords']),
+      labelledImages: n(t['labelledImages']),
+      aiAssisted: n(t['aiAssisted']),
+      aiAssistedShare: n(t['aiAssistedShare']),
+      classes: (j['classes'] as List? ?? [])
+          .map((e) {
+            final m = Map<String, dynamic>.from(e);
+            return ReadinessClass('${m['defectCode'] ?? '(unlabelled)'}', n(m['count']));
+          })
+          .toList(),
+      classesReady: n(j['classesReady']),
+      progressPct: n(j['progressPct']),
+      ready: j['ready'] == true,
+      recommendation: '${j['recommendation'] ?? ''}',
+    );
+  }
 }
 
 class QcController extends GetxController {
   final recent = <QcRecent>[].obs;
   final isLoading = false.obs;
+  final readiness = Rxn<TrainingReadiness>();
 
   @override
   void onInit() {
     super.onInit();
     fetchRecent();
+    fetchReadiness();
   }
 
   Future<void> fetchRecent() async {
@@ -134,5 +199,17 @@ class QcController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> fetchReadiness() async {
+    try {
+      readiness.value = await QcApi.trainingReadiness();
+    } catch (_) {
+      // Non-fatal — the card just won't render.
+    }
+  }
+
+  Future<void> refreshAll() async {
+    await Future.wait([fetchRecent(), fetchReadiness()]);
   }
 }

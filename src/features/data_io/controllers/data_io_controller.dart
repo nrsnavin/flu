@@ -46,7 +46,7 @@ class DataIoController extends GetxController {
     errorMsg.value = null;
     lastResult.value = null;
 
-    final picked = await FilePicker.pickFiles(
+    final picked = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
       withData: true, // ensures bytes are available on every platform

@@ -6,6 +6,7 @@ import '../models/PackingModel.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
 import '../../../core/api_client.dart';
+import '../../../core/request_id.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -340,9 +341,27 @@ class AddPackingController extends GetxController {
     }
   }
 
+  // Idempotency key for the current submission. Kept across retries of
+  // the SAME payload (a timeout may have landed server-side) and rotated
+  // when the user edits any value or after a confirmed success — so a
+  // resubmit can't double-count stock, and an edited resubmit isn't
+  // wrongly swallowed as a duplicate.
+  String? _requestId;
+  String? _requestSig;
+
   Future<bool> submit() async {
     if (!_validate()) return false;
     isSaving.value = true;
+    final sig = [
+      selectedJob.value!.id, selectedElastic.value, meterCtrl.text.trim(),
+      jointsCtrl.text.trim(), tareCtrl.text.trim(), netCtrl.text.trim(),
+      grossCtrl.text.trim(), stretchCtrl.text.trim(), sizeCtrl.text.trim(),
+      selectedCheckedBy.value, selectedPackedBy.value,
+    ].join('|');
+    if (_requestId == null || sig != _requestSig) {
+      _requestId = newRequestId();
+      _requestSig = sig;
+    }
     try {
       // Defence in depth: form-level validate() should have caught
       // these, but a field cleared after validation would crash the
@@ -360,7 +379,9 @@ class AddPackingController extends GetxController {
         'size':        sizeCtrl.text.trim(),
         'checkedBy':   selectedCheckedBy.value,
         'packedBy':    selectedPackedBy.value,
+        'requestId':   _requestId,
       });
+      _requestId = null; // next submission is a new business event
       _snack('Packing Added', 'Packing record saved successfully',
           isError: false);
       onSuccess?.call();

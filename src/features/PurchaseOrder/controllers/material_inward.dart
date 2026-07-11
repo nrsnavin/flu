@@ -4,6 +4,7 @@ import 'package:production/src/features/PurchaseOrder/controllers/po_detail.dart
 import 'package:production/src/features/authentication/screens/home.dart';
 import '../models/po_models.dart';
 import '../services/api.dart';
+import '../../../core/request_id.dart';
 
 
 class InwardItemRow {
@@ -63,6 +64,13 @@ class MaterialInwardController extends GetxController {
     return true;
   }
 
+  // Idempotency key for the in-flight receipt. Stable across retries of
+  // the same payload (a timeout may have landed server-side), rotated
+  // when quantities change or after success — a resubmit can't credit
+  // stock twice.
+  String? _requestId;
+  String? _requestSig;
+
   Future<void> submit() async {
     if (!_validate()) return;
 
@@ -79,10 +87,17 @@ class MaterialInwardController extends GetxController {
       })
           .toList();
 
+      final sig = '${po.id}|${items.map((i) => '${i["rawMaterial"]}:${i["quantity"]}').join(',')}';
+      if (_requestId == null || sig != _requestSig) {
+        _requestId = newRequestId();
+        _requestSig = sig;
+      }
+
       final res = await POApiService.dio.post(
         "/inward-stock",
-        data: {"poId": po.id, "items": items},
+        data: {"poId": po.id, "items": items, "requestId": _requestId},
       );
+      _requestId = null; // next receipt is a new business event
 
     Get.to(Home());
       Get.snackbar(

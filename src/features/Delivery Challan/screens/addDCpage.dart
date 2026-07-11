@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/request_id.dart';
 import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
@@ -21,6 +24,10 @@ class AddDCController extends GetxController {
     baseUrl: 'http://13.233.117.153:2701/api/v2',
     timeout: const Duration(seconds: 15),
   );
+
+  // Idempotency key for the in-flight create (see submit()).
+  String? _requestId;
+  String? _requestSig;
 
   // ── Type ───────────────────────────────────────────────────
   final selectedType = 'elastic'.obs; // 'elastic' | 'machine_part'
@@ -243,14 +250,25 @@ class AddDCController extends GetxController {
       if (orderInfo.value != null) 'orderNo': orderInfo.value!.orderNo,
     };
 
+    // Idempotency key: stable across retries of the same payload (a
+    // timeout may have landed server-side), rotated when values change
+    // or after success — a resubmit can't cut a second challan.
+    final sig = jsonEncode(payload);
+    if (_requestId == null || sig != _requestSig) {
+      _requestId = newRequestId();
+      _requestSig = sig;
+    }
+
     try {
       loading.value = true;
       // 🪪 Attach logged-in user so the DC_CREATED fingerprint
       //    can attribute the action to a real person.
       await _dio.post('/dc/create', data: {
         ...payload,
+        'requestId': _requestId,
         'actor': buildActorPayload(),
       });
+      _requestId = null; // next challan is a new business event
       Get.snackbar('Created', 'Delivery Challan created successfully',
           backgroundColor: ErpColors.successGreen, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);

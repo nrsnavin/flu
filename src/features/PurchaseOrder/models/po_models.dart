@@ -89,6 +89,9 @@ class POModel {
   final SupplierMini? supplier;
   final List<POItem> items;
   final String status; // Open | Partial | Completed
+  // Mongo document version — sent back as expectedVersion on edits so
+  // the server can 409 when someone else saved in between.
+  final int version;
 
   POModel({
     required this.id,
@@ -97,6 +100,7 @@ class POModel {
     this.supplier,
     required this.items,
     required this.status,
+    this.version = 0,
   });
 
   double get totalOrderValue =>
@@ -116,6 +120,7 @@ class POModel {
       supplier: sup is Map<String, dynamic> ? SupplierMini.fromJson(sup) : null,
       items: (j["items"] as List? ?? []).map((e) => POItem.fromJson(e)).toList(),
       status: j["status"] ?? "Open",
+      version: (j["__v"] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -136,6 +141,7 @@ class POModel {
   /// Convert to a map for editing
   Map<String, dynamic> toEditData() => {
     "_id": id,
+    "expectedVersion": version,
     "supplierId": supplier?.id,
     "supplierName": supplier?.name,
     "items": items

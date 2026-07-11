@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../models/checkingJobModel.dart';
 import '../../../core/api_client.dart';
+import '../../../core/request_id.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -49,6 +50,7 @@ class WastageApi {
     required double quantity,
     required double penalty,
     required String reason,
+    String? requestId,
   }) async {
     final res = await _dio.post('/add-wastage', data: {
       'job':      jobId,
@@ -57,6 +59,7 @@ class WastageApi {
       'quantity': quantity,
       'penalty':  penalty,
       'reason':   reason,
+      if (requestId != null) 'requestId': requestId,
     });
     final body = res.data is Map ? res.data['wastage'] : null;
     return WastageRecord.fromJson(
@@ -230,6 +233,10 @@ class AddWastageController extends GetxController {
   final isSaving      = false.obs;
   final errorMsg      = Rxn<String>();
 
+  // Idempotency key for the in-flight submission (see submit()).
+  String? _requestId;
+  String? _requestSig;
+
   final selectedJob      = Rxn<WastageJobOption>();
   final selectedElastic  = Rxn<WastageElasticOption>();
   final selectedEmployee = Rxn<EmployeeOption>();
@@ -306,6 +313,14 @@ class AddWastageController extends GetxController {
     final penalty = double.tryParse(pStr) ?? 0.0;
 
     isSaving.value = true;
+    // Idempotency key: stable across retries of the same payload (a
+    // timeout may have landed server-side), rotated when values change
+    // or after success — so a resubmit can't record the wastage twice.
+    final sig = [job.id, el.id, emp.id, qStr, pStr, rsn].join('|');
+    if (_requestId == null || sig != _requestSig) {
+      _requestId = newRequestId();
+      _requestSig = sig;
+    }
     try {
       await WastageApi.addWastage(
         jobId:      job.id,
@@ -314,7 +329,9 @@ class AddWastageController extends GetxController {
         quantity:   qty,
         penalty:    penalty,
         reason:     rsn,
+        requestId:  _requestId,
       );
+      _requestId = null; // next submission is a new business event
       _snack('Wastage recorded successfully', isError: false);
       onSuccess?.call();
       return true;

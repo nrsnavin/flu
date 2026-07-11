@@ -66,6 +66,21 @@ class PackingApiService {
     );
     return res.data as Map<String, dynamic>;
   }
+
+  /// PUT /packing/:id — correct a record's meter. Re-derives the job's
+  /// packed total + stock ledger; stamps a PACKING_UPDATED fingerprint.
+  static Future<void> updatePacking(
+      String id, num meter, String auditReason) async {
+    await _dio.put('/packing/$id',
+        data: {'meter': meter, 'auditReason': auditReason});
+  }
+
+  /// DELETE /packing/:id — reverse a record. Requires an audit reason;
+  /// stamps a PACKING_DELETED fingerprint.
+  static Future<void> deletePacking(String id, String auditReason) async {
+    await _dio.delete('/packing/$id',
+        queryParameters: {'auditReason': auditReason});
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -183,6 +198,7 @@ class PackingDetailController extends GetxController {
 
   final packing   = Rxn<PackingDetail>();
   final isLoading = true.obs;
+  final isActing  = false.obs;
   final errorMsg  = Rxn<String>();
 
   @override
@@ -204,6 +220,47 @@ class PackingDetailController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<bool> updateMeter(num meter, String auditReason) async {
+    isActing.value = true;
+    try {
+      await PackingApiService.updatePacking(packingId, meter, auditReason);
+      await fetchDetail();
+      Get.snackbar('Updated', 'Packing record corrected',
+          backgroundColor: const Color(0xFF16A34A), colorText: const Color(0xFFFFFFFF));
+      return true;
+    } catch (e) {
+      Get.snackbar('Error', _msg(e, 'Failed to update packing'),
+          backgroundColor: const Color(0xFFDC2626), colorText: const Color(0xFFFFFFFF));
+      return false;
+    } finally {
+      isActing.value = false;
+    }
+  }
+
+  Future<bool> deleteRecord(String auditReason) async {
+    isActing.value = true;
+    try {
+      await PackingApiService.deletePacking(packingId, auditReason);
+      Get.snackbar('Deleted', 'Packing record reversed',
+          backgroundColor: const Color(0xFF16A34A), colorText: const Color(0xFFFFFFFF));
+      return true;
+    } catch (e) {
+      Get.snackbar('Error', _msg(e, 'Failed to delete packing'),
+          backgroundColor: const Color(0xFFDC2626), colorText: const Color(0xFFFFFFFF));
+      return false;
+    } finally {
+      isActing.value = false;
+    }
+  }
+
+  String _msg(Object e, String fallback) {
+    if (e is DioException && e.response?.data is Map) {
+      final m = (e.response!.data as Map)['message'];
+      if (m != null) return m.toString();
+    }
+    return fallback;
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:production/src/features/packing/screens/pdf.dart';
+import '../../../common_widgets/reason_dialog.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/packing_controller.dart';
 import '../models/PackingModel.dart';
@@ -34,6 +35,74 @@ class _PackingDetailPageState extends State<PackingDetailPage> {
     final id = Get.arguments as String;
     Get.delete<PackingDetailController>(force: true);
     c = Get.put(PackingDetailController(id));
+  }
+
+  Future<void> _editMeter(PackingDetail p) async {
+    final meterCtrl = TextEditingController(text: p.meters.toStringAsFixed(0));
+    final reasonCtrl = TextEditingController();
+    final result = await Get.dialog<Map<String, dynamic>>(
+      StatefulBuilder(
+        builder: (ctx, setLocal) => AlertDialog(
+          backgroundColor: ErpColors.bgSurface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          title: const Text('Correct packed meters',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
+          content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            TextField(
+              controller: meterCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              onChanged: (_) => setLocal(() {}),
+              decoration: InputDecoration(
+                labelText: 'Meters *',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reasonCtrl,
+              minLines: 2,
+              maxLines: 3,
+              onChanged: (_) => setLocal(() {}),
+              decoration: InputDecoration(
+                labelText: 'Reason *',
+                hintText: 'Why is this being corrected? (audit log)',
+                hintStyle: const TextStyle(fontSize: 11, color: ErpColors.textMuted),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+          ]),
+          actions: [
+            TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: ErpColors.accentBlue, elevation: 0),
+              onPressed: ((double.tryParse(meterCtrl.text.trim()) ?? 0) <= 0 ||
+                      reasonCtrl.text.trim().length < 3)
+                  ? null
+                  : () => Get.back(result: {
+                        'meter': double.parse(meterCtrl.text.trim()),
+                        'reason': reasonCtrl.text.trim(),
+                      }),
+              child: const Text('Save', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result != null) {
+      await c.updateMeter(result['meter'] as num, result['reason'] as String);
+    }
+  }
+
+  Future<void> _deleteRecord() async {
+    final reason = await showReasonDialog(
+      title: 'Delete packing record',
+      message: 'Reverses this box from the job total and stock ledger.',
+      confirmLabel: 'Delete',
+      danger: true,
+    );
+    if (reason == null) return;
+    final ok = await c.deleteRecord(reason);
+    if (ok) Get.back(result: true);
   }
 
   @override
@@ -110,6 +179,28 @@ class _PackingDetailPageState extends State<PackingDetailPage> {
               color: Colors.white, size: 20),
           onPressed: c.isLoading.value ? null : c.fetchDetail,
         )),
+        Obx(() {
+          final p = c.packing.value;
+          if (p == null) return const SizedBox.shrink();
+          return PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: Colors.white, size: 20),
+            enabled: !c.isActing.value,
+            onSelected: (v) {
+              if (v == 'edit') _editMeter(p);
+              if (v == 'delete') _deleteRecord();
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'edit', child: Row(children: [
+                Icon(Icons.edit_outlined, size: 16, color: ErpColors.textPrimary),
+                SizedBox(width: 8), Text('Correct meters'),
+              ])),
+              PopupMenuItem(value: 'delete', child: Row(children: [
+                Icon(Icons.delete_outline, size: 16, color: ErpColors.errorRed),
+                SizedBox(width: 8), Text('Delete record', style: TextStyle(color: ErpColors.errorRed)),
+              ])),
+            ],
+          );
+        }),
       ],
       bottom: const PreferredSize(
         preferredSize: Size.fromHeight(1),

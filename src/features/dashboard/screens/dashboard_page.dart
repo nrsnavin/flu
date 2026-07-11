@@ -5,6 +5,7 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../../ai_advisor/widgets/ai_suggestions_strip.dart';
 import '../../ai_advisor/services/ai_advisor.dart';
 import '../../announcement/screens/announcement_list.dart';
+import '../../assistant/screens/assistant_chat_page.dart';
 import '../../feedback/screens/feedback_admin_list.dart';
 import '../../Job/screens/job_list_screen.dart';
 import '../../employees/screens/empList.dart';
@@ -598,6 +599,11 @@ class _QuickLinks extends StatelessWidget {
             icon: Icons.campaign_outlined,
             label: 'Notice Board',
             onTap: () => Get.to(() => const AnnouncementListPage()),
+          ),
+          _LinkRow(
+            icon: Icons.smart_toy_outlined,
+            label: 'Ask Jarvis',
+            onTap: () => Get.to(() => const AssistantChatPage()),
             isLast: true,
           ),
         ],

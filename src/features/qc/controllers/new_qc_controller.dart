@@ -113,7 +113,10 @@ class NewQcController extends GetxController {
   }
 
   Future<void> _loadFrom(ImageSource source) async {
-    final XFile? file = await _picker.pickImage(
+    // Inferred type (XFile / PickedFile depending on image_picker version)
+    // — both expose readAsBytes() and path, so we don't name XFile or use
+    // .name, keeping this tolerant across image_picker versions.
+    final file = await _picker.pickImage(
       source: source,
       // Keep the base64 payload well under the backend's 4MB cap.
       imageQuality: 85,
@@ -122,8 +125,9 @@ class NewQcController extends GetxController {
     if (file == null) return;
     final bytes = await file.readAsBytes();
     imageBytes = bytes;
-    imageName = file.name;
-    final ext = file.name.contains('.') ? file.name.split('.').last.toLowerCase() : 'jpg';
+    final name = file.path.split('/').last.split('\\').last;
+    imageName = name.isEmpty ? 'photo.jpg' : name;
+    final ext = imageName.contains('.') ? imageName.split('.').last.toLowerCase() : 'jpg';
     final mime = ext == 'png' ? 'image/png' : (ext == 'webp' ? 'image/webp' : 'image/jpeg');
     imageDataUrl.value = 'data:$mime;base64,${base64Encode(bytes)}';
   }

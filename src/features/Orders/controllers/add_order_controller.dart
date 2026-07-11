@@ -42,6 +42,9 @@ class AddOrderController extends GetxController {
 
   bool get isEditing => editingOrderId != null;
 
+  // Document version the edit is based on (optimistic lock).
+  int? _expectedVersion;
+
   Dio get _dio => ApiClient.instance.dio;
 
   // ── Dates ──────────────────────────────────────────────────
@@ -78,6 +81,9 @@ class AddOrderController extends GetxController {
   void _hydrateFromOrder(Map<String, dynamic> o) {
     poCtrl.text   = (o['po']          ?? '').toString();
     descCtrl.text = (o['description'] ?? '').toString();
+    // Capture the document version this edit is based on — sent back as
+    // expectedVersion so the server can 409 a stale save.
+    _expectedVersion = (o['__v'] as num?)?.toInt();
 
     final raw = o['date'];
     if (raw != null) {
@@ -230,6 +236,8 @@ class AddOrderController extends GetxController {
           'orderId': editingOrderId,
           ..._buildPayload(),
           'auditReason': editReason,
+          // Optimistic lock: server 409s if someone else saved since load.
+          if (_expectedVersion != null) 'expectedVersion': _expectedVersion,
         });
         _snack(
           'Order Updated',
@@ -246,9 +254,15 @@ class AddOrderController extends GetxController {
       }
       success = true;
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ??
-          (isEditing ? 'Failed to update order' : 'Failed to create order');
-      _snack('Error', msg, isError: true);
+      if (e.response?.statusCode == 409) {
+        _snack('Edit conflict',
+            'Someone else changed this order while you were editing. Go back, reload it, and apply your change again.',
+            isError: true);
+      } else {
+        final msg = e.response?.data?['message'] ??
+            (isEditing ? 'Failed to update order' : 'Failed to create order');
+        _snack('Error', msg, isError: true);
+      }
     } finally {
       isSubmitting.value = false;
       if (success) onSuccess?.call();

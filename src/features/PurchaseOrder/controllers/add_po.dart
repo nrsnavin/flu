@@ -197,8 +197,13 @@ class AddPOController extends GetxController {
 
       if (mode == POFormMode.edit) {
         // Backend reads `poId` (not `_id`) and requires `auditReason`.
+        // expectedVersion enables the optimistic lock — the server 409s
+        // if someone else saved this PO since we loaded it.
         payload["poId"] = seedData!["_id"] as String;
         payload["auditReason"] = auditReason;
+        if (seedData!["expectedVersion"] != null) {
+          payload["expectedVersion"] = seedData!["expectedVersion"];
+        }
         await POApiService.dio.put("/edit-po", data: payload);
         Get.snackbar("Success", "Purchase Order updated");
       } else {
@@ -210,6 +215,14 @@ class AddPOController extends GetxController {
         );
       }
       onSuccess?.call();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 409) {
+        Get.snackbar("Edit conflict",
+            "Someone else changed this PO while you were editing. Go back, reload it, and apply your change again.");
+      } else {
+        final msg = e.response?.data is Map ? e.response?.data["message"] : null;
+        Get.snackbar("Error", msg?.toString() ?? "Failed to save Purchase Order");
+      }
     } catch (e) {
       Get.snackbar("Error", "Failed to save Purchase Order");
     } finally {

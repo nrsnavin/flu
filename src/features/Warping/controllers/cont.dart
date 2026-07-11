@@ -65,6 +65,14 @@ class WarpingApi {
     });
     return WarpingPlanDetail.fromJson(res.data['plan'] as Map<String, dynamic>);
   }
+
+  // DELETE /warpingPlan/:id — removes the plan (only while warping is open)
+  // so a corrected one can be created. Requires an audit reason; the server
+  // stamps a WARPING_PLAN_DELETED fingerprint on the parent job.
+  static Future<void> deletePlan(String planId, {required String auditReason}) async {
+    await _dio.delete('/warpingPlan/$planId',
+        queryParameters: {'auditReason': auditReason});
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -214,6 +222,28 @@ class WarpingDetailController extends GetxController {
       return true;
     } on DioException catch (e) {
       _snack(e.response?.data?['message'] as String? ?? 'Failed to complete', isError: true);
+      return false;
+    } catch (e) {
+      _snack(e.toString(), isError: true);
+      return false;
+    } finally {
+      isActing.value = false;
+    }
+  }
+
+  /// Deletes the current warping plan (Open warping only) with an audit
+  /// reason. Returns true so the caller can refresh into the no-plan view.
+  Future<bool> deletePlan(String auditReason) async {
+    final p = plan.value;
+    if (p == null) return false;
+    isActing.value = true;
+    try {
+      await WarpingApi.deletePlan(p.id, auditReason: auditReason);
+      await fetchDetail();
+      _snack('Warping plan deleted', isError: false);
+      return true;
+    } on DioException catch (e) {
+      _snack(e.response?.data?['message'] as String? ?? 'Failed to delete plan', isError: true);
       return false;
     } catch (e) {
       _snack(e.toString(), isError: true);

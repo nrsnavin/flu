@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:production/src/features/Warping/screens/warping_plan.dart';
+import 'package:production/src/features/Warping/screens/optimize_layout_page.dart';
 // import 'package:production/src/features/Warping/screens/beam_label_pdf.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/controllers.dart';
@@ -719,6 +720,25 @@ class _NoPlanView extends StatelessWidget {
             }
           },
         ),
+      if (w.status == 'open' || w.status == 'in_progress') ...[
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: ErpColors.accentBlue,
+            side: const BorderSide(color: ErpColors.accentBlue),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          icon: const Icon(Icons.auto_fix_high, size: 16),
+          label: const Text('Optimise layout',
+              style: TextStyle(fontWeight: FontWeight.w800)),
+          onPressed: () async {
+            final result = await Get.to(
+              () => OptimizeLayoutPage(warpingId: warpingId),
+            );
+            if (result == true) c.fetchDetail();
+          },
+        ),
+      ],
     ]),
   );
 }

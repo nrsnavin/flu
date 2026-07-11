@@ -362,7 +362,6 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
         },
       ),
     );
-    _reasonCtrl.clear();
     if (result != null) {
       await controller.correctProduction(result["meters"] as int, result["reason"] as String);
     }

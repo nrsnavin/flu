@@ -79,7 +79,11 @@ class LoginController extends GetxController {
     try {
       final response = await _dio.post(
         '/user/login-user',
-        data: {'email': email, 'password': password},
+        // Trim the email — the backend does an exact-match lookup, so a
+        // trailing space (common from keyboard autofill) would otherwise
+        // cause a false 401. Casing is left as-typed to avoid breaking
+        // accounts stored with mixed-case emails.
+        data: {'email': email.trim(), 'password': password},
       );
 
       if (response.statusCode == 201) {
@@ -97,14 +101,36 @@ class LoginController extends GetxController {
         Get.snackbar('Login Failed', 'Unexpected server response.',
             snackPosition: SnackPosition.BOTTOM);
       }
+    } on DioException catch (e) {
+      // Distinguish "the server rejected the credentials" (there IS a
+      // response) from "the request never reached the server" (no response
+      // — e.g. Android blocking cleartext HTTP, no connectivity, wrong URL,
+      // or a timeout). Previously both showed "check your credentials",
+      // which hid real network failures behind a fake auth error.
+      String title = 'Login Failed';
+      String msg;
+      if (e.response != null) {
+        msg = e.response?.data is Map
+            ? (e.response?.data['message']?.toString() ?? 'Invalid email or password')
+            : 'Invalid email or password';
+      } else {
+        title = 'Cannot reach server';
+        switch (e.type) {
+          case DioExceptionType.connectionTimeout:
+          case DioExceptionType.receiveTimeout:
+          case DioExceptionType.sendTimeout:
+            msg = 'The server took too long to respond. Check your connection and try again.';
+            break;
+          case DioExceptionType.connectionError:
+          default:
+            msg = 'Could not connect to the server. If this is a built app, the phone may be '
+                'blocking plain-HTTP traffic, or the server is unreachable from this network.';
+        }
+      }
+      Get.snackbar(title, msg, snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      String msg = 'Login failed. Please check your credentials.';
-      try {
-        final dynamic err = e;
-        final serverMsg  = err.response?.data?['message'];
-        if (serverMsg != null) msg = serverMsg.toString();
-      } catch (_) {}
-      Get.snackbar('Login Failed', msg, snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Login Failed', 'Something went wrong. Please try again.',
+          snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }

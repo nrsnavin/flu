@@ -78,6 +78,20 @@ class MachineApiService {
     });
     return res.data as Map<String, dynamic>;
   }
+
+  // Predicted-maintenance health for all machines.
+  static Future<List<Map<String, dynamic>>> predictiveHealth() async {
+    final res = await _dio.get('/machine/predictive-health');
+    return (res.data['machines'] as List? ?? [])
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+  }
+
+  // On-demand AI diagnosis for one machine.
+  static Future<String> healthAdvice(String machineId) async {
+    final res = await _dio.get('/machine/health-advice/$machineId');
+    return (res.data['advice'] ?? '').toString();
+  }
 }
 
 // ══════════════════════════════════════════════════════════════

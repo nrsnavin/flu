@@ -7,6 +7,7 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../../shiftProgram/screens/shiftDetailScreen.dart';
 import '../controllers/machine_controller.dart';
 import '../models/machine.dart';
+import '../widgets/machine_health_card.dart';
 import 'log.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -324,6 +325,8 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
             child: Column(
               children: [
                 _HeroCard(machine: machine),
+                const SizedBox(height: 12),
+                MachineHealthCard(machineId: c.machineId),
                 const SizedBox(height: 12),
                 _InfoCard(machine: machine),
                 if (machine.elastics.isNotEmpty) ...[

@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../PurchaseOrder/services/theme.dart';
 import 'qc_controller.dart';
 
 // Drives the "New QC check" capture flow.
@@ -71,16 +73,59 @@ class NewQcController extends GetxController {
     notes.value = '';
   }
 
+  final ImagePicker _picker = ImagePicker();
+
+  /// Presents a camera / gallery chooser, then loads the selected photo.
   Future<void> pickImage() async {
-    final picked = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
-    if (picked == null || picked.files.isEmpty) return;
-    final f = picked.files.first;
-    if (f.bytes == null) return;
-    imageBytes = f.bytes;
-    imageName = f.name;
-    final ext = (f.extension ?? 'jpg').toLowerCase();
+    final source = await Get.bottomSheet<ImageSource>(
+      Container(
+        decoration: const BoxDecoration(
+          color: ErpColors.bgSurface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+        ),
+        child: SafeArea(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 14, 16, 6),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Add defect photo',
+                    style: TextStyle(fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined, color: ErpColors.accentBlue),
+              title: const Text('Take photo'),
+              onTap: () => Get.back(result: ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined, color: ErpColors.accentBlue),
+              title: const Text('Choose from gallery'),
+              onTap: () => Get.back(result: ImageSource.gallery),
+            ),
+            const SizedBox(height: 8),
+          ]),
+        ),
+      ),
+    );
+    if (source == null) return;
+    await _loadFrom(source);
+  }
+
+  Future<void> _loadFrom(ImageSource source) async {
+    final XFile? file = await _picker.pickImage(
+      source: source,
+      // Keep the base64 payload well under the backend's 4MB cap.
+      imageQuality: 85,
+      maxWidth: 2000,
+    );
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    imageBytes = bytes;
+    imageName = file.name;
+    final ext = file.name.contains('.') ? file.name.split('.').last.toLowerCase() : 'jpg';
     final mime = ext == 'png' ? 'image/png' : (ext == 'webp' ? 'image/webp' : 'image/jpeg');
-    imageDataUrl.value = 'data:$mime;base64,${base64Encode(f.bytes!)}';
+    imageDataUrl.value = 'data:$mime;base64,${base64Encode(bytes)}';
   }
 
   Future<String?> analyze() async {

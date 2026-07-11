@@ -198,7 +198,7 @@ class AddPOController extends GetxController {
       if (mode == POFormMode.edit) {
         // Backend reads `poId` (not `_id`) and requires `auditReason`.
         payload["poId"] = seedData!["_id"] as String;
-        payload["auditReason"] = auditReason;
+        payload["auditReason"] = auditReason!;
         await POApiService.dio.put("/edit-po", data: payload);
         Get.snackbar("Success", "Purchase Order updated");
       } else {

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile;
 
 import '../../../core/api_client.dart';
 
@@ -46,7 +46,7 @@ class DataIoController extends GetxController {
     errorMsg.value = null;
     lastResult.value = null;
 
-    final picked = await FilePicker.platform.pickFiles(
+    final picked = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
       withData: true, // ensures bytes are available on every platform

@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/add_wastage_controller.dart';
 import '../models/checkingJobModel.dart';
+import 'wastage_root_cause.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  WASTAGE SUMMARY / ANALYTICS PAGE
@@ -102,6 +103,11 @@ class _WastageSummaryPageState extends State<WastageSummaryPage> {
       ],
     )),
     actions: [
+      IconButton(
+        tooltip: 'Root cause',
+        icon: const Icon(Icons.insights_rounded, color: Colors.white, size: 20),
+        onPressed: () => Get.to(() => const WastageRootCausePage()),
+      ),
       Obx(() => IconButton(
         icon: c.isLoading.value
             ? const SizedBox(

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:production/src/features/Warping/screens/warping_plan.dart';
+import 'package:production/src/features/Warping/screens/optimize_layout_page.dart';
 // import 'package:production/src/features/Warping/screens/beam_label_pdf.dart';
+import '../../../common_widgets/reason_dialog.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/controllers.dart';
 import '../models/models.dart';
@@ -719,6 +721,25 @@ class _NoPlanView extends StatelessWidget {
             }
           },
         ),
+      if (w.status == 'open' || w.status == 'in_progress') ...[
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: ErpColors.accentBlue,
+            side: const BorderSide(color: ErpColors.accentBlue),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          icon: const Icon(Icons.auto_fix_high, size: 16),
+          label: const Text('Optimise layout',
+              style: TextStyle(fontWeight: FontWeight.w800)),
+          onPressed: () async {
+            final result = await Get.to(
+              () => OptimizeLayoutPage(warpingId: warpingId),
+            );
+            if (result == true) c.fetchDetail();
+          },
+        ),
+      ],
     ]),
   );
 }
@@ -843,6 +864,33 @@ class _PlanView extends StatelessWidget {
       const SizedBox(height: 12),
       // ── Beam cards ──────────────────────────────────────
       ...plan.beams.map((b) => _BeamCard(beam: b)),
+      // ── Delete plan (Open warping only) ─────────────────
+      if (w.status == 'open') ...[
+        const SizedBox(height: 6),
+        Obx(() => OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: ErpColors.errorRed,
+                side: const BorderSide(color: ErpColors.errorRed),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                minimumSize: const Size.fromHeight(44),
+              ),
+              onPressed: c.isActing.value
+                  ? null
+                  : () async {
+                      final reason = await showReasonDialog(
+                        title: 'Delete warping plan',
+                        message:
+                            'Removes this plan so a corrected one can be created. Allowed only while warping is open.',
+                        confirmLabel: 'Delete plan',
+                        danger: true,
+                      );
+                      if (reason == null) return;
+                      await c.deletePlan(reason);
+                    },
+              icon: const Icon(Icons.delete_outline, size: 16),
+              label: const Text('Delete plan', style: TextStyle(fontWeight: FontWeight.w800)),
+            )),
+      ],
     ],
   );
 }

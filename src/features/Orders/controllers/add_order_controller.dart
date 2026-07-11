@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:production/src/core/api_client.dart';
+import 'package:production/src/common_widgets/reason_dialog.dart';
 import 'package:production/src/features/Orders/models/elasticLite.dart';
 import 'package:production/src/features/Orders/models/order_elastic_row.dart';
 import 'package:production/src/features/authentication/controllers/login_controller.dart';
@@ -212,12 +213,23 @@ class AddOrderController extends GetxController {
     }
 
     bool success = false;
+    // Editing an order writes an audit fingerprint — capture a reason first.
+    String? editReason;
+    if (isEditing) {
+      editReason = await showReasonDialog(
+        title: 'Reason for edit',
+        message: 'Only Open orders can be edited. This is recorded in the audit log.',
+        confirmLabel: 'Save changes',
+      );
+      if (editReason == null) return; // cancelled
+    }
     try {
       isSubmitting.value = true;
       if (isEditing) {
         await _dio.post('/order/update-order', data: {
           'orderId': editingOrderId,
           ..._buildPayload(),
+          'auditReason': editReason,
         });
         _snack(
           'Order Updated',

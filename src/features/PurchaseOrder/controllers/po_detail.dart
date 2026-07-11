@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import '../models/po_models.dart';
 import '../services/api.dart';
@@ -47,6 +48,29 @@ class PODetailController extends GetxController {
       Get.snackbar("Success", "PO #${cloned.poNo} created from clone");
     } catch (e) {
       Get.snackbar("Error", "Failed to clone PO");
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  /// Soft-deletes (cancels) an Open PO with no receipts. Requires an audit
+  /// reason; the server stamps a PO_DELETED fingerprint. Returns true on
+  /// success so the caller can pop back to the list.
+  Future<bool> deletePO(String auditReason) async {
+    try {
+      loading.value = true;
+      await POApiService.dio.delete(
+        "/delete-po",
+        queryParameters: {"poId": poId, "auditReason": auditReason},
+      );
+      Get.snackbar("Deleted", "Purchase order cancelled");
+      return true;
+    } catch (e) {
+      final msg = e is DioException
+          ? (e.response?.data is Map ? e.response?.data["message"] : null)
+          : null;
+      Get.snackbar("Error", msg?.toString() ?? "Failed to delete PO");
+      return false;
     } finally {
       loading.value = false;
     }

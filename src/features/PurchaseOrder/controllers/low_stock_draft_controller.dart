@@ -3,81 +3,100 @@ import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
 
-/// One low-stock material as returned by `GET /materials/low-stock`.
-/// Kept as a thin record over the raw JSON so we don't drag a new
-/// model into the PO graph for a single screen.
+/// One flagged material from `GET /materials/replenishment-forecast`.
+/// This is the forecast-driven successor to the reactive `/low-stock`
+/// list: it factors committed demand from the Open-order pipeline plus
+/// a trailing run-rate over a horizon, not just the current floor.
 class LowStockMaterial {
   final String id;
   final String name;
-  final double stock;
+  final String category;
+  final String unit;
+  final double stock;        // on-hand
   final double minStock;
   final double price;
   final double suggestedQty;
+  final double estimatedCost;
+  final double runRatePerDay;
+  final double committedDemand;
+  final double projectedStock;
+  final String severity;     // "critical" | "warn"
   final String supplierId;
   final String supplierName;
 
-  /// `null` when the material is already below `minStock` (the
-  /// reactive `/low-stock` source). Set for predictive entries
-  /// from `/projected-stockout` — number of days the current
-  /// stock will last at the trailing 30-day consumption rate.
+  /// Days until on-hand (net of committed demand) runs out at the
+  /// trailing run-rate. `null` when there's no measurable run-rate.
   final double? daysToStockout;
 
   const LowStockMaterial({
     required this.id,
     required this.name,
+    required this.category,
+    required this.unit,
     required this.stock,
     required this.minStock,
     required this.price,
     required this.suggestedQty,
+    required this.estimatedCost,
+    required this.runRatePerDay,
+    required this.committedDemand,
+    required this.projectedStock,
+    required this.severity,
     required this.supplierId,
     required this.supplierName,
     this.daysToStockout,
   });
 
-  bool get isPredictive => daysToStockout != null;
+  bool get isCritical => severity == 'critical';
 
-  factory LowStockMaterial.fromJson(
-    Map<String, dynamic> j, {
-    bool predictive = false,
-  }) {
+  factory LowStockMaterial.fromJson(Map<String, dynamic> j) {
     final sup = j['supplier'] as Map?;
+    double d(dynamic v) => (v as num?)?.toDouble() ?? 0;
     return LowStockMaterial(
-      id:           j['_id']?.toString() ?? '',
-      name:         j['name']?.toString() ?? '—',
-      stock:        (j['stock']        as num?)?.toDouble() ?? 0,
-      minStock:     (j['minStock']     as num?)?.toDouble() ?? 0,
-      price:        (j['price']        as num?)?.toDouble() ?? 0,
-      suggestedQty: (j['suggestedQty'] as num?)?.toDouble() ?? 0,
-      supplierId:   sup?['_id']?.toString()  ?? '',
-      supplierName: sup?['name']?.toString() ?? '—',
-      daysToStockout: predictive
-          ? (j['daysToStockout'] as num?)?.toDouble()
-          : null,
+      id:              j['_id']?.toString() ?? '',
+      name:            j['name']?.toString() ?? '—',
+      category:        j['category']?.toString() ?? '',
+      unit:            j['unit']?.toString() ?? '',
+      stock:           d(j['onHand']),
+      minStock:        d(j['minStock']),
+      price:           d(j['price']),
+      suggestedQty:    d(j['suggestedQty']),
+      estimatedCost:   d(j['estimatedCost']),
+      runRatePerDay:   d(j['runRatePerDay']),
+      committedDemand: d(j['committedDemand']),
+      projectedStock:  d(j['projectedStock']),
+      severity:        j['severity']?.toString() ?? 'warn',
+      supplierId:      sup?['_id']?.toString()  ?? '',
+      supplierName:    sup?['name']?.toString() ?? '—',
+      daysToStockout:  (j['daysToStockout'] as num?)?.toDouble(),
     );
   }
 
-  double get suggestedValue => price * suggestedQty;
+  double get suggestedValue => estimatedCost > 0 ? estimatedCost : price * suggestedQty;
 
   /// 0.0 = empty, 1.0 = at-or-above (minStock * 2). Mirrors
-  /// `RawMaterialListItem.stockPercent` so the bar widget reads
-  /// identically across the app.
+  /// `RawMaterialListItem.stockPercent` so the bar reads identically.
   double get stockPercent =>
       minStock > 0 ? (stock / (minStock * 2)).clamp(0.0, 1.0) : 1.0;
 }
 
-/// Pulls the auto-draft list and groups it by supplier so the page
-/// can render one "Draft PO" button per supplier.
+/// Pulls the forecast-driven replenishment list and groups it by
+/// supplier so the page can render one "Draft PO" button per supplier.
 class LowStockDraftController extends GetxController {
-  /// Materials already below their min-stock floor.
+  /// Materials projected to breach their safety floor within the horizon.
   final materials         = <LowStockMaterial>[].obs;
-
-  /// Materials still above the floor but projected to cross it
-  /// inside the trailing horizon. Sourced from /projected-stockout.
-  final projected         = <LowStockMaterial>[].obs;
 
   final skippedNoSupplier = 0.obs;
   final loading           = false.obs;
   final errorMsg          = Rxn<String>();
+
+  // Forecast controls / narrative.
+  final horizon    = 14.obs;      // days
+  final aiSummary  = Rxn<String>();
+  final flaggedN   = 0.obs;
+  final criticalN  = 0.obs;
+  final suppliersN = 0.obs;
+  final estSpend   = 0.0.obs;
 
   final _dio = ApiClient.buildClient(
     baseUrl: 'http://13.233.117.153:2701/api/v2/materials',
@@ -89,77 +108,58 @@ class LowStockDraftController extends GetxController {
     fetch();
   }
 
+  void setHorizon(int days) {
+    if (horizon.value == days) return;
+    horizon.value = days;
+    fetch();
+  }
+
   Future<void> fetch() async {
     loading.value = true;
     errorMsg.value = null;
     try {
-      // Reactive (already low) and predictive (about to be low) in
-      // one round-trip. A failure on either drops just that list.
-      final results = await Future.wait([
-        _dio.get('/low-stock').catchError((_) => null),
-        _dio.get('/projected-stockout').catchError((_) => null),
-      ]);
+      final res = await _dio.get(
+        '/replenishment-forecast',
+        queryParameters: {'horizonDays': horizon.value},
+      );
+      final data = res.data is Map ? res.data as Map : {};
 
-      final lowRes = results[0];
-      final projRes = results[1];
+      final list = (data['materials'] as List?) ?? const [];
+      materials.assignAll(
+        list.whereType<Map>().map(
+              (m) => LowStockMaterial.fromJson(Map<String, dynamic>.from(m)),
+            ),
+      );
+      skippedNoSupplier.value = (data['skippedNoSupplier'] as num?)?.toInt() ?? 0;
 
-      if (lowRes != null) {
-        final list = (lowRes.data['materials'] as List?) ?? const [];
-        materials.assignAll(
-          list.whereType<Map>().map(
-                (m) => LowStockMaterial.fromJson(
-                    Map<String, dynamic>.from(m)),
-              ),
-        );
-        skippedNoSupplier.value =
-            (lowRes.data['skippedNoSupplier'] as num?)?.toInt() ?? 0;
-      }
+      final totals = Map<String, dynamic>.from(data['totals'] ?? {});
+      flaggedN.value   = (totals['flagged']  as num?)?.toInt() ?? materials.length;
+      criticalN.value  = (totals['critical'] as num?)?.toInt() ?? 0;
+      suppliersN.value = (totals['suppliers'] as num?)?.toInt() ?? 0;
+      estSpend.value   = (totals['estimatedCost'] as num?)?.toDouble() ?? 0;
 
-      if (projRes != null) {
-        final list = (projRes.data['materials'] as List?) ?? const [];
-        projected.assignAll(
-          list.whereType<Map>().map(
-                (m) => LowStockMaterial.fromJson(
-                    Map<String, dynamic>.from(m),
-                    predictive: true),
-              ),
-        );
-      }
-
-      if (lowRes == null && projRes == null) {
-        errorMsg.value = 'Failed to load';
-      }
+      final s = data['aiSummary']?.toString();
+      aiSummary.value = (s != null && s.trim().isNotEmpty) ? s.trim() : null;
     } catch (e) {
-      errorMsg.value = e.toString();
+      errorMsg.value = 'Could not load replenishment forecast';
     } finally {
       loading.value = false;
     }
   }
 
-  /// supplierId → materials (reactive + predictive merged). Used by
-  /// the page's grouped Draft PO buttons so one supplier with both
-  /// reactive and predictive rows produces a single combined PO.
+  /// supplierId → materials. Used by the page's grouped Draft PO buttons.
   Map<String, List<LowStockMaterial>> get groupedBySupplier {
     final out = <String, List<LowStockMaterial>>{};
     for (final m in materials) {
       out.putIfAbsent(m.supplierId, () => []).add(m);
     }
-    for (final m in projected) {
-      out.putIfAbsent(m.supplierId, () => []).add(m);
-    }
     return out;
   }
 
-  /// Seed map for `AddPOPage`'s create-mode `seedData`. The
-  /// controller's `_prefill` already knows this shape — keys must
-  /// match exactly (`supplierId`, `items[].rawMaterialId`). Picks
-  /// rows from both reactive and predictive lists so one tap
-  /// drafts a unified PO per supplier.
+  /// Seed map for `AddPOPage`'s create-mode `seedData`. Keys must match
+  /// exactly (`supplierId`, `items[].rawMaterialId`).
   Map<String, dynamic> seedDataFor(String supplierId) {
-    final rows = [
-      ...materials.where((m) => m.supplierId == supplierId),
-      ...projected.where((m) => m.supplierId == supplierId),
-    ];
+    final rows = materials.where((m) => m.supplierId == supplierId);
     return {
       'supplierId': supplierId,
       'items': rows

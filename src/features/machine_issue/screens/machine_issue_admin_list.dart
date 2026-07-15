@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/machine_issue_admin_controller.dart';
 import 'machine_issue_admin_detail.dart';
+import 'machine_issue_report_screen.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  MACHINE ISSUE ADMIN LIST PAGE
@@ -21,7 +22,14 @@ class MachineIssueAdminListPage extends StatelessWidget {
       backgroundColor: ErpColors.bgBase,
       appBar: const ErpAppBar(
         title: 'Machine Issues',
-        subtitle: 'Triage worker-reported breakdowns',
+        subtitle: 'Triage and report breakdowns',
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: ErpColors.accentBlue,
+        onPressed: () => Get.to(() => const MachineIssueReportScreen()),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Report',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
       ),
       body: Column(
         children: [
@@ -49,7 +57,7 @@ class MachineIssueAdminListPage extends StatelessWidget {
                   icon: Icons.build_circle_outlined,
                   title: 'No issues in this queue',
                   subtitle:
-                      'Workers will report machine breakdowns from the worker portal.',
+                      'Workers report from the worker portal — or tap Report to raise one yourself.',
                   cta: 'Refresh',
                   onTap: c.fetch,
                 );

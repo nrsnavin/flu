@@ -19,6 +19,7 @@ import 'package:production/src/features/Warping/screens/warping_list.dart';
 import 'package:production/src/features/addendence/screens/attendence.dart';
 import 'package:production/src/features/analytics/screens/production_analytics.dart';
 import 'package:production/src/features/reports/screens/production_report_screen.dart';
+import 'package:production/src/features/reports/screens/dispatch_report_screen.dart';
 import 'package:production/src/features/announcement/screens/announcement_list.dart';
 import 'package:production/src/features/customer/screens/list.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
@@ -402,10 +403,16 @@ class NavRegistry extends GetxController {
       open: () => Get.to(() => ProductionAnalyticsPage()),
     ),
     NavModule(
-      id: 'reports', label: 'Reports',
+      id: 'reports_production', label: 'Production Report',
       icon: Icons.assessment_outlined, section: 'ANALYTICS',
       keywords: const ['report', 'production report', 'meters', 'summary'],
       open: () => Get.to(() => const ProductionReportScreen()),
+    ),
+    NavModule(
+      id: 'reports_dispatch', label: 'Sales Report',
+      icon: Icons.local_shipping_outlined, section: 'ANALYTICS',
+      keywords: const ['report', 'dispatch', 'sales', 'delivery', 'revenue', 'value'],
+      open: () => Get.to(() => const DispatchReportScreen()),
     ),
   ];
 }

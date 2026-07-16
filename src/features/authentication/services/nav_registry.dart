@@ -22,6 +22,7 @@ import 'package:production/src/features/reports/screens/production_report_screen
 import 'package:production/src/features/reports/screens/dispatch_report_screen.dart';
 import 'package:production/src/features/reports/screens/order_book_report_screen.dart';
 import 'package:production/src/features/reports/screens/stock_purchases_report_screen.dart';
+import 'package:production/src/features/reports/screens/stock_movements_report_screen.dart';
 import 'package:production/src/features/announcement/screens/announcement_list.dart';
 import 'package:production/src/features/customer/screens/list.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
@@ -427,6 +428,12 @@ class NavRegistry extends GetxController {
       icon: Icons.warehouse_outlined, section: 'ANALYTICS',
       keywords: const ['report', 'stock', 'valuation', 'purchases', 'po', 'material', 'inventory'],
       open: () => Get.to(() => const StockPurchasesReportScreen()),
+    ),
+    NavModule(
+      id: 'reports_movements', label: 'Movement Ledger',
+      icon: Icons.swap_vert_rounded, section: 'ANALYTICS',
+      keywords: const ['report', 'movement', 'ledger', 'inward', 'outward', 'consumption', 'stock'],
+      open: () => Get.to(() => const StockMovementsReportScreen()),
     ),
   ];
 }

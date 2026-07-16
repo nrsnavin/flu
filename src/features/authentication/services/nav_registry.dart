@@ -20,6 +20,7 @@ import 'package:production/src/features/addendence/screens/attendence.dart';
 import 'package:production/src/features/analytics/screens/production_analytics.dart';
 import 'package:production/src/features/reports/screens/production_report_screen.dart';
 import 'package:production/src/features/reports/screens/dispatch_report_screen.dart';
+import 'package:production/src/features/reports/screens/order_book_report_screen.dart';
 import 'package:production/src/features/announcement/screens/announcement_list.dart';
 import 'package:production/src/features/customer/screens/list.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
@@ -413,6 +414,12 @@ class NavRegistry extends GetxController {
       icon: Icons.local_shipping_outlined, section: 'ANALYTICS',
       keywords: const ['report', 'dispatch', 'sales', 'delivery', 'revenue', 'value'],
       open: () => Get.to(() => const DispatchReportScreen()),
+    ),
+    NavModule(
+      id: 'reports_order_book', label: 'Order Book',
+      icon: Icons.inventory_2_outlined, section: 'ANALYTICS',
+      keywords: const ['report', 'order book', 'pending', 'fulfillment', 'on time', 'backlog'],
+      open: () => Get.to(() => const OrderBookReportScreen()),
     ),
   ];
 }

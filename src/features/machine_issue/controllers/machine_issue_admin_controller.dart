@@ -20,6 +20,7 @@ class MachineIssueAdminController extends GetxController {
   final selected  = Rxn<Map<String, dynamic>>();
   final loading   = false.obs;
   final updating  = false.obs;
+  final creating  = false.obs;
   final errorMsg  = Rxn<String>();
   final status    = 'all'.obs;
 
@@ -83,6 +84,51 @@ class MachineIssueAdminController extends GetxController {
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );
+    }
+  }
+
+  // Admin-raised issue. The backend POST / accepts an admin with no
+  // linked employee (source: "admin", recorded against the admin user)
+  // — the same path the web "Report machine issue" form uses. On success
+  // the new row is prepended so it shows immediately without a refetch.
+  Future<bool> create({
+    required String machineId,
+    required String title,
+    required String description,
+    String severity = 'medium',
+  }) async {
+    if (creating.value) return false;
+    creating.value = true;
+    try {
+      final res = await _dio.post('/', data: {
+        'machineId':   machineId,
+        'title':       title.trim(),
+        'description': description.trim(),
+        'severity':    severity,
+      });
+      final body = res.data is Map ? res.data['data'] : null;
+      if (body is Map) {
+        // Only surface it in the current view if the filter would match.
+        if (status.value == 'all' || status.value == (body['status'] ?? 'open')) {
+          items.insert(0, Map<String, dynamic>.from(body));
+          items.refresh();
+        }
+      }
+      return true;
+    } on DioException catch (e) {
+      Get.snackbar(
+        'Error',
+        (e.response?.data is Map
+                ? e.response?.data['message']?.toString()
+                : null) ??
+            'Failed to report issue',
+        backgroundColor: const Color(0xFFDC2626),
+        colorText: const Color(0xFFFFFFFF),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    } finally {
+      creating.value = false;
     }
   }
 

@@ -18,6 +18,11 @@ import 'package:production/src/features/ShiftPlan/screens/shift_plan_create.dart
 import 'package:production/src/features/Warping/screens/warping_list.dart';
 import 'package:production/src/features/addendence/screens/attendence.dart';
 import 'package:production/src/features/analytics/screens/production_analytics.dart';
+import 'package:production/src/features/reports/screens/production_report_screen.dart';
+import 'package:production/src/features/reports/screens/dispatch_report_screen.dart';
+import 'package:production/src/features/reports/screens/order_book_report_screen.dart';
+import 'package:production/src/features/reports/screens/stock_purchases_report_screen.dart';
+import 'package:production/src/features/reports/screens/stock_movements_report_screen.dart';
 import 'package:production/src/features/announcement/screens/announcement_list.dart';
 import 'package:production/src/features/customer/screens/list.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
@@ -397,8 +402,38 @@ class NavRegistry extends GetxController {
     NavModule(
       id: 'analytics', label: 'Analytics',
       icon: Icons.insights_rounded, section: 'ANALYTICS',
-      keywords: const ['kpis', 'reports', 'production analytics'],
+      keywords: const ['kpis', 'production analytics'],
       open: () => Get.to(() => ProductionAnalyticsPage()),
+    ),
+    NavModule(
+      id: 'reports_production', label: 'Production Report',
+      icon: Icons.assessment_outlined, section: 'ANALYTICS',
+      keywords: const ['report', 'production report', 'meters', 'summary'],
+      open: () => Get.to(() => const ProductionReportScreen()),
+    ),
+    NavModule(
+      id: 'reports_dispatch', label: 'Sales Report',
+      icon: Icons.local_shipping_outlined, section: 'ANALYTICS',
+      keywords: const ['report', 'dispatch', 'sales', 'delivery', 'revenue', 'value'],
+      open: () => Get.to(() => const DispatchReportScreen()),
+    ),
+    NavModule(
+      id: 'reports_order_book', label: 'Order Book',
+      icon: Icons.inventory_2_outlined, section: 'ANALYTICS',
+      keywords: const ['report', 'order book', 'pending', 'fulfillment', 'on time', 'backlog'],
+      open: () => Get.to(() => const OrderBookReportScreen()),
+    ),
+    NavModule(
+      id: 'reports_stock', label: 'Stock & Purchases',
+      icon: Icons.warehouse_outlined, section: 'ANALYTICS',
+      keywords: const ['report', 'stock', 'valuation', 'purchases', 'po', 'material', 'inventory'],
+      open: () => Get.to(() => const StockPurchasesReportScreen()),
+    ),
+    NavModule(
+      id: 'reports_movements', label: 'Movement Ledger',
+      icon: Icons.swap_vert_rounded, section: 'ANALYTICS',
+      keywords: const ['report', 'movement', 'ledger', 'inward', 'outward', 'consumption', 'stock'],
+      open: () => Get.to(() => const StockMovementsReportScreen()),
     ),
   ];
 }

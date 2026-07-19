@@ -1,7 +1,7 @@
 # Mobile TLS cutover (go-live)
 
 The app previously hardcoded the backend as a cleartext URL
-(`http://13.233.117.153:2701/api/v2`) in ~60 files. All of them now read
+(`http://3.6.171.27:2701/api/v2`) in ~60 files. All of them now read
 a single source of truth — `ApiConfig.baseUrl` in
 `src/core/app_config.dart` — so moving to HTTPS is a build-time flag plus
 one platform-manifest change, not a code hunt.

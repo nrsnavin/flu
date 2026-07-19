@@ -20,7 +20,7 @@ class ApiConfig {
   /// time with `--dart-define=API_BASE_URL=...`.
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://13.233.117.153:2701/api/v2',
+    defaultValue: 'http://3.6.171.27:2701/api/v2',
   );
 
   /// True once the app is pointed at an HTTPS endpoint — useful for a

@@ -18,11 +18,11 @@ change:
 
 ```sh
 flutter build apk --release \
-  --dart-define=API_BASE_URL=https://api.yourdomain.com/api/v2
+  --dart-define=API_BASE_URL=https://api.nhstyx.in/api/v2
 
 # iOS
 flutter build ipa --release \
-  --dart-define=API_BASE_URL=https://api.yourdomain.com/api/v2
+  --dart-define=API_BASE_URL=https://api.nhstyx.in/api/v2
 ```
 
 The default in `app_config.dart` is intentionally left at the current

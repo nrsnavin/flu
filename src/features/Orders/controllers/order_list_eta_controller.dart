@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 /// Compact ETA summary for a single order row — what the list chip needs.
 class OrderEtaSummary {
@@ -54,7 +55,7 @@ class OrderListEtaController extends GetxController {
   final lastError = RxnString();
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/order',
+    baseUrl: '${ApiConfig.baseUrl}/order',
   );
 
   /// Trigger a bulk fetch for the visible set of orders. Filters to

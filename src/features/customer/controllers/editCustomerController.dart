@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 
 class EditCustomerController extends GetxController {
@@ -25,7 +26,7 @@ class EditCustomerController extends GetxController {
 
   // Route through ApiClient.buildClient so the JWT cookie attaches.
   final dio = ApiClient.buildClient(
-    baseUrl: "http://13.233.117.153:2701/api/v2/customer",
+    baseUrl: '${ApiConfig.baseUrl}/customer',
   );
 
   @override

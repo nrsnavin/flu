@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // Mirrors GET /api/v2/wastage/root-cause (prod/api/wastage.js).
 
@@ -54,7 +55,7 @@ class WastageRootCause {
 
 class WastageRootCauseController extends GetxController {
   static final Dio _dio =
-      ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/wastage');
+      ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/wastage');
 
   final data = Rxn<WastageRootCause>();
   final isLoading = false.obs;

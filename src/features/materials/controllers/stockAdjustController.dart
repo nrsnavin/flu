@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // ── Model ──────────────────────────────────────────────────────
 class StockAdjustItem {
@@ -67,7 +68,7 @@ class AdjustResult {
 // ══════════════════════════════════════════════════════════════
 class StockAdjustController extends GetxController {
 
-  final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/materials');
+  final _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/materials');
 
   // ── State ──────────────────────────────────────────────────
   final isLoading    = false.obs;

@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import '../../../core/api_client.dart';
 import 'advisor_actions.dart';
 import 'advisor_prefs_store.dart';
+import '../../../core/app_config.dart';
 
 /// Severity drives card colour + sort order. `high` floats to the
 /// front, `low` sinks to the back.
@@ -119,40 +120,40 @@ class AIAdvisor extends GetxController {
   final endpointDiagnostics = <EndpointDiagnostic>[].obs;
 
   final _dash = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/dashboard',
+    baseUrl: '${ApiConfig.baseUrl}/dashboard',
   );
   final _shift = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/shift',
+    baseUrl: '${ApiConfig.baseUrl}/shift',
   );
   final _machine = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/machine',
+    baseUrl: '${ApiConfig.baseUrl}/machine',
   );
   final _supplier = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/supplier',
+    baseUrl: '${ApiConfig.baseUrl}/supplier',
   );
   final _materials = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/materials',
+    baseUrl: '${ApiConfig.baseUrl}/materials',
   );
   final _leave = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/leave',
+    baseUrl: '${ApiConfig.baseUrl}/leave',
   );
   final _attendance = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/attendance',
+    baseUrl: '${ApiConfig.baseUrl}/attendance',
   );
   final _employee = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/employee',
+    baseUrl: '${ApiConfig.baseUrl}/employee',
   );
   final _payroll = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/payroll',
+    baseUrl: '${ApiConfig.baseUrl}/payroll',
   );
   final _job = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/job',
+    baseUrl: '${ApiConfig.baseUrl}/job',
   );
   final _shiftAdvisor = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/shift',
+    baseUrl: '${ApiConfig.baseUrl}/shift',
   );
   final _order = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/order',
+    baseUrl: '${ApiConfig.baseUrl}/order',
   );
 
   /// `false` until we've issued the once-per-session payroll

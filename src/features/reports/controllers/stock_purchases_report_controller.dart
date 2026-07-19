@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  StockPurchasesReportController
@@ -26,7 +27,7 @@ class StockPurchasesReportController extends GetxController {
   static const groupBys = ['material', 'category', 'supplier'];
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2',
+    baseUrl: ApiConfig.baseUrl,
   );
 
   @override

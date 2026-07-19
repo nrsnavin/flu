@@ -6,6 +6,7 @@
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import 'package:get/get.dart';
+import '../../../core/app_config.dart';
 
 // ─────────────────────────────────────────────────────────────
 //  MODELS
@@ -187,7 +188,7 @@ class EmployeeBonusRate {
 // ─────────────────────────────────────────────────────────────
 
 class _BonusApi {
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   static Future<Map<String, dynamic>> getConfig(int year) async {
     final r = await _dio.get('/bonus/config', queryParameters: {'year': year});

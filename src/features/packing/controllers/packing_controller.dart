@@ -7,6 +7,7 @@ import 'package:production/src/features/Orders/controllers/add_order_controller.
     show buildActorPayload;
 import '../../../core/api_client.dart';
 import '../../../core/request_id.dart';
+import '../../../core/app_config.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -14,7 +15,7 @@ import '../../../core/request_id.dart';
 // ══════════════════════════════════════════════════════════════
 
 class PackingApiService {
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   /// GET /packing/grouped  → list of jobs with packing summary
   static Future<List<PackingJobSummary>> fetchGrouped() async {

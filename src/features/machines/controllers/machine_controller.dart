@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../models/machine.dart';
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -12,7 +13,7 @@ import '../../../core/api_client.dart';
 // ══════════════════════════════════════════════════════════════
 
 class MachineApiService {
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   static Future<List<MachineListItem>> fetchAll() async {
     final res = await _dio.get('/machine/get-machines');

@@ -6,9 +6,10 @@ import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 
 import '../screens/addElastic.dart';
+import '../../../core/app_config.dart';
 
 class ElasticDetailController extends GetxController {
-  final Dio dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2/elastic");
+  final Dio dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/elastic');
 
   final String elasticId;
   ElasticDetailController(this.elasticId);

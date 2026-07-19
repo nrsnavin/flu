@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  AnnouncementListController
@@ -16,7 +17,7 @@ class AnnouncementListController extends GetxController {
   // Cookie-attaching factory — announcement admin routes (GET /, POST,
   // PUT, DELETE) are gated by isAdmin('admin') so a bare Dio() 401s.
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/announcement',
+    baseUrl: '${ApiConfig.baseUrl}/announcement',
   );
 
   @override
@@ -88,7 +89,7 @@ class AnnouncementFormController extends GetxController {
   bool get isEdit => existing != null;
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/announcement',
+    baseUrl: '${ApiConfig.baseUrl}/announcement',
   );
 
   @override

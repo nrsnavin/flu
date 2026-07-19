@@ -1,9 +1,10 @@
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 class SupplierController extends GetxController {
-  final Dio _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2/supplier");
+  final Dio _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/supplier');
 
   RxList suppliers = [].obs;
   RxBool isLoading = false.obs;

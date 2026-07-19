@@ -9,6 +9,7 @@ import '../../../core/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  MODEL
@@ -73,7 +74,7 @@ class StockAdjustHistoryController extends GetxController {
 
   static const List<int> kDayOptions = [7, 30, 90, 180, 365];
 
-  final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/materials');
+  final _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/materials');
 
   // ── Filter state ───────────────────────────────────────────
   final searchQuery    = ''.obs;

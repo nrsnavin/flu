@@ -8,6 +8,7 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
 import 'DCdetail.dart';
 import 'addDCpage.dart';
+import '../../../core/app_config.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  CONTROLLER
@@ -18,7 +19,7 @@ class DCListController extends GetxController {
   // produced 401 ("login to continue") against the gated backend.
   // The factory below attaches the JWT cookie on every request.
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2',
+    baseUrl: ApiConfig.baseUrl,
     timeout: const Duration(seconds: 10),
   );
 

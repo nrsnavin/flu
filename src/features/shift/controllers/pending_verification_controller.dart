@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  PendingVerificationController
@@ -18,7 +19,7 @@ class PendingVerificationController extends GetxController {
   final verifying = false.obs;
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/shift',
+    baseUrl: '${ApiConfig.baseUrl}/shift',
   );
 
   @override

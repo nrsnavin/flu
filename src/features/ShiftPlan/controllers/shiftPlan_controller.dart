@@ -7,6 +7,7 @@ import '../models/MachineRunningModel.dart';
 import '../models/OperatorModel.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 // ═════════════════════════════════════════════════════════════════
 //  SHIFT PLAN CONTROLLER
 // ═════════════════════════════════════════════════════════════════
@@ -212,7 +213,7 @@ class CreateShiftPlanController extends GetxController {
 // ═════════════════════════════════════════════════════════════════
 
 class ShiftApiService {
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   static Future<List<MachineRunningModel>> fetchRunningMachines() async {
     final res = await _dio.get('/machine/running-machines');

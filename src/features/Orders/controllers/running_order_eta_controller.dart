@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 /// Per-elastic remaining + rate breakdown inside one in-flight job.
 class RunningEtaElastic {
@@ -151,7 +152,7 @@ class RunningOrderEtaController extends GetxController {
   final notApplicable = false.obs;     // backend told us NO_ACTIVE_JOBS / NO_RATE
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/order',
+    baseUrl: '${ApiConfig.baseUrl}/order',
   );
 
   @override

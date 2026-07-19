@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  VISION QC — AI-assisted defect capture
@@ -84,7 +85,7 @@ class QcRecent {
 
 class QcApi {
   static final Dio _dio =
-      ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/qc');
+      ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/qc');
 
   static Future<List<QcJob>> jobsForQc() async {
     final res = await _dio.get('/jobs-for-qc');

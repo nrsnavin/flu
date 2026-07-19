@@ -2,12 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 class JobApi {
   // Route through ApiClient.buildClient so the JWT cookie attaches
   // (job routes are now all behind isAuthenticated).
   static final Dio _dio = ApiClient.buildClient(
-    baseUrl: "http://13.233.117.153:2701/api/v2",
+    baseUrl: ApiConfig.baseUrl,
   );
 
   static Future<void> createOrder(Map<String, dynamic> payload) async {

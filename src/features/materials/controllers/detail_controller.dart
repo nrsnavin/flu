@@ -7,12 +7,13 @@ import '../../../core/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/detail_model.dart';
+import '../../../core/app_config.dart';
 
 class RawMaterialDetailController extends GetxController {
   final String materialId;
   RawMaterialDetailController({required this.materialId});
 
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/materials');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/materials');
 
   // ── State ──────────────────────────────────────────────────
   final isLoading    = true.obs;

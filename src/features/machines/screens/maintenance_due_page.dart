@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/api_client.dart';
 import '../../PurchaseOrder/services/theme.dart';
+import '../../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  MAINTENANCE DUE PAGE
@@ -20,7 +21,7 @@ class MaintenanceDueController extends GetxController {
   final days         = 14.obs;
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/machine',
+    baseUrl: '${ApiConfig.baseUrl}/machine',
   );
 
   @override

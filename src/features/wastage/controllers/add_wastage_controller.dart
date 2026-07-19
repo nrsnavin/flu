@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../models/checkingJobModel.dart';
 import '../../../core/api_client.dart';
 import '../../../core/request_id.dart';
+import '../../../core/app_config.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -12,8 +13,8 @@ import '../../../core/request_id.dart';
 // ══════════════════════════════════════════════════════════════
 
 class WastageApi {
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/wastage');
-  static final Dio _jobDio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/job');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/wastage');
+  static final Dio _jobDio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/job');
 
   static Future<List<WastageJobSummary>> fetchJobsWithWastage({
     String? status,

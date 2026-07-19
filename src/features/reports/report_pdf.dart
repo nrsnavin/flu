@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 
 import '../../core/api_client.dart';
+import '../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  Report PDF download (mobile)
@@ -29,7 +30,7 @@ Future<void> downloadReportPdf({
   );
   try {
     final dio = ApiClient.buildClient(
-      baseUrl: 'http://13.233.117.153:2701/api/v2',
+      baseUrl: ApiConfig.baseUrl,
     );
     final res = await dio.get(
       path,

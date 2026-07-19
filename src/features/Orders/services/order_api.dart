@@ -2,9 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 class OrderApi {
-  static final Dio _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2");
+  static final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   static Future<List<dynamic>> fetchOrders(String status) async {
     final res = await _dio.get(

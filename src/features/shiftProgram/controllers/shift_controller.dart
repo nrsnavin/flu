@@ -15,6 +15,7 @@ import 'package:production/src/splash_screen.dart';
 import 'package:restart_app/restart_app.dart';
 
 import '../models/ProductionDataModel.dart';
+import '../../../core/app_config.dart';
 
 class ShiftController extends GetxController {
   static ShiftController get find => Get.find();
@@ -22,7 +23,7 @@ class ShiftController extends GetxController {
   // Route Dio through ApiClient.buildClient so the JWT cookie
   // attaches; bare Dio() 401s on the admin-gated shift routes.
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2',
+    baseUrl: ApiConfig.baseUrl,
   );
 
   RxList<Employee> employeesWeave = (List<Employee>.of([])).obs;

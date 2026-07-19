@@ -10,9 +10,10 @@ import 'package:production/src/features/Orders/controllers/add_order_controller.
 
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 // ── API ───────────────────────────────────────────────────────
 class WarpingApi {
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/warping');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/warping');
 
   static Future<Map<String, dynamic>> listWarpings({
     required String status, String search = '', int page = 1, int limit = 20,
@@ -337,7 +338,7 @@ class WarpingPlanController extends GetxController {
   final String warpingId;
   WarpingPlanController(this.jobId, this.warpingId);
 
-  static final _aiDio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+  static final _aiDio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   final warpYarns    = <WarpYarnOption>[].obs;
   final beams        = <EditableBeam>[].obs;

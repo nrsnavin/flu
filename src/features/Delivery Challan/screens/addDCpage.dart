@@ -10,6 +10,7 @@ import '../../../core/request_id.dart';
 import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
+import '../../../core/app_config.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  ADD DC CONTROLLER
@@ -21,7 +22,7 @@ class AddDCController extends GetxController {
   // and /dc/create against the gated backend. The factory below
   // attaches the JWT cookie on every request.
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2',
+    baseUrl: ApiConfig.baseUrl,
     timeout: const Duration(seconds: 15),
   );
 

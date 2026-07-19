@@ -6,9 +6,10 @@ import 'package:production/src/features/elastic/models/cost.dart';
 import 'package:production/src/features/elastic/models/raw_material.dart';
 import 'package:production/src/features/elastic/models/warp_yarn_input.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
+import '../../../core/app_config.dart';
 
 class AddElasticController extends GetxController {
-  final Dio _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2");
+  final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   final Map<String, dynamic>? cloneData;
   final Map<String, dynamic>? editData;

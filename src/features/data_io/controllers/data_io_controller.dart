@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 /// Result of an import run, mirrored from the backend report.
 class ImportResult {
@@ -39,7 +40,7 @@ class DataIoController extends GetxController {
   final pickedName = Rxn<String>();
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/io',
+    baseUrl: '${ApiConfig.baseUrl}/io',
   );
 
   Future<void> pickAndImport() async {

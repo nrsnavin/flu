@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/api_client.dart';
 import '../services/theme.dart';
+import '../../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  PO RECEIPT AGING PAGE
@@ -20,7 +21,7 @@ class POAgingController extends GetxController {
   final bucket   = 'all'.obs;
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/supplier',
+    baseUrl: '${ApiConfig.baseUrl}/supplier',
   );
 
   List<Map<String, dynamic>> get visible => bucket.value == 'all'

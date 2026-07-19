@@ -2,12 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import '../models/shiftSummary.dart';
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 
 class ShiftController extends GetxController {
   final isLoading = false.obs;
 
-  final Dio _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2");
+  final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
 
   final dayShift = Rxn<ShiftSummaryModel>();

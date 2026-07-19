@@ -12,6 +12,7 @@ import '../../../common_widgets/fingerprint_timeline.dart';
 import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
+import '../../../core/app_config.dart';
 
 
 // ════════════════════════════════════════════════════════════════
@@ -21,7 +22,7 @@ class DCDetailController extends GetxController {
   final String dcId;
   DCDetailController(this.dcId);
 
-  final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+  final _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   final loading  = false.obs;
   final updating = false.obs;

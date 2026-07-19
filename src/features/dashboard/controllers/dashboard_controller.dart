@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  DashboardController
@@ -32,12 +33,12 @@ class DashboardController extends GetxController {
   final lowStockItems = <Map<String, dynamic>>[].obs;
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/dashboard',
+    baseUrl: '${ApiConfig.baseUrl}/dashboard',
   );
   // Pending-shifts count is on the shift router — separate client so
   // we hit the right base URL without changing the existing /kpis call.
   final _shiftDio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/shift',
+    baseUrl: '${ApiConfig.baseUrl}/shift',
   );
 
   @override

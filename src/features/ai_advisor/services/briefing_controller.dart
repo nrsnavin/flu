@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
 import 'ai_advisor.dart';
+import '../../../core/app_config.dart';
 
 /// Holds the current "morning briefing" — a 2–3 sentence narrative
 /// summary of the top advisor suggestions.
@@ -24,7 +25,7 @@ class BriefingController extends GetxController {
   final lastRunAt = Rxn<DateTime>();
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/advisor',
+    baseUrl: '${ApiConfig.baseUrl}/advisor',
   );
 
   /// Hits the LLM endpoint and caches the result. Re-entry-guarded

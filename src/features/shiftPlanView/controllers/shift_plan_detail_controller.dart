@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 
 import '../models/shiftPlanDetail.dart';
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 class ShiftPlanDetailController extends GetxController {
   final String shiftPlanId;
@@ -22,7 +23,7 @@ class ShiftPlanDetailController extends GetxController {
   final errorMsg     = Rxn<String>();
   final shiftDetail  = Rxn<ShiftPlanDetailModel>();
 
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   @override
   void onInit() {

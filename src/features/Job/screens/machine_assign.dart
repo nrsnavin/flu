@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import '../../PurchaseOrder/services/theme.dart';
+import '../../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════════════════
 //  ASSIGN MACHINE PAGE
@@ -90,7 +91,7 @@ class _AssignMachineController extends GetxController {
   // Route through ApiClient.buildClient so the JWT cookie attaches —
   // every machine-assign endpoint is admin-gated and 401s on bare Dio.
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2',
+    baseUrl: ApiConfig.baseUrl,
   );
 
   // State

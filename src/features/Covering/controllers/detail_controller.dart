@@ -9,8 +9,9 @@ import 'package:production/src/features/Orders/controllers/add_order_controller.
     show buildActorPayload;
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 class CoveringApiService {
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/covering');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/covering');
 
   static Future<CoveringDetail> fetchDetail(String id) async {
     final res = await _dio.get('/detail', queryParameters: {'id': id});

@@ -7,9 +7,10 @@ import '../../../core/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/productionBrief.dart';
+import '../../../core/app_config.dart';
 
 // ── Shared Dio instance ───────────────────────────────────────
-final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/production');
+final _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/production');
 
 // ══════════════════════════════════════════════════════════════
 //  BULK ENTRY MODEL

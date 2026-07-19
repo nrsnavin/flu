@@ -5,6 +5,7 @@ import 'package:production/src/features/shift/models/shift_detail_view_model.dar
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // ── import removed: shift_list_page (caused circular import) ──
 
@@ -23,7 +24,7 @@ class ShiftDetailController extends GetxController {
   var timerController = TextEditingController(text: "00:00:00");
   var feedbackController = TextEditingController();
 
-  static final Dio _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2");
+  static final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   var shift       = Rxn<ShiftDetailViewModel>();
   var isSaving    = false.obs;

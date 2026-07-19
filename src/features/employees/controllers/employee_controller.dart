@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../models/employee.dart';
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -11,7 +12,7 @@ import '../../../core/api_client.dart';
 // ══════════════════════════════════════════════════════════════
 
 class EmployeeApiService {
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   static Future<List<EmployeeListItem>> fetchAll() async {
     final res = await _dio.get('/employee/get-employees');

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // Mirrors GET /api/v2/planner/suggest-plan, POST /accept, GET /latest
 // (prod/api/planner.js). The optimiser numbers are all computed on the
@@ -84,7 +85,7 @@ class UnplaceableLine {
 
 class PlannerController extends GetxController {
   static final Dio _dio =
-      ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/planner');
+      ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/planner');
 
   final horizon = 7.obs;
   final isLoading = false.obs;

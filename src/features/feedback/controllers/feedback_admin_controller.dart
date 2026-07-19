@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  FeedbackAdminController
@@ -21,7 +22,7 @@ class FeedbackAdminController extends GetxController {
   // Cookie-attaching factory — the GET /api/v2/feedback admin route is
   // gated by isAdmin('admin'); a bare Dio() request 401s.
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/feedback',
+    baseUrl: '${ApiConfig.baseUrl}/feedback',
   );
 
   @override
@@ -81,7 +82,7 @@ class FeedbackRespondController extends GetxController {
   final loading = false.obs;
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/feedback',
+    baseUrl: '${ApiConfig.baseUrl}/feedback',
   );
 
   @override

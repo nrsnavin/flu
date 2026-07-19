@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 
 // ──────────────────────────────────────────────────────────────
 //  Shared base URL
 // ──────────────────────────────────────────────────────────────
-const _kBase = "http://13.233.117.153:2701/api/v2/customer";
+const _kBase = '${ApiConfig.baseUrl}/customer';
 
 // ══════════════════════════════════════════════════════════════
 //  CustomerController — Add customer

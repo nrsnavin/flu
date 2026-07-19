@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/RawMaterial.dart';
+import '../../../core/app_config.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -17,7 +18,7 @@ import '../models/RawMaterial.dart';
 class MaterialApiService {
   static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2/materials',
+      baseUrl:        '${ApiConfig.baseUrl}/materials',
       connectTimeout: const Duration(seconds: 12),
       receiveTimeout: const Duration(seconds: 12),
     ),

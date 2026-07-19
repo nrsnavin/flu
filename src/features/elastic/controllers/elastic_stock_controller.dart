@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // ═════════════════════════════════════════════════════════════
 //  ElasticStockController
@@ -32,7 +33,7 @@ class ElasticStockController extends GetxController {
   final reconcileError   = Rxn<String>();
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/elastic',
+    baseUrl: '${ApiConfig.baseUrl}/elastic',
   );
 
   Future<void> fetchStock(String elasticId) async {

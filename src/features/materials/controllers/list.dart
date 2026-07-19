@@ -8,10 +8,11 @@ import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 
 import '../models/RawMaterial.dart';
+import '../../../core/app_config.dart';
 
 
 class RawMaterialListController extends GetxController {
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/materials');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/materials');
 
   // ── List state ─────────────────────────────────────────────
   final materials     = <RawMaterialListItem>[].obs;

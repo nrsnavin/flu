@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 /// One entry in the "what-if M machines" curve returned by the
 /// backend so the UI can show the trade-off live.
@@ -108,7 +109,7 @@ class OrderEtaController extends GetxController {
   Timer? _debounce;
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/order',
+    baseUrl: '${ApiConfig.baseUrl}/order',
   );
 
   void scheduleEstimate({

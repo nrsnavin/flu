@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 /// GetX controller behind the notification settings page.
 ///
@@ -21,7 +22,7 @@ class NotifySettingsController extends GetxController {
 
   // Re-uses the global JWT-cookie interceptor.
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/notify',
+    baseUrl: '${ApiConfig.baseUrl}/notify',
   );
 
   // ── Reactive state ─────────────────────────────────────────────

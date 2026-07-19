@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../features/authentication/controllers/storage_keys.dart';
+import 'app_config.dart';
 
 // Single Dio instance for the whole app. Every request goes through this
 // so the JWT cookie is attached automatically — the backend reads it from
@@ -8,7 +9,7 @@ import '../features/authentication/controllers/storage_keys.dart';
 // stamp createdBy / updatedBy on every write.
 class ApiClient {
   ApiClient._internal() {
-    dio = buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+    dio = buildClient(baseUrl: ApiConfig.baseUrl);
   }
 
   static final ApiClient instance = ApiClient._internal();

@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 
 import '../models/shiftModel.dart';
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 // ── Per-shift entry holder ────────────────────────────────────
 class BulkEntry {
@@ -65,7 +66,7 @@ class ShiftControllerView extends GetxController {
   final isBulkSaving    = false.obs;
   final bulkTotalMeters = 0.obs; // live sum across all entries
 
-  static final Dio _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+  static final Dio _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   @override
   void onInit() {

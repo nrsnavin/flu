@@ -5,12 +5,13 @@ import 'package:production/src/features/Orders/controllers/add_order_controller.
     show buildActorPayload;
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 /// FIX: Rewritten to use raw Map<String,dynamic> to avoid dependency on
 /// missing model files (JobDetailViewMapper, JobDetailView, PreparatoryView,
 /// ShiftDetailModelView, etc.) that are not included in the upload set.
 /// The API returns a flat job object — we work with it directly.
 class JobDetailController extends GetxController {
-  static final _dio = ApiClient.buildClient(baseUrl: "http://13.233.117.153:2701/api/v2");
+  static final _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   final String jobId;
   JobDetailController(this.jobId);

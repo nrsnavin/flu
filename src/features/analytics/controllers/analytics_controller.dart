@@ -6,14 +6,15 @@ import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import 'package:get/get.dart';
 import '../models/analytics_model.dart';
+import '../../../core/app_config.dart';
 
 
-final _dio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/production');
+final _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/production');
 
 // Sibling client for the cross-data Operations Risk strip — talks
 // to the /machine and /supplier mounts, not /production. Sharing
 // the cookie interceptor via ApiClient.buildClient.
-final _riskDio = ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2');
+final _riskDio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
 enum AnalyticsTab { overview, byMachine, byEmployee, arena, anomalies }
 

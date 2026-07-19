@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
+import '../report_pdf.dart';
 import '../controllers/production_report_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -30,9 +31,20 @@ class ProductionReportScreen extends StatelessWidget {
     final c = Get.put(ProductionReportController());
     return Scaffold(
       backgroundColor: ErpColors.bgBase,
-      appBar: const ErpAppBar(
+      appBar: ErpAppBar(
         title: 'Production Report',
         subtitle: 'Meters produced by period',
+        actions: [
+          IconButton(
+            tooltip: 'Download PDF',
+            icon: const Icon(Icons.picture_as_pdf_outlined, color: Colors.white),
+            onPressed: () => downloadReportPdf(
+              path: '/reports/production',
+              query: {'preset': c.preset.value, 'groupBy': c.groupBy.value, 'compare': true},
+              filename: 'production-report',
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:production/src/features/shiftProgram/models/shiftPlanlModel.dart';
+import '../../../core/app_config.dart';
 
 
 class TodayShiftController extends GetxController {
@@ -42,7 +43,7 @@ class TodayShiftController extends GetxController {
       isLoading.value = true;
 
       var url = Uri.parse(
-        "http://13.233.117.153:2701/api/v2/shift/shiftPlanToday?date=${DateTime.now().toString()}",
+        '${ApiConfig.baseUrl}/shift/shiftPlanToday?date=${DateTime.now().toString()}',
       );
       final response = await http.get(
         url,

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/api_client.dart';
 import '../models/models.dart';
 import 'cont.dart' show WarpingApi;
+import '../../../core/app_config.dart';
 
 // Mirrors GET /api/v2/warping/optimize-layout/:warpingId (prod/api/warping.js).
 // First-fit-decreasing bin-pack of warp-yarn ends into beams. Deterministic;
@@ -50,7 +51,7 @@ class OptimizeLayoutController extends GetxController {
   OptimizeLayoutController(this.warpingId);
 
   static final Dio _dio =
-      ApiClient.buildClient(baseUrl: 'http://13.233.117.153:2701/api/v2/warping');
+      ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/warping');
 
   final capacity = 600.obs;
   final isLoading = false.obs;

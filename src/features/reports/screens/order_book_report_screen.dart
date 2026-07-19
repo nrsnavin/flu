@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
+import '../report_pdf.dart';
 import '../controllers/order_book_report_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -28,9 +29,20 @@ class OrderBookReportScreen extends StatelessWidget {
     final c = Get.put(OrderBookReportController());
     return Scaffold(
       backgroundColor: ErpColors.bgBase,
-      appBar: const ErpAppBar(
+      appBar: ErpAppBar(
         title: 'Order Book',
         subtitle: 'Intake, pending & on-time delivery',
+        actions: [
+          IconButton(
+            tooltip: 'Download PDF',
+            icon: const Icon(Icons.picture_as_pdf_outlined, color: Colors.white),
+            onPressed: () => downloadReportPdf(
+              path: '/reports/order-book',
+              query: {'preset': c.preset.value, 'groupBy': c.groupBy.value, 'compare': true},
+              filename: 'order-book-report',
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [

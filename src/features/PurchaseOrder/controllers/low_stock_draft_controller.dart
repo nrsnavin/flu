@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_config.dart';
 
 /// One flagged material from `GET /materials/replenishment-forecast`.
 /// This is the forecast-driven successor to the reactive `/low-stock`
@@ -99,7 +100,7 @@ class LowStockDraftController extends GetxController {
   final estSpend   = 0.0.obs;
 
   final _dio = ApiClient.buildClient(
-    baseUrl: 'http://13.233.117.153:2701/api/v2/materials',
+    baseUrl: '${ApiConfig.baseUrl}/materials',
   );
 
   @override

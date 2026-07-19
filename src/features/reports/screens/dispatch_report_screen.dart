@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
+import '../report_pdf.dart';
 import '../controllers/dispatch_report_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -29,9 +30,20 @@ class DispatchReportScreen extends StatelessWidget {
     final c = Get.put(DispatchReportController());
     return Scaffold(
       backgroundColor: ErpColors.bgBase,
-      appBar: const ErpAppBar(
+      appBar: ErpAppBar(
         title: 'Sales Report',
         subtitle: 'Dispatch value by period',
+        actions: [
+          IconButton(
+            tooltip: 'Download PDF',
+            icon: const Icon(Icons.picture_as_pdf_outlined, color: Colors.white),
+            onPressed: () => downloadReportPdf(
+              path: '/reports/dispatch',
+              query: {'preset': c.preset.value, 'groupBy': c.groupBy.value, 'compare': true},
+              filename: 'dispatch-sales-report',
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [

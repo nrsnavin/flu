@@ -1,33 +1,27 @@
 # Mobile TLS cutover (go-live)
 
-The app previously hardcoded the backend as a cleartext URL
-(`http://3.6.171.27:2701/api/v2`) in ~60 files. All of them now read
-a single source of truth — `ApiConfig.baseUrl` in
-`src/core/app_config.dart` — so moving to HTTPS is a build-time flag plus
-one platform-manifest change, not a code hunt.
+The app previously hardcoded the backend as a cleartext URL in ~60 files.
+All of them now read a single source of truth — `ApiConfig.baseUrl` in
+`src/core/app_config.dart` — which **defaults to the production HTTPS
+endpoint** `https://api.baluelastics.com/api/v2`. TLS is live, so a plain
+`flutter build` already talks HTTPS; the only remaining hardening is the
+platform-level cleartext block below.
 
-Auth cookies and all business data currently cross the network in the
-clear and are trivially interceptable on any shared network. **Do not ship
-the production build over `http://`.**
+## Step 1 — Build (HTTPS is the default)
 
-## Step 1 — Point the app at your HTTPS endpoint
+```sh
+flutter build apk --release
+# iOS
+flutter build ipa --release
+```
 
-Stand up TLS in front of the API first (nginx/Caddy with a real cert, or
-an ALB terminating TLS). Then build with the HTTPS base URL — no code
-change:
+To point at a different backend (staging, a new domain), override at
+build time — no code change:
 
 ```sh
 flutter build apk --release \
-  --dart-define=API_BASE_URL=https://api.baluelastics.com/api/v2
-
-# iOS
-flutter build ipa --release \
-  --dart-define=API_BASE_URL=https://api.baluelastics.com/api/v2
+  --dart-define=API_BASE_URL=https://api.staging.example.com/api/v2
 ```
-
-The default in `app_config.dart` is intentionally left at the current
-cleartext host so existing dev builds keep working; production builds must
-pass `--dart-define`.
 
 ## Step 2 — Block cleartext at the platform level
 

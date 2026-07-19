@@ -16,11 +16,12 @@
 class ApiConfig {
   ApiConfig._();
 
-  /// Backend API base, including the `/api/v2` prefix. Override at build
-  /// time with `--dart-define=API_BASE_URL=...`.
+  /// Backend API base, including the `/api/v2` prefix. Defaults to the
+  /// production HTTPS endpoint (TLS is live). Override at build time with
+  /// `--dart-define=API_BASE_URL=...` to point at a different backend.
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://3.6.171.27:2701/api/v2',
+    defaultValue: 'https://api.baluelastics.com/api/v2',
   );
 
   /// True once the app is pointed at an HTTPS endpoint — useful for a

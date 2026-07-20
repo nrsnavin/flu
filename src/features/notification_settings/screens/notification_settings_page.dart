@@ -209,7 +209,7 @@ class _ProviderBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: ErpColors.warningAmber.withValues(alpha: 0.12),
+        color: ErpColors.warningAmber.withOpacity(0.12),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: ErpColors.warningAmber),
       ),
@@ -423,7 +423,7 @@ class _ErrorBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: ErpColors.errorRed.withValues(alpha: 0.1),
+        color: ErpColors.errorRed.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

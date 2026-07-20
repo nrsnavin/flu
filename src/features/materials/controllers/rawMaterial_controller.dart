@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../models/RawMaterial.dart';
 import '../../../core/app_config.dart';
+import '../../../core/api_client.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -16,12 +17,12 @@ import '../../../core/app_config.dart';
 // ══════════════════════════════════════════════════════════════
 
 class MaterialApiService {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl:        '${ApiConfig.baseUrl}/materials',
-      connectTimeout: const Duration(seconds: 12),
-      receiveTimeout: const Duration(seconds: 12),
-    ),
+  // Route through ApiClient.buildClient so the JWT cookie is attached —
+  // a bare Dio(BaseOptions(...)) skips the interceptor and 401s against
+  // the gated backend.
+  static final Dio _dio = ApiClient.buildClient(
+    baseUrl: '${ApiConfig.baseUrl}/materials',
+    timeout: const Duration(seconds: 12),
   );
 
   static Future<List<RawMaterialListItem>> fetchList({

@@ -8,9 +8,18 @@ import '../features/auth/controllers/storage_keys.dart';
 // request — the backend reads `req.cookies.token`, populates
 // `req.user`, and the audit-fields plugin records who did what.
 class ApiClient {
+  /// Backend API base. Defaults to the production HTTPS endpoint (same
+  /// as the admin app); override at build time with
+  /// `--dart-define=API_BASE_URL=...`. The old hardcoded EC2 IP died
+  /// when the server moved to an Elastic IP — never pin an IP here.
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://api.baluelastics.com/api/v2',
+  );
+
   ApiClient._internal() {
     dio = Dio(BaseOptions(
-      baseUrl:        'http://13.233.117.153:2701/api/v2',
+      baseUrl:        baseUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
     ));

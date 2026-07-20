@@ -1,13 +1,14 @@
 import 'package:dio/dio.dart';
 import '../../../core/app_config.dart';
+import '../../../core/api_client.dart';
 
 class ApiService {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: ApiConfig.baseUrl, // 🔁 change
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ),
+  // Route through ApiClient.buildClient so the JWT cookie is attached —
+  // a bare Dio(BaseOptions(...)) skips the interceptor and 401s against
+  // the gated backend (/customer and /elastic are auth-gated).
+  static final Dio _dio = ApiClient.buildClient(
+    baseUrl: ApiConfig.baseUrl,
+    timeout: const Duration(seconds: 10),
   );
 
   static Future<List<dynamic>> fetchCustomers() async {

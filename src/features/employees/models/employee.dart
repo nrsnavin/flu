@@ -59,6 +59,8 @@ class EmployeeDetail {
   final String aadhar;
   final double performance;
   final int totalShifts;
+  final double hourlyRate;
+  final Map<String, dynamic>? skillProfile;
 
   const EmployeeDetail({
     required this.id,
@@ -69,6 +71,8 @@ class EmployeeDetail {
     required this.aadhar,
     required this.performance,
     required this.totalShifts,
+    this.hourlyRate = 0,
+    this.skillProfile,
   });
 
   factory EmployeeDetail.fromJson(Map<String, dynamic> json) {
@@ -82,6 +86,10 @@ class EmployeeDetail {
       performance: double.tryParse(
           json['performance']?.toString() ?? '0') ?? 0.0,
       totalShifts: (json['totalShifts'] as num?)?.toInt() ?? 0,
+      hourlyRate:  double.tryParse(json['hourlyRate']?.toString() ?? '0') ?? 0,
+      skillProfile: json['skillProfile'] is Map
+          ? Map<String, dynamic>.from(json['skillProfile'] as Map)
+          : null,
     );
   }
 
@@ -154,12 +162,22 @@ class EmployeeCreate {
   final String department;
   final String aadhaar;
 
+  /// ₹/hour — derived from the DAY-shift (12h) salary the form asks for.
+  final double hourlyRate;
+
+  /// Onboarding skill & performance questionnaire (see
+  /// skill_questionnaire_form.dart). Sent as-is; backend schema
+  /// validates the enum levels.
+  final Map<String, dynamic>? skillProfile;
+
   const EmployeeCreate({
     required this.name,
     required this.phoneNumber,
     required this.role,
     required this.department,
     required this.aadhaar,
+    this.hourlyRate = 0,
+    this.skillProfile,
   });
 
   Map<String, dynamic> toJson() => {
@@ -168,5 +186,7 @@ class EmployeeCreate {
     'role':        role,
     'department':  department,
     'aadhar':      aadhaar,   // schema field is 'aadhar' not 'aadhaar'
+    'hourlyRate':  hourlyRate,
+    if (skillProfile != null) 'skillProfile': skillProfile,
   };
 }

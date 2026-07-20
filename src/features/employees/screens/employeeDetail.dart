@@ -60,6 +60,8 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
               const SizedBox(height: 12),
               _InfoCard(emp: emp),
               const SizedBox(height: 12),
+              _SkillProfileCard(emp: emp),
+              const SizedBox(height: 12),
               _PerformanceStats(c: c),
               const SizedBox(height: 12),
               _ShiftHistorySection(c: c),
@@ -300,6 +302,74 @@ class _InfoCard extends StatelessWidget {
             emp.department[0].toUpperCase() + emp.department.substring(1)),
         ErpInfoRow('Role',        emp.role),
         ErpInfoRow('Employee ID', emp.id),
+        if (emp.hourlyRate > 0)
+          ErpInfoRow('Shift salary (DAY 12h)',
+              'Rs ${(emp.hourlyRate * 12).toStringAsFixed(0)}'),
+      ]),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SKILL PROFILE — read-only view of the onboarding questionnaire
+//  (edit it from the web employee page).
+// ══════════════════════════════════════════════════════════════
+class _SkillProfileCard extends StatelessWidget {
+  final EmployeeDetail emp;
+  const _SkillProfileCard({required this.emp});
+
+  static const Map<String, String> _skillLabels = {
+    'drawing': 'Drawing', 'knotting': 'Knotting', 'tapeSetting': 'Tape setting',
+    'chainLinkSetting': 'Chain link', 'chainDesign': 'Chain design',
+    'jacquardHookModule': 'Jacq. hook (module)', 'jacquardHookKarampal': 'Jacq. hook (karampal)',
+    'timingBeltChange': 'Timing belt', 'timingSetting': 'Timing setting', 'machineRepair': 'Machine repair',
+  };
+  static const Map<String, String> _levelLabels = {
+    'not_known': 'Not known', 'basic': 'Basic', 'good': 'Good', 'expert': 'Expert',
+  };
+
+  Color _levelColor(String lvl) {
+    switch (lvl) {
+      case 'expert': return ErpColors.successGreen;
+      case 'good':   return ErpColors.accentBlue;
+      case 'basic':  return ErpColors.warningAmber;
+      default:       return ErpColors.textMuted;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sp = emp.skillProfile;
+    if (sp == null || sp.isEmpty) return const SizedBox.shrink();
+    final skills = sp['skills'] is Map ? Map<String, dynamic>.from(sp['skills'] as Map) : <String, dynamic>{};
+    final machineType = sp['machineType']?.toString() ?? '';
+    final years = sp['yearsOfExperience']?.toString() ?? '';
+
+    return ErpSectionCard(
+      title: 'SKILL PROFILE',
+      icon: Icons.school_outlined,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        if (machineType.isNotEmpty) ErpInfoRow('Machine type', machineType),
+        if (years.isNotEmpty && years != '0') ErpInfoRow('Experience', '$years yrs'),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: _skillLabels.entries.map((e) {
+            final lvl = skills[e.key]?.toString() ?? 'not_known';
+            final color = _levelColor(lvl);
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: color.withOpacity(0.4)),
+              ),
+              child: Text('${e.value}: ${_levelLabels[lvl] ?? lvl}',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
+            );
+          }).toList(),
+        ),
       ]),
     );
   }

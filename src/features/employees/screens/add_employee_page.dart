@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/employee_controller.dart';
 import '../models/employee.dart';
+import 'skill_questionnaire_form.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -35,6 +36,8 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
   final _phoneCtrl   = TextEditingController();
   final _roleCtrl    = TextEditingController();
   final _aadhaarCtrl = TextEditingController();
+  final _salaryCtrl  = TextEditingController(); // DAY-shift (12h) salary ₹
+  final _skillData   = SkillProfileData();
   String? _selectedDept;
 
   static const List<String> _departments = [
@@ -57,6 +60,7 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
     _phoneCtrl.dispose();
     _roleCtrl.dispose();
     _aadhaarCtrl.dispose();
+    _salaryCtrl.dispose();
     super.dispose();
   }
 
@@ -64,12 +68,16 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
 
+    // Salary asked per DAY shift (12h), stored as Rs/hour for payroll.
+    final shiftSalary = double.tryParse(_salaryCtrl.text.trim()) ?? 0;
     c.addEmployee(EmployeeCreate(
       name:        _nameCtrl.text.trim(),
       phoneNumber: _phoneCtrl.text.trim(),
       role:        _roleCtrl.text.trim(),
       department:  _selectedDept!,
       aadhaar:     _aadhaarCtrl.text.trim(),
+      hourlyRate:  shiftSalary > 0 ? shiftSalary / 12 : 0,
+      skillProfile: _skillData.toJson(),
     ));
   }
 
@@ -185,6 +193,30 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
                 ),
               ]),
             ),
+            const SizedBox(height: 12),
+
+            // ── Shift salary ──────────────────────────────────
+            ErpSectionCard(
+              title: 'SHIFT SALARY',
+              icon: Icons.currency_rupee_rounded,
+              child: _field(
+                ctrl: _salaryCtrl,
+                label: 'DAY shift salary (12h, Rs)',
+                hint: 'e.g. 1200 — NIGHT (8h) pays 2/3 of this',
+                icon: Icons.payments_outlined,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return null; // optional
+                  final n = double.tryParse(v.trim());
+                  if (n == null || n < 0) return 'Enter a valid amount';
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // ── Skill & performance questionnaire ─────────────
+            SkillQuestionnaireSection(data: _skillData),
             const SizedBox(height: 24),
 
             // ── Submit ────────────────────────────────────────

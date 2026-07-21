@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:production/src/features/authentication/controllers/login_controller.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
+import 'forgot_password.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -148,7 +149,26 @@ class _LoginState extends State<Login> {
                           },
                           onFieldSubmitted: (_) => _submit(),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 12),
+
+                        // Forgot password link
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            onPressed: () => Get.to(() => const ForgotPasswordScreen()),
+                            child: const Text('Forgot password?',
+                                style: TextStyle(
+                                    color: ErpColors.accentBlue,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
 
                         // Submit button — reactive to loading state
                         Obx(() => SizedBox(

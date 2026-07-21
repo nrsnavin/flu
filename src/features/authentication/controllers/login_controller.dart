@@ -136,6 +136,39 @@ class LoginController extends GetxController {
     }
   }
 
+  // ── Forgot password ────────────────────────────────────────────────────
+  //
+  //  Asks the backend to email a reset link. The link opens the WEB reset
+  //  page (erp.baluelastics.com/reset-password) — the phone doesn't handle
+  //  the reset itself. The backend always returns a generic success, so we
+  //  surface the same confirmation regardless of whether the email exists.
+  //  Returns true when the request was accepted, false on a network error.
+  final RxBool isSendingReset = false.obs;
+
+  Future<bool> forgotPassword(String email) async {
+    isSendingReset.value = true;
+    try {
+      await _dio.post(
+        '/user/forgot-password',
+        data: {'email': email.trim()},
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+      return true;
+    } on DioException catch (e) {
+      final msg = e.response != null
+          ? 'Something went wrong. Please try again.'
+          : 'Could not reach the server. Check your connection and try again.';
+      Get.snackbar('Reset failed', msg, snackPosition: SnackPosition.BOTTOM);
+      return false;
+    } catch (_) {
+      Get.snackbar('Reset failed', 'Something went wrong. Please try again.',
+          snackPosition: SnackPosition.BOTTOM);
+      return false;
+    } finally {
+      isSendingReset.value = false;
+    }
+  }
+
   // ── Logout ───────────────────────────────────────────────────────────────
 
   Future<void> logout() async {

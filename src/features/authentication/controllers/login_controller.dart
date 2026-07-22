@@ -136,6 +136,89 @@ class LoginController extends GetxController {
     }
   }
 
+  // ── Email-OTP login ──────────────────────────────────────────────────────
+  //
+  //  Primary sign-in: request a 6-digit code by email, then exchange it for
+  //  the same JWT session /login-user issues. verifyOtp reuses the exact
+  //  save-session + navigate path as tryLogin on success.
+  final RxBool isRequestingOtp = false.obs;
+  final RxBool isVerifyingOtp  = false.obs;
+
+  // Returns true if the request was accepted (backend always replies
+  // generically), false on a network failure.
+  Future<bool> requestOtp(String email) async {
+    isRequestingOtp.value = true;
+    try {
+      await _dio.post(
+        '/user/request-otp',
+        data: {'email': email.trim()},
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+      return true;
+    } on DioException catch (e) {
+      final msg = e.response != null
+          ? 'Something went wrong. Please try again.'
+          : 'Could not reach the server. Check your connection and try again.';
+      Get.snackbar('Could not send code', msg, snackPosition: SnackPosition.BOTTOM);
+      return false;
+    } catch (_) {
+      Get.snackbar('Could not send code', 'Something went wrong. Please try again.',
+          snackPosition: SnackPosition.BOTTOM);
+      return false;
+    } finally {
+      isRequestingOtp.value = false;
+    }
+  }
+
+  // Verifies the code. On success saves the session and lands on Home,
+  // exactly like tryLogin. Returns false so the caller can keep the code
+  // screen up on failure.
+  Future<bool> verifyOtp(String email, String otp) async {
+    isVerifyingOtp.value = true;
+    try {
+      final response = await _dio.post(
+        '/user/verify-otp',
+        data: {'email': email.trim(), 'otp': otp.trim()},
+      );
+
+      if (response.statusCode == 201) {
+        final newToken = response.data['token'] ?? '';
+        final u = User(
+          id:   response.data['id']       ?? '',
+          name: response.data['username'] ?? '',
+          role: response.data['role']     ?? '',
+        );
+        await _saveSession(token: newToken, user: u);
+        user.value       = u;
+        isLoggedIn.value = true;
+        Get.offAll(() => Home());
+        return true;
+      }
+      Get.snackbar('Sign-in failed', 'Unexpected server response.',
+          snackPosition: SnackPosition.BOTTOM);
+      return false;
+    } on DioException catch (e) {
+      String title = 'Sign-in failed';
+      String msg;
+      if (e.response != null) {
+        msg = e.response?.data is Map
+            ? (e.response?.data['message']?.toString() ?? 'Invalid or expired code')
+            : 'Invalid or expired code';
+      } else {
+        title = 'Cannot reach server';
+        msg = 'Could not connect to the server. Check your connection and try again.';
+      }
+      Get.snackbar(title, msg, snackPosition: SnackPosition.BOTTOM);
+      return false;
+    } catch (_) {
+      Get.snackbar('Sign-in failed', 'Something went wrong. Please try again.',
+          snackPosition: SnackPosition.BOTTOM);
+      return false;
+    } finally {
+      isVerifyingOtp.value = false;
+    }
+  }
+
   // ── Forgot password ────────────────────────────────────────────────────
   //
   //  Asks the backend to email a reset link. The link opens the WEB reset

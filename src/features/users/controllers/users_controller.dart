@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
+import '../../../core/features.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  UsersController — admin user management.
@@ -80,6 +81,9 @@ class UserFormController extends GetxController {
   final deptCtrl     = TextEditingController();
   final loading = false.obs;
 
+  // Custom per-user feature keys (nav paths).
+  final features = <String>[].obs;
+
   bool get isEdit => existing != null;
 
   final _dio = ApiClient.buildClient(
@@ -94,6 +98,29 @@ class UserFormController extends GetxController {
       nameCtrl.text  = e['name'] as String? ?? '';
       emailCtrl.text = e['email'] as String? ?? '';
       deptCtrl.text  = e['department'] as String? ?? '';
+      final raw = e['features'];
+      if (raw is List && raw.isNotEmpty) {
+        features.assignAll(raw.map((x) => x.toString()));
+      } else {
+        features.assignAll(featuresForDepartment(deptCtrl.text.trim()));
+      }
+    } else {
+      deptCtrl.text = 'weaving';
+      features.assignAll(featuresForDepartment('weaving'));
+    }
+  }
+
+  // Picking a department re-seeds the checklist to its default.
+  void setDepartment(String dept) {
+    deptCtrl.text = dept;
+    features.assignAll(featuresForDepartment(dept));
+  }
+
+  void toggleFeature(String key) {
+    if (features.contains(key)) {
+      features.remove(key);
+    } else {
+      features.add(key);
     }
   }
 
@@ -107,6 +134,7 @@ class UserFormController extends GetxController {
           'name': nameCtrl.text.trim(),
           'email': emailCtrl.text.trim(),
           'department': deptCtrl.text.trim(),
+          'features': features.toList(),
           if (pwd.isNotEmpty) 'password': pwd,
         };
         await _dio.put('/manage/${existing!['_id']}', data: payload);
@@ -116,6 +144,7 @@ class UserFormController extends GetxController {
           'email': emailCtrl.text.trim(),
           'password': pwd,
           'department': deptCtrl.text.trim(),
+          'features': features.toList(),
         });
       }
       Get.snackbar('Saved', isEdit ? 'User updated' : 'User created',

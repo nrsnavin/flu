@@ -93,7 +93,11 @@ class LoginController extends GetxController {
           name: response.data['username'] ?? '',
           role: response.data['role']     ?? '',
         );
-        await _saveSession(token: newToken, user: u);
+        await _saveSession(
+          token: newToken,
+          user: u,
+          features: _parseFeatures(response.data['features']),
+        );
         user.value       = u;
         isLoggedIn.value = true;
         Get.offAll(() => Home());
@@ -188,7 +192,11 @@ class LoginController extends GetxController {
           name: response.data['username'] ?? '',
           role: response.data['role']     ?? '',
         );
-        await _saveSession(token: newToken, user: u);
+        await _saveSession(
+          token: newToken,
+          user: u,
+          features: _parseFeatures(response.data['features']),
+        );
         user.value       = u;
         isLoggedIn.value = true;
         Get.offAll(() => Home());
@@ -263,13 +271,34 @@ class LoginController extends GetxController {
 
   // ── Helpers ────────────────────────────────────────────────────────────
 
-  Future<void> _saveSession({required String token, required User user}) async {
+  Future<void> _saveSession({
+    required String token,
+    required User user,
+    List<String> features = const [],
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(StorageKeys.token, token);
     await prefs.setString(StorageKeys.id,    user.id);
     await prefs.setString(StorageKeys.name,  user.name);
     await prefs.setString(StorageKeys.role,  user.role);
+    await prefs.setString(StorageKeys.features, features.join(','));
     await prefs.setBool(StorageKeys.isLoggedIn, true);
+  }
+
+  // Parse a login/verify response's `features` array into a string list.
+  static List<String> _parseFeatures(dynamic raw) {
+    if (raw is List) {
+      return raw.map((e) => e.toString()).where((s) => s.isNotEmpty).toList();
+    }
+    return const [];
+  }
+
+  // The current user's stored feature keys (empty => unrestricted).
+  static Future<List<String>> currentFeatures() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(StorageKeys.features) ?? '';
+    if (raw.isEmpty) return const [];
+    return raw.split(',').where((s) => s.isNotEmpty).toList();
   }
 
   Future<void> _clearSession(SharedPreferences prefs) async {
@@ -277,6 +306,7 @@ class LoginController extends GetxController {
     await prefs.remove(StorageKeys.id);
     await prefs.remove(StorageKeys.name);
     await prefs.remove(StorageKeys.role);
+    await prefs.remove(StorageKeys.features);
     await prefs.setBool(StorageKeys.isLoggedIn, false);
   }
 }

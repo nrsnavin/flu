@@ -200,14 +200,12 @@ class AddPOController extends GetxController {
         // expectedVersion enables the optimistic lock — the server 409s
         // if someone else saved this PO since we loaded it.
         payload["poId"] = seedData!["_id"] as String;
-<<<<<<< HEAD
+
         payload["auditReason"] = auditReason!;
-=======
-        payload["auditReason"] = auditReason;
+
         if (seedData!["expectedVersion"] != null) {
           payload["expectedVersion"] = seedData!["expectedVersion"];
         }
->>>>>>> 7d824004ca98f45ae834c5d5c0f9ce68f0e73dd0
         await POApiService.dio.put("/edit-po", data: payload);
         Get.snackbar("Success", "Purchase Order updated");
       } else {

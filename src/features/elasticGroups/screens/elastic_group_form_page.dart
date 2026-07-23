@@ -22,7 +22,7 @@ class ElasticGroupFormPage extends StatelessWidget {
       backgroundColor: ErpColors.bgBase,
       appBar: ErpAppBar(
         title: ctrl.isEdit ? 'Edit Group' : 'New Elastic Group',
-        subtitle: ctrl.isEdit ? existing?['name'] as String? : 'Reusable bundle',
+        subtitle: ctrl.isEdit ? existing != null?['name'] as String? : 'Reusable bundle':"",
       ),
       body: Form(
         key: ctrl.formKey,

@@ -15,6 +15,13 @@ import '../../employees/screens/empList.dart';
 import '../../materials/screens/material_list_screenn.dart';
 import '../../shift/screens/pending_verification_page.dart';
 import '../../elastic/screens/stock_map_page.dart';
+import '../../audit/screens/audit_trail_page.dart';
+import '../../elasticGroups/screens/elastic_group_list_page.dart';
+import '../../users/screens/users_list_page.dart';
+import '../../settings/screens/document_settings_page.dart';
+import '../../materials/screens/forecast_page.dart';
+import '../../authentication/controllers/login_controller.dart';
+import '../../../core/features.dart';
 import '../controllers/dashboard_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -572,9 +579,68 @@ class _LowStockRow extends StatelessWidget {
   }
 }
 
-class _QuickLinks extends StatelessWidget {
+class _QuickLink {
+  final String feature; // feature key (nav path)
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _QuickLink(this.feature, this.icon, this.label, this.onTap);
+}
+
+// Quick links, gated by the signed-in user's feature set. While features
+// load (or when the user has none stored — admin/legacy) every link shows.
+class _QuickLinks extends StatefulWidget {
+  @override
+  State<_QuickLinks> createState() => _QuickLinksState();
+}
+
+class _QuickLinksState extends State<_QuickLinks> {
+  List<String> _features = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final f = await LoginController.currentFeatures();
+    if (mounted) setState(() => _features = f);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final links = <_QuickLink>[
+      _QuickLink('/elastics', Icons.inventory_outlined, 'Elastic Stock',
+          () => Get.to(() => const StockMapPage())),
+      _QuickLink('/employees', Icons.people_outline_rounded, 'Employees',
+          () => Get.to(() => const EmployeeListPage())),
+      _QuickLink('/feedback', Icons.feedback_outlined, 'Employee Feedback',
+          () => Get.to(() => const FeedbackAdminListPage())),
+      _QuickLink('/announcements', Icons.campaign_outlined, 'Notice Board',
+          () => Get.to(() => const AnnouncementListPage())),
+      _QuickLink('/planner', Icons.auto_fix_high_outlined, 'Auto Planner',
+          () => Get.to(() => const AutoPlannerPage())),
+      _QuickLink('/orders', Icons.local_shipping_outlined, 'Delivery Risk',
+          () => Get.to(() => const DeliveryRiskPage())),
+      _QuickLink('/qc', Icons.verified_outlined, 'Quality Control',
+          () => Get.to(() => const QcListPage())),
+      _QuickLink('/assistant', Icons.smart_toy_outlined, 'Ask Jarvis',
+          () => Get.to(() => const AssistantChatPage())),
+      _QuickLink('/materials', Icons.trending_up_outlined, 'Replenishment Forecast',
+          () => Get.to(() => const ForecastPage())),
+      _QuickLink('/elastic-groups', Icons.layers_outlined, 'Elastic Groups',
+          () => Get.to(() => const ElasticGroupListPage())),
+      _QuickLink('/audit', Icons.history, 'Audit Trail',
+          () => Get.to(() => const AuditTrailPage())),
+      _QuickLink('/users', Icons.manage_accounts_outlined, 'Users',
+          () => Get.to(() => const UsersListPage())),
+      _QuickLink('/settings', Icons.description_outlined, 'Document Settings',
+          () => Get.to(() => const DocumentSettingsPage())),
+    ];
+    final visible =
+        links.where((l) => hasFeature(_features, l.feature)).toList();
+
     return Container(
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
@@ -583,47 +649,13 @@ class _QuickLinks extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _LinkRow(
-            icon: Icons.inventory_outlined,
-            label: 'Elastic Stock',
-            onTap: () => Get.to(() => const StockMapPage()),
-          ),
-          _LinkRow(
-            icon: Icons.people_outline_rounded,
-            label: 'Employees',
-            onTap: () => Get.to(() => const EmployeeListPage()),
-          ),
-          _LinkRow(
-            icon: Icons.feedback_outlined,
-            label: 'Employee Feedback',
-            onTap: () => Get.to(() => const FeedbackAdminListPage()),
-          ),
-          _LinkRow(
-            icon: Icons.campaign_outlined,
-            label: 'Notice Board',
-            onTap: () => Get.to(() => const AnnouncementListPage()),
-          ),
-          _LinkRow(
-            icon: Icons.auto_fix_high_outlined,
-            label: 'Auto Planner',
-            onTap: () => Get.to(() => const AutoPlannerPage()),
-          ),
-          _LinkRow(
-            icon: Icons.local_shipping_outlined,
-            label: 'Delivery Risk',
-            onTap: () => Get.to(() => const DeliveryRiskPage()),
-          ),
-          _LinkRow(
-            icon: Icons.verified_outlined,
-            label: 'Quality Control',
-            onTap: () => Get.to(() => const QcListPage()),
-          ),
-          _LinkRow(
-            icon: Icons.smart_toy_outlined,
-            label: 'Ask Jarvis',
-            onTap: () => Get.to(() => const AssistantChatPage()),
-            isLast: true,
-          ),
+          for (int i = 0; i < visible.length; i++)
+            _LinkRow(
+              icon: visible[i].icon,
+              label: visible[i].label,
+              onTap: visible[i].onTap,
+              isLast: i == visible.length - 1,
+            ),
         ],
       ),
     );

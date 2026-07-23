@@ -15,6 +15,11 @@ import '../../employees/screens/empList.dart';
 import '../../materials/screens/material_list_screenn.dart';
 import '../../shift/screens/pending_verification_page.dart';
 import '../../elastic/screens/stock_map_page.dart';
+import '../../audit/screens/audit_trail_page.dart';
+import '../../elasticGroups/screens/elastic_group_list_page.dart';
+import '../../users/screens/users_list_page.dart';
+import '../../settings/screens/document_settings_page.dart';
+import '../../materials/screens/forecast_page.dart';
 import '../controllers/dashboard_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -622,6 +627,31 @@ class _QuickLinks extends StatelessWidget {
             icon: Icons.smart_toy_outlined,
             label: 'Ask Jarvis',
             onTap: () => Get.to(() => const AssistantChatPage()),
+          ),
+          _LinkRow(
+            icon: Icons.trending_up_outlined,
+            label: 'Replenishment Forecast',
+            onTap: () => Get.to(() => const ForecastPage()),
+          ),
+          _LinkRow(
+            icon: Icons.layers_outlined,
+            label: 'Elastic Groups',
+            onTap: () => Get.to(() => const ElasticGroupListPage()),
+          ),
+          _LinkRow(
+            icon: Icons.history,
+            label: 'Audit Trail',
+            onTap: () => Get.to(() => const AuditTrailPage()),
+          ),
+          _LinkRow(
+            icon: Icons.manage_accounts_outlined,
+            label: 'Users',
+            onTap: () => Get.to(() => const UsersListPage()),
+          ),
+          _LinkRow(
+            icon: Icons.description_outlined,
+            label: 'Document Settings',
+            onTap: () => Get.to(() => const DocumentSettingsPage()),
             isLast: true,
           ),
         ],

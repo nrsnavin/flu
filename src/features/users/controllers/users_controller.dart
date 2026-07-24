@@ -98,11 +98,14 @@ class UserFormController extends GetxController {
       nameCtrl.text  = e['name'] as String? ?? '';
       emailCtrl.text = e['email'] as String? ?? '';
       deptCtrl.text  = e['department'] as String? ?? '';
+      final dept = deptCtrl.text.trim();
+      final allowed = featuresForDepartment(dept).toSet();
       final raw = e['features'];
       if (raw is List && raw.isNotEmpty) {
-        features.assignAll(raw.map((x) => x.toString()));
+        // Keep only keys the role can reach — features are a role-scoped subset.
+        features.assignAll(raw.map((x) => x.toString()).where(allowed.contains));
       } else {
-        features.assignAll(featuresForDepartment(deptCtrl.text.trim()));
+        features.assignAll(featuresForDepartment(dept));
       }
     } else {
       deptCtrl.text = 'weaving';
@@ -110,7 +113,7 @@ class UserFormController extends GetxController {
     }
   }
 
-  // Picking a department re-seeds the checklist to its default.
+  // Picking a department re-scopes AND re-seeds the checklist to its default.
   void setDepartment(String dept) {
     deptCtrl.text = dept;
     features.assignAll(featuresForDepartment(dept));
@@ -129,12 +132,15 @@ class UserFormController extends GetxController {
     try {
       loading.value = true;
       final pwd = passwordCtrl.text.trim();
+      // Never send features outside the role's scope.
+      final allowed = featuresForDepartment(deptCtrl.text.trim()).toSet();
+      final scoped = features.where(allowed.contains).toList();
       if (isEdit) {
         final payload = <String, dynamic>{
           'name': nameCtrl.text.trim(),
           'email': emailCtrl.text.trim(),
           'department': deptCtrl.text.trim(),
-          'features': features.toList(),
+          'features': scoped,
           if (pwd.isNotEmpty) 'password': pwd,
         };
         await _dio.put('/manage/${existing!['_id']}', data: payload);
@@ -144,7 +150,7 @@ class UserFormController extends GetxController {
           'email': emailCtrl.text.trim(),
           'password': pwd,
           'department': deptCtrl.text.trim(),
-          'features': features.toList(),
+          'features': scoped,
         });
       }
       Get.snackbar('Saved', isEdit ? 'User updated' : 'User created',

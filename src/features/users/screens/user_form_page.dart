@@ -106,11 +106,20 @@ class UserFormPage extends StatelessWidget {
                     fontSize: 13,
                     fontWeight: FontWeight.w800)),
             const Text(
-              'Pick exactly what this user can open. The preset just seeds the list.',
+              'Pick what this user can open. The list is scoped to their role — '
+              'only features that role can reach are shown.',
               style: TextStyle(color: ErpColors.textMuted, fontSize: 11),
             ),
             const SizedBox(height: 8),
-            ..._buildFeatureGroups(ctrl),
+            // Rebuilds when the department (and thus the scoped feature set)
+            // or any toggle changes — features is a reactive RxList.
+            Obx(() {
+              ctrl.features.length; // reactive dependency
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _buildFeatureGroups(ctrl),
+              );
+            }),
             const SizedBox(height: 22),
             Obx(() => ErpPrimaryButton(
                   label: ctrl.isEdit ? 'Save changes' : 'Create user',
@@ -125,9 +134,17 @@ class UserFormPage extends StatelessWidget {
   }
 
   List<Widget> _buildFeatureGroups(UserFormController ctrl) {
-    return featureSections().map((section) {
-      final defs = kFeatures.where((f) => f.section == section).toList();
-      return Container(
+    // Scope selection to what this department/role can actually reach, so a
+    // feature the backend role gate would block can never be granted.
+    final dept = ctrl.deptCtrl.text.isEmpty ? 'weaving' : ctrl.deptCtrl.text;
+    final allowed = featuresForDepartment(dept).toSet();
+    final widgets = <Widget>[];
+    for (final section in featureSections()) {
+      final defs = kFeatures
+          .where((f) => f.section == section && (f.always || allowed.contains(f.key)))
+          .toList();
+      if (defs.isEmpty) continue;
+      widgets.add(Container(
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: ErpColors.bgSurface,
@@ -147,44 +164,45 @@ class UserFormPage extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.5)),
             ),
-            ...defs.map((f) => Obx(() {
-                  final on = f.always || ctrl.features.contains(f.key);
-                  return InkWell(
-                    onTap: f.always ? null : () => ctrl.toggleFeature(f.key),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Row(
-                        children: [
-                          Icon(
-                            on ? Icons.check_box : Icons.check_box_outline_blank,
-                            size: 20,
-                            color: f.always
-                                ? ErpColors.textMuted
-                                : (on ? ErpColors.accentBlue : ErpColors.textMuted),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(f.label,
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: f.always
-                                        ? ErpColors.textMuted
-                                        : ErpColors.textPrimary)),
-                          ),
-                          if (f.always)
-                            const Text('always',
-                                style: TextStyle(
-                                    fontSize: 9,
-                                    color: ErpColors.textMuted,
-                                    fontWeight: FontWeight.w700)),
-                        ],
+            ...defs.map((f) {
+              final on = f.always || ctrl.features.contains(f.key);
+              return InkWell(
+                onTap: f.always ? null : () => ctrl.toggleFeature(f.key),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    children: [
+                      Icon(
+                        on ? Icons.check_box : Icons.check_box_outline_blank,
+                        size: 20,
+                        color: f.always
+                            ? ErpColors.textMuted
+                            : (on ? ErpColors.accentBlue : ErpColors.textMuted),
                       ),
-                    ),
-                  );
-                })),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(f.label,
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: f.always
+                                    ? ErpColors.textMuted
+                                    : ErpColors.textPrimary)),
+                      ),
+                      if (f.always)
+                        const Text('always',
+                            style: TextStyle(
+                                fontSize: 9,
+                                color: ErpColors.textMuted,
+                                fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                ),
+              );
+            }),
           ],
         ),
-      );
-    }).toList();
+      ));
+    }
+    return widgets;
   }
 }

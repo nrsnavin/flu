@@ -13,23 +13,23 @@ class FeatureDef {
 
 const List<FeatureDef> kFeatures = [
   FeatureDef('/', 'Dashboard', 'Overview'),
-  FeatureDef('/analytics', 'Analytics', 'Overview', ['admin', 'weaving']),
+  FeatureDef('/analytics', 'Analytics', 'Overview', ['admin', 'production']),
   FeatureDef('/reports', 'Reports', 'Overview', ['admin', 'finance']),
   FeatureDef('/audit', 'Audit Trail', 'Overview', ['admin']),
 
   FeatureDef('/orders', 'Orders', 'Sales', ['admin', 'finance']),
-  FeatureDef('/jobs', 'Job Orders', 'Sales', ['admin', 'preparatory', 'weaving', 'packing']),
+  FeatureDef('/jobs', 'Job Orders', 'Sales', ['admin', 'production', 'packing']),
   FeatureDef('/delivery-challans', 'Delivery Challans', 'Sales', ['admin', 'finance']),
 
-  FeatureDef('/planner', 'Auto Planner', 'Production', ['admin', 'weaving']),
-  FeatureDef('/warping', 'Warping', 'Production', ['admin', 'preparatory']),
-  FeatureDef('/covering', 'Covering', 'Production', ['admin', 'preparatory']),
+  FeatureDef('/planner', 'Auto Planner', 'Production', ['admin', 'production']),
+  FeatureDef('/warping', 'Warping', 'Production', ['admin', 'production']),
+  FeatureDef('/covering', 'Covering', 'Production', ['admin', 'production']),
   FeatureDef('/packing', 'Packing', 'Production', ['admin', 'packing']),
   FeatureDef('/qc', 'Quality Control', 'Production', ['admin', 'packing']),
-  FeatureDef('/shift-plans', 'Shift Plans', 'Production', ['admin', 'weaving']),
-  FeatureDef('/shift-verification', 'Shift Verification', 'Production', ['admin', 'weaving']),
-  FeatureDef('/production', 'Production View', 'Production', ['admin', 'weaving']),
-  FeatureDef('/wastage', 'Wastage', 'Production', ['admin', 'weaving']),
+  FeatureDef('/shift-plans', 'Shift Plans', 'Production', ['admin', 'production']),
+  FeatureDef('/shift-verification', 'Shift Verification', 'Production', ['admin', 'production']),
+  FeatureDef('/production', 'Production View', 'Production', ['admin', 'production']),
+  FeatureDef('/wastage', 'Wastage', 'Production', ['admin', 'production']),
 
   FeatureDef('/customers', 'Customers', 'Masters', ['admin', 'finance']),
   FeatureDef('/suppliers', 'Suppliers', 'Masters', ['admin', 'finance']),
@@ -37,7 +37,7 @@ const List<FeatureDef> kFeatures = [
   FeatureDef('/materials', 'Raw Materials', 'Masters', ['admin', 'finance']),
   FeatureDef('/elastics', 'Elastic Products', 'Masters', ['admin', 'finance']),
   FeatureDef('/elastic-groups', 'Elastic Groups', 'Masters', ['admin']),
-  FeatureDef('/machines', 'Machines', 'Masters', ['admin', 'weaving']),
+  FeatureDef('/machines', 'Machines', 'Masters', ['admin', 'production']),
   FeatureDef('/employees', 'Employees', 'Masters', ['admin', 'finance']),
 
   FeatureDef('/attendance', 'Attendance', 'HR & Payroll', ['admin', 'finance']),
@@ -58,7 +58,8 @@ const List<FeatureDef> kFeatures = [
   FeatureDef('/settings', 'Settings', 'Administration'),
 ];
 
-const _floor = ['preparatory', 'weaving', 'packing'];
+// Legacy departments (pre-merge) alias to the merged "production" dept.
+const _legacyDeptAlias = {'preparatory': 'production', 'weaving': 'production'};
 
 List<String> allFeatureKeys() => kFeatures.map((f) => f.key).toList();
 
@@ -67,12 +68,12 @@ List<String> alwaysOnKeys() =>
 
 // Default feature set for a department — used to seed the checklist.
 List<String> featuresForDepartment(String dept) {
-  if (dept == 'admin') return allFeatureKeys();
+  final d = _legacyDeptAlias[dept] ?? dept;
+  if (d == 'admin') return allFeatureKeys();
   return kFeatures
       .where((f) {
         if (f.depts == null) return true;
-        if (dept == 'production') return f.depts!.any(_floor.contains);
-        return f.depts!.contains(dept);
+        return f.depts!.contains(d);
       })
       .map((f) => f.key)
       .toList();

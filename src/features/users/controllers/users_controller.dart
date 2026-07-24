@@ -108,8 +108,8 @@ class UserFormController extends GetxController {
         features.assignAll(featuresForDepartment(dept));
       }
     } else {
-      deptCtrl.text = 'weaving';
-      features.assignAll(featuresForDepartment('weaving'));
+      deptCtrl.text = 'production';
+      features.assignAll(featuresForDepartment('production'));
     }
   }
 

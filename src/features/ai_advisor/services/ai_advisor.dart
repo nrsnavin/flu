@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
+import 'package:get/get.dart' hide Response;
 import '../../../core/api_client.dart';
 import 'advisor_actions.dart';
 import 'advisor_prefs_store.dart';
 import '../../../core/app_config.dart';
 
-/// Severity drives card colour + sort order. `high` floats to the
+/// Severity drives card colour + sort order. `high` floats
+/// to the
 /// front, `low` sinks to the back.
 enum AISuggestionPriority { high, med, low }
 

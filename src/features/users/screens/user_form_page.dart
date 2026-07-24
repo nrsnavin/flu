@@ -25,7 +25,7 @@ class UserFormPage extends StatelessWidget {
       backgroundColor: ErpColors.bgBase,
       appBar: ErpAppBar(
         title: ctrl.isEdit ? 'Edit User' : 'New User',
-        subtitle: ctrl.isEdit ? existing?['name'] as String? : 'Create an account',
+        subtitle: ctrl.isEdit ? existing != null?['name'] as String? : 'Create an account':"",
       ),
       body: Form(
         key: ctrl.formKey,

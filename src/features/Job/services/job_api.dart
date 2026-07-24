@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Response;
 
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';

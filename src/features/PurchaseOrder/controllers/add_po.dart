@@ -200,7 +200,9 @@ class AddPOController extends GetxController {
         // expectedVersion enables the optimistic lock — the server 409s
         // if someone else saved this PO since we loaded it.
         payload["poId"] = seedData!["_id"] as String;
-        payload["auditReason"] = auditReason;
+
+        payload["auditReason"] = auditReason!;
+
         if (seedData!["expectedVersion"] != null) {
           payload["expectedVersion"] = seedData!["expectedVersion"];
         }

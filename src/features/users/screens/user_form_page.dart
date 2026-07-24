@@ -5,7 +5,7 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../../../core/features.dart';
 import '../controllers/users_controller.dart';
 
-const _departments = ['admin', 'preparatory', 'weaving', 'packing', 'finance'];
+const _departments = ['admin', 'production', 'packing', 'finance'];
 
 // ══════════════════════════════════════════════════════════════
 //  USER FORM PAGE — create / edit an app user.
@@ -73,7 +73,7 @@ class UserFormPage extends StatelessWidget {
             const SizedBox(height: 6),
             Obx(() {
               ctrl.features.length; // reactive dep — setDepartment mutates features
-              final dept = ctrl.deptCtrl.text.isEmpty ? 'weaving' : ctrl.deptCtrl.text;
+              final dept = ctrl.deptCtrl.text.isEmpty ? 'production' : ctrl.deptCtrl.text;
               return Container(
                 decoration: BoxDecoration(
                   color: ErpColors.bgSurface,
@@ -84,7 +84,7 @@ class UserFormPage extends StatelessWidget {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     isExpanded: true,
-                    value: _departments.contains(dept) ? dept : 'weaving',
+                    value: _departments.contains(dept) ? dept : 'production',
                     items: _departments
                         .map((d) => DropdownMenuItem(
                               value: d,
@@ -136,7 +136,7 @@ class UserFormPage extends StatelessWidget {
   List<Widget> _buildFeatureGroups(UserFormController ctrl) {
     // Scope selection to what this department/role can actually reach, so a
     // feature the backend role gate would block can never be granted.
-    final dept = ctrl.deptCtrl.text.isEmpty ? 'weaving' : ctrl.deptCtrl.text;
+    final dept = ctrl.deptCtrl.text.isEmpty ? 'production' : ctrl.deptCtrl.text;
     final allowed = featuresForDepartment(dept).toSet();
     final widgets = <Widget>[];
     for (final section in featureSections()) {

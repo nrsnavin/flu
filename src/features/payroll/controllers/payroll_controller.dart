@@ -436,15 +436,11 @@ class PayrollController extends GetxController {
   final isComputingYB = false.obs;
   final yearlyBonuses = <YearlyBonus>[].obs;
 
+  // The flat 10%-of-net-pay yearly bonus was retired backend-side in
+  // favour of the attendance-tiered Diwali bonus (Bonus module). This is
+  // now a no-op so the analytics tab never calls the removed endpoint.
   Future<void> fetchYearlyBonuses() async {
-    try {
-      isLoadingYB.value = true;
-      final res = await _dio.get('/payroll/yearly-bonus',
-          queryParameters: {'year': selectedYear.value});
-      yearlyBonuses.value = (res.data['data'] as List? ?? [])
-          .map((e) => YearlyBonus.fromJson(e as Map<String, dynamic>)).toList();
-    } on DioException catch (_) {
-    } finally { isLoadingYB.value = false; }
+    yearlyBonuses.clear();
   }
 
   Future<void> computeYearlyBonuses() async {

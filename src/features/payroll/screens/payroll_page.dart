@@ -2041,7 +2041,7 @@ class _AnalyticsViewState extends State<_AnalyticsView> {
       children: [
         _AnaSummaryBar(c: c),
         const SizedBox(height: 14),
-        ..._yearlyBonusSection(context),
+        // Flat 10% yearly bonus retired — use the tiered Diwali bonus instead.
         const _SecLbl('🏅 Attendance Leaderboard'),
         const SizedBox(height: 8),
         ...c.analytics.map((e) => _AnaCard(emp: e)),

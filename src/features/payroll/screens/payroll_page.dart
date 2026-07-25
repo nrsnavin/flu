@@ -501,6 +501,8 @@ class _EmpRow extends StatelessWidget {
   Widget build(BuildContext ctx) {
     final sc = row.status == 'paid'
         ? _green
+        : row.status == 'partially_paid'
+        ? _green
         : row.status == 'finalized'
         ? _amber
         : _ts;
@@ -910,9 +912,12 @@ class _SlipActionsState extends State<_SlipActions> {
       children: [
         if (live.status == 'draft')
           _GBtn('🔒 Finalise', _amber, false, () => c.finalizePayroll(live.id)),
-        if (live.status == 'finalized') ...[
+        // 'partially_paid' also needs a pay affordance so a slip part-paid
+        // on the web can be cleared from mobile (else it dead-ends).
+        if (live.status == 'finalized' || live.status == 'partially_paid') ...[
           const SizedBox(height: 8),
-          _GBtn('✅ Mark as Paid', _green, false, () => _payDlg(ctx, live.id)),
+          _GBtn(live.status == 'partially_paid' ? '✅ Pay balance' : '✅ Mark as Paid',
+              _green, false, () => _payDlg(ctx, live.id)),
         ],
         if (live.status == 'paid' && (live.paidAt ?? '').isNotEmpty) ...[
           const SizedBox(height: 8),

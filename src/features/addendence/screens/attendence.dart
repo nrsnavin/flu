@@ -545,8 +545,7 @@ class _ElapsedTextState extends State<_ElapsedText> {
     final m = ((secs % 3600) ~/ 60).toString().padLeft(2, '0');
     final s = (secs % 60).toString().padLeft(2, '0');
     return Text('$h:$m:$s',
-        style: TextStyle(color: widget.color, fontSize: 10,
-            fontWeight: FontWeight.w700, fontFeatures: const [FontFeature.tabularFigures()]));
+        style: TextStyle(color: widget.color, fontSize: 10, fontWeight: FontWeight.w700));
   }
 }
 

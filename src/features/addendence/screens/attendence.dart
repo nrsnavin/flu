@@ -8,6 +8,8 @@
 //    3. Calendar    — monthly calendar for a selected employee
 // ══════════════════════════════════════════════════════════════
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/attendence_controller.dart';
@@ -119,7 +121,7 @@ class _TopBar extends StatelessWidget {
         ])),
         GestureDetector(
           onTap: () {
-            if (c.activeView.value == AttendanceView.markShift) c.fetchDailyAttendance();
+            if (c.activeView.value == AttendanceView.markShift) { c.fetchDailyAttendance(); c.fetchActiveTimers(); }
             if (c.activeView.value == AttendanceView.summary)   c.fetchSummary();
             if (c.activeView.value == AttendanceView.calendar)  c.fetchCalendar();
           },
@@ -227,6 +229,7 @@ class _MarkShiftHeader extends StatelessWidget {
               if (d != null) {
                 c.selectedDate.value = d;
                 c.fetchDailyAttendance();
+                c.fetchActiveTimers();
               }
             },
             child: Container(
@@ -428,6 +431,14 @@ class _EmployeeMarkRow extends StatelessWidget {
               child: Text('${status.emoji} ${status.label}',
                   style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w700)),
             ),
+            // Live clock-in / clock-out (today only)
+            Obx(() {
+              if (!c.isToday) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: _ClockControl(empId: empId, c: c),
+              );
+            }),
           ]),
         ),
         // Status toggle buttons
@@ -452,6 +463,90 @@ class _EmployeeMarkRow extends StatelessWidget {
           _LeaveDetails(empId: empId, record: record, c: c),
       ]),
     );
+  }
+}
+
+// Per-employee live shift timer: play → clock-in, stop → clock-out.
+// Pay follows the actual worked duration (capped at the 12h shift).
+class _ClockControl extends StatelessWidget {
+  final String empId;
+  final AttendanceController c;
+  const _ClockControl({required this.empId, required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final busy = c.clockingId.value == empId;
+      AttendanceRecord? running;
+      for (final t in c.activeTimers) {
+        if (t.employeeId == empId && t.isRunning) { running = t; break; }
+      }
+      final isRunning = running != null;
+      final color = isRunning ? _C.red : _C.green;
+
+      return GestureDetector(
+        onTap: busy
+            ? null
+            : () => isRunning
+                ? c.clockOut(empId, running!.shift)
+                : c.clockIn(empId, c.selectedShift.value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: color.withOpacity(0.5))),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            if (busy)
+              const SizedBox(width: 12, height: 12,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: _C.textSec))
+            else
+              Icon(isRunning ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                  size: 14, color: color),
+            if (isRunning) ...[
+              const SizedBox(width: 4),
+              _ElapsedText(sinceIso: running!.clockInAt!, color: color),
+            ],
+          ]),
+        ),
+      );
+    });
+  }
+}
+
+// Ticks once a second, showing HH:MM:SS elapsed since a start timestamp.
+class _ElapsedText extends StatefulWidget {
+  final String sinceIso;
+  final Color color;
+  const _ElapsedText({required this.sinceIso, required this.color});
+  @override
+  State<_ElapsedText> createState() => _ElapsedTextState();
+}
+
+class _ElapsedTextState extends State<_ElapsedText> {
+  Timer? _t;
+  @override
+  void initState() {
+    super.initState();
+    _t = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() { _t?.cancel(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    final start = DateTime.tryParse(widget.sinceIso);
+    var secs = start == null ? 0 : DateTime.now().difference(start).inSeconds;
+    if (secs < 0) secs = 0;
+    final h = (secs ~/ 3600).toString().padLeft(2, '0');
+    final m = ((secs % 3600) ~/ 60).toString().padLeft(2, '0');
+    final s = (secs % 60).toString().padLeft(2, '0');
+    return Text('$h:$m:$s',
+        style: TextStyle(color: widget.color, fontSize: 10,
+            fontWeight: FontWeight.w700, fontFeatures: const [FontFeature.tabularFigures()]));
   }
 }
 

@@ -31,6 +31,10 @@ class AttendanceController extends GetxController {
   final saveError       = RxnString();
   final saveSuccess     = false.obs;
 
+  // ── Live shift timers ─────────────────────────────────────
+  final activeTimers    = <AttendanceRecord>[].obs;
+  final clockingId      = RxnString();  // employeeId currently mid clock-in/out
+
   // ── Summary state ─────────────────────────────────────────
   final isLoadingSummary = false.obs;
   final summaryError     = RxnString();
@@ -60,6 +64,56 @@ class AttendanceController extends GetxController {
     summaryEnd    = today.obs;
     fetchDailyAttendance();
     fetchSummary();
+    fetchActiveTimers();
+  }
+
+  bool get isToday {
+    final now = DateTime.now();
+    final d = selectedDate.value;
+    return d.year == now.year && d.month == now.month && d.day == now.day;
+  }
+
+  // ── Live shift timers ─────────────────────────────────────
+  Future<void> fetchActiveTimers() async {
+    try {
+      final res = await _dio.get('/active',
+          queryParameters: {'date': _fmtDate(selectedDate.value)});
+      final data = res.data is Map ? (res.data['data'] as List? ?? []) : const [];
+      activeTimers.value = data
+          .whereType<Map>()
+          .map((e) => AttendanceRecord.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } catch (_) {
+      // Non-fatal — the timer board just stays as-is.
+    }
+  }
+
+  Future<void> clockIn(String empId, String shift) async {
+    clockingId.value = empId;
+    try {
+      await _dio.post('/clock-in',
+          data: {'employeeId': empId, 'shift': shift, 'date': _fmtDate(selectedDate.value)});
+      await fetchActiveTimers();
+      await fetchDailyAttendance();
+    } on DioException catch (e) {
+      saveError.value = e.response?.data?['message']?.toString() ?? 'Clock-in failed';
+    } finally {
+      clockingId.value = null;
+    }
+  }
+
+  Future<void> clockOut(String empId, String shift) async {
+    clockingId.value = empId;
+    try {
+      await _dio.post('/clock-out',
+          data: {'employeeId': empId, 'shift': shift, 'date': _fmtDate(selectedDate.value)});
+      await fetchActiveTimers();
+      await fetchDailyAttendance();
+    } on DioException catch (e) {
+      saveError.value = e.response?.data?['message']?.toString() ?? 'Clock-out failed';
+    } finally {
+      clockingId.value = null;
+    }
   }
 
   // ── Fetch daily attendance ────────────────────────────────

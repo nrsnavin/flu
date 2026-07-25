@@ -201,8 +201,8 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
               icon: Icons.currency_rupee_rounded,
               child: _field(
                 ctrl: _salaryCtrl,
-                label: 'DAY shift salary (12h, Rs)',
-                hint: 'e.g. 1200 — NIGHT (8h) pays 2/3 of this',
+                label: 'Shift salary (12h, Rs)',
+                hint: 'e.g. 1200 — DAY and NIGHT are both 12h',
                 icon: Icons.payments_outlined,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (v) {

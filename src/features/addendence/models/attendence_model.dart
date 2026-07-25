@@ -70,6 +70,11 @@ class AttendanceRecord {
   final int               lateMinutes;
   final String            leaveType;
   final String            notes;
+  // Live shift timer — set while/after clocking in-out. workedMinutes drives
+  // actual-hours pay (capped at the 12h shift) on the backend.
+  final String?           clockInAt;   // ISO timestamp, running while not clocked out
+  final String?           clockOutAt;
+  final int               workedMinutes;
 
   const AttendanceRecord({
     required this.id,
@@ -88,7 +93,12 @@ class AttendanceRecord {
     required this.lateMinutes,
     required this.leaveType,
     required this.notes,
+    this.clockInAt,
+    this.clockOutAt,
+    this.workedMinutes = 0,
   });
+
+  bool get isRunning => clockInAt != null && clockOutAt == null;
 
   factory AttendanceRecord.fromJson(Map<String, dynamic> j) => AttendanceRecord(
     id:          j['id']?.toString(),
@@ -107,6 +117,9 @@ class AttendanceRecord {
     lateMinutes: (j['lateMinutes'] as num?)?.toInt() ?? 0,
     leaveType:   j['leaveType']?.toString()  ?? '',
     notes:       j['notes']?.toString()      ?? '',
+    clockInAt:   j['clockInAt']?.toString(),
+    clockOutAt:  j['clockOutAt']?.toString(),
+    workedMinutes: (j['workedMinutes'] as num?)?.toInt() ?? 0,
   );
 
   AttendanceRecord copyWith({
@@ -126,6 +139,9 @@ class AttendanceRecord {
     lateMinutes: lateMinutes ?? this.lateMinutes,
     leaveType:   leaveType   ?? this.leaveType,
     notes:       notes       ?? this.notes,
+    clockInAt:   clockInAt,
+    clockOutAt:  clockOutAt,
+    workedMinutes: workedMinutes,
   );
 }
 

@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:production/src/features/PurchaseOrder/screnns/pdf.dart';
+import '../../../core/server_pdf.dart';
 import '../../../common_widgets/reason_dialog.dart';
 import '../controllers/add_po.dart';
 import '../controllers/po_detail.dart';
@@ -239,10 +240,14 @@ class _PdfButtonState extends State<_PdfButton> {
     if (_loading) return;
     setState(() => _loading = true);
     try {
-      final bytes = await POPdfService.generate(
-        widget.po,
-        widget.inwardHistory,
-      );
+      // Prefer the server-rendered PDF: it uses the layout designed in
+      // Settings → PDF Designer. Fall back to the built-in generator only
+      // when that can't be fetched (offline / older server).
+      final bytes = await fetchPoPdf(widget.po.id) ??
+          await POPdfService.generate(
+            widget.po,
+            widget.inwardHistory,
+          );
       if (!mounted) return;
       await Get.to(() => _PdfPreviewPage(
         pdfBytes: bytes,

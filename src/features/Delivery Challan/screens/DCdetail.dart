@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
+import '../../../core/server_pdf.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:production/src/features/Delivery%20Challan/screens/pdf.dart';
@@ -237,7 +238,10 @@ class _DCDetailPageState extends State<DCDetailPage> {
   // ── Open PDF preview ────────────────────────────────────────
   Future<void> _openPdf(BuildContext context, DCDetail d) async {
     try {
-      final bytes = await DCPdfService.generate(d);
+      // Prefer the server-rendered PDF: it uses the layout designed in
+      // Settings → PDF Designer. Fall back to the built-in generator only
+      // when that can't be fetched (offline / older server).
+      final bytes = await fetchDcPdf(d.id) ?? await DCPdfService.generate(d);
       if (!mounted) return;
       await Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => _DCPdfPreviewPage(

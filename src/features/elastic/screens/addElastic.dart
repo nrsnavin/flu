@@ -576,9 +576,10 @@ class _PlanSectionRow extends StatelessWidget {
           ),
           const SizedBox(width: 8),
 
-          // Ends field
-          SizedBox(
-            width: 76,
+          // Ends and Max m flex with the dropdown instead of taking
+          // fixed pixels, so the row cannot overflow on a small screen.
+          Expanded(
+            flex: 2,
             child: TextFormField(
               controller: section.endsCtrl,
               keyboardType: TextInputType.number,
@@ -587,6 +588,23 @@ class _PlanSectionRow extends StatelessWidget {
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700,
                   color: ErpColors.textPrimary),
               decoration: ErpDecorations.formInput('Ends'),
+              onChanged: (_) => c.planBeams.refresh(),
+            ),
+          ),
+          const SizedBox(width: 6),
+
+          // Max run length, so a template built here carries the same
+          // fields as one built on the web.
+          Expanded(
+            flex: 2,
+            child: TextFormField(
+              controller: section.maxMCtrl,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
+                  color: ErpColors.textSecondary),
+              decoration: ErpDecorations.formInput('Max m'),
               onChanged: (_) => c.planBeams.refresh(),
             ),
           ),

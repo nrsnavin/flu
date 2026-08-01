@@ -222,7 +222,11 @@ class AddElasticController extends GetxController {
     final beams = planBeams.map((b) {
       final sections = b.sections
           .where((s) => s.warpYarnId != null && s.ends > 0)
-          .map((s) => {"warpYarn": s.warpYarnId, "ends": s.ends})
+          .map((s) => {
+            "warpYarn":  s.warpYarnId,
+            "ends":      s.ends,
+            "maxMeters": s.maxMeters,
+          })
           .toList();
       if (sections.isNotEmpty) hasAny = true;
       final total = sections.fold<int>(0, (s, sec) => s + (sec["ends"] as int));
@@ -483,6 +487,7 @@ class AddElasticController extends GetxController {
             warpYarnId:   yarnId,
             warpYarnName: mat?.name ?? s["warpYarnName"]?.toString() ?? "",
             initialEnds:  (s["ends"] as num?)?.toInt() ?? 0,
+            initialMaxM:  (s["maxMeters"] as num?)?.toInt() ?? 0,
           );
         }).toList();
         planBeams.add(PlanBeam(
@@ -542,17 +547,24 @@ class PlanSection {
   String? warpYarnId;
   String? warpYarnName;
   final TextEditingController endsCtrl;
+  // Max run length for the section. Carried here so a template edited
+  // on the phone keeps what was set on the web instead of resetting it.
+  final TextEditingController maxMCtrl;
 
   PlanSection({
     this.warpYarnId,
     this.warpYarnName,
     int initialEnds = 0,
-  }) : endsCtrl = TextEditingController(
-      text: initialEnds > 0 ? initialEnds.toString() : "");
+    int initialMaxM = 0,
+  })  : endsCtrl = TextEditingController(
+            text: initialEnds > 0 ? initialEnds.toString() : ""),
+        maxMCtrl = TextEditingController(
+            text: initialMaxM > 0 ? initialMaxM.toString() : "");
 
   int get ends => int.tryParse(endsCtrl.text.trim()) ?? 0;
+  int get maxMeters => int.tryParse(maxMCtrl.text.trim()) ?? 0;
 
-  void dispose() => endsCtrl.dispose();
+  void dispose() { endsCtrl.dispose(); maxMCtrl.dispose(); }
 }
 
 // ══════════════════════════════════════════════════════════════

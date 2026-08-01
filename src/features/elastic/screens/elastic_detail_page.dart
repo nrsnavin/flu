@@ -394,6 +394,12 @@ class _PlanBeamReadCard extends StatelessWidget {
                 Text('${s["ends"] ?? 0} ends',
                     style: const TextStyle(fontSize: 11, color: ErpColors.textSecondary,
                         fontWeight: FontWeight.w600)),
+                // Only worth the space when one was actually set.
+                if (((s["maxMeters"] as num?)?.toInt() ?? 0) > 0) ...[
+                  const SizedBox(width: 8),
+                  Text('max ${s["maxMeters"]}m',
+                      style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+                ],
               ]),
             );
           }).toList()),
@@ -434,9 +440,14 @@ class _WarpingPlanSheetState extends State<_WarpingPlanSheet> {
           final yarnId = s["warpYarn"] is Map
               ? (s["warpYarn"]["_id"] ?? s["warpYarn"]["id"])?.toString()
               : s["warpYarn"]?.toString();
+          // The ends and the max run length have to come back with the
+          // section. Loading only the yarn left every Ends box empty,
+          // and _buildPayload drops a section with no ends — so opening
+          // this sheet on an existing template and saving DELETED it.
           return _SheetSection(
-            yarnId:   yarnId ?? "",
-
+            yarnId:       yarnId ?? "",
+            initialEnds:  (s["ends"] as num?)?.toInt() ?? 0,
+            initialMaxM:  (s["maxMeters"] as num?)?.toInt() ?? 0,
           );
         }).toList();
         return _SheetBeam(
@@ -485,7 +496,12 @@ class _WarpingPlanSheetState extends State<_WarpingPlanSheet> {
     final beams = _beams.map((b) {
       final sections = b.sections
           .where((s) => s.yarnId.isNotEmpty && (int.tryParse(s.endsCtrl.text) ?? 0) > 0)
-          .map((s) => {"warpYarn": s.yarnId, "ends": int.tryParse(s.endsCtrl.text) ?? 0})
+          .map((s) => {
+            "warpYarn":  s.yarnId,
+            "ends":      int.tryParse(s.endsCtrl.text) ?? 0,
+            // Omitting this used to reset to 0 whatever the web had set.
+            "maxMeters": int.tryParse(s.maxMCtrl.text) ?? 0,
+          })
           .toList();
       if (sections.isNotEmpty) any = true;
       final total = sections.fold<int>(0, (sum, s) => sum + (s["ends"] as int));
@@ -809,8 +825,11 @@ class _SheetSectionRow extends StatelessWidget {
         ),
         const SizedBox(width: 8),
 
-        // Ends
-        SizedBox(width: 76,
+        // Ends and Max m share the leftover width with the dropdown
+        // rather than claiming fixed pixels — on a narrow phone a fixed
+        // row would overflow, and this one cannot.
+        Expanded(
+            flex: 2,
             child: TextFormField(
               controller: section.endsCtrl,
               keyboardType: TextInputType.number,
@@ -819,6 +838,23 @@ class _SheetSectionRow extends StatelessWidget {
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700,
                   color: ErpColors.textPrimary),
               decoration: ErpDecorations.formInput('Ends'),
+              onChanged: (_) => onChanged(),
+            )),
+        const SizedBox(width: 6),
+
+        // Max run length for the section. Editable here because the
+        // sheet has to send it back — leaving it out of the form meant
+        // saving on mobile zeroed whatever had been set on the web.
+        Expanded(
+            flex: 2,
+            child: TextFormField(
+              controller: section.maxMCtrl,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
+                  color: ErpColors.textSecondary),
+              decoration: ErpDecorations.formInput('Max m'),
               onChanged: (_) => onChanged(),
             )),
         const SizedBox(width: 6),
@@ -877,10 +913,13 @@ class _SheetStepper extends StatelessWidget {
 class _SheetSection {
   String yarnId;
   final TextEditingController endsCtrl;
-  _SheetSection({this.yarnId = "", int initialEnds = 0})
+  final TextEditingController maxMCtrl;
+  _SheetSection({this.yarnId = "", int initialEnds = 0, int initialMaxM = 0})
       : endsCtrl = TextEditingController(
-      text: initialEnds > 0 ? initialEnds.toString() : "");
-  void dispose() => endsCtrl.dispose();
+            text: initialEnds > 0 ? initialEnds.toString() : ""),
+        maxMCtrl = TextEditingController(
+            text: initialMaxM > 0 ? initialMaxM.toString() : "");
+  void dispose() { endsCtrl.dispose(); maxMCtrl.dispose(); }
 }
 
 class _SheetBeam {

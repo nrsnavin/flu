@@ -19,7 +19,10 @@ import '../models/covering.dart';
 //      Sp. Covering cell : materialName / weight
 //      Sp. Ends          : el.spandexEnds
 //      Total Wt          : warpSpandex.weight + spandexCovering.weight
-//   4. Signature strip
+//   4. Beam Weights: a fixed 20-row grid, two halves side by side.
+//      Rows already entered on the covering page print filled; the rest
+//      stay blank for the operator to write in at the machine.
+//   5. Signature strip
 // ══════════════════════════════════════════════════════════════
 class CoveringProgramPdf {
   static const _dark    = PdfColor.fromInt(0xFF1A1A1A);
@@ -59,6 +62,17 @@ class CoveringProgramPdf {
           _elasticSummaryTable(covering.elasticPlanned, bold, reg),
           pw.SizedBox(height: 1.5 * PdfPageFormat.mm),
           _expectedWeightRow(covering.elasticPlanned, bold, reg),
+          pw.SizedBox(height: 3.5 * PdfPageFormat.mm),
+          _secHeading(
+            covering.beamEntries.isEmpty
+                ? 'BEAM WEIGHTS  (to be entered at the machine)'
+                : 'BEAM WEIGHTS  (${covering.beamEntries.length} recorded, rest blank for entry)',
+            bold,
+          ),
+          pw.SizedBox(height: 1.5 * PdfPageFormat.mm),
+          ..._beamWeightBlocks(covering.beamEntries, bold, reg),
+          pw.SizedBox(height: 1.5 * PdfPageFormat.mm),
+          _recordedWeightRow(covering, bold),
           pw.SizedBox(height: 4 * PdfPageFormat.mm),
           _signRow(bold, reg),
         ],
@@ -247,6 +261,122 @@ class CoveringProgramPdf {
             pw.SizedBox(width: 8),
             pw.Text(
               totalStr,
+              style: pw.TextStyle(font: bold, fontSize: 8, color: _dark),
+            ),
+          ]),
+        ),
+      ],
+    );
+  }
+
+  // ── Beam Weights ──────────────────────────────────────────
+  //
+  //  The programme reaches the machine before a single beam exists, so
+  //  the sheet carries a fixed grid of rows to write the weights into.
+  //  Anything already entered on the covering page prints filled in.
+  //
+  //  20 rows is a FLOOR, not a cap. A covering that has already recorded
+  //  more beams than that gets a row for every one of them — a printed
+  //  sheet that silently drops a weight somebody entered is worse than
+  //  one that runs on to a second page.
+  //
+  //  Laid out in blocks of 20 (two ten-row halves side by side) because a
+  //  pw.Row cannot be split across pages: one tall grid would be clipped,
+  //  whereas MultiPage flows a list of short blocks.
+  static const _beamRowsPerBlock = 20;
+
+  static List<pw.Widget> _beamWeightBlocks(
+      List<BeamEntry> entries, pw.Font bold, pw.Font reg) {
+    final recorded = [...entries]..sort((a, b) => a.beamNo.compareTo(b.beamNo));
+
+    final wanted = recorded.length > _beamRowsPerBlock
+        ? recorded.length
+        : _beamRowsPerBlock;
+    final blocks = (wanted + _beamRowsPerBlock - 1) ~/ _beamRowsPerBlock;
+    final total  = blocks * _beamRowsPerBlock;
+
+    // Null means "nobody has filled this row in yet".
+    final cells = List<BeamEntry?>.generate(
+      total,
+          (i) => i < recorded.length ? recorded[i] : null,
+    );
+
+    final out = <pw.Widget>[];
+    for (var b = 0; b < blocks; b++) {
+      final start = b * _beamRowsPerBlock;
+      final block = cells.sublist(start, start + _beamRowsPerBlock);
+      final half  = _beamRowsPerBlock ~/ 2;
+      if (b > 0) out.add(pw.SizedBox(height: 2 * PdfPageFormat.mm));
+      out.add(
+        pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+          pw.Expanded(
+              child: _beamHalf(block.sublist(0, half), start + 1, bold, reg)),
+          pw.SizedBox(width: 3 * PdfPageFormat.mm),
+          pw.Expanded(
+              child: _beamHalf(block.sublist(half), start + half + 1, bold, reg)),
+        ]),
+      );
+    }
+    return out;
+  }
+
+  static pw.Widget _beamHalf(
+      List<BeamEntry?> rows, int startAt, pw.Font bold, pw.Font reg) {
+    const cw = {
+      0: pw.FixedColumnWidth(16),
+      1: pw.FixedColumnWidth(26),
+      2: pw.FixedColumnWidth(34),
+      3: pw.FlexColumnWidth(1),
+    };
+    return pw.Table(
+      border: pw.TableBorder.all(color: _bdr, width: 0.35),
+      columnWidths: cw,
+      children: [
+        pw.TableRow(
+          decoration: const pw.BoxDecoration(color: _hdrFill),
+          children: const ['S.NO', 'BEAM #', 'WT (kg)', 'REMARKS']
+              .map((h) => _c(h, bold, 5.8, _dark, align: pw.TextAlign.center))
+              .toList(),
+        ),
+        ...rows.asMap().entries.map((e) {
+          final b = e.value;
+          // The serial number always prints — besides numbering the row it
+          // is what gives a blank one its height to write on.
+          return pw.TableRow(children: [
+            _c('${startAt + e.key}', reg, 6, _lite,
+                align: pw.TextAlign.center, vpad: 4.5),
+            _c(b == null ? '' : '${b.beamNo}', bold, 7, _dark,
+                align: pw.TextAlign.center, vpad: 4.5),
+            _c(b == null ? '' : _wt(b.weight), bold, 7, _dark,
+                align: pw.TextAlign.right, vpad: 4.5),
+            _c(b?.note ?? '', reg, 6, _mid, vpad: 4.5),
+          ]);
+        }),
+      ],
+    );
+  }
+
+  // Blank rule rather than "0 kg" when nothing has been weighed: a printed
+  // zero reads as a measurement, an underscore reads as a thing to fill.
+  static pw.Widget _recordedWeightRow(CoveringDetail c, pw.Font bold) {
+    final kg = c.producedWeight;
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.end,
+      children: [
+        pw.Container(
+          padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: pw.BoxDecoration(
+            border: pw.Border.all(color: _bdr, width: 0.35),
+          ),
+          child: pw.Row(children: [
+            pw.Text(
+              'TOTAL RECORDED WEIGHT:',
+              style: pw.TextStyle(
+                  font: bold, fontSize: 6.5, color: _mid, letterSpacing: 0.3),
+            ),
+            pw.SizedBox(width: 8),
+            pw.Text(
+              kg > 0 ? '${_wt(kg)} kg' : '____________ kg',
               style: pw.TextStyle(font: bold, fontSize: 8, color: _dark),
             ),
           ]),

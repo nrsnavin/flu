@@ -104,6 +104,7 @@ class OrderDetailPage extends StatelessWidget {
                 const SizedBox(height: 12),
                 _ElasticTable(order: order),
                 const SizedBox(height: 10),
+                _ExcessPlanningSection(order: order),
                 _RawMaterialSection(order: order),
                 const SizedBox(height: 10),
                 _JobOrdersSection(order: order),
@@ -957,6 +958,191 @@ class _ColValue extends StatelessWidget {
 
 
 // ── Raw material section ──────────────────────────────────
+// ── Excess planning ────────────────────────────────────────────
+//
+// Jobs planned past what this order asked for. Its own card rather than
+// a column on the elastic table: an excess is a decision somebody made
+// on a date and, past 20%, had to justify — and it is the thing that
+// explains why this order drew more yarn than its own lines call for.
+// Buried in a row it reads as a rounding difference.
+//
+// Absent entirely when nothing was over-planned. A section headed
+// "Excess planning — none" on every order teaches people to stop
+// reading it.
+class _ExcessPlanningSection extends StatelessWidget {
+  final Map<String, dynamic> order;
+  const _ExcessPlanningSection({required this.order});
+
+  static const double _freeExcessPct = 20;
+
+  static String _qty(num? v) {
+    final d = (v ?? 0).toDouble();
+    return d == d.truncateToDouble() ? d.toInt().toString() : d.toStringAsFixed(2);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = (order["excessPlanning"] as List<dynamic>? ?? const [])
+        .whereType<Map>()
+        .toList();
+    if (rows.isEmpty) return const SizedBox.shrink();
+
+    final totalExcess = rows.fold<double>(
+        0, (sum, r) => sum + ((r["excessQuantity"] as num?)?.toDouble() ?? 0));
+    final beyond = rows
+        .where((r) => ((r["excessPct"] as num?)?.toDouble() ?? 0) > _freeExcessPct)
+        .length;
+
+    final beyondNote = beyond == 0
+        ? ""
+        : " · $beyond line${beyond == 1 ? "" : "s"} past the ${_freeExcessPct.toInt()}% allowance";
+
+    return Column(
+      children: [
+        ErpSectionCard(
+          title: "EXCESS PLANNING",
+          icon: Icons.trending_up,
+          accentColor: ErpColors.warningAmber,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "${_qty(totalExcess)} m planned over what this order asked for"
+                "$beyondNote"
+                ". The extra yarn was drawn from stock when the job was raised.",
+                style: const TextStyle(
+                    color: ErpColors.textSecondary, fontSize: 12, height: 1.35),
+              ),
+              const SizedBox(height: 10),
+              ...rows.map((r) => _ExcessRow(row: r)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+}
+
+class _ExcessRow extends StatelessWidget {
+  final Map row;
+  const _ExcessRow({required this.row});
+
+  @override
+  Widget build(BuildContext context) {
+    final pct = (row["excessPct"] as num?)?.toDouble() ?? 0;
+    final past = pct > _ExcessPlanningSection._freeExcessPct;
+    final reason = (row["reason"] ?? "").toString().trim();
+    final drawn = (row["materialsDrawn"] as List<dynamic>? ?? const [])
+        .whereType<Map>()
+        .map((m) =>
+            "${m["name"] ?? "Material"} ${_ExcessPlanningSection._qty(m["quantity"] as num?)} kg")
+        .join(", ");
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: ErpColors.bgMuted,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: past
+              ? ErpColors.warningAmber.withOpacity(0.4)
+              : ErpColors.borderLight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  (row["name"] ?? "Elastic").toString(),
+                  style: ErpTextStyles.cardTitle,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: past
+                      ? ErpColors.warningAmber.withOpacity(0.14)
+                      : ErpColors.borderLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  "+${_ExcessPlanningSection._qty(row["excessQuantity"] as num?)} m"
+                  "  ·  ${_ExcessPlanningSection._qty(pct)}%",
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: past
+                        ? ErpColors.warningAmber
+                        : ErpColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "${row["jobNo"] ?? "—"}  ·  "
+            "${_ExcessPlanningSection._qty(row["plannedQuantity"] as num?)} m planned "
+            "against ${_ExcessPlanningSection._qty(row["orderedQuantity"] as num?)} m ordered",
+            style: const TextStyle(
+                color: ErpColors.textSecondary, fontSize: 11.5),
+          ),
+          if (drawn.isNotEmpty) ...[
+            const SizedBox(height: 3),
+            Text("Yarn drawn: $drawn",
+                style: const TextStyle(
+                    color: ErpColors.textMuted, fontSize: 11)),
+          ],
+          const SizedBox(height: 6),
+          // An empty reason means the excess was inside the allowance
+          // and nobody was asked — say that, rather than leaving a blank
+          // that reads as withheld.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                reason.isNotEmpty
+                    ? Icons.warning_amber_rounded
+                    : Icons.check_circle_outline,
+                size: 13,
+                color: reason.isNotEmpty
+                    ? ErpColors.warningAmber
+                    : ErpColors.textMuted,
+              ),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  reason.isNotEmpty
+                      ? reason
+                      : "Within the ${_ExcessPlanningSection._freeExcessPct.toInt()}% allowance — no reason required",
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    height: 1.3,
+                    color: reason.isNotEmpty
+                        ? ErpColors.textPrimary
+                        : ErpColors.textMuted,
+                    fontStyle:
+                        reason.isNotEmpty ? FontStyle.normal : FontStyle.italic,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _RawMaterialSection extends StatelessWidget {
   final Map<String, dynamic> order;
   const _RawMaterialSection({required this.order});

@@ -15,11 +15,16 @@ const List<FeatureDef> kFeatures = [
   FeatureDef('/', 'Dashboard', 'Overview'),
   FeatureDef('/analytics', 'Analytics', 'Overview', ['admin', 'production']),
   FeatureDef('/reports', 'Reports', 'Overview', ['admin', 'finance']),
+  // Margin is its own permission: opening an order and seeing the profit
+  // on it are different things. Screens are web-only for now, but the
+  // key has to be here or an admin on a phone cannot grant it.
+  FeatureDef('/order-pnl', 'Order P&L', 'Overview', ['admin', 'finance']),
   FeatureDef('/audit', 'Audit Trail', 'Overview', ['admin']),
 
   FeatureDef('/orders', 'Orders', 'Sales', ['admin', 'finance']),
   FeatureDef('/jobs', 'Job Orders', 'Sales', ['admin', 'production', 'packing']),
   FeatureDef('/delivery-challans', 'Delivery Challans', 'Sales', ['admin', 'finance']),
+  FeatureDef('/samples', 'Sample Requests', 'Sales', ['admin', 'finance', 'production']),
 
   FeatureDef('/planner', 'Auto Planner', 'Production', ['admin', 'production']),
   FeatureDef('/warping', 'Warping', 'Production', ['admin', 'production']),

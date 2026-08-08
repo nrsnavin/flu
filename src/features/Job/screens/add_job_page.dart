@@ -77,13 +77,13 @@ class _AddJobOrderPageState extends State<AddJobOrderPage> {
                         Icon(Icons.layers_outlined,
                             size: 48, color: ErpColors.textMuted),
                         SizedBox(height: 12),
-                        Text("No pending elastics",
+                        Text("No elastics on this order",
                             style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600)),
                         SizedBox(height: 4),
-                        Text("All elastics are fulfilled for this order",
+                        Text("There is nothing to plan a job against",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: ErpColors.textMuted, fontSize: 13)),
@@ -113,7 +113,7 @@ class _AddJobOrderPageState extends State<AddJobOrderPage> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            "Enter qty to allocate to this job. Cannot exceed pending quantity. Leave blank to skip an elastic.",
+                            "Enter qty to allocate to this job. Up to ${kFreeExcessPct.toInt()}% over the ordered figure needs no reason. Leave blank to skip an elastic.",
                             style: const TextStyle(
                                 color: ErpColors.accentBlue,
                                 fontSize: 12),
@@ -138,6 +138,8 @@ class _AddJobOrderPageState extends State<AddJobOrderPage> {
                       ),
                     ),
                     const SizedBox(height: 12),
+
+                    _ExcessPanel(c: _c),
 
                     // Order reference card
                     ErpSectionCard(
@@ -217,13 +219,47 @@ class _ElasticAllocationRow extends StatelessWidget {
                       size: 12, color: ErpColors.textMuted),
                   const SizedBox(width: 4),
                   Text(
-                    "Pending: ${input.maxQty} m",
+                    "${_qty(input.notAssigned)} m not assigned of ${_qty(input.ordered)} m ordered",
                     style: const TextStyle(
                         color: ErpColors.textSecondary,
                         fontSize: 11,
                         fontWeight: FontWeight.w500),
                   ),
                 ]),
+                // Live, because the figure that matters is the one being
+                // typed — a total shown only after submitting is a 409.
+                Obx(() {
+                  if (input.excess <= 0) return const SizedBox.shrink();
+                  final past = input.needsReason;
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 3),
+                    child: Row(children: [
+                      Icon(
+                        past ? Icons.warning_amber_rounded : Icons.trending_up,
+                        size: 12,
+                        color: past
+                            ? ErpColors.warningAmber
+                            : ErpColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          past
+                              ? "${_qty(input.excess)} m over (${_pct(input.excessPct)}) — needs a reason"
+                              : "${_qty(input.excess)} m over (${_pct(input.excessPct)})",
+                          style: TextStyle(
+                            color: past
+                                ? ErpColors.warningAmber
+                                : ErpColors.textSecondary,
+                            fontSize: 11,
+                            fontWeight:
+                                past ? FontWeight.w700 : FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ]),
+                  );
+                }),
               ],
             ),
           ),
@@ -263,6 +299,124 @@ class _ElasticAllocationRow extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+String _qty(double v) =>
+    v == v.truncateToDouble() ? v.toInt().toString() : v.toStringAsFixed(2);
+
+String _pct(double v) {
+  if (v.isInfinite) return "∞";
+  return v == v.truncateToDouble()
+      ? "${v.toInt()}%"
+      : "${v.toStringAsFixed(1)}%";
+}
+
+// ── Excess: the warning, and the reason it may require ─────────
+//
+// The order's approval drew yarn for the ORDERED quantity and no more,
+// so the excess is drawn here, when the job is raised. Saying that
+// before the button is pressed is the difference between a decision
+// and a surprise.
+class _ExcessPanel extends StatelessWidget {
+  final AddJobOrderController c;
+  const _ExcessPanel({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      if (c.withExcess.isEmpty) return const SizedBox.shrink();
+      final needsReason = c.needsReason;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+            decoration: BoxDecoration(
+              color: ErpColors.warningAmber.withOpacity(0.09),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: ErpColors.warningAmber.withOpacity(0.35)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.inventory_2_outlined,
+                    size: 16, color: ErpColors.warningAmber),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "Planning ${_qty(c.totalExcess)} m over this order. The extra yarn is "
+                    "deducted from stock when the job is created — if it is not there, "
+                    "the job is refused.",
+                    style: const TextStyle(
+                        color: ErpColors.warningAmber,
+                        fontSize: 12,
+                        height: 1.35),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (needsReason) ...[
+            const SizedBox(height: 12),
+            ErpSectionCard(
+              title: "WHY MORE THAN ${kFreeExcessPct.toInt()}%?",
+              icon: Icons.edit_note_outlined,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: c.reasonController,
+                    minLines: 2,
+                    maxLines: 4,
+                    textCapitalization: TextCapitalization.sentences,
+                    style: const TextStyle(
+                        fontSize: 13, color: ErpColors.textPrimary),
+                    decoration: InputDecoration(
+                      hintText:
+                          "e.g. loom set for a full beam; the customer takes the overrun",
+                      hintStyle: const TextStyle(
+                          color: ErpColors.textMuted, fontSize: 12),
+                      filled: true,
+                      fillColor: ErpColors.bgSurface,
+                      contentPadding: const EdgeInsets.all(10),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide:
+                              const BorderSide(color: ErpColors.borderLight)),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide:
+                              const BorderSide(color: ErpColors.borderLight)),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: const BorderSide(
+                              color: ErpColors.accentBlue, width: 1.5)),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Obx(() => Text(
+                        c.reasonOk
+                            ? "Shown on the order, against the elastic it explains."
+                            : "At least $kMinReasonLength characters. Shown on the order, "
+                              "against the elastic it explains.",
+                        style: TextStyle(
+                          color: c.reasonOk
+                              ? ErpColors.textMuted
+                              : ErpColors.warningAmber,
+                          fontSize: 11,
+                        ),
+                      )),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
+        ],
+      );
+    });
   }
 }
 
@@ -354,7 +508,7 @@ class _FooterBar extends StatelessWidget {
           child: Obx(() => SizedBox(
             height: 44,
             child: ElevatedButton.icon(
-              onPressed: c.isSubmitting.value ? null : c.submitJobOrder,
+              onPressed: c.canSubmit ? c.submitJobOrder : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: ErpColors.accentBlue,
                 disabledBackgroundColor:

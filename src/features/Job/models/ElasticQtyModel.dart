@@ -1,7 +1,13 @@
 class ElasticQtyModel {
   final String elasticId;
   final String elasticName;
-  final int quantity;
+
+  // Metres, and metres are fractional — the order form takes two
+  // decimals. Declared `int` while the factory below assigned
+  // `.toDouble()` to it, which type-checks only because the JSON value
+  // arrives as `dynamic`: the mismatch surfaced at RUNTIME, as a cast
+  // error building the order, the first time a quantity was not whole.
+  final double quantity;
 
   ElasticQtyModel({
     required this.elasticId,

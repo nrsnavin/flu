@@ -59,19 +59,19 @@ class OrderModel {
           : '',
 
       elasticOrdered: (json['elastics'] as List<dynamic>? ?? [])
-          .map((e) => ElasticQtyModel(elasticId: e['id'], elasticName: e['name'], quantity: e['ordered']))
+          .map((e) => ElasticQtyModel(elasticId: e['id'], elasticName: e['name'], quantity: (e['ordered'] ?? 0).toDouble()))
           .toList(),
 
       producedElastic: (json['elastics'] as List<dynamic>? ?? [])
-          .map((e) => ElasticQtyModel(elasticId: e['id'], elasticName: e['name'], quantity: e['produced']))
+          .map((e) => ElasticQtyModel(elasticId: e['id'], elasticName: e['name'], quantity: (e['produced'] ?? 0).toDouble()))
           .toList(),
 
       packedElastic: (json['elastics'] as List<dynamic>? ?? [])
-          .map((e) => ElasticQtyModel(elasticId: e['id'], elasticName: e['name'], quantity: e['packed']))
+          .map((e) => ElasticQtyModel(elasticId: e['id'], elasticName: e['name'], quantity: (e['packed'] ?? 0).toDouble()))
           .toList(),
 
       pendingElastic: (json['elastics'] as List<dynamic>? ?? [])
-          .map((e) => ElasticQtyModel(elasticId: e['id'], elasticName: e['name'], quantity: e['pending']))
+          .map((e) => ElasticQtyModel(elasticId: e['id'], elasticName: e['name'], quantity: (e['pending'] ?? 0).toDouble()))
           .toList(),
 
       rawMaterialRequired:

@@ -9,6 +9,7 @@ import '../controllers/machine_controller.dart';
 import '../models/machine.dart';
 import '../widgets/machine_health_card.dart';
 import 'log.dart';
+import 'service_bills_sheet.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  MACHINE DETAIL PAGE
@@ -1373,10 +1374,79 @@ class _ServiceLogSection extends StatelessWidget {
                             fontWeight: FontWeight.w600)),
                   ]),
                 ],
+
+                // Bills — the paper behind the cost. The count and total
+                // ride along on the detail response, so this row needs no
+                // request of its own; the files are fetched only when one
+                // is actually opened.
+                const SizedBox(height: 8),
+                _BillsRow(c: c, log: log),
               ],
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+}
+
+class _BillsRow extends StatelessWidget {
+  final MachineDetailController c;
+  final MachineServiceLog log;
+  const _BillsRow({required this.c, required this.log});
+
+  @override
+  Widget build(BuildContext context) {
+    final has = log.billCount > 0;
+    return InkWell(
+      onTap: () async {
+        final changed = await showServiceBillsSheet(
+          machineId: c.machineId,
+          machineDisplayId: c.machine.value?.machineCode ?? '',
+          log: log,
+        );
+        // Only re-read when something actually changed — the counts on
+        // this row come from the machine document, and refetching after
+        // a look-but-don't-touch would be a request for nothing.
+        if (changed) await c.fetchDetail();
+      },
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: has
+              ? ErpColors.accentBlue.withOpacity(0.06)
+              : ErpColors.bgSurface,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: has
+                ? ErpColors.accentBlue.withOpacity(0.3)
+                : ErpColors.borderLight,
+          ),
+        ),
+        child: Row(children: [
+          Icon(Icons.receipt_long_rounded,
+              size: 13,
+              color: has ? ErpColors.accentBlue : ErpColors.textMuted),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              has
+                  ? '${log.billCount} bill${log.billCount == 1 ? '' : 's'}'
+                      '${log.billTotal > 0 ? '  ·  ₹${log.billTotal.toStringAsFixed(0)}' : ''}'
+                  : 'No bills filed',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color:
+                    has ? ErpColors.accentBlue : ErpColors.textMuted,
+              ),
+            ),
+          ),
+          Icon(Icons.chevron_right_rounded,
+              size: 16,
+              color: has ? ErpColors.accentBlue : ErpColors.textMuted),
+        ]),
       ),
     );
   }

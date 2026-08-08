@@ -40,6 +40,8 @@ class _AddServiceLogPageState extends State<AddServiceLogPage> {
     c.isSaving.listen((_) { if (mounted) setState(() {}); });
     c.selectedType.listen((_) { if (mounted) setState(() {}); });
     c.resolvedFlag.listen((_) { if (mounted) setState(() {}); });
+    c.sendToMaintenance.listen((_) { if (mounted) setState(() {}); });
+    c.blockedReason.listen((_) { if (mounted) setState(() {}); });
   }
 
   @override
@@ -194,6 +196,8 @@ class _AddServiceLogPageState extends State<AddServiceLogPage> {
                     ),
                   ]),
                 ),
+                const SizedBox(height: 10),
+                _MaintenanceToggle(c: c, onChanged: () => setState(() {})),
               ]),
             ),
             const SizedBox(height: 8),
@@ -290,6 +294,115 @@ class _TypeSelector extends StatelessWidget {
       );
     }).toList(),
   );
+}
+
+// ── Send the machine for service ───────────────────────────────
+//
+//  Recording the job and pulling the machine off the floor happen
+//  together, in one save, so a machine is never left running against a
+//  log that says it is stripped down.
+//
+//  A machine that is mid-job is refused rather than pulled — its job
+//  would be left pointing at a machine that is out of service — and the
+//  server says so in a 409. That refusal is kept on the form, because a
+//  toast is gone by the time an operator standing at a loom looks up,
+//  and nothing was saved: the whole entry has to be sent again.
+// ══════════════════════════════════════════════════════════════
+class _MaintenanceToggle extends StatelessWidget {
+  final AddServiceLogController c;
+  final VoidCallback onChanged;
+  const _MaintenanceToggle({required this.c, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final on = c.sendToMaintenance.value;
+    final blocked = c.blockedReason.value;
+
+    return Column(children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: on
+              ? ErpColors.warningAmber.withOpacity(0.08)
+              : ErpColors.bgMuted,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: on
+                ? ErpColors.warningAmber.withOpacity(0.45)
+                : ErpColors.borderLight,
+          ),
+        ),
+        child: Row(children: [
+          Icon(Icons.engineering_rounded,
+              size: 16,
+              color: on ? ErpColors.warningAmber : ErpColors.textMuted),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Send machine for service',
+                    style: TextStyle(
+                        color: ErpColors.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700)),
+                Text('Takes it off the floor as part of this save',
+                    style: TextStyle(
+                        color: ErpColors.textSecondary, fontSize: 10)),
+              ],
+            ),
+          ),
+          Switch(
+            value: on,
+            onChanged: (v) {
+              c.sendToMaintenance.value = v;
+              // The old refusal was about the previous attempt; keeping
+              // it up next to a toggle that has since changed would be
+              // stating something no longer true.
+              if (!v) c.blockedReason.value = null;
+              onChanged();
+            },
+            activeColor: ErpColors.warningAmber,
+          ),
+        ]),
+      ),
+      if (blocked != null) ...[
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: ErpColors.errorRed.withOpacity(0.07),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: ErpColors.errorRed.withOpacity(0.35)),
+          ),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Icon(Icons.block_rounded,
+                size: 15, color: ErpColors.errorRed),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(blocked,
+                      style: const TextStyle(
+                          color: ErpColors.errorRed,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 3),
+                  const Text(
+                    'Nothing was saved. Stop the job, or turn this off to '
+                    'record the log without taking the machine out.',
+                    style: TextStyle(
+                        color: ErpColors.textSecondary, fontSize: 10.5),
+                  ),
+                ],
+              ),
+            ),
+          ]),
+        ),
+      ],
+    ]);
+  }
 }
 
 // ── Section card ───────────────────────────────────────────────

@@ -7,6 +7,7 @@ import 'package:production/src/features/elastic/models/raw_material.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import 'addElastic.dart';
+import 'elastic_history_page.dart';
 
 class ElasticDetailPage extends StatefulWidget {
   final String elasticId;
@@ -71,6 +72,9 @@ class _DetailView extends StatelessWidget {
               _WeftYarnSection(e: e),
               const SizedBox(height: 10),
               _TestingSection(e: e),
+              const SizedBox(height: 10),
+              // ── Where it has been used ───────────────────────
+              _HistorySection(c: c, e: e),
               const SizedBox(height: 10),
               // ── Warping Plan Template ────────────────────────
               _WarpingPlanSection(c: c, e: e),
@@ -1456,6 +1460,61 @@ class _CostingSection extends StatelessWidget {
             ),
           ]),
         ],
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  WHERE THIS ELASTIC HAS BEEN
+//
+//  A door, not a summary. The counts live behind two paginated
+//  endpoints, and fetching them here would cost every visitor to this
+//  page two requests to render a number most of them are not asking
+//  for. The history page loads them the moment it is opened.
+// ══════════════════════════════════════════════════════════════
+class _HistorySection extends StatelessWidget {
+  final ElasticDetailController c;
+  final Map<String, dynamic> e;
+  const _HistorySection({required this.c, required this.e});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = e['name']?.toString() ?? '';
+    return _Card(
+      title: 'PRODUCT HISTORY',
+      icon: Icons.history_rounded,
+      accentColor: const Color(0xFF7C3AED),
+      child: InkWell(
+        onTap: () => Get.to(() => ElasticHistoryPageView(
+              elasticId: c.elasticId,
+              elasticName: name,
+            )),
+        borderRadius: BorderRadius.circular(6),
+        child: Row(children: [
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Orders and jobs it has run on',
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: ErpColors.textPrimary)),
+                SizedBox(height: 3),
+                Text(
+                  'What was ordered, produced, packed and wasted — this '
+                  'elastic\'s own line off each one.',
+                  style:
+                      TextStyle(fontSize: 11, color: ErpColors.textSecondary),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Icon(Icons.chevron_right_rounded,
+              size: 20, color: ErpColors.textMuted),
+        ]),
       ),
     );
   }

@@ -1,9 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+// FormData and MultipartFile exist in both packages; the bill upload
+// needs Dio's.
+import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:intl/intl.dart';
 
 import '../models/machine.dart';
+import '../models/service_bill.dart';
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
 
@@ -58,6 +63,12 @@ class MachineApiService {
   }
 
   /// POST /machine/add-service-log
+  ///
+  /// `setMaintenance` records the job and pulls the machine off the floor
+  /// in one save, so a machine can never be left running against a log
+  /// that says it is stripped down. A machine mid-job is refused with a
+  /// 409 rather than pulled — its job would be left pointing at a machine
+  /// that is out of service — and the caller is told to stop the job first.
   static Future<Map<String, dynamic>> addServiceLog({
     required String machineId,
     required String type,
@@ -66,6 +77,7 @@ class MachineApiService {
     double cost = 0,
     DateTime? nextServiceDate,
     bool resolved = true,
+    bool setMaintenance = false,
   }) async {
     final res = await _dio.post('/machine/add-service-log', data: {
       'machineId':       machineId,
@@ -76,8 +88,71 @@ class MachineApiService {
       if (nextServiceDate != null)
         'nextServiceDate': nextServiceDate.toIso8601String(),
       'resolved':        resolved,
+      'setMaintenance':  setMaintenance,
     });
     return res.data as Map<String, dynamic>;
+  }
+
+  // ── Service & spare bills ──────────────────────────────────
+
+  /// Every bill for a machine, or just one log's when `serviceLogId` is
+  /// given. The file payload is never in this response.
+  static Future<ServiceBillList> listBills({
+    required String machineId,
+    String? serviceLogId,
+  }) async {
+    final res = await _dio.get('/machine/service-bills', queryParameters: {
+      'machineId': machineId,
+      if (serviceLogId != null) 'serviceLogId': serviceLogId,
+    });
+    return ServiceBillList.fromJson(res.data as Map<String, dynamic>);
+  }
+
+  static Future<ServiceBill> uploadBill({
+    required String machineId,
+    required String serviceLogId,
+    required String kind,
+    required Uint8List bytes,
+    required String filename,
+    double amount = 0,
+    String vendor = '',
+    String billNo = '',
+    DateTime? billDate,
+    String partName = '',
+    String notes = '',
+  }) async {
+    // No content type on the part. Dio defaults every part to
+    // application/octet-stream unless one is given, and the class that
+    // names one (DioMediaType) does not exist in older Dio releases —
+    // so the server resolves an unlabelled part by its extension
+    // instead. See resolveBillType in api/machine.js. Which is why the
+    // filename below must keep its extension.
+    final form = FormData.fromMap({
+      'machineId':    machineId,
+      'serviceLogId': serviceLogId,
+      'kind':         kind,
+      'amount':       amount,
+      'vendor':       vendor,
+      'billNo':       billNo,
+      if (billDate != null) 'billDate': billDate.toIso8601String(),
+      'partName':     partName,
+      'notes':        notes,
+      'file': MultipartFile.fromBytes(bytes, filename: filename),
+    });
+    final res = await _dio.post('/machine/service-bill', data: form);
+    return ServiceBill.fromJson(res.data['bill'] as Map<String, dynamic>);
+  }
+
+  static Future<Uint8List> billBytes(String billId) async {
+    final res = await _dio.get<List<int>>(
+      '/machine/service-bill/$billId/file',
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return Uint8List.fromList(res.data ?? const []);
+  }
+
+  static Future<void> deleteBill(String billId) async {
+    await _dio.delete('/machine/service-bill/$billId');
   }
 
   // Predicted-maintenance health for all machines.
@@ -301,6 +376,12 @@ class MachineServiceLog {
   final DateTime? nextServiceDate;
   final bool resolved;
 
+  /// Rolled up by the detail endpoint so the history renders in one
+  /// request instead of one per log. The files themselves are fetched
+  /// only when a bill is actually opened.
+  final int billCount;
+  final double billTotal;
+
   MachineServiceLog({
     required this.id,
     required this.date,
@@ -310,6 +391,8 @@ class MachineServiceLog {
     required this.cost,
     this.nextServiceDate,
     required this.resolved,
+    this.billCount = 0,
+    this.billTotal = 0,
   });
 
   factory MachineServiceLog.fromJson(Map<String, dynamic> j) => MachineServiceLog(
@@ -321,7 +404,111 @@ class MachineServiceLog {
     cost:        (j['cost'] as num?)?.toDouble() ?? 0,
     nextServiceDate: DateTime.tryParse(j['nextServiceDate']?.toString() ?? '')?.toLocal(),
     resolved:    j['resolved'] as bool? ?? true,
+    billCount:   (j['billCount'] as num?)?.toInt() ?? 0,
+    billTotal:   (j['billTotal'] as num?)?.toDouble() ?? 0,
   );
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SERVICE BILLS CONTROLLER
+//
+//  Scoped to one service log. Bills are their own collection, so the
+//  list is a separate read from the machine — and a machine detail that
+//  failed to load its bills is still worth showing.
+// ══════════════════════════════════════════════════════════════
+
+class ServiceBillsController extends GetxController {
+  final String machineId;
+  final String serviceLogId;
+  ServiceBillsController({required this.machineId, required this.serviceLogId});
+
+  final bills       = <ServiceBill>[].obs;
+  final totalAmount = 0.0.obs;
+  final isLoading   = true.obs;
+  final isBusy      = false.obs;
+  final errorMsg    = Rxn<String>();
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetch();
+  }
+
+  Future<void> fetch() async {
+    isLoading.value = true;
+    errorMsg.value = null;
+    try {
+      final res = await MachineApiService.listBills(
+        machineId: machineId, serviceLogId: serviceLogId,
+      );
+      bills.value = res.bills;
+      totalAmount.value = res.totalAmount;
+    } on DioException catch (e) {
+      errorMsg.value =
+          e.response?.data?['message'] as String? ?? 'Failed to load bills';
+    } catch (e) {
+      errorMsg.value = e.toString();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// Returns null on success, or a message to show.
+  Future<String?> upload({
+    required String kind,
+    required Uint8List bytes,
+    required String filename,
+    double amount = 0,
+    String vendor = '',
+    String billNo = '',
+    DateTime? billDate,
+    String partName = '',
+    String notes = '',
+  }) async {
+    if (bytes.length > kBillMaxBytes) {
+      return 'That file is ${(bytes.length / (1024 * 1024)).toStringAsFixed(1)} MB — '
+          'the limit is ${kBillMaxBytes ~/ (1024 * 1024)} MB';
+    }
+    isBusy.value = true;
+    try {
+      await MachineApiService.uploadBill(
+        machineId: machineId,
+        serviceLogId: serviceLogId,
+        kind: kind,
+        bytes: bytes,
+        filename: filename,
+        amount: amount,
+        vendor: vendor,
+        billNo: billNo,
+        billDate: billDate,
+        partName: partName,
+        notes: notes,
+      );
+      await fetch();
+      return null;
+    } on DioException catch (e) {
+      return e.response?.data?['message'] as String? ?? 'Could not upload the bill';
+    } catch (e) {
+      return e.toString();
+    } finally {
+      isBusy.value = false;
+    }
+  }
+
+  Future<String?> remove(String billId) async {
+    isBusy.value = true;
+    try {
+      await MachineApiService.deleteBill(billId);
+      await fetch();
+      return null;
+    } on DioException catch (e) {
+      return e.response?.data?['message'] as String? ?? 'Could not delete the bill';
+    } catch (e) {
+      return e.toString();
+    } finally {
+      isBusy.value = false;
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -342,6 +529,17 @@ class AddServiceLogController extends GetxController {
   final selectedType   = 'Preventive'.obs;
   final resolvedFlag   = true.obs;
   final isSaving       = false.obs;
+
+  /// Pull the machine off the floor as part of the same save. Recording
+  /// the job and taking the machine out of service are one action, not
+  /// two — otherwise a machine can be left running against a log that
+  /// says it is stripped down.
+  final sendToMaintenance = false.obs;
+
+  /// The server's refusal when the machine is mid-job, kept so the form
+  /// can explain itself instead of only flashing a snackbar that is gone
+  /// by the time the operator looks up.
+  final blockedReason = Rxn<String>();
 
   final descCtrl       = TextEditingController();
   final techCtrl       = TextEditingController();
@@ -375,8 +573,9 @@ class AddServiceLogController extends GetxController {
       return;
     }
     isSaving.value = true;
+    blockedReason.value = null;
     try {
-      await MachineApiService.addServiceLog(
+      final res = await MachineApiService.addServiceLog(
         machineId:       machineMongoId,
         type:            selectedType.value,
         description:     descCtrl.text.trim(),
@@ -384,11 +583,22 @@ class AddServiceLogController extends GetxController {
         cost:            double.tryParse(costCtrl.text.trim()) ?? 0,
         nextServiceDate: _nextDate,
         resolved:        resolvedFlag.value,
+        setMaintenance:  sendToMaintenance.value,
       );
-      _snack('Service Log Added', 'Log saved successfully', isError: false);
+      _snack(
+        'Service Log Added',
+        res['statusChanged'] == true
+            ? 'Log saved and the machine is now in maintenance'
+            : 'Log saved successfully',
+        isError: false,
+      );
       onSuccess?.call();
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] as String? ?? 'Failed to save log';
+      // 409 is the one refusal the operator can act on: the machine is
+      // running a job and has to be stopped first. Nothing was saved, so
+      // the reason stays on the form rather than vanishing with the toast.
+      if (e.response?.statusCode == 409) blockedReason.value = msg;
       _snack('Save Failed', msg, isError: true);
     } catch (e) {
       _snack('Error', e.toString(), isError: true);

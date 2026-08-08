@@ -25,6 +25,7 @@ import 'package:production/src/features/reports/screens/stock_purchases_report_s
 import 'package:production/src/features/reports/screens/stock_movements_report_screen.dart';
 import 'package:production/src/features/announcement/screens/announcement_list.dart';
 import 'package:production/src/features/customer/screens/list.dart';
+import 'package:production/src/features/samples/screens/sample_list_page.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
 import 'package:production/src/features/elastic/screens/stock_map_page.dart';
 import 'package:production/src/features/employees/screens/empList.dart';
@@ -210,6 +211,12 @@ class NavRegistry extends GetxController {
       icon: Icons.shopping_bag_outlined, section: 'CUSTOMERS & ORDERS',
       keywords: const ['vendors'],
       open: () => Get.to(() => SupplierListPage()),
+    ),
+    NavModule(
+      id: 'samples', label: 'Sample Requests',
+      icon: Icons.science_outlined, section: 'CUSTOMERS & ORDERS',
+      keywords: const ['sample', 'trial', 'swatch', 'shade card'],
+      open: () => Get.to(() => const SampleListPageView()),
     ),
     NavModule(
       id: 'orders', label: 'Orders',

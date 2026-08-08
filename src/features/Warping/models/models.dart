@@ -163,21 +163,54 @@ class WarpingBeamSectionDetail {
   final int ends;
   final double maxMeters;
 
-  const WarpingBeamSectionDetail({required this.warpYarnId, required this.warpYarnName, required this.ends, this.maxMeters = 0});
+  /// The dye lot this section is programmed to run off, if one was
+  /// chosen. Empty is not an error — an undyed yarn has no lot, and a
+  /// programme can be written before the lot is decided.
+  final String yarnLotId;
+  final String lotNo;
+  final String shade;
+
+  const WarpingBeamSectionDetail({
+    required this.warpYarnId,
+    required this.warpYarnName,
+    required this.ends,
+    this.maxMeters = 0,
+    this.yarnLotId = '',
+    this.lotNo = '',
+    this.shade = '',
+  });
 
   factory WarpingBeamSectionDetail.fromJson(Map<String, dynamic> json) {
     final wy = json['warpYarn'];
+    final lot = json['yarnLot'];
     return WarpingBeamSectionDetail(
       warpYarnId:   wy is Map ? wy['_id']?.toString()  ?? '' : wy?.toString() ?? '',
       warpYarnName: wy is Map ? wy['name']?.toString() ?? '—' : '—',
       ends:        (json['ends'] as num?)?.toInt() ?? 0,
       maxMeters:   (json['maxMeters'] as num?)?.toDouble() ?? 0,
+      yarnLotId:    lot is Map ? lot['_id']?.toString() ?? '' : lot?.toString() ?? '',
+      // Prefer the snapshot the server stamped on the section: it is what
+      // the programme sheet printed, and it outlives the lot record.
+      lotNo:        json['lotNo']?.toString().isNotEmpty == true
+          ? json['lotNo'].toString()
+          : (lot is Map ? lot['lotNo']?.toString() ?? '' : ''),
+      shade:        json['shade']?.toString().isNotEmpty == true
+          ? json['shade'].toString()
+          : (lot is Map ? lot['shade']?.toString() ?? '' : ''),
     );
+  }
+
+  bool get hasLot => lotNo.isNotEmpty || yarnLotId.isNotEmpty;
+
+  String get lotLabel {
+    if (!hasLot) return '';
+    return shade.isEmpty ? lotNo : '$lotNo · $shade';
   }
 
   Map<String, dynamic> toJson() => {
     'warpYarn': warpYarnId, 'ends': ends,
     if (maxMeters > 0) 'maxMeters': maxMeters,
+    if (yarnLotId.isNotEmpty) 'yarnLot': yarnLotId,
   };
 }
 
@@ -248,17 +281,100 @@ class WarpYarnOption {
   );
 }
 
+// ─── Lot-wise stock, for programming a beam ──────────────────
+//
+// Aggregate stock cannot answer the question a planner is actually
+// asking. 300 kg spread over six lots of 50 is a very different thing
+// from 300 kg on one lot, because two lots meeting inside a single beam
+// show up as a shade band on the tape. So both numbers are carried:
+// what there is altogether, and what the biggest single lot holds.
+
+class LotOption {
+  final String id;
+  final String lotNo;
+  final String shade;
+  final double balance;
+
+  const LotOption({
+    required this.id,
+    required this.lotNo,
+    required this.shade,
+    required this.balance,
+  });
+
+  factory LotOption.fromJson(Map<String, dynamic> json) => LotOption(
+    id:      json['id']?.toString() ?? '',
+    lotNo:   json['lotNo']?.toString() ?? '',
+    shade:   json['shade']?.toString() ?? '',
+    balance: (json['balance'] as num?)?.toDouble() ?? 0,
+  );
+
+  String get label => shade.isEmpty ? lotNo : '$lotNo · $shade';
+}
+
+class YarnLotStock {
+  final String warpYarnId;
+  final String warpYarnName;
+  final List<LotOption> lots;
+  final double totalAvailable;
+  final double largestLot;
+
+  const YarnLotStock({
+    required this.warpYarnId,
+    required this.warpYarnName,
+    required this.lots,
+    required this.totalAvailable,
+    required this.largestLot,
+  });
+
+  static const empty = YarnLotStock(
+    warpYarnId: '', warpYarnName: '', lots: [],
+    totalAvailable: 0, largestLot: 0,
+  );
+
+  factory YarnLotStock.fromJson(Map<String, dynamic> json) => YarnLotStock(
+    warpYarnId:     json['warpYarnId']?.toString() ?? '',
+    warpYarnName:   json['warpYarnName']?.toString() ?? '',
+    lots: (json['lots'] as List? ?? [])
+        .whereType<Map>()
+        .map((e) => LotOption.fromJson(Map<String, dynamic>.from(e)))
+        .toList(),
+    totalAvailable: (json['totalAvailable'] as num?)?.toDouble() ?? 0,
+    largestLot:     (json['largestLot'] as num?)?.toDouble() ?? 0,
+  );
+
+  bool get isEmpty => lots.isEmpty;
+}
+
 // ─── Mutable plan entry models (used in create-plan UI) ───────
 class EditableBeamSection {
   String? warpYarnId;
   String? warpYarnName;
   int ends;
   double maxMeters; // max length this section can run (optional)
-  EditableBeamSection({this.warpYarnId, this.warpYarnName, this.ends = 0, this.maxMeters = 0});
+
+  /// Chosen dye lot, or null for "not decided / no lot". Sent as
+  /// `yarnLot`; the server refuses a lot belonging to another yarn, so
+  /// this is cleared whenever the yarn on the section changes.
+  String? yarnLotId;
+  String? lotLabel;
+
+  EditableBeamSection({
+    this.warpYarnId,
+    this.warpYarnName,
+    this.ends = 0,
+    this.maxMeters = 0,
+    this.yarnLotId,
+    this.lotLabel,
+  });
+
   Map<String, dynamic> toJson() => {
     'warpYarn':  warpYarnId,
     'ends':      ends,
     if (maxMeters > 0) 'maxMeters': maxMeters,
+    // Omitted rather than sent as "" — an empty string is not an
+    // ObjectId, and the whole plan used to be rejected for it.
+    if (yarnLotId != null && yarnLotId!.isNotEmpty) 'yarnLot': yarnLotId,
   };
 }
 
@@ -274,4 +390,134 @@ class EditableBeam {
     'sections': sections.map((s) => s.toJson()).toList(),
     if (pairedBeamNo != null) 'pairedBeamNo': pairedBeamNo,
   };
+}
+// ═════════════════════════════════════════════════════════════
+//  WARPING BATCHES — what actually came off the rack
+//
+//  The plan says what to build; a batch says which lots were drawn to
+//  build it, and when. One plan is routinely run over several sittings
+//  from different lots — beams 1–4 today, beams 5–8 next week — which
+//  is exactly what makes the lot worth recording separately.
+//
+//  Mirrors models/WarpingBatch.js.
+// ═════════════════════════════════════════════════════════════
+
+const kBatchStatuses = ['planned', 'issued', 'completed', 'cancelled'];
+
+String batchStatusLabel(String s) {
+  switch (s) {
+    case 'planned':   return 'Planned';
+    case 'issued':    return 'Issued';
+    case 'completed': return 'Completed';
+    case 'cancelled': return 'Cancelled';
+    default:          return s;
+  }
+}
+
+class BatchAllocation {
+  final String rawMaterialId;
+  final String yarnLotId;
+  final String lotNo;
+  final String shade;
+  final String materialName;
+  final double quantity;
+
+  const BatchAllocation({
+    required this.rawMaterialId,
+    required this.yarnLotId,
+    required this.lotNo,
+    required this.shade,
+    required this.materialName,
+    required this.quantity,
+  });
+
+  factory BatchAllocation.fromJson(Map<String, dynamic> json) {
+    final lot = json['yarnLot'];
+    final mat = json['rawMaterial'];
+    return BatchAllocation(
+      rawMaterialId: mat is Map ? mat['_id']?.toString() ?? '' : mat?.toString() ?? '',
+      yarnLotId:     lot is Map ? lot['_id']?.toString() ?? '' : lot?.toString() ?? '',
+      // Snapshots first — the lot record can be renamed or archived long
+      // before anyone comes asking about a shade complaint.
+      lotNo: json['lotNo']?.toString().isNotEmpty == true
+          ? json['lotNo'].toString()
+          : (lot is Map ? lot['lotNo']?.toString() ?? '' : ''),
+      shade: json['shade']?.toString().isNotEmpty == true
+          ? json['shade'].toString()
+          : (lot is Map ? lot['shade']?.toString() ?? '' : ''),
+      materialName: json['materialName']?.toString() ?? '',
+      quantity: (json['quantity'] as num?)?.toDouble() ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'rawMaterial': rawMaterialId,
+    'yarnLot':     yarnLotId,
+    'quantity':    quantity,
+  };
+
+  String get lotLabel => shade.isEmpty ? lotNo : '$lotNo · $shade';
+}
+
+class WarpingBatchModel {
+  final String id;
+  final String batchNo;
+  final String status;
+  final List<int> beamNos;
+  final List<String> elasticNames;
+  final List<BatchAllocation> allocations;
+  final String machineId;
+  final String remarks;
+  final DateTime? issuedDate;
+  final DateTime? completedDate;
+  final DateTime? createdAt;
+
+  const WarpingBatchModel({
+    required this.id,
+    required this.batchNo,
+    required this.status,
+    required this.beamNos,
+    required this.elasticNames,
+    required this.allocations,
+    required this.machineId,
+    required this.remarks,
+    this.issuedDate,
+    this.completedDate,
+    this.createdAt,
+  });
+
+  factory WarpingBatchModel.fromJson(Map<String, dynamic> json) {
+    final machine = json['machine'];
+    return WarpingBatchModel(
+      id:      json['_id']?.toString() ?? '',
+      batchNo: json['batchNo']?.toString() ?? '',
+      status:  json['status']?.toString() ?? 'planned',
+      beamNos: (json['beamNos'] as List? ?? [])
+          .map((e) => (e as num?)?.toInt() ?? 0)
+          .toList(),
+      elasticNames: (json['elastics'] as List? ?? [])
+          .map((e) => e is Map ? e['name']?.toString() ?? '' : '')
+          .where((n) => n.isNotEmpty)
+          .toList(),
+      allocations: (json['allocations'] as List? ?? [])
+          .whereType<Map>()
+          .map((e) => BatchAllocation.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      machineId: machine is Map ? machine['_id']?.toString() ?? '' : machine?.toString() ?? '',
+      remarks:   json['remarks']?.toString() ?? '',
+      issuedDate:    DateTime.tryParse(json['issuedDate']?.toString() ?? '')?.toLocal(),
+      completedDate: DateTime.tryParse(json['completedDate']?.toString() ?? '')?.toLocal(),
+      createdAt:     DateTime.tryParse(json['createdAt']?.toString() ?? '')?.toLocal(),
+    );
+  }
+
+  double get totalQty => allocations.fold(0.0, (s, a) => s + a.quantity);
+
+  bool get canIssue    => status == 'planned';
+  bool get canComplete => status == 'issued';
+  bool get canCancel   => status == 'planned' || status == 'issued';
+
+  /// "Beams 1, 2, 5" — or an honest blank when the batch names none.
+  String get beamLabel =>
+      beamNos.isEmpty ? 'No beams named' : 'Beam ${beamNos.join(', ')}';
 }

@@ -87,6 +87,12 @@ class _WarpingPlanPageState extends State<WarpingPlanPage> {
             _UniformMetersCard(c: c),
             const SizedBox(height: 12),
 
+            // ── Dye lots available, per warp yarn ──────────
+            if (c.lotStock.isNotEmpty) ...[
+              _LotStockCard(c: c),
+              const SizedBox(height: 12),
+            ],
+
             // ── Beam cards ─────────────────────────────────
             ...c.beams.asMap().entries.map((e) => _BeamCard(
               c: c,
@@ -496,6 +502,144 @@ class _UniformMetersCard extends StatelessWidget {
 }
 
 
+// ════════════════════════════════════════════════════════════
+//  DYE LOT STOCK CARD
+//
+//  Two numbers per yarn, and they are not the same question.
+//  "300 kg available" answers whether the job can run at all;
+//  "largest lot 80 kg" answers whether a beam can come off ONE lot,
+//  which is the thing that decides whether the tape shows a shade
+//  band halfway down. A planner needs the second one at the moment
+//  they commit a section, so it sits above the beams.
+//
+//  No Obx — reads c.lotStock directly (inside the outer Obx).
+// ════════════════════════════════════════════════════════════
+class _LotStockCard extends StatelessWidget {
+  final WarpingPlanController c;
+  const _LotStockCard({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = c.lotStock.values.toList()
+      ..sort((a, b) => a.warpYarnName.compareTo(b.warpYarnName));
+    final chosen = c.sectionsWithLot;
+    final total  = c.sectionsTotal;
+
+    return ErpSectionCard(
+      title: 'DYE LOTS AVAILABLE',
+      icon: Icons.inventory_2_outlined,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Coverage line. A section with no lot is not an error — an
+          // undyed yarn has none, and a plan can be written before the
+          // lot is decided — so this is stated, not flagged.
+          Row(children: [
+            Icon(
+              chosen == 0 ? Icons.info_outline : Icons.check_circle_outline,
+              size: 14,
+              color: chosen == 0
+                  ? ErpColors.textMuted
+                  : ErpColors.successGreen,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                chosen == 0
+                    ? 'No lot chosen yet — optional, but choose one where the yarn is dyed'
+                    : '$chosen of $total sections have a lot',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: chosen == 0
+                      ? ErpColors.textMuted
+                      : ErpColors.successGreen,
+                ),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 10),
+          ...rows.map((s) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            s.warpYarnName.isEmpty ? '—' : s.warpYarnName,
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: ErpColors.textPrimary),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            s.isEmpty
+                                ? 'No open lots'
+                                : '${s.lots.length} open lot${s.lots.length == 1 ? '' : 's'}',
+                            style: const TextStyle(
+                                fontSize: 10, color: ErpColors.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _LotStat('Total', s.totalAvailable, ErpColors.accentBlue),
+                    const SizedBox(width: 8),
+                    _LotStat(
+                      'Largest lot',
+                      s.largestLot,
+                      s.isEmpty
+                          ? ErpColors.textMuted
+                          : const Color(0xFF7C3AED),
+                    ),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+}
+
+class _LotStat extends StatelessWidget {
+  final String label;
+  final double value;
+  final Color color;
+  const _LotStat(this.label, this.value, this.color);
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: color.withOpacity(0.25)),
+        ),
+        child: Column(children: [
+          Text('${_qty(value)} kg',
+              style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w900,
+                  color: color)),
+          const SizedBox(height: 1),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 8.5,
+                  fontWeight: FontWeight.w700,
+                  color: ErpColors.textMuted)),
+        ]),
+      );
+}
+
+/// Whole numbers stay whole — "300 kg", not "300.0 kg".
+String _qty(double v) {
+  if (v == v.truncateToDouble()) return v.toInt().toString();
+  return v.toStringAsFixed(2);
+}
+
 // No Obx — receives value as plain int, parent Obx drives rebuilds
 class _StepperField extends StatelessWidget {
   final int value;
@@ -843,10 +987,172 @@ class _SectionRow extends StatelessWidget {
               ),
             ),
           ]),
+
+          // ── Dye lot ─────────────────────────────────────
+          const SizedBox(height: 8),
+          Row(children: [
+            const SizedBox(width: 30), // align with badge
+            Expanded(child: _LotPicker(c: c, section: section, bi: bi, si: si)),
+          ]),
         ],
       ),
     );
   }
+}
+
+// ════════════════════════════════════════════════════════════
+//  LOT PICKER  (one section)
+//
+//  Optional by design. A section with no lot is not incomplete — an
+//  undyed yarn has none, and a programme is often written before the
+//  lot is decided — so "Not decided" is a first-class choice rather
+//  than an empty field the operator has to be told to ignore.
+//
+//  Each lot shows its own balance, because the decision being made is
+//  "can this beam come off this one lot", not "is there enough yarn".
+// ════════════════════════════════════════════════════════════
+class _LotPicker extends StatelessWidget {
+  final WarpingPlanController c;
+  final EditableBeamSection section;
+  final int bi;
+  final int si;
+  const _LotPicker({
+    required this.c,
+    required this.section,
+    required this.bi,
+    required this.si,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final yarnId = section.warpYarnId;
+    if (yarnId == null || yarnId.isEmpty) {
+      return const _LotNote('Pick the warp yarn first to choose a dye lot');
+    }
+
+    final stock = c.lotsFor(yarnId);
+    if (stock.isEmpty) {
+      return const _LotNote(
+          'No open lots for this yarn — it will run without a lot recorded');
+    }
+
+    final chosenId = section.yarnLotId ?? '';
+    // A lot that was chosen and has since been exhausted or quarantined
+    // drops out of `lots`. Dropping it from the menu too would make the
+    // dropdown assert on an unknown value AND silently lose the choice,
+    // so it is kept as its own entry, labelled for what it is.
+    final known = stock.lots.any((l) => l.id == chosenId);
+    final stale = chosenId.isNotEmpty && !known;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DropdownButtonFormField<String>(
+          value: chosenId.isEmpty ? null : chosenId,
+          decoration: ErpDecorations.formInput('Dye Lot').copyWith(
+            prefixIcon: const Icon(Icons.science_outlined,
+                size: 15, color: ErpColors.textMuted),
+            prefixIconConstraints:
+                const BoxConstraints(minWidth: 30, minHeight: 30),
+          ),
+          style: const TextStyle(fontSize: 12, color: ErpColors.textPrimary),
+          dropdownColor: ErpColors.bgSurface,
+          isExpanded: true,
+          items: [
+            const DropdownMenuItem<String>(
+              value: null,
+              child: Text('Not decided',
+                  style: TextStyle(
+                      fontSize: 12, color: ErpColors.textMuted)),
+            ),
+            if (stale)
+              DropdownMenuItem<String>(
+                value: chosenId,
+                child: Text(
+                  '${section.lotLabel ?? 'Chosen lot'} · no longer open',
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 12, color: ErpColors.warningAmber),
+                ),
+              ),
+            ...stock.lots.map((l) => DropdownMenuItem<String>(
+                  value: l.id,
+                  child: Row(children: [
+                    Expanded(
+                      child: Text(l.label,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12)),
+                    ),
+                    const SizedBox(width: 6),
+                    Text('${_qty(l.balance)} kg',
+                        style: const TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                            color: ErpColors.accentBlue)),
+                  ]),
+                )),
+          ],
+          onChanged: (id) {
+            if (id == null || id.isEmpty) {
+              c.updateLot(bi, si, null);
+              return;
+            }
+            final lot = stock.lots.firstWhereOrNull((l) => l.id == id);
+            if (lot != null) c.updateLot(bi, si, lot);
+          },
+        ),
+        // Setting the same lot across the warp, in one tap. The common
+        // case, and the one most likely to go wrong section by section.
+        if (chosenId.isNotEmpty && known)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () => c.applyLotToAll(
+                yarnId,
+                stock.lots.firstWhereOrNull((l) => l.id == chosenId),
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                minimumSize: const Size(0, 28),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              icon: const Icon(Icons.done_all_rounded,
+                  size: 13, color: ErpColors.accentBlue),
+              label: const Text('Use for every section of this yarn',
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: ErpColors.accentBlue)),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _LotNote extends StatelessWidget {
+  final String msg;
+  const _LotNote(this.msg);
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: ErpColors.bgMuted,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: ErpColors.borderLight),
+        ),
+        child: Row(children: [
+          const Icon(Icons.science_outlined,
+              size: 13, color: ErpColors.textMuted),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(msg,
+                style: const TextStyle(
+                    fontSize: 10.5, color: ErpColors.textMuted)),
+          ),
+        ]),
+      );
 }
 
 // ════════════════════════════════════════════════════════════

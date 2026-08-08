@@ -44,14 +44,22 @@ class WarpingApi {
     return null;
   }
 
-  /// Returns { warpYarns: List<WarpYarnOption>, prefillTemplate: Map? }
+  /// Returns { warpYarns, prefillTemplate, lotStock }
   static Future<Map<String, dynamic>> fetchPlanContext(String jobId) async {
     final res = await _dio.get('/plan-context/$jobId');
     final yarns = (res.data['warpYarns'] as List? ?? [])
         .map((e) => WarpYarnOption.fromJson(e as Map<String, dynamic>))
         .toList();
     final template = res.data['prefillTemplate'] as Map<String, dynamic>?;
-    return {'warpYarns': yarns, 'prefillTemplate': template};
+    final lotStock = (res.data['lotStock'] as List? ?? [])
+        .whereType<Map>()
+        .map((e) => YarnLotStock.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+    return {
+      'warpYarns': yarns,
+      'prefillTemplate': template,
+      'lotStock': lotStock,
+    };
   }
 
   static Future<WarpingPlanDetail> createPlan({
@@ -309,6 +317,12 @@ class WarpingPlanController extends GetxController {
   static final _aiDio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   final warpYarns    = <WarpYarnOption>[].obs;
+
+  /// Lot-wise stock per warp yarn, keyed by yarn id. Empty until the
+  /// context lands — and legitimately empty for a yarn nobody has taken
+  /// lots on, which the picker says out loud rather than showing blank.
+  final lotStock     = <String, YarnLotStock>{}.obs;
+
   final beams        = <EditableBeam>[].obs;
   final beamCount    = 1.obs;
   final isLoading    = true.obs;
@@ -406,17 +420,23 @@ class WarpingPlanController extends GetxController {
       final aEnds  = isOdd && aGetsExtra  ? half + 1 : half;
       final bEnds  = isOdd && !aGetsExtra ? half + 1 : half;
 
+      // The lot rides along with the yarn: splitting a section across two
+      // beams does not change which dye lot it runs off.
       halfA.add(EditableBeamSection(
         warpYarnId:   s.warpYarnId,
         warpYarnName: s.warpYarnName,
         ends:         aEnds > 0 ? aEnds : 1,
         maxMeters:    s.maxMeters,
+        yarnLotId:    s.yarnLotId,
+        lotLabel:     s.lotLabel,
       ));
       halfB.add(EditableBeamSection(
         warpYarnId:   s.warpYarnId,
         warpYarnName: s.warpYarnName,
         ends:         bEnds > 0 ? bEnds : 1,
         maxMeters:    s.maxMeters,
+        yarnLotId:    s.yarnLotId,
+        lotLabel:     s.lotLabel,
       ));
 
       if (isOdd) aGetsExtra = !aGetsExtra; // flip for next odd section
@@ -526,6 +546,9 @@ class WarpingPlanController extends GetxController {
     try {
       final ctx = await WarpingApi.fetchPlanContext(jobId);
       warpYarns.value = ctx['warpYarns'] as List<WarpYarnOption>;
+      lotStock.value = {
+        for (final s in ctx['lotStock'] as List<YarnLotStock>) s.warpYarnId: s,
+      };
       // Auto-prefill from first elastic template
       final tpl = ctx['prefillTemplate'] as Map<String, dynamic>?;
       if (tpl != null) {
@@ -564,6 +587,10 @@ class WarpingPlanController extends GetxController {
         warpYarnName: s.warpYarnName,
         ends:         s.ends,
         maxMeters:    s.maxMeters,
+        // Repeating a beam repeats the whole decision, lot included —
+        // the usual reason to repeat is that the next beam is the same.
+        yarnLotId:    s.yarnLotId,
+        lotLabel:     s.lotLabel,
       )).toList(),
     );
     beams.add(copy);
@@ -615,10 +642,69 @@ class WarpingPlanController extends GetxController {
   }
 
   void updateYarn(int beamIndex, int sectionIndex, WarpYarnOption yarn) {
-    beams[beamIndex].sections[sectionIndex].warpYarnId   = yarn.id;
-    beams[beamIndex].sections[sectionIndex].warpYarnName = yarn.name;
+    final sec = beams[beamIndex].sections[sectionIndex];
+    final changed = sec.warpYarnId != yarn.id;
+    sec.warpYarnId   = yarn.id;
+    sec.warpYarnName = yarn.name;
+    // A lot belongs to one material. Leaving the old one attached would
+    // send a lot of the previous yarn against the new one, which the
+    // server refuses outright — better to drop it here than to have the
+    // whole plan rejected at save with a message about a section
+    // nobody remembers touching.
+    if (changed) {
+      sec.yarnLotId = null;
+      sec.lotLabel  = null;
+    }
     beams.refresh();
   }
+
+  /// The lots open for a yarn, or an empty record when it has none.
+  YarnLotStock lotsFor(String? warpYarnId) =>
+      (warpYarnId == null || warpYarnId.isEmpty)
+          ? YarnLotStock.empty
+          : (lotStock[warpYarnId] ?? YarnLotStock.empty);
+
+  /// Choose the dye lot a section runs off. Passing null means "not
+  /// decided" — a legitimate answer, and the one an undyed yarn gives.
+  void updateLot(int beamIndex, int sectionIndex, LotOption? lot) {
+    final sec = beams[beamIndex].sections[sectionIndex];
+    sec.yarnLotId = lot?.id;
+    sec.lotLabel  = lot?.label;
+    beams.refresh();
+  }
+
+  /// Put the same lot on every section of every beam that runs this yarn.
+  /// A programme commonly runs one lot right across the warp, and doing
+  /// that a section at a time is where mistakes get made.
+  void applyLotToAll(String warpYarnId, LotOption? lot) {
+    var touched = 0;
+    for (final b in beams) {
+      for (final s in b.sections) {
+        if (s.warpYarnId != warpYarnId) continue;
+        s.yarnLotId = lot?.id;
+        s.lotLabel  = lot?.label;
+        touched++;
+      }
+    }
+    beams.refresh();
+    _snack(
+      lot == null
+          ? 'Lot cleared on $touched section${touched == 1 ? '' : 's'}'
+          : 'Lot ${lot.lotNo} set on $touched section${touched == 1 ? '' : 's'}',
+      isError: false,
+    );
+  }
+
+  /// Sections that name a lot, and sections still open. Both are worth
+  /// saying: "3 of 8 chosen" is a fact somebody can act on, whereas a
+  /// blank is one they cannot tell apart from a bug.
+  int get sectionsTotal =>
+      beams.fold(0, (s, b) => s + b.sections.length);
+
+  int get sectionsWithLot => beams.fold(
+      0,
+      (s, b) =>
+          s + b.sections.where((x) => (x.yarnLotId ?? '').isNotEmpty).length);
 
   void updateEnds(int beamIndex, int sectionIndex, int ends) {
     beams[beamIndex].sections[sectionIndex].ends = ends;

@@ -47,14 +47,75 @@ class WarpingApi {
     return null;
   }
 
-  /// Returns { warpYarns: List<WarpYarnOption>, prefillTemplate: Map? }
+  /// Returns { warpYarns, prefillTemplate, lotStock }
   static Future<Map<String, dynamic>> fetchPlanContext(String jobId) async {
     final res = await _dio.get('/plan-context/$jobId');
     final yarns = (res.data['warpYarns'] as List? ?? [])
         .map((e) => WarpYarnOption.fromJson(e as Map<String, dynamic>))
         .toList();
     final template = res.data['prefillTemplate'] as Map<String, dynamic>?;
-    return {'warpYarns': yarns, 'prefillTemplate': template};
+    final lotStock = (res.data['lotStock'] as List? ?? [])
+        .whereType<Map>()
+        .map((e) => YarnLotStock.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+    return {
+      'warpYarns': yarns,
+      'prefillTemplate': template,
+      'lotStock': lotStock,
+    };
+  }
+
+  // ── Warping batches ────────────────────────────────────────
+  // A batch is the record of which lots were actually drawn to build
+  // which beams. See models/WarpingBatch.js for why it is separate
+  // from the plan.
+
+  static Future<List<WarpingBatchModel>> listBatches({
+    String? warpingId,
+    String? jobId,
+    String status = 'all',
+  }) async {
+    final res = await _dio.get('/batch/list', queryParameters: {
+      if (warpingId != null) 'warpingId': warpingId,
+      if (jobId != null) 'jobId': jobId,
+      'status': status,
+    });
+    return (res.data['batches'] as List? ?? [])
+        .whereType<Map>()
+        .map((e) => WarpingBatchModel.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+  }
+
+  static Future<WarpingBatchModel> createBatch({
+    required String warpingId,
+    required List<int> beamNos,
+    required List<BatchAllocation> allocations,
+    List<String> elastics = const [],
+    String remarks = '',
+  }) async {
+    final res = await _dio.post('/batch/create', data: {
+      'warpingId':   warpingId,
+      'beamNos':     beamNos,
+      'allocations': allocations.map((a) => a.toJson()).toList(),
+      if (elastics.isNotEmpty) 'elastics': elastics,
+      'remarks': remarks,
+    });
+    return WarpingBatchModel.fromJson(res.data['batch'] as Map<String, dynamic>);
+  }
+
+  static Future<WarpingBatchModel> issueBatch(String id) async {
+    final res = await _dio.post('/batch/$id/issue');
+    return WarpingBatchModel.fromJson(res.data['batch'] as Map<String, dynamic>);
+  }
+
+  static Future<WarpingBatchModel> completeBatch(String id) async {
+    final res = await _dio.post('/batch/$id/complete');
+    return WarpingBatchModel.fromJson(res.data['batch'] as Map<String, dynamic>);
+  }
+
+  static Future<WarpingBatchModel> cancelBatch(String id) async {
+    final res = await _dio.patch('/batch/$id/cancel');
+    return WarpingBatchModel.fromJson(res.data['batch'] as Map<String, dynamic>);
   }
 
   static Future<WarpingPlanDetail> createPlan({
@@ -549,4 +610,153 @@ class WarpingPlanController extends GetxController {
     colorText: Colors.white, snackPosition: SnackPosition.BOTTOM,
     duration: const Duration(seconds: 4),
   );
+}
+// ══════════════════════════════════════════════════════════════
+//  WARPING BATCH CONTROLLER
+//
+//  The batches raised against one warping, and everything the sheet
+//  that raises a new one needs: the beams the plan defines, which of
+//  them are already claimed, and the open lots per warp yarn.
+//
+//  Beams already covered by a live batch are filtered out here rather
+//  than left for the server to reject. The server does reject them —
+//  two batches on one beam means the yarn is issued twice for it — but
+//  discovering that after filling in a whole sheet is a poor way to
+//  learn it. A cancelled batch drew nothing, so it releases its beams,
+//  which is why the filter looks at status and not merely at presence.
+// ══════════════════════════════════════════════════════════════
+class WarpingBatchController extends GetxController {
+  final String warpingId;
+  final String jobId;
+  WarpingBatchController({required this.warpingId, required this.jobId});
+
+  final batches    = <WarpingBatchModel>[].obs;
+  final isLoading  = true.obs;
+  final isActing   = false.obs;
+  final errorMsg   = Rxn<String>();
+
+  /// Warp yarns on the job, and the open lots for each.
+  final warpYarns  = <WarpYarnOption>[].obs;
+  final lotStock   = <String, YarnLotStock>{}.obs;
+  final contextLoaded = false.obs;
+
+  /// Beam numbers the plan defines. Empty until a plan exists.
+  final planBeamNos = <int>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    refreshAll();
+  }
+
+  Future<void> refreshAll() async {
+    await Future.wait([fetchBatches(), fetchContext(), fetchPlanBeams()]);
+  }
+
+  Future<void> fetchBatches() async {
+    isLoading.value = true;
+    errorMsg.value = null;
+    try {
+      batches.value = await WarpingApi.listBatches(warpingId: warpingId);
+    } on DioException catch (e) {
+      errorMsg.value =
+          e.response?.data?['message'] as String? ?? 'Failed to load batches';
+    } catch (e) {
+      errorMsg.value = e.toString();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchContext() async {
+    try {
+      final ctx = await WarpingApi.fetchPlanContext(jobId);
+      warpYarns.value = ctx['warpYarns'] as List<WarpYarnOption>;
+      lotStock.value = {
+        for (final s in ctx['lotStock'] as List<YarnLotStock>) s.warpYarnId: s,
+      };
+      contextLoaded.value = true;
+    } catch (_) {
+      // Not fatal: the batch list still reads. The create sheet says so
+      // itself rather than offering an empty lot picker.
+      contextLoaded.value = false;
+    }
+  }
+
+  Future<void> fetchPlanBeams() async {
+    try {
+      final plan = await WarpingApi.fetchPlan(warpingId);
+      planBeamNos.value = (plan?.beams ?? []).map((b) => b.beamNo).toList()
+        ..sort();
+    } catch (_) {
+      planBeamNos.clear();
+    }
+  }
+
+  /// beamNo → the batch that already holds it.
+  Map<int, String> get claimedBeams {
+    final out = <int, String>{};
+    for (final b in batches) {
+      if (b.status == 'cancelled') continue;
+      for (final n in b.beamNos) {
+        out[n] = b.batchNo;
+      }
+    }
+    return out;
+  }
+
+  List<int> get freeBeamNos {
+    final taken = claimedBeams;
+    return planBeamNos.where((n) => !taken.containsKey(n)).toList();
+  }
+
+  YarnLotStock lotsFor(String yarnId) =>
+      lotStock[yarnId] ?? YarnLotStock.empty;
+
+  /// Returns null on success, or a message to show.
+  Future<String?> create({
+    required List<int> beamNos,
+    required List<BatchAllocation> allocations,
+    String remarks = '',
+  }) async {
+    isActing.value = true;
+    try {
+      await WarpingApi.createBatch(
+        warpingId: warpingId,
+        beamNos: beamNos,
+        allocations: allocations,
+        remarks: remarks,
+      );
+      await fetchBatches();
+      return null;
+    } on DioException catch (e) {
+      return e.response?.data?['message'] as String? ?? 'Could not raise the batch';
+    } catch (e) {
+      return e.toString();
+    } finally {
+      isActing.value = false;
+    }
+  }
+
+  Future<String?> issue(String id)    => _act(() => WarpingApi.issueBatch(id));
+  Future<String?> complete(String id) => _act(() => WarpingApi.completeBatch(id));
+  Future<String?> cancel(String id)   => _act(() => WarpingApi.cancelBatch(id));
+
+  Future<String?> _act(Future<WarpingBatchModel> Function() run) async {
+    isActing.value = true;
+    try {
+      await run();
+      // Re-read rather than patching the row in place: issuing moves lot
+      // balances, so the lot figures the create sheet shows are stale
+      // the moment a batch is issued.
+      await Future.wait([fetchBatches(), fetchContext()]);
+      return null;
+    } on DioException catch (e) {
+      return e.response?.data?['message'] as String? ?? 'The batch could not be updated';
+    } catch (e) {
+      return e.toString();
+    } finally {
+      isActing.value = false;
+    }
+  }
 }

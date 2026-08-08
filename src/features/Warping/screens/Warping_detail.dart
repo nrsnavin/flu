@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:production/src/features/Warping/screens/warping_plan.dart';
 import 'package:production/src/features/Warping/screens/optimize_layout_page.dart';
+import 'package:production/src/features/Warping/screens/warping_batches.dart';
 // import 'package:production/src/features/Warping/screens/beam_label_pdf.dart';
 import '../../../common_widgets/reason_dialog.dart';
 import '../../PurchaseOrder/services/theme.dart';
@@ -30,7 +31,7 @@ class _WarpingDetailPageState extends State<WarpingDetailPage>
     super.initState();
     Get.delete<WarpingDetailController>(force: true);
     c = Get.put(WarpingDetailController(widget.warpingId));
-    _tabs = TabController(length: 2, vsync: this);
+    _tabs = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -72,6 +73,7 @@ class _WarpingDetailPageState extends State<WarpingDetailPage>
               tabs: const [
                 Tab(text: 'ELASTICS & YARNS'),
                 Tab(text: 'WARPING PLAN'),
+                Tab(text: 'BATCHES'),
               ],
             ),
             Expanded(
@@ -80,6 +82,15 @@ class _WarpingDetailPageState extends State<WarpingDetailPage>
                 children: [
                   _ElasticsTab(w: w),
                   _PlanTab(c: c, w: w, warpingId: widget.warpingId),
+                  // Keyed by job so the batch controller is rebuilt if the
+                  // detail ever reloads onto a different job rather than
+                  // quietly keeping the old one's lots.
+                  WarpingBatchesTab(
+                    key: ValueKey('batches-${w.jobId}'),
+                    warpingId: widget.warpingId,
+                    jobId: w.jobId,
+                    warpingStatus: w.status,
+                  ),
                 ],
               ),
             ),
@@ -970,9 +981,13 @@ class _BeamCard extends StatelessWidget {
           BorderSide(color: ErpColors.borderLight, width: 1),
         ),
         columnWidths: const {
-          0: FixedColumnWidth(46),
+          0: FixedColumnWidth(40),
           1: FlexColumnWidth(),
-          2: FixedColumnWidth(70),
+          // The lot is what the warper checks against the cone label
+          // before the beam is built, so it gets its own column rather
+          // than being tucked under the yarn name.
+          2: FixedColumnWidth(104),
+          3: FixedColumnWidth(56),
         },
         children: [
           TableRow(
@@ -981,6 +996,7 @@ class _BeamCard extends StatelessWidget {
             children: [
               _TH('Sec'),
               _TH('Warp Yarn'),
+              _TH('Dye Lot'),
               _TH('Ends'),
             ],
           ),
@@ -995,6 +1011,10 @@ class _BeamCard extends StatelessWidget {
               _TDLeft(e.value.warpYarnName.isNotEmpty
                   ? e.value.warpYarnName
                   : '—'),
+              // "Open" rather than a blank: a section with no lot is a
+              // decision not yet made, which reads differently from a
+              // cell that failed to load.
+              _LotCell(e.value),
               _TD('${e.value.ends}'),
             ],
           )),
@@ -1002,6 +1022,39 @@ class _BeamCard extends StatelessWidget {
       ),
     ]),
   );
+}
+
+class _LotCell extends StatelessWidget {
+  final WarpingBeamSectionDetail s;
+  const _LotCell(this.s);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: s.hasLot
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(s.lotNo,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF7C3AED))),
+                  if (s.shade.isNotEmpty)
+                    Text(s.shade,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 10, color: ErpColors.textMuted)),
+                ],
+              )
+            : const Text('Open',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontStyle: FontStyle.italic,
+                    color: ErpColors.textMuted)),
+      );
 }
 
 Widget _TH(String t) => Padding(

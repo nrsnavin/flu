@@ -10,6 +10,7 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../PurchaseOrder/services/theme.dart';
 import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../../common_widgets/fingerprint_timeline.dart';
+import '../models/yarn_lot_trail.dart';
 import 'package:production/src/core/api_client.dart';
 import 'mrp_sheet_page.dart';
 
@@ -388,12 +389,41 @@ class JobDetailController extends GetxController {
   final machinesLoading = false.obs;
   final freeMachines = RxList.empty();
 
+  // ── Dye lots this job is committed to ──────────────────────
+  // Fetched separately from the job because it is assembled from the
+  // warping programmes AND the warping batches, and a job detail that
+  // failed to load its lots is still worth showing.
+  final yarnLots = JobYarnLots.empty.obs;
+  final lotsLoading = false.obs;
+  final lotsError = Rxn<String>();
+
   String get jobId => Get.arguments as String? ?? '';
 
   @override
   void onInit() {
     super.onInit();
     fetchJob();
+    fetchYarnLots();
+  }
+
+  Future<void> fetchYarnLots() async {
+    if (jobId.isEmpty) return;
+    lotsLoading.value = true;
+    lotsError.value = null;
+    try {
+      final res = await _dio.get('/job/$jobId/yarn-lots');
+      final data = res.data['data'];
+      yarnLots.value = data is Map
+          ? JobYarnLots.fromJson(Map<String, dynamic>.from(data))
+          : JobYarnLots.empty;
+    } on DioException catch (e) {
+      lotsError.value =
+          e.response?.data?['message']?.toString() ?? 'Failed to load yarn lots';
+    } catch (e) {
+      lotsError.value = e.toString();
+    } finally {
+      lotsLoading.value = false;
+    }
   }
 
   Future<void> assignMachine(
@@ -679,7 +709,7 @@ class _JobDetailPageState extends State<JobDetailPage>
             controller: _tabs,
             children: [
               _GeneralTab(job: job),
-              _WarpingTab(warping: job.warping),
+              _WarpingTab(warping: job.warping, ctrl: _ctrl),
               _CoveringTab(covering: job.covering),
               _WeavingTab(shiftDetails: job.shiftDetails),
               _WastageTab(
@@ -1495,15 +1525,27 @@ class _GRow extends StatelessWidget {
 
 class _WarpingTab extends StatelessWidget {
   final JobWarping? warping;
-  const _WarpingTab({required this.warping});
+  final JobDetailController ctrl;
+  const _WarpingTab({required this.warping, required this.ctrl});
 
   @override
   Widget build(BuildContext context) {
+    final lots = ctrl.yarnLots.value;
+
     if (warping == null) {
-      return const _EmptyTab(
-          icon: Icons.straighten_rounded,
-          label: 'No warping data for this job.');
+      // A job with no programme can still have lots on it if a batch was
+      // raised, so the panel is not hidden behind the beam list.
+      if (lots.isEmpty) {
+        return const _EmptyTab(
+            icon: Icons.straighten_rounded,
+            label: 'No warping data for this job.');
+      }
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 30),
+        children: [_YarnLotsPanel(ctrl: ctrl)],
+      );
     }
+
     final w = warping!;
     final te = w.beams.fold(0, (s, b) => s + b.totalEnds);
     return _SectionShell(
@@ -1519,9 +1561,249 @@ class _WarpingTab extends StatelessWidget {
       children: [
         ...w.beams.map((b) => _BeamCard(beam: b)),
         if (w.remarks.isNotEmpty) _NoteCard(w.remarks, ErpColors.warningAmber),
+        _YarnLotsPanel(ctrl: ctrl),
       ],
     );
   }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  YARN LOTS ON THIS JOB
+//
+//  Planned and issued are shown as separate things and never added
+//  together. A planned row says what the programme intends and carries
+//  no weight — programming names the lot, it does not weigh it. An
+//  issued row says what left the rack, and that one cannot change.
+//
+//  Sections with no lot are counted, not hidden. "3 sections still
+//  open" is a fact somebody can act on; a blank cell is one they cannot
+//  tell apart from a bug.
+// ══════════════════════════════════════════════════════════════
+class _YarnLotsPanel extends StatelessWidget {
+  final JobDetailController ctrl;
+  const _YarnLotsPanel({required this.ctrl});
+
+  static const _purple = Color(0xFF7C3AED);
+
+  @override
+  Widget build(BuildContext context) {
+    final lots = ctrl.yarnLots.value;
+    final err = ctrl.lotsError.value;
+    final busy = ctrl.lotsLoading.value;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 4, bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: ErpColors.bgSurface,
+        border: Border.all(color: ErpColors.borderLight),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          const Icon(Icons.science_outlined, size: 15, color: _purple),
+          const SizedBox(width: 8),
+          const Expanded(
+            child: Text('YARN LOTS',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.6,
+                    color: ErpColors.textPrimary)),
+          ),
+          if (busy)
+            const SizedBox(
+                width: 13,
+                height: 13,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: ErpColors.accentBlue))
+          else
+            InkWell(
+              onTap: ctrl.fetchYarnLots,
+              child: const Padding(
+                padding: EdgeInsets.all(2),
+                child: Icon(Icons.refresh_rounded,
+                    size: 15, color: ErpColors.textMuted),
+              ),
+            ),
+        ]),
+        const SizedBox(height: 10),
+
+        if (err != null)
+          Text(err,
+              style: const TextStyle(
+                  fontSize: 11.5, color: ErpColors.errorRed))
+        else if (lots.isEmpty)
+          const Text(
+            'No lot recorded yet. Lots are named when the warping '
+            'programme is written, and drawn when a batch is issued.',
+            style: TextStyle(fontSize: 11.5, color: ErpColors.textMuted),
+          )
+        else ...[
+          _sectionsLine(lots.sections, lots.openBeamNos),
+          if (lots.hasUnattributed) ...[
+            const SizedBox(height: 8),
+            const Text(
+              'Some batches did not say which elastic they were for, so those '
+              'lots are listed job-wide.',
+              style: TextStyle(fontSize: 10.5, color: ErpColors.warningAmber),
+            ),
+          ],
+          const SizedBox(height: 12),
+          ...lots.byElastic.map(_group),
+        ],
+      ]),
+    );
+  }
+
+  Widget _sectionsLine(JobLotSections s, List<int> openBeams) {
+    if (!s.hasProgramme) {
+      return const Text('No warping programme yet.',
+          style: TextStyle(fontSize: 11.5, color: ErpColors.textMuted));
+    }
+    final allChosen = s.open == 0;
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Icon(
+        allChosen ? Icons.check_circle_outline : Icons.info_outline,
+        size: 14,
+        color: allChosen ? ErpColors.successGreen : ErpColors.textMuted,
+      ),
+      const SizedBox(width: 6),
+      Expanded(
+        child: Text(
+          allChosen
+              ? 'All ${s.total} sections have a lot'
+              : '${s.withLot} of ${s.total} sections have a lot'
+                  '${openBeams.isEmpty ? '' : ' — open on beam ${openBeams.join(', ')}'}',
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w600,
+            color: allChosen
+                ? ErpColors.successGreen
+                : ErpColors.textSecondary,
+          ),
+        ),
+      ),
+    ]);
+  }
+
+  Widget _group(JobLotGroup g) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(g.elasticName.toUpperCase(),
+              style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
+                  color: ErpColors.textMuted)),
+          const SizedBox(height: 6),
+          if (g.lots.isEmpty)
+            const Text('Nothing recorded',
+                style: TextStyle(fontSize: 11, color: ErpColors.textMuted))
+          else
+            ...g.lots.map(_row),
+        ]),
+      );
+
+  Widget _row(JobLotRow r) {
+    final color = r.isIssued ? ErpColors.successGreen : _purple;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withOpacity(0.25)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Flexible(
+                child: Text(r.lotLabel.isEmpty ? '—' : r.lotLabel,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: ErpColors.textPrimary)),
+              ),
+              // A lot quarantined after it was programmed is the one
+              // thing on this panel that needs acting on today.
+              if (r.isQuarantined) ...[
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 5, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: ErpColors.errorRed.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text('QUARANTINED',
+                      style: TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w900,
+                          color: ErpColors.errorRed)),
+                ),
+              ],
+            ]),
+            const SizedBox(height: 2),
+            Text(
+              [
+                if (r.materialName.isNotEmpty) r.materialName,
+                r.beamLabel,
+                if (r.isIssued && r.batchNo.isNotEmpty) r.batchNo,
+                if (!r.isIssued && r.sections > 0)
+                  '${r.sections} section${r.sections == 1 ? '' : 's'}',
+              ].join('  ·  '),
+              style: const TextStyle(
+                  fontSize: 10.5, color: ErpColors.textSecondary),
+            ),
+            if (r.isIssued && r.sharedAcross > 1)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  'Drawn once, shared across ${r.sharedAcross} elastics',
+                  style: const TextStyle(
+                      fontSize: 9.5,
+                      fontStyle: FontStyle.italic,
+                      color: ErpColors.textMuted),
+                ),
+              ),
+          ]),
+        ),
+        const SizedBox(width: 8),
+        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.14),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(r.isIssued ? 'ISSUED' : 'PLANNED',
+                style: TextStyle(
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w900,
+                    color: color)),
+          ),
+          const SizedBox(height: 3),
+          // Nothing at all rather than "0 kg": programming names the
+          // lot, it does not weigh it, and a zero would be invented.
+          Text(
+            r.quantity == null ? '—' : '${_lotQty(r.quantity!)} kg',
+            style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                color: ErpColors.textPrimary),
+          ),
+        ]),
+      ]),
+    );
+  }
+}
+
+String _lotQty(double v) {
+  if (v == v.truncateToDouble()) return v.toInt().toString();
+  return v.toStringAsFixed(2);
 }
 
 class _BeamCard extends StatelessWidget {

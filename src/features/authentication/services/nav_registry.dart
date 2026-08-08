@@ -25,6 +25,7 @@ import 'package:production/src/features/reports/screens/stock_purchases_report_s
 import 'package:production/src/features/reports/screens/stock_movements_report_screen.dart';
 import 'package:production/src/features/announcement/screens/announcement_list.dart';
 import 'package:production/src/features/customer/screens/list.dart';
+import 'package:production/src/features/pnl/screens/pnl_list_page.dart';
 import 'package:production/src/features/samples/screens/sample_list_page.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
 import 'package:production/src/features/elastic/screens/stock_map_page.dart';
@@ -411,6 +412,16 @@ class NavRegistry extends GetxController {
       icon: Icons.insights_rounded, section: 'ANALYTICS',
       keywords: const ['kpis', 'production analytics'],
       open: () => Get.to(() => ProductionAnalyticsPage()),
+    ),
+    // Margin is its own permission on the server — opening an order and
+    // seeing the profit on it are different things — so the screen
+    // handles the refusal itself rather than the module being hidden
+    // here. That keeps one authority for who sees margin.
+    NavModule(
+      id: 'order_pnl', label: 'Order P&L',
+      icon: Icons.query_stats_rounded, section: 'ANALYTICS',
+      keywords: const ['pnl', 'p&l', 'profit', 'loss', 'margin', 'costing'],
+      open: () => Get.to(() => const PnlListPageView()),
     ),
     NavModule(
       id: 'reports_production', label: 'Production Report',

@@ -15,6 +15,7 @@ import 'package:intl/intl.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/detail_controller.dart';
 import '../models/detail_model.dart';
+import '../models/yarn_lot.dart';
 
 
 class RawMaterialDetailPage extends StatefulWidget {
@@ -35,7 +36,7 @@ class _RawMaterialDetailPageState extends State<RawMaterialDetailPage>
     super.initState();
     Get.delete<RawMaterialDetailController>(force: true);
     _c  = Get.put(RawMaterialDetailController(materialId: widget.materialId));
-    _tab = TabController(length: 3, vsync: this);
+    _tab = TabController(length: 4, vsync: this);
     _tab.addListener(() {
       if (!_tab.indexIsChanging) _c.activeTab.value = _tab.index;
     });
@@ -121,7 +122,9 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       color: ErpColors.accentBlue,
-      onRefresh: c.fetchDetail,
+      onRefresh: () async {
+        await Future.wait([c.fetchDetail(), c.fetchLots()]);
+      },
       child: Column(children: [
         // Fixed hero + summary + price history + tab bar
         _HeroCard(material: material),
@@ -137,6 +140,7 @@ class _Body extends StatelessWidget {
               _InwardTab(records: c.inwards),
               _OutwardTab(records: c.outwards),
               _LedgerTab(movements: c.ledger),
+              _LotsTab(c: c),
             ],
           ),
         ),
@@ -363,6 +367,7 @@ class _TabBar extends StatelessWidget {
         Tab(text: 'Inward'),
         Tab(text: 'Outward'),
         Tab(text: 'Ledger'),
+        Tab(text: 'Lots'),
       ],
     ),
   );
@@ -966,6 +971,378 @@ class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
 // ══════════════════════════════════════════════════════════════
 //  SHARED WIDGETS
 // ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  LOTS TAB
+//
+//  Which dyed lots this material is holding, and how much is left on
+//  each. A beam wants to come off ONE lot, so the largest single
+//  balance matters as much as the total — 300 kg spread over six lots
+//  of 50 will not carry a section that 300 kg on one lot would.
+//
+//  The lot total is deliberately not reconciled against stock. Yarn
+//  that came in before lot tracking has no lot, so the sum of lot
+//  balances is a floor on what is present, never the whole of it.
+// ══════════════════════════════════════════════════════════════
+class _LotsTab extends StatelessWidget {
+  final RawMaterialDetailController c;
+  const _LotsTab({required this.c});
+
+  static String fmt(double v) =>
+      v == v.truncateToDouble() ? v.toInt().toString() : v.toStringAsFixed(2);
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      if (c.lotsLoading.value && c.lots.isEmpty) {
+        return const Center(
+            child: CircularProgressIndicator(color: ErpColors.accentBlue));
+      }
+      if (c.lotsError.value != null && c.lots.isEmpty) {
+        return _EmptyTab(
+            icon: Icons.error_outline_rounded, label: c.lotsError.value!);
+      }
+
+      final issuable = c.issuableLots;
+      final largest = issuable.isEmpty
+          ? 0.0
+          : issuable
+              .map((l) => l.balance)
+              .reduce((a, b) => a > b ? a : b);
+
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 40),
+        children: [
+          _LotSummary(
+            total: c.lotBalanceTotal,
+            largest: largest,
+            openCount: issuable.length,
+          ),
+          const SizedBox(height: 12),
+          _OpenLotButton(c: c),
+          const SizedBox(height: 12),
+          if (c.lots.isEmpty)
+            const _EmptyTab(
+                icon: Icons.inventory_2_outlined,
+                label: 'No lots recorded for this material')
+          else
+            ...c.lots.map((l) => _LotCard(lot: l)),
+        ],
+      );
+    });
+  }
+}
+
+class _LotSummary extends StatelessWidget {
+  final double total;
+  final double largest;
+  final int openCount;
+  const _LotSummary({
+    required this.total,
+    required this.largest,
+    required this.openCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: ErpColors.bgSurface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: ErpColors.borderLight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Expanded(
+              child: _LotStat(
+                  label: 'ON LOTS',
+                  value: '${_LotsTab.fmt(total)} kg'),
+            ),
+            Expanded(
+              child: _LotStat(
+                  label: 'LARGEST SINGLE LOT',
+                  value: '${_LotsTab.fmt(largest)} kg'),
+            ),
+            Expanded(
+              child: _LotStat(label: 'OPEN LOTS', value: '$openCount'),
+            ),
+          ]),
+          const SizedBox(height: 8),
+          const Text(
+            'A beam wants to come off one lot, so the largest single balance '
+            'matters as much as the total. Yarn received before lot tracking '
+            'has no lot, so this is a floor on what is present, not the whole '
+            'of the stock.',
+            style: TextStyle(
+                fontSize: 10.5, color: ErpColors.textMuted, height: 1.35),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LotStat extends StatelessWidget {
+  final String label;
+  final String value;
+  const _LotStat({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 8.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
+                  color: ErpColors.textMuted)),
+          const SizedBox(height: 2),
+          Text(value,
+              style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: ErpColors.textPrimary)),
+        ],
+      );
+}
+
+class _LotCard extends StatelessWidget {
+  final YarnLot lot;
+  const _LotCard({required this.lot});
+
+  @override
+  Widget build(BuildContext context) {
+    late final Color tone;
+    switch (lot.status) {
+      case 'quarantined':
+        tone = ErpColors.warningAmber;
+        break;
+      case 'exhausted':
+      case 'closed':
+        tone = ErpColors.textMuted;
+        break;
+      default:
+        tone = ErpColors.successGreen;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: ErpColors.bgSurface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: ErpColors.borderLight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Expanded(
+              child: Text(lot.lotNo,
+                  style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w800,
+                      color: ErpColors.textPrimary)),
+            ),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: tone.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(lot.status.toUpperCase(),
+                  style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.3,
+                      color: tone)),
+            ),
+          ]),
+          const SizedBox(height: 6),
+          Row(children: [
+            Expanded(
+              child: _LotStat(
+                  label: 'BALANCE',
+                  value: '${_LotsTab.fmt(lot.balance)} kg'),
+            ),
+            Expanded(
+              child: _LotStat(
+                  label: 'RECEIVED',
+                  value: '${_LotsTab.fmt(lot.receivedQty)} kg'),
+            ),
+            Expanded(
+              child: _LotStat(
+                  label: 'DRAWN',
+                  value: '${_LotsTab.fmt(lot.consumedQty)} kg'),
+            ),
+          ]),
+          if (lot.shade.isNotEmpty ||
+              lot.dyer.isNotEmpty ||
+              lot.supplierName.isNotEmpty ||
+              lot.receivedDate != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              [
+                if (lot.shade.isNotEmpty) 'Shade ${lot.shade}',
+                if (lot.dyer.isNotEmpty) lot.dyer,
+                if (lot.supplierName.isNotEmpty) lot.supplierName,
+                if (lot.receivedDate != null)
+                  DateFormat('dd MMM yyyy').format(lot.receivedDate!),
+              ].join('  ·  '),
+              style: const TextStyle(
+                  fontSize: 11, color: ErpColors.textSecondary),
+            ),
+          ],
+          if (lot.remarks.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(lot.remarks,
+                style: const TextStyle(
+                    fontSize: 11, color: ErpColors.textMuted)),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Opening a lot by hand covers yarn that was already on the rack when
+/// lot tracking started — it has no inward row to hang off, and the
+/// floor still needs it in the picker.
+class _OpenLotButton extends StatelessWidget {
+  final RawMaterialDetailController c;
+  const _OpenLotButton({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => _openDialog(context),
+        icon: const Icon(Icons.add, size: 16, color: ErpColors.accentBlue),
+        label: const Text('Open a lot',
+            style: TextStyle(
+                color: ErpColors.accentBlue,
+                fontSize: 13,
+                fontWeight: FontWeight.w700)),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: ErpColors.accentBlue),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openDialog(BuildContext context) async {
+    final lotNo = TextEditingController();
+    final qty = TextEditingController();
+    final shade = TextEditingController();
+    final dyer = TextEditingController();
+    var saving = false;
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) {
+          final ready = lotNo.text.trim().isNotEmpty &&
+              (double.tryParse(qty.text.trim()) ?? 0) > 0;
+          return AlertDialog(
+            backgroundColor: ErpColors.bgSurface,
+            title: const Text('Open a lot', style: TextStyle(fontSize: 16)),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Assigns stock this material already holds. The quantity '
+                    'cannot exceed what is not yet on some other lot.',
+                    style: TextStyle(
+                        fontSize: 12, color: ErpColors.textSecondary),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: lotNo,
+                    autofocus: true,
+                    textCapitalization: TextCapitalization.characters,
+                    onChanged: (_) => setLocal(() {}),
+                    decoration: const InputDecoration(
+                        labelText: 'Lot no. *', isDense: true),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: qty,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (_) => setLocal(() {}),
+                    decoration: const InputDecoration(
+                        labelText: 'Quantity (kg) *', isDense: true),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: shade,
+                    decoration: const InputDecoration(
+                        labelText: 'Shade', isDense: true),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: dyer,
+                    decoration: const InputDecoration(
+                        labelText: 'Dyer', isDense: true),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed:
+                      saving ? null : () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancel')),
+              ElevatedButton(
+                onPressed: (ready && !saving)
+                    ? () async {
+                        setLocal(() => saving = true);
+                        final err = await c.createLot(
+                          lotNo: lotNo.text,
+                          quantity: double.parse(qty.text.trim()),
+                          shade: shade.text,
+                          dyer: dyer.text,
+                        );
+                        setLocal(() => saving = false);
+                        if (err == null) {
+                          if (ctx.mounted) Navigator.of(ctx).pop();
+                          Get.snackbar('Lot opened', lotNo.text.trim(),
+                              backgroundColor: const Color(0xFF16A34A),
+                              colorText: Colors.white,
+                              snackPosition: SnackPosition.BOTTOM);
+                        } else {
+                          Get.snackbar('Could not open the lot', err,
+                              backgroundColor: const Color(0xFFDC2626),
+                              colorText: Colors.white,
+                              duration: const Duration(seconds: 6),
+                              snackPosition: SnackPosition.BOTTOM);
+                        }
+                      }
+                    : null,
+                child: Text(saving ? 'Opening…' : 'Open lot'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    lotNo.dispose();
+    qty.dispose();
+    shade.dispose();
+    dyer.dispose();
+  }
+}
+
 class _EmptyTab extends StatelessWidget {
   final IconData icon;
   final String label;

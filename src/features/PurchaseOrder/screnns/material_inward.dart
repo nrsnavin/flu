@@ -46,23 +46,51 @@ class _C {
 // ──────────────────────────────────────────────────────────────────────────
 //  MODEL — per-row editing state
 // ──────────────────────────────────────────────────────────────────────────
+/// A supplier sending slightly more than ordered is normal — a full bag
+/// instead of a part one, a roll that weighed heavy. The server takes it:
+/// up to this fraction over the pending quantity no explanation is asked
+/// for, and past it somebody has to say why. Mirrors
+/// OVER_RECEIPT_TOLERANCE in api/supplier.js.
+const double kOverReceiptTolerance = 0.10;
+
+/// Mirrors MIN_EXCESS_REASON there.
+const int kMinOverReceiptReason = 5;
+
 class InwardItemRow {
   final POItem poItem;
   final TextEditingController quantityCtrl;
   final TextEditingController remarksCtrl;
+
+  /// The dye lot this delivery came in as. Optional — but without it the
+  /// yarn cannot be issued to a warping batch by lot later, which is the
+  /// whole point of lot tracking, and the gate is exactly where the lot
+  /// tag is still in somebody's hand.
+  final TextEditingController lotNoCtrl;
+  final TextEditingController shadeCtrl;
+
   final FocusNode qtyFocus;
 
   InwardItemRow(this.poItem)
       : quantityCtrl = TextEditingController(),
         remarksCtrl  = TextEditingController(),
+        lotNoCtrl    = TextEditingController(),
+        shadeCtrl    = TextEditingController(),
         qtyFocus     = FocusNode();
 
   double get receivingQty =>
       double.tryParse(quantityCtrl.text.trim()) ?? 0.0;
 
-  /// True when the typed value is greater than what is still pending.
-  bool get isOverReceiving =>
-      receivingQty > 0 && receivingQty > poItem.pendingQuantity;
+  /// How much of this is over what the line still had pending.
+  double get overBy {
+    final v = receivingQty - poItem.pendingQuantity;
+    return v > 0 ? v : 0;
+  }
+
+  /// Within the tolerance, an over-receipt goes through unremarked.
+  bool get isOverReceiving => overBy > 0;
+
+  bool get needsOverReason =>
+      overBy > poItem.pendingQuantity * kOverReceiptTolerance;
 
   /// Fill the qty field with the full pending amount.
   void fillMax() {
@@ -74,6 +102,8 @@ class InwardItemRow {
   void dispose() {
     quantityCtrl.dispose();
     remarksCtrl.dispose();
+    lotNoCtrl.dispose();
+    shadeCtrl.dispose();
     qtyFocus.dispose();
   }
 }
@@ -91,6 +121,21 @@ class MaterialInwardController extends GetxController {
   final inwardDate    = DateTime.now().obs;
   final hasAnyQty     = false.obs;  // enables submit button
 
+  /// One reason for the whole receipt, which is how the server reads it
+  /// when a row carries none of its own.
+  final excessReasonCtrl = TextEditingController();
+  final excessReason     = ''.obs;
+
+  /// Any row over the pending quantity at all — the yarn still goes in,
+  /// but the person receiving should see that it is over.
+  bool get anyOverReceipt => rows.any((r) => r.isOverReceiving);
+
+  /// Any row far enough over that the server will want a reason.
+  bool get needsOverReason => rows.any((r) => r.needsOverReason);
+
+  bool get reasonOk =>
+      excessReason.value.trim().length >= kMinOverReceiptReason;
+
   @override
   void onInit() {
     super.onInit();
@@ -103,6 +148,9 @@ class MaterialInwardController extends GetxController {
     for (final row in rows) {
       row.quantityCtrl.addListener(_refreshHasAny);
     }
+    excessReasonCtrl.addListener(() {
+      excessReason.value = excessReasonCtrl.text;
+    });
   }
 
   void _refreshHasAny() {
@@ -136,18 +184,20 @@ class MaterialInwardController extends GetxController {
       _snack('Validation', 'Enter received quantity for at least one item.');
       return false;
     }
-    // Over-receiving check
-    for (final row in rows) {
-      if (row.isOverReceiving) {
-        _snack(
-          'Over-Receipt',
-          '${row.poItem.rawMaterial?.name ?? "Item"}: '
-              'cannot receive ${row.receivingQty.toStringAsFixed(2)} — '
-              'only ${row.poItem.pendingQuantity.toStringAsFixed(2)} pending.',
-          isError: true,
-        );
-        return false;
-      }
+    // An over-receipt is NOT refused here. The server takes a delivery
+    // that runs over — refusing it locally only pushed the difference
+    // into a stock adjustment, which credits the same yarn while losing
+    // the link to the PO that brought it in. Past the tolerance it wants
+    // a reason, and that is what is checked.
+    if (needsOverReason && !reasonOk) {
+      _snack(
+        'Reason needed',
+        'Receiving more than ${(kOverReceiptTolerance * 100).round()}% over the '
+            'pending quantity needs a reason of at least '
+            '$kMinOverReceiptReason characters.',
+        isError: true,
+      );
+      return false;
     }
     return true;
   }
@@ -164,12 +214,22 @@ class MaterialInwardController extends GetxController {
         'quantity':    r.receivingQty,
         'inwardDate':  inwardDate.value.toIso8601String(),
         'remarks':     r.remarksCtrl.text.trim(),
+        // A row carrying a lot number also opens a YarnLot bucket, so
+        // this yarn can be issued to a warping batch by lot later on.
+        if (r.lotNoCtrl.text.trim().isNotEmpty)
+          'lotNo': r.lotNoCtrl.text.trim(),
+        if (r.shadeCtrl.text.trim().isNotEmpty)
+          'shade': r.shadeCtrl.text.trim(),
       })
           .toList();
 
       final res = await POApiService.dio.post(
         '/inward-stock',
-        data: {'poId': po.id, 'items': itemPayload},
+        data: {
+          'poId': po.id,
+          'items': itemPayload,
+          if (needsOverReason) 'excessReason': excessReasonCtrl.text.trim(),
+        },
       );
 
       _snack(
@@ -203,7 +263,10 @@ class MaterialInwardController extends GetxController {
 
   @override
   void onClose() {
-    for (final r in rows) r.dispose();
+    for (final r in rows) {
+      r.dispose();
+    }
+    excessReasonCtrl.dispose();
     super.onClose();
   }
 }
@@ -289,8 +352,75 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
         final row = _ctrl!.rows[i];
         return _ItemCard(row: row, onChanged: () => setState(() {}));
       }),
+      if (_ctrl!.needsOverReason) _overReasonCard(),
     ],
   );
+
+  /// One reason covers the whole receipt, which is how the server reads
+  /// it when a row carries none of its own.
+  Widget _overReasonCard() => Container(
+        margin: const EdgeInsets.only(top: 4),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: _C.warningAmber.withOpacity(0.07),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _C.warningAmber.withOpacity(0.4)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              const Icon(Icons.warning_amber_rounded,
+                  size: 16, color: _C.warningAmber),
+              const SizedBox(width: 6),
+              Text(
+                'Why more than ${(kOverReceiptTolerance * 100).round()}% over?',
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: _C.warningAmber),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _ctrl!.excessReasonCtrl,
+              minLines: 2,
+              maxLines: 4,
+              textCapitalization: TextCapitalization.sentences,
+              onChanged: (_) => setState(() {}),
+              style: const TextStyle(fontSize: 13, color: _C.textPrimary),
+              decoration: InputDecoration(
+                hintText:
+                    'e.g. supplier sent full bags; the extra is against the next order',
+                hintStyle:
+                    const TextStyle(fontSize: 12.5, color: _C.textMuted),
+                filled: true,
+                fillColor: _C.bgSurface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: _C.borderLight),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: _C.borderLight),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide:
+                      const BorderSide(color: _C.warningAmber, width: 1.5),
+                ),
+                contentPadding: const EdgeInsets.all(12),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Kept on the inward row, against the PO it came in on. '
+              'At least $kMinOverReceiptReason characters.',
+              style: const TextStyle(fontSize: 11, color: _C.textMuted),
+            ),
+          ],
+        ),
+      );
 
   // ── Empty state ────────────────────────────────────────────────
   Widget _emptyState() => Center(
@@ -337,7 +467,11 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
         width: double.infinity,
         height: 50,
         child: ElevatedButton.icon(
-          onPressed: (_ctrl!.hasAnyQty.value && !_ctrl!.isSubmitting.value)
+          // Disabled until the reason is real when one is required, so
+          // the floor finds out before filling the whole sheet in.
+          onPressed: (_ctrl!.hasAnyQty.value &&
+                  !_ctrl!.isSubmitting.value &&
+                  (!_ctrl!.needsOverReason || _ctrl!.reasonOk))
               ? _ctrl!.submit
               : null,
           style: ElevatedButton.styleFrom(
@@ -556,6 +690,7 @@ class _ItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isOver = row.isOverReceiving;
+    final needsReason = row.needsOverReason;
     final hasQty = row.receivingQty > 0;
 
     return AnimatedContainer(
@@ -565,8 +700,9 @@ class _ItemCard extends StatelessWidget {
         color: _C.bgSurface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
+          // Amber, not red: an over-receipt is accepted, not rejected.
           color: isOver
-              ? _C.errorRed
+              ? _C.warningAmber
               : hasQty
               ? _C.accentBlue.withOpacity(0.4)
               : _C.borderLight,
@@ -761,6 +897,81 @@ class _ItemCard extends StatelessWidget {
               ),
             ]),
 
+            // ── Over-receipt note ────────────────────────────────
+            if (isOver)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(children: [
+                  Icon(
+                    needsReason
+                        ? Icons.warning_amber_rounded
+                        : Icons.trending_up_rounded,
+                    size: 14,
+                    color: _C.warningAmber,
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      needsReason
+                          ? '${_fmt(row.overBy)} over the pending quantity — needs a reason below'
+                          : '${_fmt(row.overBy)} over the pending quantity, within the '
+                              '${(kOverReceiptTolerance * 100).round()}% tolerance',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: _C.warningAmber,
+                        fontWeight:
+                            needsReason ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+
+            // ── Dye lot (collapsible, shows when qty > 0) ────────
+            //
+            // Asked for at the gate because that is where the lot tag is
+            // still in somebody's hand. Skipping it does not block the
+            // receipt — it means this yarn cannot be issued to a warping
+            // batch by lot later, which is the whole point of tracking.
+            AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              child: hasQty
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(children: [
+                        Expanded(
+                          flex: 3,
+                          child: TextFormField(
+                            controller: row.lotNoCtrl,
+                            textCapitalization:
+                                TextCapitalization.characters,
+                            style: const TextStyle(
+                                fontSize: 13, color: _C.textPrimary),
+                            onChanged: (_) => onChanged(),
+                            decoration: _lotDecoration(
+                              hint: 'Lot no.',
+                              icon: Icons.qr_code_2_rounded,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 2,
+                          child: TextFormField(
+                            controller: row.shadeCtrl,
+                            style: const TextStyle(
+                                fontSize: 13, color: _C.textPrimary),
+                            decoration: _lotDecoration(
+                              hint: 'Shade',
+                              icon: Icons.palette_outlined,
+                            ),
+                          ),
+                        ),
+                      ]),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+
             // ── Remarks input (collapsible, shows when qty > 0) ──
             AnimatedSize(
               duration: const Duration(milliseconds: 200),
@@ -811,6 +1022,31 @@ class _ItemCard extends StatelessWidget {
 
   String _fmt(double v) =>
       v % 1 == 0 ? v.toInt().toString() : v.toStringAsFixed(2);
+
+  InputDecoration _lotDecoration({required String hint, required IconData icon}) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(fontSize: 13, color: _C.textMuted),
+      filled: true,
+      fillColor: _C.bgMuted,
+      isDense: true,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: _C.borderLight),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: _C.borderLight),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: _C.accentBlue, width: 1.5),
+      ),
+      prefixIcon: Icon(icon, size: 16, color: _C.textMuted),
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    );
+  }
 }
 
 

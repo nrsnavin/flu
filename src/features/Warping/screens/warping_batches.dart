@@ -173,7 +173,10 @@ class _RaiseButton extends StatelessWidget {
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
                     );
-                    if (created == true) onDone();
+                    if (created != true) return;
+                    onDone();
+                    // Said here, on the overlay that outlives the sheet.
+                    _snack('Batch raised', isError: false);
                   },
             icon: const Icon(Icons.playlist_add_rounded,
                 size: 18, color: Colors.white),
@@ -611,7 +614,10 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
       _snack(err, isError: true);
       return;
     }
-    _snack('Batch raised', isError: false);
+    // Pop with the result and let the caller do the talking. A snackbar
+    // fired here would be inserted into an overlay this pop is about to
+    // tear down, and the toast never renders — the same thing that made
+    // the warping plan's "saved" message invisible.
     Get.back(result: true);
   }
 

@@ -82,10 +82,18 @@ class _SampleListPageViewState extends State<SampleListPageView> {
             style: TextStyle(
                 color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
         onPressed: () async {
-          final created = await Navigator.of(context).push<bool>(
+          // The form pops with the new code rather than a bare true, so
+          // the confirmation can name it — and it is said here, on the
+          // overlay that outlives the form.
+          final code = await Navigator.of(context).push<String>(
             MaterialPageRoute(builder: (_) => const RaiseSamplePage()),
           );
-          if (created == true) c.fetch();
+          if (code == null || code.isEmpty) return;
+          c.fetch();
+          Get.snackbar('Sample raised', '$code created',
+              backgroundColor: const Color(0xFF16A34A),
+              colorText: Colors.white,
+              snackPosition: SnackPosition.BOTTOM);
         },
       ),
       body: Column(

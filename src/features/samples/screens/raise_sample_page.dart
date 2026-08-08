@@ -58,11 +58,11 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
         priority: _priority,
       );
       if (!mounted) return;
-      Get.snackbar('Sample raised', '${sample.code} created',
-          backgroundColor: const Color(0xFF16A34A),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM);
-      Navigator.of(context).pop(true);
+      // Pop carrying the code, and let the list say so. A snackbar fired
+      // here goes into an overlay this pop tears down before the toast
+      // can render — the same thing that made the warping plan's "saved"
+      // message invisible.
+      Navigator.of(context).pop(sample.code);
     } catch (e) {
       if (!mounted) return;
       Get.snackbar('Error', apiMessage(e, 'Could not raise the sample'),

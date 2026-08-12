@@ -85,7 +85,7 @@ class WeavingPlanController extends GetxController {
     headElasticMap[headIndex] = elasticId;
   }
 
-  Future<void> submitWeavingPlan() async {
+  Future<void> submitWeavingPlan({bool confirmHooks = false}) async {
     final machine = selectedMachine.value;
     if (machine == null) {
       Get.snackbar('Validation', 'Please select a machine',
@@ -109,6 +109,7 @@ class WeavingPlanController extends GetxController {
         'machineId':     machine.id,
         'headElasticMap': headElasticMap
             .map((k, v) => MapEntry(k.toString(), v)),
+        if (confirmHooks) 'confirmHooks': true,
       });
       Get.snackbar('Weaving Planned', 'Machine assigned successfully',
           backgroundColor: const Color(0xFF16A34A),
@@ -116,7 +117,47 @@ class WeavingPlanController extends GetxController {
           snackPosition: SnackPosition.BOTTOM);
       Get.back(result: true);
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? 'Failed to plan weaving';
+      final data = e.response?.data;
+      final String msg =
+          ((data is Map ? data['message'] : null) ?? 'Failed to plan weaving')
+              .toString();
+
+      // A weaving head has a fixed number of hooks and an elastic's recipe
+      // says how many it needs. When the product needs more than the machine
+      // has, the server refuses with HOOKS_EXCEED_MACHINE — but that is a
+      // QUESTION, not a failure: the floor does sometimes run a product on a
+      // smaller machine deliberately, and the message even says "Confirm to
+      // assign it anyway". Showing it as a red error snackbar left the
+      // operator holding an instruction they had no way to follow.
+      if (data is Map && data['code'] == 'HOOKS_EXCEED_MACHINE' && !confirmHooks) {
+        isSubmitting.value = false;
+        final ok = await Get.dialog<bool>(
+          AlertDialog(
+            title: const Text('Machine has fewer hooks than the elastic needs'),
+            content: Text('$msg\n\nAssign it anyway?'),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back<bool>(result: false),
+                child: const Text('Go back'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD97706),
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () => Get.back<bool>(result: true),
+                child: const Text('Assign anyway'),
+              ),
+            ],
+          ),
+          barrierDismissible: false,
+        );
+        // The confirmation is a second, deliberate request — never
+        // retried automatically, and never more than once.
+        if (ok == true) await submitWeavingPlan(confirmHooks: true);
+        return;
+      }
+
       Get.snackbar('Error', msg,
           backgroundColor: const Color(0xFFDC2626),
           colorText: Colors.white,

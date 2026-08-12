@@ -39,13 +39,25 @@ class MachineApiService {
     await _dio.post('/machine/create-machine', data: payload.toJson());
   }
 
+  /// Remaps which elastic sits on which head.
+  ///
+  /// The server refuses with a 409 and `code: HOOKS_EXCEED_MACHINE` when a
+  /// product needs more hooks than the machine has. That is a question, not
+  /// a failure — the floor sometimes runs a product on a smaller machine
+  /// deliberately — so `confirmHooks` is the way through, and it must come
+  /// from the operator answering it, never from an automatic retry.
+  ///
+  /// Nothing calls this yet. The parameter is here so that whoever wires it
+  /// up finds the escape hatch rather than a refusal with no way past it.
   static Future<String> updateElastics({
     required String machineCode,
     required List elastics,
+    bool confirmHooks = false,
   }) async {
     final res = await _dio.put('/machine/updateOrder', data: {
       'id':      machineCode,
       'elastics': elastics,
+      if (confirmHooks) 'confirmHooks': true,
     });
     return res.data['data']?.toString() ?? '';
   }

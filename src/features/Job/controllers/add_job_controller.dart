@@ -217,7 +217,13 @@ class AddJobOrderController extends GetxController {
         break;
 
       case 'INSUFFICIENT_STOCK_FOR_EXCESS':
-        final shortfalls = (data is Map ? data['details']?['shortfalls'] : null);
+        // Unpacked in two steps rather than as
+        //   data is Map ? data['details']?['shortfalls'] : null
+        // because a null-aware index inside a conditional expression is a
+        // parse ambiguity in Dart — `?[` after a `?` cannot be told from
+        // the branch separator, and the file does not compile.
+        final details    = data is Map ? data['details'] : null;
+        final shortfalls = details is Map ? details['shortfalls'] : null;
         final named = (shortfalls is List && shortfalls.isNotEmpty)
             ? shortfalls
                 .map((s) => '${s['name']} short by ${s['short']} kg')

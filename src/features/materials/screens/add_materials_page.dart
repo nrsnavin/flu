@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/rawMaterial_controller.dart';
 import '../models/RawMaterial.dart';
+import '../controllers/material_group_controller.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -308,14 +309,11 @@ class _AddRawMaterialPageState extends State<AddRawMaterialPage> {
     c.save();
   }
 
-  Color _catColor(String cat) {
-    switch (cat) {
-      case 'warp':      return const Color(0xFF1D6FEB);
-      case 'weft':      return const Color(0xFF7C3AED);
-      case 'covering':  return const Color(0xFF0891B2);
-      case 'Rubber':    return const Color(0xFFD97706);
-      case 'Chemicals': return const Color(0xFFDC2626);
-      default:          return const Color(0xFF5A6A85);
-    }
-  }
+  // Was a case-SENSITIVE switch — `case 'Rubber'` lost its colour the
+  // moment anybody wrote "rubber" — carrying a slightly different
+  // palette from the two chip screens, so this form and the chips
+  // disagreed about what colour "warp" is. Nothing intended that.
+  // One resolver now: the group's own colour when Settings has one,
+  // else the shared fallback.
+  Color _catColor(String cat) => categoryColour(cat);
 }

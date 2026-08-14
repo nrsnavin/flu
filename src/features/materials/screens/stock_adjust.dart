@@ -22,6 +22,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../controllers/stockAdjustController.dart';
 import 'adjust_screen.dart';
+import '../controllers/material_group_controller.dart';
 
 
 
@@ -46,14 +47,10 @@ const _ts     = Color(0xFF8BA4C2);
 const _tm     = Color(0xFF3D5470);
 
 // Category accent colours
-Color _catColor(String cat) => switch (cat.toLowerCase()) {
-  'warp'      => const Color(0xFF3B82F6),
-  'weft'      => const Color(0xFF8B5CF6),
-  'covering'  => const Color(0xFF14B8A6),
-  'rubber'    => const Color(0xFFF59E0B),
-  'chemicals' => const Color(0xFFEF4444),
-  _           => const Color(0xFF6B7280),
-};
+// One resolver, in material_group_controller.dart: a group's own
+// colour when Settings has one, else the five names this app has
+// always known. Was a copy of that switch here, and two more elsewhere.
+Color _catColor(String cat) => categoryColour(cat);
 
 String _qty(double v) {
   if (v == v.truncateToDouble()) return v.toInt().toString();

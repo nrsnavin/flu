@@ -427,7 +427,13 @@ class _FilterSheet extends StatelessWidget {
       const SizedBox(height: 16),
       // Category dropdown
       Obx(() => DropdownButtonFormField<String>(
-        value: c.tempCategory.value,
+        // Never a value outside `items`, which a Dropdown throws on.
+        // The list arrives from the server, so a category picked from
+        // the offline fallback can stop being one of the options a
+        // moment later.
+        value: c.categories.contains(c.tempCategory.value)
+            ? c.tempCategory.value
+            : 'All',
         dropdownColor: ErpColors.bgSurface,
         style: ErpTextStyles.fieldValue,
         decoration: ErpDecorations.formInput('Category',

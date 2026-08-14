@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
+import 'material_group_controller.dart';
 
 import '../models/RawMaterial.dart';
 import '../../../core/app_config.dart';
@@ -28,13 +29,17 @@ class RawMaterialListController extends GetxController {
   // ── Bulk price update state ────────────────────────────────
   final isBulkSaving  = false.obs;
 
-  final categories = [
-    'All', 'warp', 'weft', 'covering', 'Rubber', 'Chemicals',
-  ];
+  // The list used to be five hardcoded strings here — one of six
+  // copies in this app, and the web's copy did not have 'Chemicals'.
+  // It comes from the server now; the store falls back to the old
+  // names if the fetch fails, so this is never empty.
+  final _groups = MaterialGroupStore.ensure();
+  List<String> get categories => _groups.namesWithAll;
 
   @override
   void onInit() {
     super.onInit();
+    _groups.load();
     fetchMaterials();
     debounce(search, (_) => fetchMaterials(),
         time: const Duration(milliseconds: 400));

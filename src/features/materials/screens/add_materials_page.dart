@@ -72,11 +72,17 @@ class _AddRawMaterialPageState extends State<AddRawMaterialPage> {
                   const SizedBox(height: 12),
                   // Category dropdown
                   Obx(() => DropdownButtonFormField<String>(
-                    value: c.selectedCategory.value,
-                    decoration: ErpDecorations.formInput('Category *'),
+                    // Never a value outside `items` — the list comes
+                    // from the server now, and a Dropdown whose value
+                    // is not among its items throws rather than
+                    // rendering a wrong default.
+                    value: c.kCategories.contains(c.selectedCategory.value)
+                        ? c.selectedCategory.value
+                        : null,
+                    decoration: ErpDecorations.formInput('Group *'),
                     style: ErpTextStyles.fieldValue,
                     dropdownColor: ErpColors.bgSurface,
-                    items: AddMaterialController.kCategories
+                    items: c.kCategories
                         .map((cat) => DropdownMenuItem(
                       value: cat,
                       child: Row(children: [
@@ -92,8 +98,10 @@ class _AddRawMaterialPageState extends State<AddRawMaterialPage> {
                       ]),
                     ))
                         .toList(),
-                    onChanged: (v) =>
-                    c.selectedCategory.value = v!,
+                    // Through the controller, so the group ID is
+                    // captured alongside the name — the create call
+                    // sends both.
+                    onChanged: (v) => c.selectCategory(v!),
                   )),
                 ]),
               ),

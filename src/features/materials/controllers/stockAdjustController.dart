@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
+import 'material_group_controller.dart';
 
 // ── Model ──────────────────────────────────────────────────────
 class StockAdjustItem {
@@ -100,7 +101,9 @@ class StockAdjustController extends GetxController {
   TextEditingController adjCtrl(String id)  => _adjCtrls[id]!;
   TextEditingController reasCtrl(String id) => _reasCtrls[id]!;
 
-  final categories = ['All', 'warp', 'weft', 'covering', 'Rubber', 'Chemicals'];
+  // From the server, not hardcoded — see material_group_controller.dart.
+  final _groups = MaterialGroupStore.ensure();
+  List<String> get categories => _groups.namesWithAll;
 
   @override
   void onInit() {

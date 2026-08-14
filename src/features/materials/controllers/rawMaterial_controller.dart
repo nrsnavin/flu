@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../models/RawMaterial.dart';
 import '../../../core/app_config.dart';
 import '../../../core/api_client.dart';
+import 'material_group_controller.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -99,9 +100,10 @@ class MaterialListController extends GetxController {
   final tempCategory  = 'All'.obs;
   final tempLowStock  = false.obs;
 
-  static const List<String> kCategories = [
-    'All', 'warp', 'weft', 'covering', 'Rubber', 'Chemicals',
-  ];
+  // From the server. Was one of six hardcoded copies in this app, and
+  // the web's copy did not carry 'Chemicals' at all.
+  final _groups = MaterialGroupStore.ensure();
+  List<String> get kCategories => _groups.namesWithAll;
 
   @override
   void onInit() {
@@ -240,18 +242,40 @@ class AddMaterialController extends GetxController {
   final minStockCtrl = TextEditingController(text: '0');
   final priceCtrl    = TextEditingController(text: '0');
 
-  final selectedCategory = 'warp'.obs;
+  // Starts EMPTY, not 'warp'.
+  //
+  // A DropdownButtonFormField throws if its `value` is not among its
+  // items, and the items now come from the server — so defaulting to a
+  // name the mill may have renamed would crash the add-material screen
+  // rather than show a wrong default. It is filled from the first group
+  // once the list arrives.
+  final selectedCategory = ''.obs;
+  final selectedGroupId = Rxn<String>();
   final selectedSupplierId = Rxn<String>();
   final selectedSupplierName = Rxn<String>();
 
-  static const List<String> kCategories = [
-    'warp', 'weft', 'covering', 'Rubber', 'Chemicals',
-  ];
+  final _groups = MaterialGroupStore.ensure();
+  List<String> get kCategories => _groups.names;
+
+  void selectCategory(String name) {
+    selectedCategory.value = name;
+    // The id when the name is a real group; null for a fallback name,
+    // where the server matches on the string instead.
+    selectedGroupId.value = _groups.byName(name)?.id;
+  }
 
   @override
   void onInit() {
     super.onInit();
     _loadSuppliers();
+    _groups.load().then((_) {
+      if (selectedCategory.value.isEmpty && kCategories.isNotEmpty) {
+        selectCategory(kCategories.first);
+      }
+    });
+    // The store may already be populated from another screen, in which
+    // case the future above resolves with nothing left to do.
+    if (kCategories.isNotEmpty) selectCategory(kCategories.first);
   }
 
   @override
@@ -291,6 +315,11 @@ class AddMaterialController extends GetxController {
     try {
       await MaterialApiService.createMaterial({
         'name':     nameCtrl.text.trim(),
+        // Both: the id when the picker holds a real group, and the name
+        // either way. The server settles them against each other and
+        // stores the group's own spelling, which is what stops this app
+        // and the web writing two variants of one category.
+        if (selectedGroupId.value != null) 'group': selectedGroupId.value,
         'category': selectedCategory.value,
         'stock':    double.tryParse(stockCtrl.text) ?? 0,
         'minStock': double.tryParse(minStockCtrl.text) ?? 0,

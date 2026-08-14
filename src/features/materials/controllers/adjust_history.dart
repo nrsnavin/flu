@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../core/app_config.dart';
+import 'material_group_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  MODEL
@@ -68,9 +69,12 @@ class AdjustHistoryGroup {
 // ══════════════════════════════════════════════════════════════
 
 class StockAdjustHistoryController extends GetxController {
-  static const List<String> kCategories = [
-    'All', 'warp', 'weft', 'covering', 'Rubber', 'Chemicals',
-  ];
+  // Was `static const kCategories`, read straight off the class by
+  // adjust_screen.dart. Now an instance getter backed by the shared
+  // store, because a const list cannot follow a group renamed in
+  // Settings — which is the whole point of the change.
+  final _groups = MaterialGroupStore.ensure();
+  List<String> get categories => _groups.namesWithAll;
 
   static const List<int> kDayOptions = [7, 30, 90, 180, 365];
 

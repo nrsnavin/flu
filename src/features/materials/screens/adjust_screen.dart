@@ -229,7 +229,7 @@ class _FilterRowState extends State<_FilterRow> {
       Expanded(child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(children: [
-          ...StockAdjustHistoryController.kCategories.map((cat) {
+          ...widget.c.categories.map((cat) {
             final active = widget.c.filterCategory.value == cat;
             final color  = cat == 'All' ? _blue : _catColor(cat);
             return GestureDetector(

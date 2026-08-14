@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/app_config.dart';
@@ -64,6 +65,58 @@ const List<String> kFallbackCategories = [
   'Rubber',
   'Chemicals',
 ];
+
+// ══════════════════════════════════════════════════════════════
+//  CATEGORY COLOUR — one resolver, was three switches
+//
+//  stock_adjust.dart and adjust_screen.dart each held a lowercased
+//  `switch`; add_materials_page.dart held a case-SENSITIVE one, so
+//  `case 'Rubber'` lost its colour the moment anybody wrote "rubber".
+//  All three knew the same five names and nothing else, so a group the
+//  mill added was grey everywhere.
+//
+//  A group's own colour wins when one is set in Settings. The old
+//  switch stays as the fallback, folded to lowercase — so the five
+//  names this app has always known keep exactly the colours they had,
+//  and a group with no colour chosen yet looks the same as yesterday
+//  rather than suddenly going grey.
+// ══════════════════════════════════════════════════════════════
+
+const Color _kGrey = Color(0xFF6B7280);
+
+/// `#RRGGBB`, `RRGGBB` or `#AARRGGBB` → a Color. Null for anything else,
+/// including the empty string a group carries until somebody picks one.
+Color? parseHexColour(String raw) {
+  var h = raw.trim().replaceFirst('#', '');
+  if (h.length == 6) h = 'FF$h';
+  if (h.length != 8) return null;
+  final v = int.tryParse(h, radix: 16);
+  return v == null ? null : Color(v);
+}
+
+Color _legacyCategoryColour(String name) => switch (name.toLowerCase()) {
+      'warp' => const Color(0xFF3B82F6),
+      'weft' => const Color(0xFF8B5CF6),
+      'covering' => const Color(0xFF14B8A6),
+      'rubber' => const Color(0xFFF59E0B),
+      'chemicals' => const Color(0xFFEF4444),
+      _ => _kGrey,
+    };
+
+/// The colour to draw a category chip in.
+///
+/// Safe before the store is registered — a screen that renders during
+/// startup gets the fallback rather than an exception.
+Color categoryColour(String name) {
+  if (Get.isRegistered<MaterialGroupStore>()) {
+    final g = MaterialGroupStore.to.byName(name);
+    if (g != null && g.colour.isNotEmpty) {
+      final c = parseHexColour(g.colour);
+      if (c != null) return c;
+    }
+  }
+  return _legacyCategoryColour(name);
+}
 
 class MaterialGroupService {
   static final Dio _dio = ApiClient.buildClient(

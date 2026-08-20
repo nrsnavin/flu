@@ -85,7 +85,7 @@ class _MachineHealthCardState extends State<MachineHealthCard> {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          const Row(children: [
+          Row(children: [
             Icon(Icons.monitor_heart_outlined, size: 16, color: ErpColors.accentBlue),
             SizedBox(width: 6),
             Text('Predicted health', style: TextStyle(fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
@@ -99,7 +99,7 @@ class _MachineHealthCardState extends State<MachineHealthCard> {
         const SizedBox(height: 10),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('$score', style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: _scoreColor(score))),
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(bottom: 6, left: 4),
             child: Text('/ 100', style: TextStyle(color: ErpColors.textMuted, fontSize: 12)),
           ),
@@ -118,16 +118,16 @@ class _MachineHealthCardState extends State<MachineHealthCard> {
                 Expanded(
                   child: RichText(text: TextSpan(children: [
                     TextSpan(text: '${m['label'] ?? ''}',
-                        style: const TextStyle(fontWeight: FontWeight.w600, color: ErpColors.textPrimary, fontSize: 12)),
+                        style: TextStyle(fontWeight: FontWeight.w600, color: ErpColors.textPrimary, fontSize: 12)),
                     TextSpan(text: ' — ${m['detail'] ?? ''}',
-                        style: const TextStyle(color: ErpColors.textSecondary, fontSize: 12)),
+                        style: TextStyle(color: ErpColors.textSecondary, fontSize: 12)),
                   ])),
                 ),
               ]),
             );
           }),
         ] else
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 6),
             child: Text('No risk signals — running normally.', style: TextStyle(color: ErpColors.textMuted, fontSize: 12)),
           ),
@@ -147,15 +147,15 @@ class _MachineHealthCardState extends State<MachineHealthCard> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Row(children: [
+              Row(children: [
                 Icon(Icons.auto_awesome, size: 13, color: ErpColors.accentBlue),
                 SizedBox(width: 6),
                 Text('AI DIAGNOSIS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.accentBlue)),
               ]),
               const SizedBox(height: 6),
               _adviceLoading
-                  ? const Text('Analysing…', style: TextStyle(color: ErpColors.textMuted, fontSize: 12))
-                  : Text(_advice ?? '', style: const TextStyle(color: ErpColors.textPrimary, fontSize: 12, height: 1.4)),
+                  ? Text('Analysing…', style: TextStyle(color: ErpColors.textMuted, fontSize: 12))
+                  : Text(_advice ?? '', style: TextStyle(color: ErpColors.textPrimary, fontSize: 12, height: 1.4)),
             ]),
           ),
       ]),

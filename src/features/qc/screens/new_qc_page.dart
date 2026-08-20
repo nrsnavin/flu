@@ -144,7 +144,7 @@ class _NewQcPageState extends State<NewQcPage> {
           isExpanded: true,
           value: c.selectedJobId.value.isEmpty ? null : c.selectedJobId.value,
           hint: Text(c.loadingJobs.value ? 'Loading…' : 'Select job',
-              style: const TextStyle(color: ErpColors.textMuted)),
+              style: TextStyle(color: ErpColors.textMuted)),
           items: c.jobs
               .map((j) => DropdownMenuItem(
                   value: j.id,
@@ -189,7 +189,7 @@ class _NewQcPageState extends State<NewQcPage> {
         child: DropdownButton<String>(
           isExpanded: true,
           value: c.selectedElasticId.value.isEmpty ? null : c.selectedElasticId.value,
-          hint: const Text('Select elastic', style: TextStyle(color: ErpColors.textMuted)),
+          hint: Text('Select elastic', style: TextStyle(color: ErpColors.textMuted)),
           items: els
               .map((e) => DropdownMenuItem(value: e.id, child: Text(e.name, overflow: TextOverflow.ellipsis)))
               .toList(),
@@ -220,7 +220,7 @@ class _NewQcPageState extends State<NewQcPage> {
             clipBehavior: Clip.antiAlias,
             child: c.imageBytes != null
                 ? Image.memory(c.imageBytes!, fit: BoxFit.cover)
-                : const Icon(Icons.photo_camera_outlined, color: ErpColors.textMuted),
+                : Icon(Icons.photo_camera_outlined, color: ErpColors.textMuted),
           ),
         ),
         const SizedBox(width: 12),
@@ -249,7 +249,7 @@ class _NewQcPageState extends State<NewQcPage> {
                         : c.confidence.value! >= 40 ? ErpColors.warningAmber : ErpColors.errorRed),
             ]),
             const SizedBox(height: 6),
-            const Text('AI flags visible defects and pre-fills the check. You verify every value before saving.',
+            Text('AI flags visible defects and pre-fills the check. You verify every value before saving.',
                 style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
           ]),
         ),
@@ -265,9 +265,9 @@ class _NewQcPageState extends State<NewQcPage> {
         Expanded(
           flex: 3,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(r.parameter, style: const TextStyle(fontSize: 13, color: ErpColors.textPrimary)),
+            Text(r.parameter, style: TextStyle(fontSize: 13, color: ErpColors.textPrimary)),
             if (r.expected.isNotEmpty)
-              Text('exp ${r.expected}', style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+              Text('exp ${r.expected}', style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
           ]),
         ),
         const SizedBox(width: 8),
@@ -302,7 +302,7 @@ class _NewQcPageState extends State<NewQcPage> {
 
   Widget _label(String t) => Padding(
         padding: const EdgeInsets.only(bottom: 6),
-        child: Text(t, style: const TextStyle(fontWeight: FontWeight.w600, color: ErpColors.textSecondary, fontSize: 13)),
+        child: Text(t, style: TextStyle(fontWeight: FontWeight.w600, color: ErpColors.textSecondary, fontSize: 13)),
       );
 
   Widget _textField(TextEditingController ctl, {String? hint, int maxLines = 1, TextInputType? keyboard}) =>
@@ -316,9 +316,9 @@ class _NewQcPageState extends State<NewQcPage> {
           fillColor: ErpColors.bgSurface,
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: ErpColors.borderLight)),
+              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ErpColors.borderLight)),
           enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: ErpColors.borderLight)),
+              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ErpColors.borderLight)),
         ),
       );
 

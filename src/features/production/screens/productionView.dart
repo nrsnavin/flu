@@ -43,7 +43,7 @@ class _ProductionRangePageState extends State<ProductionRangePage> {
           onPressed: () => Navigator.maybePop(context),
         ),
         titleSpacing: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -123,7 +123,7 @@ class _DateRangeBar extends StatelessWidget {
               ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 10),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_forward_rounded,
                   color: ErpColors.textOnDarkSub,
                   size: 16,
@@ -174,7 +174,7 @@ class _DateRangeBar extends StatelessWidget {
         lastDate: DateTime.now(),
         builder: (ctx, child) => Theme(
           data: Theme.of(ctx).copyWith(
-            colorScheme: const ColorScheme.dark(
+            colorScheme: ColorScheme.dark(
               primary: ErpColors.accentBlue,
               surface: Color(0xFF1B2B45),
               onSurface: Colors.white,
@@ -209,7 +209,7 @@ class _DateButton extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.calendar_today_rounded,
               color: ErpColors.accentBlue,
               size: 14,
@@ -220,7 +220,7 @@ class _DateButton extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: ErpColors.textOnDarkSub,
                     fontSize: 9,
                   ),
@@ -347,7 +347,7 @@ class _KpiCell extends StatelessWidget {
         ),
         Text(
           label,
-          style: const TextStyle(color: ErpColors.textOnDarkSub, fontSize: 9),
+          style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 9),
         ),
       ],
     ),
@@ -381,7 +381,7 @@ class _Body extends StatelessWidget {
 class _LoadingState extends StatelessWidget {
   const _LoadingState();
   @override
-  Widget build(BuildContext context) => const Center(
+  Widget build(BuildContext context) => Center(
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -406,7 +406,7 @@ class _ErrorState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             Icons.cloud_off_rounded,
             color: ErpColors.errorRed,
             size: 48,
@@ -415,7 +415,7 @@ class _ErrorState extends StatelessWidget {
           Text(
             c.errorMsg.value!,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: ErpColors.textSecondary),
+            style: TextStyle(color: ErpColors.textSecondary),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
@@ -443,7 +443,7 @@ class _ErrorState extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   const _EmptyState();
   @override
-  Widget build(BuildContext context) => const Center(
+  Widget build(BuildContext context) => Center(
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -546,7 +546,7 @@ class _DayRow extends StatelessWidget {
                                 children: [
                                   Text(
                                     '${day.totalProduction} m',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w900,
                                       color: ErpColors.textPrimary,
@@ -577,7 +577,7 @@ class _DayRow extends StatelessWidget {
                               ),
                             ],
                           )
-                        : const Text(
+                        : Text(
                             'No shifts recorded',
                             style: TextStyle(
                               color: ErpColors.textMuted,
@@ -590,7 +590,7 @@ class _DayRow extends StatelessWidget {
                     AnimatedRotation(
                       turns: expanded ? 0.5 : 0,
                       duration: const Duration(milliseconds: 200),
-                      child: const Icon(
+                      child: Icon(
                         Icons.expand_more_rounded,
                         color: ErpColors.textSecondary,
                         size: 20,
@@ -747,7 +747,7 @@ class _ShiftCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.supervisor_account_rounded,
                           size: 12,
                           color: ErpColors.textSecondary,
@@ -756,7 +756,7 @@ class _ShiftCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             summary.supervisor!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
                               color: ErpColors.textSecondary,
                             ),
@@ -830,7 +830,7 @@ class _CardStat extends StatelessWidget {
                 ),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 9,
                     color: ErpColors.textSecondary,
                   ),
@@ -890,7 +890,7 @@ class _MiniStat extends StatelessWidget {
       const SizedBox(width: 3),
       Text(
         text,
-        style: const TextStyle(fontSize: 10, color: ErpColors.textSecondary),
+        style: TextStyle(fontSize: 10, color: ErpColors.textSecondary),
       ),
     ],
   );

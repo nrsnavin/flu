@@ -29,7 +29,7 @@ class QcListPage extends StatelessWidget {
         onRefresh: c.refreshAll,
         child: Obx(() {
           if (c.isLoading.value && c.recent.isEmpty && c.readiness.value == null) {
-            return const Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
+            return Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
           }
           final readiness = c.readiness.value;
           return ListView(
@@ -39,13 +39,13 @@ class QcListPage extends StatelessWidget {
                 _DefectModelCard(r: readiness),
                 const SizedBox(height: 14),
               ],
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(bottom: 8, left: 2),
                 child: Text('Recent checks',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: ErpColors.textSecondary)),
               ),
               if (c.recent.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(vertical: 40),
                   child: Center(
                     child: Text('No QC checks yet', style: TextStyle(color: ErpColors.textMuted)),
@@ -70,7 +70,7 @@ class QcListPage extends StatelessWidget {
                       Row(children: [
                         Flexible(
                           child: Text(r.elasticName.isEmpty ? '—' : r.elasticName,
-                              style: const TextStyle(fontWeight: FontWeight.w600, color: ErpColors.textPrimary),
+                              style: TextStyle(fontWeight: FontWeight.w600, color: ErpColors.textPrimary),
                               overflow: TextOverflow.ellipsis),
                         ),
                         if (r.aiAssisted) ...[
@@ -79,7 +79,7 @@ class QcListPage extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                             decoration: BoxDecoration(
                                 color: ErpColors.statusOpenBg, borderRadius: BorderRadius.circular(4)),
-                            child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                            child: Row(mainAxisSize: MainAxisSize.min, children: [
                               Icon(Icons.auto_awesome, size: 10, color: ErpColors.accentBlue),
                               SizedBox(width: 2),
                               Text('AI', style: TextStyle(fontSize: 10, color: ErpColors.accentBlue)),
@@ -93,7 +93,7 @@ class QcListPage extends StatelessWidget {
                         '${r.customerName.isNotEmpty ? ' · ${r.customerName}' : ''}'
                         '${r.defectCode.isNotEmpty ? ' · ${r.defectCode}' : ''}'
                         '${r.rejectedMeters > 0 ? ' · ${r.rejectedMeters} m rejected' : ''}',
-                        style: const TextStyle(fontSize: 12, color: ErpColors.textMuted),
+                        style: TextStyle(fontSize: 12, color: ErpColors.textMuted),
                       ),
                     ]),
                   ),
@@ -123,9 +123,9 @@ class _DefectModelCard extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          const Icon(Icons.psychology_outlined, size: 18, color: ErpColors.accentBlue),
+          Icon(Icons.psychology_outlined, size: 18, color: ErpColors.accentBlue),
           const SizedBox(width: 8),
-          const Text('Defect model',
+          Text('Defect model',
               style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: ErpColors.textPrimary)),
           const SizedBox(width: 8),
           Container(
@@ -148,14 +148,14 @@ class _DefectModelCard extends StatelessWidget {
         ]),
         const SizedBox(height: 8),
         Text(r.recommendation,
-            style: const TextStyle(fontSize: 12, color: ErpColors.textSecondary, height: 1.4)),
+            style: TextStyle(fontSize: 12, color: ErpColors.textSecondary, height: 1.4)),
         const SizedBox(height: 12),
         // Progress toward the fine-tune threshold.
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text('${r.labelledImages} labelled photos',
-              style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+              style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
           Text('${r.progressPct}% of ${r.minSamples} target',
-              style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+              style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
         ]),
         const SizedBox(height: 5),
         ClipRRect(
@@ -172,7 +172,7 @@ class _DefectModelCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             'Label classes (${r.classesReady}/${r.minClasses} ready · ≥${r.minPerClass} each)',
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: ErpColors.textMuted),
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: ErpColors.textMuted),
           ),
           const SizedBox(height: 8),
           ...r.classes.take(6).map((cl) {
@@ -185,7 +185,7 @@ class _DefectModelCard extends StatelessWidget {
                   width: 120,
                   child: Text(cl.defectCode,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: ErpColors.textPrimary)),
+                      style: TextStyle(fontSize: 12, color: ErpColors.textPrimary)),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -202,19 +202,19 @@ class _DefectModelCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text('${cl.count}',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: ErpColors.textSecondary)),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: ErpColors.textSecondary)),
               ]),
             );
           }),
         ],
         const SizedBox(height: 10),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Icon(Icons.auto_awesome, size: 12, color: ErpColors.accentBlue),
+          Icon(Icons.auto_awesome, size: 12, color: ErpColors.accentBlue),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               '${r.aiAssistedShare}% of these were AI-assisted then verified by an inspector — the corrections are the training signal.',
-              style: const TextStyle(fontSize: 11, color: ErpColors.textMuted, height: 1.4),
+              style: TextStyle(fontSize: 11, color: ErpColors.textMuted, height: 1.4),
             ),
           ),
         ]),

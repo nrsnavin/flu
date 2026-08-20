@@ -58,7 +58,7 @@ class _SupplierDetailPageState extends State<SupplierDetailPage> {
       appBar: _appBar(context),
       body: Obx(() {
         if (_c.isLoading.value) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(
                   color: ErpColors.accentBlue));
         }
@@ -121,7 +121,7 @@ class _SupplierDetailPageState extends State<SupplierDetailPage> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 4,
-      title: const Flexible(
+      title: Flexible(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -201,7 +201,7 @@ class _HeroCard extends StatelessWidget {
         // Navy gradient top band
         Container(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [ErpColors.navyDark, Color(0xFF0D1F35)],
               begin: Alignment.topLeft,
@@ -247,7 +247,7 @@ class _HeroCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis),
                   if (dateStr != null)
                     Text('Added $dateStr',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textOnDarkSub,
                             fontSize: 11)),
                 ],
@@ -304,7 +304,7 @@ class _QuickInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Text(value,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: ErpColors.textPrimary),
@@ -338,7 +338,7 @@ class _InfoSection extends StatelessWidget {
             Container(
               padding:
               const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: ErpColors.bgMuted,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
                 border: Border(
@@ -415,7 +415,7 @@ class _PurchaseOrdersSection extends StatelessWidget {
             Container(
               padding:
               const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: ErpColors.bgMuted,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
                 border: Border(
@@ -429,7 +429,7 @@ class _PurchaseOrdersSection extends StatelessWidget {
                     decoration: BoxDecoration(
                         color: ErpColors.warningAmber,
                         borderRadius: BorderRadius.circular(2))),
-                const Icon(Icons.assignment_outlined,
+                Icon(Icons.assignment_outlined,
                     size: 13, color: ErpColors.textSecondary),
                 const SizedBox(width: 6),
                 Text('PURCHASE ORDERS',
@@ -449,7 +449,7 @@ class _PurchaseOrdersSection extends StatelessWidget {
                         ErpColors.warningAmber.withOpacity(0.35)),
                   ),
                   child: Text('${c.pos.length}',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.warningAmber,
                           fontSize: 11,
                           fontWeight: FontWeight.w800)),
@@ -459,7 +459,7 @@ class _PurchaseOrdersSection extends StatelessWidget {
 
             Obx(() {
               if (c.isPosLoading.value) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.all(24),
                   child: Center(
                       child: CircularProgressIndicator(
@@ -467,7 +467,7 @@ class _PurchaseOrdersSection extends StatelessWidget {
                 );
               }
               if (c.pos.isEmpty) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.symmetric(vertical: 20),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -489,7 +489,7 @@ class _PurchaseOrdersSection extends StatelessWidget {
                   ...c.pos.map((po) => _PoCard(po: po)),
                   // Load-more
                   if (c.isPosMoreLoading.value)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Center(
                           child: CircularProgressIndicator(
@@ -501,13 +501,13 @@ class _PurchaseOrdersSection extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: () => c.fetchPos(),
                         style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
+                            side: BorderSide(
                                 color: ErpColors.borderMid),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(6))),
-                        icon: const Icon(Icons.expand_more,
+                        icon: Icon(Icons.expand_more,
                             size: 16, color: ErpColors.textSecondary),
-                        label: const Text('Load more',
+                        label: Text('Load more',
                             style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontWeight: FontWeight.w600)),
@@ -519,7 +519,7 @@ class _PurchaseOrdersSection extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'All ${c.pos.length} orders shown',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textMuted, fontSize: 11),
                           ),
                         ),
@@ -584,11 +584,11 @@ class _PoCard extends StatelessWidget {
           children: [
             // Top row: PO number + status
             Row(children: [
-              const Icon(Icons.assignment_outlined,
+              Icon(Icons.assignment_outlined,
                   size: 14, color: ErpColors.textMuted),
               const SizedBox(width: 5),
               Text('PO #$poNo',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                       color: ErpColors.textPrimary)),
@@ -607,7 +607,7 @@ class _PoCard extends StatelessWidget {
               ),
             ]),
             const SizedBox(height: 8),
-            const Divider(height: 1, color: ErpColors.borderLight),
+            Divider(height: 1, color: ErpColors.borderLight),
             const SizedBox(height: 8),
             // Meta row
             Row(children: [
@@ -619,7 +619,7 @@ class _PoCard extends StatelessWidget {
               const Spacer(),
               if (createdStr != null)
                 Text(createdStr,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textMuted, fontSize: 10)),
             ]),
             // Items preview
@@ -643,7 +643,7 @@ class _PoCard extends StatelessWidget {
                       border: Border.all(color: ErpColors.borderLight),
                     ),
                     child: Text('$matName · $qty',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 10,
                             color: ErpColors.textSecondary)),
                   );
@@ -666,7 +666,7 @@ class _PoMeta extends StatelessWidget {
       Icon(icon, size: 12, color: ErpColors.textMuted),
       const SizedBox(width: 4),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 11)),
     ],
   );
@@ -685,15 +685,15 @@ class _DeactivateButton extends StatelessWidget {
       return OutlinedButton.icon(
         onPressed: () => _confirmDeactivate(context),
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: ErpColors.errorRed),
+          side: BorderSide(color: ErpColors.errorRed),
           padding:
           const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6)),
         ),
-        icon: const Icon(Icons.block_outlined,
+        icon: Icon(Icons.block_outlined,
             size: 16, color: ErpColors.errorRed),
-        label: const Text('Deactivate Supplier',
+        label: Text('Deactivate Supplier',
             style: TextStyle(
                 color: ErpColors.errorRed,
                 fontWeight: FontWeight.w600)),
@@ -715,7 +715,7 @@ class _DeactivateButton extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel',
+            child: Text('Cancel',
                 style:
                 TextStyle(color: ErpColors.textSecondary)),
           ),
@@ -752,17 +752,17 @@ class _ErrorBody extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(32),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.cloud_off_outlined,
+        Icon(Icons.cloud_off_outlined,
             size: 48, color: ErpColors.textMuted),
         const SizedBox(height: 14),
-        const Text('Failed to load supplier',
+        Text('Failed to load supplier',
             style: TextStyle(
                 color: ErpColors.textPrimary,
                 fontSize: 15,
                 fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
         Text(msg,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 12),
             textAlign: TextAlign.center),
         const SizedBox(height: 20),

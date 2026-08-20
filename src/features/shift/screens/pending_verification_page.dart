@@ -35,12 +35,12 @@ class PendingVerificationPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline,
+                  Icon(Icons.error_outline,
                       size: 48, color: ErpColors.errorRed),
                   const SizedBox(height: 8),
                   Text(c.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontSize: 13)),
                   const SizedBox(height: 12),
@@ -55,7 +55,7 @@ class PendingVerificationPage extends StatelessWidget {
           );
         }
         if (c.items.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -127,10 +127,10 @@ class PendingVerificationPage extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.verified_outlined,
+                Icon(Icons.verified_outlined,
                     color: ErpColors.accentBlue),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text('Verify Shift Production',
                       style: TextStyle(
                           fontSize: 16,
@@ -146,7 +146,7 @@ class PendingVerificationPage extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Worker submitted ${submittedProd.toStringAsFixed(0)} m. Adjust if needed; the value you enter is final.',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textSecondary, fontSize: 12),
             ),
             const SizedBox(height: 14),
@@ -156,7 +156,7 @@ class PendingVerificationPage extends StatelessWidget {
                   const TextInputType.numberWithOptions(decimal: true),
               decoration: ErpDecorations.formInput(
                 'Final Production (m) *',
-                prefix: const Icon(Icons.straighten_outlined,
+                prefix: Icon(Icons.straighten_outlined,
                     size: 16, color: ErpColors.textMuted),
               ),
             ),
@@ -167,7 +167,7 @@ class PendingVerificationPage extends StatelessWidget {
                   controller: timerCtrl,
                   decoration: ErpDecorations.formInput(
                     'Timer (HH:MM:SS)',
-                    prefix: const Icon(Icons.timer_outlined,
+                    prefix: Icon(Icons.timer_outlined,
                         size: 16, color: ErpColors.textMuted),
                   ),
                 ),
@@ -283,30 +283,30 @@ class _ShiftCard extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: ErpColors.warningAmber.withOpacity(0.10),
-              border: const Border(
+              border: Border(
                   bottom: BorderSide(color: ErpColors.borderLight)),
               borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(8)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.hourglass_top_rounded,
+                Icon(Icons.hourglass_top_rounded,
                     color: ErpColors.warningAmber, size: 14),
                 const SizedBox(width: 6),
                 Text(empName,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary,
                         fontSize: 13,
                         fontWeight: FontWeight.w800)),
                 if (dept.isNotEmpty) ...[
                   const SizedBox(width: 6),
                   Text('· $dept',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textMuted, fontSize: 11)),
                 ],
                 const Spacer(),
                 Text(shiftType.toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.warningAmber,
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -349,7 +349,7 @@ class _ShiftCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('SUBMITTED BY WORKER',
+                      Text('SUBMITTED BY WORKER',
                           style: TextStyle(
                               color: ErpColors.textSecondary,
                               fontSize: 10,
@@ -357,22 +357,22 @@ class _ShiftCard extends StatelessWidget {
                               letterSpacing: 0.6)),
                       const SizedBox(height: 6),
                       Row(children: [
-                        const Icon(Icons.straighten_outlined,
+                        Icon(Icons.straighten_outlined,
                             size: 13, color: ErpColors.textMuted),
                         const SizedBox(width: 4),
                         Text(
                           '${submittedProd.toStringAsFixed(submittedProd.truncateToDouble() == submittedProd ? 0 : 2)} m',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textPrimary,
                               fontSize: 14,
                               fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(width: 14),
-                        const Icon(Icons.timer_outlined,
+                        Icon(Icons.timer_outlined,
                             size: 13, color: ErpColors.textMuted),
                         const SizedBox(width: 4),
                         Text(submittedTimer.isNotEmpty ? submittedTimer : '—',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600)),
@@ -380,7 +380,7 @@ class _ShiftCard extends StatelessWidget {
                       if (submittedFeedback.isNotEmpty) ...[
                         const SizedBox(height: 6),
                         Text(submittedFeedback,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 11,
                                 fontStyle: FontStyle.italic)),
@@ -388,7 +388,7 @@ class _ShiftCard extends StatelessWidget {
                       if (submittedLabel.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text('Submitted $submittedLabel',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textMuted,
                                 fontSize: 10)),
                       ],
@@ -429,7 +429,7 @@ class _MetaCell extends StatelessWidget {
               Icon(icon, size: 12, color: ErpColors.textMuted),
               const SizedBox(width: 4),
               Text(label.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted,
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
@@ -437,7 +437,7 @@ class _MetaCell extends StatelessWidget {
             ]),
             const SizedBox(height: 2),
             Text(value,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.w800),

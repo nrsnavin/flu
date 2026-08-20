@@ -183,7 +183,7 @@ class _AiHealthPageState extends State<AiHealthPage> {
                             ? 'An API key is present. The AI surfaces can run.'
                             : 'No API key on this server — every AI surface '
                                 'is silently doing nothing.',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13, color: ErpColors.textPrimary),
                       ),
                     ),
@@ -232,7 +232,7 @@ class _AiHealthPageState extends State<AiHealthPage> {
 
   Widget _windowPicker() => Obx(() => Row(
         children: [
-          const Text('Window',
+          Text('Window',
               style: TextStyle(fontSize: 12, color: ErpColors.textMuted)),
           const SizedBox(width: 10),
           for (final w in AiHealthController.windows)
@@ -266,10 +266,10 @@ class _AiHealthPageState extends State<AiHealthPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(m['id']?.toString() ?? '—',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13, color: ErpColors.textPrimary)),
                 Text(use,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11, color: ErpColors.textMuted)),
               ],
             ),
@@ -309,7 +309,7 @@ class _AiHealthPageState extends State<AiHealthPage> {
             children: [
               Expanded(
                 child: Text(s['surface']?.toString() ?? '—',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: ErpColors.textPrimary)),
@@ -343,7 +343,7 @@ class _AiHealthPageState extends State<AiHealthPage> {
               if (failed > 0) '$failed failed',
               if (latency != null) '${latency}ms avg',
             ].join('  ·  '),
-            style: const TextStyle(fontSize: 11, color: ErpColors.textMuted),
+            style: TextStyle(fontSize: 11, color: ErpColors.textMuted),
           ),
         ],
       ),
@@ -356,11 +356,11 @@ class _AiHealthPageState extends State<AiHealthPage> {
           children: [
             Expanded(
               child: Text(k,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12, color: ErpColors.textSecondary)),
             ),
             Text(v,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: ErpColors.textPrimary)),
@@ -369,7 +369,7 @@ class _AiHealthPageState extends State<AiHealthPage> {
       );
 
   Widget _quiet(String s) => Text(s,
-      style: const TextStyle(fontSize: 13, color: ErpColors.textSecondary));
+      style: TextStyle(fontSize: 13, color: ErpColors.textSecondary));
 
   Widget _banner(String title, String body) => Container(
         width: double.infinity,
@@ -383,13 +383,13 @@ class _AiHealthPageState extends State<AiHealthPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                     color: ErpColors.statusPartialText)),
             const SizedBox(height: 4),
             Text(body,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12, color: ErpColors.textSecondary)),
           ],
         ),
@@ -403,7 +403,7 @@ class _AiHealthPageState extends State<AiHealthPage> {
             children: [
               Text(text,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: ErpColors.textSecondary)),
+                  style: TextStyle(color: ErpColors.textSecondary)),
               if (onRetry != null) ...[
                 const SizedBox(height: 12),
                 OutlinedButton(
@@ -426,7 +426,7 @@ class _AiHealthPageState extends State<AiHealthPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: ErpColors.textPrimary)),
             const SizedBox(height: 8),

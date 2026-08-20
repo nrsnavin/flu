@@ -207,7 +207,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: ErpColors.statusApprovedBorder),
               ),
-              child: const Row(children: [
+              child: Row(children: [
                 Icon(Icons.info_outline,
                     size: 15, color: ErpColors.accentBlue),
                 SizedBox(width: 8),
@@ -272,7 +272,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 4,
-      title: const Column(
+      title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -298,7 +298,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
       lastDate: DateTime.now(),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(
+          colorScheme: ColorScheme.light(
             primary: ErpColors.accentBlue,
             onPrimary: Colors.white,
           ),

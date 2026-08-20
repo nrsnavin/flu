@@ -101,7 +101,7 @@ class _LoginState extends State<Login> {
                       border: Border.all(
                           color: ErpColors.accentBlue.withOpacity(0.4), width: 1.5),
                     ),
-                    child: const Icon(Icons.factory_rounded,
+                    child: Icon(Icons.factory_rounded,
                         size: 36, color: ErpColors.accentBlue),
                   ),
                   const SizedBox(height: 16),
@@ -112,7 +112,7 @@ class _LoginState extends State<Login> {
                           fontWeight: FontWeight.w900,
                           letterSpacing: 3)),
                   const SizedBox(height: 4),
-                  const Text('Factory ERP System',
+                  Text('Factory ERP System',
                       style: TextStyle(
                           color: ErpColors.textOnDarkSub, fontSize: 12, letterSpacing: 0.8)),
                 ]),
@@ -124,7 +124,7 @@ class _LoginState extends State<Login> {
           Expanded(
             flex: 7,
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: ErpColors.bgBase,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -144,11 +144,11 @@ class _LoginState extends State<Login> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Sign in',
+        Text('Sign in',
             style: TextStyle(
                 fontSize: 22, fontWeight: FontWeight.w900, color: ErpColors.textPrimary)),
         const SizedBox(height: 4),
-        const Text("Enter your email and we'll send you a sign-in code",
+        Text("Enter your email and we'll send you a sign-in code",
             style: TextStyle(color: ErpColors.textSecondary, fontSize: 13)),
         const SizedBox(height: 28),
         Form(
@@ -161,7 +161,7 @@ class _LoginState extends State<Login> {
             decoration: ErpDecorations.formInput(
               'Email',
               hint: 'Enter your email address',
-              prefix: const Icon(Icons.mail_outline_rounded,
+              prefix: Icon(Icons.mail_outline_rounded,
                   size: 18, color: ErpColors.textMuted),
             ),
             validator: (v) {
@@ -180,7 +180,7 @@ class _LoginState extends State<Login> {
               onPressed: _sendCode,
             )),
         const SizedBox(height: 28),
-        const Center(
+        Center(
           child: Text('Anu Tapes Factory ERP  ·  v1.0',
               style: TextStyle(color: ErpColors.textMuted, fontSize: 11)),
         ),
@@ -193,18 +193,18 @@ class _LoginState extends State<Login> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Enter your code',
+        Text('Enter your code',
             style: TextStyle(
                 fontSize: 22, fontWeight: FontWeight.w900, color: ErpColors.textPrimary)),
         const SizedBox(height: 4),
         Text.rich(
           TextSpan(
-            style: const TextStyle(color: ErpColors.textSecondary, fontSize: 13),
+            style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
             children: [
               const TextSpan(text: 'We sent a 6-digit code to '),
               TextSpan(
                   text: _emailCtrl.text.trim(),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textPrimary, fontWeight: FontWeight.w700)),
               const TextSpan(text: '. It expires in 10 minutes.'),
             ],
@@ -222,7 +222,7 @@ class _LoginState extends State<Login> {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(6),
             ],
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 12,
@@ -261,8 +261,8 @@ class _LoginState extends State<Login> {
                   _otpCtrl.clear();
                 });
               },
-              icon: const Icon(Icons.arrow_back_ios_new, size: 13, color: ErpColors.accentBlue),
-              label: const Text('Change email',
+              icon: Icon(Icons.arrow_back_ios_new, size: 13, color: ErpColors.accentBlue),
+              label: Text('Change email',
                   style: TextStyle(
                       color: ErpColors.accentBlue, fontSize: 13, fontWeight: FontWeight.w700)),
             ),

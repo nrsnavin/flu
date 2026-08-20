@@ -30,7 +30,7 @@ class _CustomerDetailView extends StatelessWidget {
       appBar: _buildAppBar(context),
       body: Obx(() {
         if (c.loading.value) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue),
           );
         }
@@ -106,7 +106,7 @@ class _CustomerDetailView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
-          children: const [
+          children: [
             Text("Customer Details", style: ErpTextStyles.pageTitle,
                 overflow: TextOverflow.ellipsis),
             Text("Customers  ›  Details",
@@ -203,7 +203,7 @@ class _HeroCard extends StatelessWidget {
           // Top navy band
           Container(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.navyDark,
               borderRadius:
                   BorderRadius.vertical(top: Radius.circular(8)),
@@ -249,7 +249,7 @@ class _HeroCard extends StatelessWidget {
                       if (dateStr != null)
                         Text(
                           "Added $dateStr",
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textOnDarkSub,
                               fontSize: 11),
                         ),
@@ -313,7 +313,7 @@ class _QuickInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Text(
       value,
-      style: const TextStyle(
+      style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w500,
           color: ErpColors.textPrimary),
@@ -353,7 +353,7 @@ class _InfoSection extends StatelessWidget {
           Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               borderRadius:
                   BorderRadius.vertical(top: Radius.circular(8)),
@@ -457,15 +457,15 @@ class _DeactivateButton extends StatelessWidget {
       return OutlinedButton.icon(
         onPressed: () => _confirmDeactivate(context),
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: ErpColors.errorRed),
+          side: BorderSide(color: ErpColors.errorRed),
           padding:
               const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6)),
         ),
-        icon: const Icon(Icons.block_outlined,
+        icon: Icon(Icons.block_outlined,
             size: 16, color: ErpColors.errorRed),
-        label: const Text(
+        label: Text(
           "Deactivate Customer",
           style: TextStyle(
               color: ErpColors.errorRed, fontWeight: FontWeight.w600),
@@ -487,7 +487,7 @@ class _DeactivateButton extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text("Cancel",
+            child: Text("Cancel",
                 style: TextStyle(color: ErpColors.textSecondary)),
           ),
           ElevatedButton(

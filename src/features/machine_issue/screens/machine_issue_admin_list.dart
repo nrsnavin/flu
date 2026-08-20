@@ -37,7 +37,7 @@ class MachineIssueAdminListPage extends StatelessWidget {
           Expanded(
             child: Obx(() {
               if (c.loading.value && c.items.isEmpty) {
-                return const Center(
+                return Center(
                   child: CircularProgressIndicator(
                     color: ErpColors.accentBlue,
                   ),
@@ -171,7 +171,7 @@ class _IssueCard extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -183,14 +183,14 @@ class _IssueCard extends StatelessWidget {
             ]),
             const SizedBox(height: 8),
             Row(children: [
-              const Icon(Icons.precision_manufacturing_outlined,
+              Icon(Icons.precision_manufacturing_outlined,
                   size: 12, color: ErpColors.textMuted),
               const SizedBox(width: 4),
               Text(machineId,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 11)),
               const SizedBox(width: 12),
-              const Icon(Icons.person_outline,
+              Icon(Icons.person_outline,
                   size: 12, color: ErpColors.textMuted),
               const SizedBox(width: 4),
               Flexible(
@@ -198,7 +198,7 @@ class _IssueCard extends StatelessWidget {
                   dept.isEmpty ? empName : '$empName · $dept',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 11),
                 ),
               ),
@@ -206,7 +206,7 @@ class _IssueCard extends StatelessWidget {
             if (when.isNotEmpty) ...[
               const SizedBox(height: 6),
               Text(when,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 10)),
             ],
           ],
@@ -289,25 +289,25 @@ class _Empty extends StatelessWidget {
             Icon(icon, size: 48, color: ErpColors.textMuted),
             const SizedBox(height: 12),
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                     color: ErpColors.textPrimary)),
             const SizedBox(height: 4),
             Text(subtitle,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12, color: ErpColors.textSecondary)),
             const SizedBox(height: 14),
             OutlinedButton(
               onPressed: onTap,
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.accentBlue),
+                side: BorderSide(color: ErpColors.accentBlue),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
               ),
               child: Text(cta,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.accentBlue,
                       fontWeight: FontWeight.w700)),
             ),

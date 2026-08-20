@@ -71,7 +71,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                 children: [
                   Text(c.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: ErpColors.textSecondary)),
+                      style: TextStyle(color: ErpColors.textSecondary)),
                   const SizedBox(height: 12),
                   OutlinedButton(
                       onPressed: c.fetch, child: const Text('Try again')),
@@ -126,7 +126,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Trace this back to its yarn lots and forward to every '
                     'other job that used them.',
                     style: TextStyle(
@@ -148,18 +148,18 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
             ),
           if (c.traceError.value != null)
             Text(c.traceError.value!,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12, color: ErpColors.textSecondary)),
           if (t != null && t.isEmpty)
             // A real, reassuring answer — not a blank panel that could
             // equally mean the trace failed.
-            const Text(
+            Text(
               'No other jobs share a yarn lot with this one.',
               style: TextStyle(fontSize: 13, color: ErpColors.textSecondary),
             ),
           if (t != null && !t.isEmpty) ...[
             if (t.lots.isNotEmpty) ...[
-              const Text('Lots involved',
+              Text('Lots involved',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -170,7 +170,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
             ],
             if (t.exposedJobs.isNotEmpty) ...[
               Text('${t.exposedJobs.length} other job(s) exposed',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: ErpColors.textSecondary)),
@@ -180,7 +180,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
             if (t.note != null) ...[
               const SizedBox(height: 8),
               Text(t.note!,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11, color: ErpColors.textMuted)),
             ],
           ],
@@ -200,7 +200,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
           Expanded(
             child: Text(
               a == null || a.isEmpty ? '—' : a,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: ErpColors.textPrimary),
@@ -208,7 +208,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
           ),
           if (b != null && b.isNotEmpty)
             Text(b,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12, color: ErpColors.textSecondary)),
         ],
       ),
@@ -227,7 +227,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: ErpColors.textPrimary)),
             const SizedBox(height: 8),
@@ -238,7 +238,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
 
   Widget _prose(String title, String body) => _card(title, [
         Text(body,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 13, color: ErpColors.textPrimary, height: 1.4)),
       ]);
 
@@ -250,12 +250,12 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
             SizedBox(
               width: 90,
               child: Text(label,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12, color: ErpColors.textMuted)),
             ),
             Expanded(
               child: Text(value,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 13, color: ErpColors.textPrimary)),
             ),
           ],

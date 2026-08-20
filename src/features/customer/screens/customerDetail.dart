@@ -58,7 +58,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
       appBar: _buildAppBar(context),
       body: Obx(() {
         if (_c.loading.value) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         final data = _c.customerData;
@@ -134,7 +134,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 4,
-      title: const Flexible(
+      title: Flexible(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -222,12 +222,12 @@ class _RunningOrdersSection extends StatelessWidget {
                 color: ErpColors.accentBlue.withOpacity(0.35)),
           ),
           child: Text('${orders.length}',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.accentBlue,
                   fontSize: 11, fontWeight: FontWeight.w800)),
         ),
         child: loading
-            ? const Padding(
+            ? Padding(
             padding: EdgeInsets.all(20),
             child: Center(
                 child: CircularProgressIndicator(
@@ -266,7 +266,7 @@ class _PastOrdersSection extends StatelessWidget {
         icon: Icons.history_rounded,
         accentColor: ErpColors.textMuted,
         child: loading
-            ? const Padding(
+            ? Padding(
             padding: EdgeInsets.all(20),
             child: Center(
                 child: CircularProgressIndicator(
@@ -281,7 +281,7 @@ class _PastOrdersSection extends StatelessWidget {
                 _OrderCard(order: o, isRunning: false)),
             // Load-more footer
             if (oc.isLoadingMore.value)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 14),
                 child: Center(
                     child: CircularProgressIndicator(
@@ -293,15 +293,15 @@ class _PastOrdersSection extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => oc.fetchOrders(),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(
+                    side: BorderSide(
                         color: ErpColors.borderMid),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6)),
                   ),
-                  icon: const Icon(Icons.expand_more,
+                  icon: Icon(Icons.expand_more,
                       size: 16,
                       color: ErpColors.textSecondary),
-                  label: const Text('Load more',
+                  label: Text('Load more',
                       style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontWeight: FontWeight.w600)),
@@ -313,7 +313,7 @@ class _PastOrdersSection extends StatelessWidget {
                   child: Center(
                     child: Text(
                       'All ${orders.length} past order${orders.length == 1 ? '' : 's'} shown',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textMuted,
                           fontSize: 11),
                     ),
@@ -399,19 +399,19 @@ class _OrderCard extends StatelessWidget {
           Row(children: [
             Expanded(
               child: Row(children: [
-                const Icon(Icons.receipt_long_outlined,
+                Icon(Icons.receipt_long_outlined,
                     size: 14, color: ErpColors.textMuted),
                 const SizedBox(width: 5),
                 Text(
                   'Order #$orderNo',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w800,
                       color: ErpColors.textPrimary),
                 ),
                 if (po.isNotEmpty && po != '—') ...[
                   const SizedBox(width: 6),
                   Text('· PO: $po',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 11, color: ErpColors.textSecondary)),
                 ],
               ]),
@@ -431,7 +431,7 @@ class _OrderCard extends StatelessWidget {
           ]),
 
           const SizedBox(height: 8),
-          const Divider(height: 1, color: ErpColors.borderLight),
+          Divider(height: 1, color: ErpColors.borderLight),
           const SizedBox(height: 8),
 
           // Meta row: quantity + dates
@@ -445,7 +445,7 @@ class _OrderCard extends StatelessWidget {
             const Spacer(),
             if (createdStr != null)
               Text(createdStr,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 10)),
           ]),
         ]),
@@ -465,7 +465,7 @@ class _Meta extends StatelessWidget {
       Icon(icon, size: 12, color: ErpColors.textMuted),
       const SizedBox(width: 4),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 11)),
     ],
   );
@@ -478,10 +478,10 @@ class _NoOrders extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 18),
     child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      const Icon(Icons.inbox_outlined, size: 18, color: ErpColors.textMuted),
+      Icon(Icons.inbox_outlined, size: 18, color: ErpColors.textMuted),
       const SizedBox(width: 8),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted, fontSize: 13)),
     ]),
   );
@@ -495,20 +495,20 @@ class _OrderError extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.all(16),
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.cloud_off_outlined,
+      Icon(Icons.cloud_off_outlined,
           size: 28, color: ErpColors.textMuted),
       const SizedBox(height: 6),
       Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 10),
       OutlinedButton.icon(
         onPressed: onRetry,
         style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: ErpColors.borderMid)),
-        icon: const Icon(Icons.refresh, size: 14, color: ErpColors.textSecondary),
-        label: const Text('Retry',
+            side: BorderSide(color: ErpColors.borderMid)),
+        icon: Icon(Icons.refresh, size: 14, color: ErpColors.textSecondary),
+        label: Text('Retry',
             style: TextStyle(color: ErpColors.textSecondary)),
       ),
     ]),
@@ -543,7 +543,7 @@ class _SectionShell extends StatelessWidget {
       // Header
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgMuted,
           borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
           border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -606,7 +606,7 @@ class _HeroCard extends StatelessWidget {
         // Navy band
         Container(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.navyDark,
             borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
           ),
@@ -640,7 +640,7 @@ class _HeroCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis),
                   if (dateStr != null)
                     Text('Added $dateStr',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textOnDarkSub, fontSize: 11)),
                 ],
               ),
@@ -687,7 +687,7 @@ class _QuickInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Text(value,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 13, fontWeight: FontWeight.w500,
             color: ErpColors.textPrimary),
         overflow: overflow ? TextOverflow.ellipsis : null);
@@ -719,7 +719,7 @@ class _InfoSection extends StatelessWidget {
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgMuted,
           borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
           border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -801,13 +801,13 @@ class _DeactivateButton extends StatelessWidget {
     return OutlinedButton.icon(
       onPressed: () => _confirmDeactivate(context),
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: ErpColors.errorRed),
+        side: BorderSide(color: ErpColors.errorRed),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       ),
-      icon: const Icon(Icons.block_outlined,
+      icon: Icon(Icons.block_outlined,
           size: 16, color: ErpColors.errorRed),
-      label: const Text('Deactivate Customer',
+      label: Text('Deactivate Customer',
           style: TextStyle(
               color: ErpColors.errorRed, fontWeight: FontWeight.w600)),
     );
@@ -826,7 +826,7 @@ class _DeactivateButton extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel',
+            child: Text('Cancel',
                 style: TextStyle(color: ErpColors.textSecondary)),
           ),
           ElevatedButton(

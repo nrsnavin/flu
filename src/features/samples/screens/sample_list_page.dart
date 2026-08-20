@@ -55,10 +55,10 @@ class _SampleListPageViewState extends State<SampleListPageView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("Sample Requests", style: ErpTextStyles.pageTitle),
+            Text("Sample Requests", style: ErpTextStyles.pageTitle),
             Obx(() => Text(
                   c.total.value == 1 ? "1 request" : "${c.total.value} requests",
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textOnDarkSub, fontSize: 10),
                 )),
           ],
@@ -167,9 +167,9 @@ class _SearchAndFilters extends StatelessWidget {
             decoration: InputDecoration(
               hintText: "Search title, customer or sample number…",
               hintStyle:
-                  const TextStyle(color: ErpColors.textMuted, fontSize: 12.5),
+                  TextStyle(color: ErpColors.textMuted, fontSize: 12.5),
               prefixIcon:
-                  const Icon(Icons.search, size: 18, color: ErpColors.textMuted),
+                  Icon(Icons.search, size: 18, color: ErpColors.textMuted),
               isDense: true,
               filled: true,
               fillColor: ErpColors.bgMuted,
@@ -177,14 +177,14 @@ class _SearchAndFilters extends StatelessWidget {
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6),
-                  borderSide: const BorderSide(color: ErpColors.borderLight)),
+                  borderSide: BorderSide(color: ErpColors.borderLight)),
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6),
-                  borderSide: const BorderSide(color: ErpColors.borderLight)),
+                  borderSide: BorderSide(color: ErpColors.borderLight)),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6),
                   borderSide:
-                      const BorderSide(color: ErpColors.accentBlue, width: 1.5)),
+                      BorderSide(color: ErpColors.accentBlue, width: 1.5)),
             ),
           ),
           const SizedBox(height: 8),
@@ -286,7 +286,7 @@ class _SampleCard extends StatelessWidget {
                         row.customerName.isEmpty
                             ? "No customer named"
                             : row.customerName,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textSecondary, fontSize: 11.5),
                       ),
                     ],
@@ -306,30 +306,30 @@ class _SampleCard extends StatelessWidget {
               child: Text(row.lastLine,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textPrimary, fontSize: 11.5, height: 1.3)),
             ),
             const SizedBox(height: 6),
             Row(children: [
               Text(row.code,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w700)),
               const SizedBox(width: 10),
-              const Icon(Icons.forum_outlined,
+              Icon(Icons.forum_outlined,
                   size: 12, color: ErpColors.textMuted),
               const SizedBox(width: 3),
               Text("${row.logCount}",
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 11)),
               if (row.photoCount > 0) ...[
                 const SizedBox(width: 10),
-                const Icon(Icons.photo_camera_outlined,
+                Icon(Icons.photo_camera_outlined,
                     size: 12, color: ErpColors.textMuted),
                 const SizedBox(width: 3),
                 Text("${row.photoCount}",
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textMuted, fontSize: 11)),
               ],
               const Spacer(),
@@ -339,7 +339,7 @@ class _SampleCard extends StatelessWidget {
                     : (row.createdAt != null
                         ? DateFormat('dd MMM').format(row.createdAt!)
                         : ""),
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted, fontSize: 11),
               ),
             ]),
@@ -406,7 +406,7 @@ class _Pager extends StatelessWidget {
                 icon: const Icon(Icons.chevron_left, size: 20),
               ),
               Text("Page ${c.page.value} of ${c.pages.value}",
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 12)),
               IconButton(
                 onPressed: c.page.value < c.pages.value
@@ -443,14 +443,14 @@ class _Message extends StatelessWidget {
             Icon(icon, size: 44, color: ErpColors.textMuted),
             const SizedBox(height: 12),
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary,
                     fontSize: 15,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
             Text(body,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted, fontSize: 13)),
             if (action != null) ...[const SizedBox(height: 8), action!],
           ],

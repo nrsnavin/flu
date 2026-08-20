@@ -120,7 +120,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w800)),
-            const Text('Stock ledger',
+            Text('Stock ledger',
                 style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 10)),
           ],
@@ -173,12 +173,12 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline,
+                  Icon(Icons.error_outline,
                       color: ErpColors.errorRed, size: 36),
                   const SizedBox(height: 10),
                   Text(c.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontSize: 13)),
                   const SizedBox(height: 10),
@@ -205,7 +205,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                 icon: Icons.history_rounded,
                 trailing: Text(
                   '${filtered.length}/${c.movements.length}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted,
                       fontSize: 10,
                       fontWeight: FontWeight.w700),
@@ -224,10 +224,10 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                         _refSearchCtrl.clear();
                       }),
                     ),
-                    const Divider(
+                    Divider(
                       height: 1, color: ErpColors.borderLight),
                     if (filtered.isEmpty)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.symmetric(vertical: 12),
                         child: Text(
                             'No movements match the current filters',
@@ -320,7 +320,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
         backgroundColor: ErpColors.bgSurface,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10)),
-        title: const Text('Set Min Stock',
+        title: Text('Set Min Stock',
             style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -329,7 +329,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'When on-hand stock falls at or below this value the elastic is flagged as LOW. Set to 0 to disable.',
               style: TextStyle(
                   color: ErpColors.textSecondary, fontSize: 11),
@@ -412,7 +412,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
               borderRadius: BorderRadius.circular(10)),
           title: Text(
               hasPrefill ? 'Reconcile Adjust' : 'Manual Stock Adjust',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: ErpColors.textPrimary)),
@@ -431,7 +431,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                           color: ErpColors.accentBlue.withOpacity(0.4)),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Row(children: [
+                    child: Row(children: [
                       Icon(Icons.fact_check_outlined,
                           color: ErpColors.accentBlue, size: 16),
                       SizedBox(width: 6),
@@ -463,7 +463,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                                     : ErpColors.borderLight),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text('+ ADD',
                                 style: TextStyle(
                                     fontSize: 12,
@@ -489,7 +489,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                                     : ErpColors.borderLight),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text('− REMOVE',
                                 style: TextStyle(
                                     fontSize: 12,
@@ -543,13 +543,13 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                       border: Border.all(color: ErpColors.borderLight),
                     ),
                     child: Row(children: [
-                      const Icon(Icons.preview_outlined,
+                      Icon(Icons.preview_outlined,
                           size: 14, color: ErpColors.textSecondary),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           'Stock will go from ${_fmtNum(currentStock)} → ${_fmtNum(newBalance)} m',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textPrimary,
                               fontSize: 11,
                               fontWeight: FontWeight.w700),
@@ -569,13 +569,13 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                           color: ErpColors.warningAmber.withOpacity(0.6)),
                     ),
                     child: Row(children: [
-                      const Icon(Icons.warning_amber_rounded,
+                      Icon(Icons.warning_amber_rounded,
                           size: 14, color: ErpColors.warningAmber),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           'Large adjust — ${_fmtNum(qtyNum)} m is over 20% of on-hand or > 100 m. A second confirm will be required.',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.warningAmber,
                               fontSize: 11,
                               fontWeight: FontWeight.w700),
@@ -657,7 +657,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
         backgroundColor: ErpColors.bgSurface,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10)),
-        title: const Text('Confirm large adjust',
+        title: Text('Confirm large adjust',
             style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -669,13 +669,13 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
             Text(
               'You are ${isAdd ? 'adding' : 'removing'} '
               '${_fmtNum(qty)} m (${(qty / (before == 0 ? qty : before) * 100).toStringAsFixed(0)}% of on-hand).',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textPrimary, fontSize: 13),
             ),
             const SizedBox(height: 8),
             Text(
               'Balance: ${_fmtNum(before)} → ${_fmtNum(after)} m',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.warningAmber,
                   fontSize: 13,
                   fontWeight: FontWeight.w800),
@@ -726,14 +726,14 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
           backgroundColor: ErpColors.bgSurface,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10)),
-          title: const Text('Override magnitude cap?',
+          title: Text('Override magnitude cap?',
               style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: ErpColors.textPrimary)),
           content: Text(
             res.message ?? 'Backend cap triggered.',
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 12),
           ),
           actions: [
@@ -841,21 +841,21 @@ class _TimelineFilters extends StatelessWidget {
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 8),
                     hintText: 'Search ref id / type / reason',
-                    hintStyle: const TextStyle(
+                    hintStyle: TextStyle(
                         color: ErpColors.textMuted, fontSize: 11),
-                    prefixIcon: const Icon(Icons.search,
+                    prefixIcon: Icon(Icons.search,
                         size: 14, color: ErpColors.textMuted),
                     prefixIconConstraints:
                         const BoxConstraints(minWidth: 28, minHeight: 28),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(6),
                       borderSide:
-                          const BorderSide(color: ErpColors.borderLight),
+                          BorderSide(color: ErpColors.borderLight),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(6),
                       borderSide:
-                          const BorderSide(color: ErpColors.borderLight),
+                          BorderSide(color: ErpColors.borderLight),
                     ),
                   ),
                 ),
@@ -983,7 +983,7 @@ class _OnHandHero extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text('ON HAND',
+                Text('ON HAND',
                     style: TextStyle(
                         color: ErpColors.textOnDarkSub,
                         fontSize: 10,
@@ -1038,7 +1038,7 @@ class _OnHandHero extends StatelessWidget {
                       fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(width: 6),
-                const Text('m',
+                Text('m',
                     style: TextStyle(
                         color: ErpColors.textOnDarkSub,
                         fontSize: 16,
@@ -1049,7 +1049,7 @@ class _OnHandHero extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(lastLabel,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textOnDarkSub, fontSize: 11)),
               ),
             if (overReserved)
@@ -1115,7 +1115,7 @@ class _MiniStat extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(label.toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textOnDarkSub,
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
@@ -1240,7 +1240,7 @@ class _MovementRow extends StatelessWidget {
                             color: ErpColors.warningAmber.withOpacity(0.6)),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text('CLAMPED',
+                      child: Text('CLAMPED',
                           style: TextStyle(
                               color: ErpColors.warningAmber,
                               fontSize: 8,
@@ -1264,7 +1264,7 @@ class _MovementRow extends StatelessWidget {
                   Expanded(
                     child: Text(
                       sub.isNotEmpty ? sub : when,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontSize: 11),
                       overflow: TextOverflow.ellipsis,
@@ -1272,7 +1272,7 @@ class _MovementRow extends StatelessWidget {
                   ),
                   if (!isInfoOnly)
                     Text('Bal: ${_fmtNum(balance)} m',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textMuted,
                             fontSize: 10,
                             fontWeight: FontWeight.w700)),
@@ -1281,7 +1281,7 @@ class _MovementRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     'Requested ${_fmtNum(requested)} m — reduced to ${_fmtNum(applied)} m by zero-floor',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.warningAmber,
                         fontSize: 10,
                         fontWeight: FontWeight.w600),
@@ -1290,7 +1290,7 @@ class _MovementRow extends StatelessWidget {
                 if (sub.isNotEmpty && when.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(when,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textMuted, fontSize: 10)),
                 ],
               ],
@@ -1387,14 +1387,14 @@ class _MovementDetailSheet extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(label,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
                         color: ErpColors.textPrimary)),
               ),
               GestureDetector(
                 onTap: () => Navigator.of(context).pop(),
-                child: const Icon(Icons.close_rounded,
+                child: Icon(Icons.close_rounded,
                     color: ErpColors.textMuted, size: 20),
               ),
             ]),
@@ -1429,7 +1429,7 @@ class _MovementDetailSheet extends StatelessWidget {
                       color: ErpColors.warningAmber.withOpacity(0.5)),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Row(children: const [
+                child: Row(children: [
                   Icon(Icons.warning_amber_rounded,
                       size: 14, color: ErpColors.warningAmber),
                   SizedBox(width: 6),
@@ -1485,7 +1485,7 @@ class _ValueBox extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted,
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
@@ -1514,14 +1514,14 @@ class _Row extends StatelessWidget {
           SizedBox(
             width: 100,
             child: Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w600)),
           ),
           Expanded(
             child: Text(value,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.w700),

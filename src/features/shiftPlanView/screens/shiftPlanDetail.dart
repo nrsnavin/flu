@@ -52,7 +52,7 @@ class _ShiftPlanDetailPageState extends State<ShiftPlanDetailPage> {
       appBar: _appBar(),
       body: Obx(() {
         if (c.isLoading.value) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue),
           );
         }
@@ -87,7 +87,7 @@ class _ShiftPlanDetailPageState extends State<ShiftPlanDetailPage> {
           if (d != null)
             Text(
                 '${d.shift} · ${DateFormat('dd MMM yyyy').format(d.date)}',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 10)),
         ],
       );
@@ -211,7 +211,7 @@ class _HeroCard extends StatelessWidget {
           // Date
           Text(
             DateFormat('dd MMM yyyy').format(detail.date),
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textOnDarkSub,
                 fontSize: 12, fontWeight: FontWeight.w600),
           ),
@@ -227,7 +227,7 @@ class _HeroCard extends StatelessWidget {
                 color: Colors.white, fontSize: 36,
                 fontWeight: FontWeight.w900, height: 1),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(bottom: 4, left: 4),
             child: Text('m',
                 style: TextStyle(
@@ -236,7 +236,7 @@ class _HeroCard extends StatelessWidget {
           ),
         ]),
         const SizedBox(height: 2),
-        const Text('Total Production',
+        Text('Total Production',
             style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 11)),
 
         if (detail.description.isNotEmpty) ...[
@@ -248,12 +248,12 @@ class _HeroCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Row(children: [
-              const Icon(Icons.notes_rounded,
+              Icon(Icons.notes_rounded,
                   color: ErpColors.textOnDarkSub, size: 13),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(detail.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textOnDarkSub,
                         fontSize: 11, fontStyle: FontStyle.italic)),
               ),
@@ -304,7 +304,7 @@ class _HeroChip extends StatelessWidget {
                 color: Colors.white, fontSize: 11,
                 fontWeight: FontWeight.w800)),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textOnDarkSub, fontSize: 8)),
       ]),
     ]),
@@ -370,11 +370,11 @@ class _DraftBanner extends StatelessWidget {
           color: ErpColors.warningAmber.withOpacity(0.15),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: const Icon(Icons.drafts_outlined,
+        child: Icon(Icons.drafts_outlined,
             size: 18, color: ErpColors.warningAmber),
       ),
       const SizedBox(width: 12),
-      const Expanded(
+      Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('This plan is a DRAFT',
               style: TextStyle(
@@ -409,7 +409,7 @@ class _MachinesSection extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: ErpColors.borderLight),
         ),
-        child: const Center(
+        child: Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.precision_manufacturing_outlined,
                 size: 40, color: ErpColors.textMuted),
@@ -482,7 +482,7 @@ class _MachineRow extends StatelessWidget {
                   color: ErpColors.accentBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(7),
                 ),
-                child: const Icon(Icons.precision_manufacturing_outlined,
+                child: Icon(Icons.precision_manufacturing_outlined,
                     size: 18, color: ErpColors.accentBlue),
               ),
               const SizedBox(width: 10),
@@ -491,20 +491,20 @@ class _MachineRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(machine.machineName,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w800,
                             color: ErpColors.textPrimary)),
                     Row(children: [
                       Text('Job #${machine.jobOrderNo}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textSecondary, fontSize: 11)),
                       const SizedBox(width: 6),
-                      const Icon(Icons.person_outline_rounded,
+                      Icon(Icons.person_outline_rounded,
                           size: 10, color: ErpColors.textMuted),
                       const SizedBox(width: 2),
                       Expanded(
                         child: Text(machine.operatorName,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textMuted, fontSize: 10),
                             overflow: TextOverflow.ellipsis),
                       ),
@@ -605,7 +605,7 @@ class _MachineRow extends StatelessWidget {
                 border: Border(
                     top: BorderSide(color: ErpColors.borderLight)),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.touch_app_outlined,
@@ -643,13 +643,13 @@ class _Stat extends StatelessWidget {
           Icon(icon, size: 10, color: ErpColors.textMuted),
           const SizedBox(width: 3),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textMuted, fontSize: 8,
                   fontWeight: FontWeight.w600, letterSpacing: 0.3)),
         ]),
         const SizedBox(height: 3),
         Text(value,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textPrimary,
                 fontSize: 11, fontWeight: FontWeight.w700),
             overflow: TextOverflow.ellipsis),
@@ -671,7 +671,7 @@ class _ConfirmBar extends StatelessWidget {
         16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
     decoration: BoxDecoration(
       color: ErpColors.bgSurface,
-      border: const Border(top: BorderSide(color: ErpColors.borderLight)),
+      border: Border(top: BorderSide(color: ErpColors.borderLight)),
       boxShadow: [
         BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -754,13 +754,13 @@ class _ConfirmDialog extends StatelessWidget {
               border: Border.all(
                   color: ErpColors.successGreen.withOpacity(0.3), width: 2),
             ),
-            child: const Icon(Icons.check_circle_outline_rounded,
+            child: Icon(Icons.check_circle_outline_rounded,
                 color: ErpColors.successGreen, size: 32),
           ),
           const SizedBox(height: 16),
 
           // ── Title ────────────────────────────────────────
-          const Text(
+          Text(
             'Confirm Shift Plan?',
             style: TextStyle(
                 color: ErpColors.textPrimary,
@@ -772,7 +772,7 @@ class _ConfirmDialog extends StatelessWidget {
             'This will activate the ${detail.shift} shift plan for '
                 '${DateFormat('dd MMM yyyy').format(detail.date)}. '
                 'Operators will be able to enter production data.',
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 13),
             textAlign: TextAlign.center,
           ),
@@ -822,13 +822,13 @@ class _ConfirmDialog extends StatelessWidget {
             Expanded(
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: ErpColors.borderLight),
+                  side: BorderSide(color: ErpColors.borderLight),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel',
+                child: Text('Cancel',
                     style: TextStyle(
                         color: ErpColors.textSecondary,
                         fontWeight: FontWeight.w700)),
@@ -880,7 +880,7 @@ class _DialogStat extends StatelessWidget {
             color: color, fontSize: 14,
             fontWeight: FontWeight.w900)),
     Text(label,
-        style: const TextStyle(
+        style: TextStyle(
             color: ErpColors.textMuted,
             fontSize: 9, fontWeight: FontWeight.w600)),
   ]);
@@ -899,16 +899,16 @@ class _ErrorBody extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(32),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.cloud_off_outlined,
+        Icon(Icons.cloud_off_outlined,
             size: 48, color: ErpColors.textMuted),
         const SizedBox(height: 14),
-        const Text('Failed to load shift plan',
+        Text('Failed to load shift plan',
             style: TextStyle(
                 color: ErpColors.textPrimary,
                 fontSize: 15, fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
         Text(msg,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 12),
             textAlign: TextAlign.center),
         const SizedBox(height: 20),

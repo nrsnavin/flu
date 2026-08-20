@@ -26,13 +26,13 @@ Future<String?> showReasonDialog({
         backgroundColor: ErpColors.bgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         title: Text(title,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (message != null)
-              Text(message, style: const TextStyle(color: ErpColors.textSecondary, fontSize: 12)),
+              Text(message, style: TextStyle(color: ErpColors.textSecondary, fontSize: 12)),
             if (message != null) const SizedBox(height: 12),
             TextField(
               controller: ctrl,
@@ -43,7 +43,7 @@ Future<String?> showReasonDialog({
               decoration: InputDecoration(
                 labelText: 'Reason *',
                 hintText: 'Why is this being changed? (recorded in the audit log)',
-                hintStyle: const TextStyle(fontSize: 11, color: ErpColors.textMuted),
+                hintStyle: TextStyle(fontSize: 11, color: ErpColors.textMuted),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               ),
             ),

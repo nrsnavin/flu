@@ -60,13 +60,13 @@ class FingerprintTimeline extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.fingerprint_rounded,
+                Icon(Icons.fingerprint_rounded,
                     size: 18, color: ErpColors.accentBlue),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.6,
@@ -83,7 +83,7 @@ class FingerprintTimeline extends StatelessWidget {
                   ),
                   child: Text(
                     "${fingerprints.length}",
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: ErpColors.accentBlue,
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
@@ -96,7 +96,7 @@ class FingerprintTimeline extends StatelessWidget {
 
           // ── Body ────────────────────────────────────────────────
           if (fingerprints.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Center(
                 child: Text(
@@ -207,7 +207,7 @@ class _FingerprintRow extends StatelessWidget {
                         Expanded(
                           child: Text(
                             label,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               color: ErpColors.textPrimary,
@@ -293,7 +293,7 @@ class _FingerprintRow extends StatelessWidget {
                             left: 24, top: 1),
                         child: Text(
                           actor['email'].toString(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 9.5,
                             color: ErpColors.textMuted,
                             fontStyle: FontStyle.italic,
@@ -496,11 +496,11 @@ class _DiffRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 1),
       child: RichText(
         text: TextSpan(
-          style: const TextStyle(fontSize: 10, color: ErpColors.textPrimary),
+          style: TextStyle(fontSize: 10, color: ErpColors.textPrimary),
           children: [
             TextSpan(
               text: '${humanise(keyName)}: ',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w700,
                 color: ErpColors.textSecondary,
                 letterSpacing: 0.3,
@@ -508,19 +508,19 @@ class _DiffRow extends StatelessWidget {
             ),
             TextSpan(
               text: stringify(before),
-              style: const TextStyle(
+              style: TextStyle(
                 color: ErpColors.errorRed,
                 decoration: TextDecoration.lineThrough,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const TextSpan(
+            TextSpan(
               text: '  →  ',
               style: TextStyle(color: ErpColors.textMuted),
             ),
             TextSpan(
               text: stringify(after),
-              style: const TextStyle(
+              style: TextStyle(
                 color: ErpColors.successGreen,
                 fontWeight: FontWeight.w700,
               ),
@@ -575,7 +575,7 @@ class _ActorRow extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             text: viaWhatsApp
                 ? TextSpan(
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11, color: ErpColors.textPrimary,
                     ),
                     children: [
@@ -589,7 +589,7 @@ class _ActorRow extends StatelessWidget {
                       if (waFrom != null && waFrom.isNotEmpty)
                         TextSpan(
                           text: "  ·  $waFrom",
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: ErpColors.textSecondary,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -598,7 +598,7 @@ class _ActorRow extends StatelessWidget {
                     ],
                   )
                 : TextSpan(
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11, color: ErpColors.textPrimary,
                     ),
                     children: [
@@ -609,7 +609,7 @@ class _ActorRow extends StatelessWidget {
                       if ((actor['role'] ?? '').toString().isNotEmpty)
                         TextSpan(
                           text: "  ·  ${actor['role']}".toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: ErpColors.textSecondary,
                             fontSize: 9.5,
                             fontWeight: FontWeight.w700,
@@ -622,7 +622,7 @@ class _ActorRow extends StatelessWidget {
         ),
         Text(
           time,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 10,
             color: ErpColors.textMuted,
             fontWeight: FontWeight.w600,
@@ -645,7 +645,7 @@ class _MetaPill extends StatelessWidget {
       children: [
         Text(
           "${_humanise(keyName)}:",
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 9.5,
             fontWeight: FontWeight.w700,
             color: ErpColors.textSecondary,
@@ -658,7 +658,7 @@ class _MetaPill extends StatelessWidget {
           child: Text(
             _stringify(value),
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               color: ErpColors.textPrimary,
               fontWeight: FontWeight.w600,

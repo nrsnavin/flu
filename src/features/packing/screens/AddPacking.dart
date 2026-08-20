@@ -52,7 +52,7 @@ class _AddPackingPageState extends State<AddPackingPage> {
       appBar: _buildAppBar(),
       body: Obx(() {
         if (c.isLoading.value) {
-          return const Center(
+          return Center(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               CircularProgressIndicator(color: ErpColors.accentBlue),
               SizedBox(height: 12),
@@ -65,16 +65,16 @@ class _AddPackingPageState extends State<AddPackingPage> {
         if (c.errorMsg.value != null) {
           return Center(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.error_outline,
+              Icon(Icons.error_outline,
                   size: 40, color: ErpColors.textMuted),
               const SizedBox(height: 12),
-              const Text('Failed to load form data',
+              Text('Failed to load form data',
                   style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: ErpColors.textPrimary)),
               const SizedBox(height: 4),
               Text(c.errorMsg.value!,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 12)),
               const SizedBox(height: 14),
               ElevatedButton.icon(
@@ -106,14 +106,14 @@ class _AddPackingPageState extends State<AddPackingPage> {
                     value: c.selectedJob.value,
                     isExpanded: true,
                     style: ErpTextStyles.fieldValue,
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                    icon: Icon(Icons.keyboard_arrow_down_rounded,
                         color: ErpColors.textSecondary, size: 18),
                     decoration: ErpDecorations.formInput(
                       'Job Order',
-                      prefix: const Icon(Icons.inventory_2_outlined,
+                      prefix: Icon(Icons.inventory_2_outlined,
                           size: 16, color: ErpColors.textMuted),
                     ),
-                    hint: const Text('Select job in packing',
+                    hint: Text('Select job in packing',
                         style: TextStyle(
                             color: ErpColors.textMuted, fontSize: 12)),
                     items: c.jobs
@@ -121,7 +121,7 @@ class _AddPackingPageState extends State<AddPackingPage> {
                       value: job,
                       child: Text(
                           'Job #${job.jobNo}${job.customerName != null ? "  •  ${job.customerName}" : ""}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: ErpColors.textPrimary)),
@@ -159,23 +159,23 @@ class _AddPackingPageState extends State<AddPackingPage> {
                     value: c.selectedElastic.value,
                     isExpanded: true,
                     style: ErpTextStyles.fieldValue,
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                    icon: Icon(Icons.keyboard_arrow_down_rounded,
                         color: ErpColors.textSecondary, size: 18),
                     decoration: ErpDecorations.formInput(
                       'Elastic',
-                      prefix: const Icon(
+                      prefix: Icon(
                           Icons.fiber_manual_record_outlined,
                           size: 16,
                           color: ErpColors.textMuted),
                     ),
-                    hint: const Text('Select elastic',
+                    hint: Text('Select elastic',
                         style: TextStyle(
                             color: ErpColors.textMuted, fontSize: 12)),
                     items: c.selectedJob.value!.elastics
                         .map((e) => DropdownMenuItem(
                       value: e.elasticId,
                       child: Text(e.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: ErpColors.textPrimary)),
@@ -306,21 +306,21 @@ class _AddPackingPageState extends State<AddPackingPage> {
                     value: c.selectedCheckedBy.value,
                     isExpanded: true,
                     style: ErpTextStyles.fieldValue,
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                    icon: Icon(Icons.keyboard_arrow_down_rounded,
                         color: ErpColors.textSecondary, size: 18),
                     decoration: ErpDecorations.formInput(
                       'Checked By',
-                      prefix: const Icon(Icons.person_search_outlined,
+                      prefix: Icon(Icons.person_search_outlined,
                           size: 16, color: ErpColors.textMuted),
                     ),
-                    hint: const Text('Select checker',
+                    hint: Text('Select checker',
                         style: TextStyle(
                             color: ErpColors.textMuted, fontSize: 12)),
                     items: c.checkingEmployees
                         .map((e) => DropdownMenuItem(
                       value: e.id,
                       child: Text(e.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: ErpColors.textPrimary)),
@@ -335,21 +335,21 @@ class _AddPackingPageState extends State<AddPackingPage> {
                     value: c.selectedPackedBy.value,
                     isExpanded: true,
                     style: ErpTextStyles.fieldValue,
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                    icon: Icon(Icons.keyboard_arrow_down_rounded,
                         color: ErpColors.textSecondary, size: 18),
                     decoration: ErpDecorations.formInput(
                       'Packed By',
-                      prefix: const Icon(Icons.inventory_outlined,
+                      prefix: Icon(Icons.inventory_outlined,
                           size: 16, color: ErpColors.textMuted),
                     ),
-                    hint: const Text('Select packer',
+                    hint: Text('Select packer',
                         style: TextStyle(
                             color: ErpColors.textMuted, fontSize: 12)),
                     items: c.packingEmployees
                         .map((e) => DropdownMenuItem(
                       value: e.id,
                       child: Text(e.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: ErpColors.textPrimary)),
@@ -409,7 +409,7 @@ class _AddPackingPageState extends State<AddPackingPage> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 4,
-      title: const Column(
+      title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [

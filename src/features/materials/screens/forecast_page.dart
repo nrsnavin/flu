@@ -45,7 +45,7 @@ class ForecastPage extends StatelessWidget {
               _totalsBar(ctrl.totals),
               const SizedBox(height: 14),
               if (materials.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 40),
                   child: Center(
                     child: Column(
@@ -91,7 +91,7 @@ class ForecastPage extends StatelessWidget {
                 backgroundColor: ErpColors.bgSurface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
-                  side: const BorderSide(color: ErpColors.borderLight),
+                  side: BorderSide(color: ErpColors.borderLight),
                 ),
                 onSelected: (_) => ctrl.setHorizon(d),
               ),
@@ -136,7 +136,7 @@ class ForecastPage extends StatelessWidget {
                     color: color, fontSize: 15, fontWeight: FontWeight.w800)),
             const SizedBox(height: 2),
             Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted, fontSize: 10)),
           ],
         ),
@@ -175,7 +175,7 @@ class _ForecastCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text((data['name'] as String?) ?? '—',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary,
                         fontSize: 13,
                         fontWeight: FontWeight.w800)),
@@ -201,7 +201,7 @@ class _ForecastCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text((data['category'] as String?) ?? '',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textMuted, fontSize: 11)),
           const SizedBox(height: 8),
           Row(
@@ -215,11 +215,11 @@ class _ForecastCard extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.local_shipping_outlined,
+              Icon(Icons.local_shipping_outlined,
                   size: 14, color: ErpColors.textMuted),
               const SizedBox(width: 6),
               Text(supplier,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 12)),
             ],
           ),
@@ -234,11 +234,11 @@ class _ForecastCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(k,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textMuted, fontSize: 10)),
           const SizedBox(height: 2),
           Text(v,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textPrimary,
                   fontSize: 12,
                   fontWeight: FontWeight.w700)),
@@ -260,11 +260,11 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: ErpColors.errorRed),
+            Icon(Icons.error_outline, size: 48, color: ErpColors.errorRed),
             const SizedBox(height: 8),
             Text(message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 13)),
             const SizedBox(height: 12),
             ErpPrimaryButton(label: 'Retry', icon: Icons.refresh, onPressed: onRetry),

@@ -50,7 +50,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, size: 16, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('Reset password', style: ErpTextStyles.pageTitle),
+        title: Text('Reset password', style: ErpTextStyles.pageTitle),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
@@ -63,11 +63,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Forgot your password?',
+        Text('Forgot your password?',
             style: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.w900, color: ErpColors.textPrimary)),
         const SizedBox(height: 6),
-        const Text(
+        Text(
           "Enter your account email and we'll send you a link to reset your "
           'password. Open the link on any device to choose a new one.',
           style: TextStyle(color: ErpColors.textSecondary, fontSize: 13, height: 1.5),
@@ -83,7 +83,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             decoration: ErpDecorations.formInput(
               'Email',
               hint: 'Enter your email address',
-              prefix: const Icon(Icons.mail_outline_rounded,
+              prefix: Icon(Icons.mail_outline_rounded,
                   size: 18, color: ErpColors.textMuted),
             ),
             validator: (v) {
@@ -133,15 +133,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             color: ErpColors.accentBlue.withOpacity(0.12),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.mark_email_read_outlined,
+          child: Icon(Icons.mark_email_read_outlined,
               size: 32, color: ErpColors.accentBlue),
         ),
         const SizedBox(height: 20),
-        const Text('Check your email',
+        Text('Check your email',
             style: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.w900, color: ErpColors.textPrimary)),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           "If an account exists for that email, we've sent a link to reset your "
           'password. It expires in 30 minutes.',
           textAlign: TextAlign.center,
@@ -153,11 +153,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           height: 50,
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ErpColors.accentBlue),
+              side: BorderSide(color: ErpColors.accentBlue),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('BACK TO SIGN IN',
+            child: Text('BACK TO SIGN IN',
                 style: TextStyle(
                     color: ErpColors.accentBlue,
                     fontSize: 14,

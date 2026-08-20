@@ -57,19 +57,19 @@ class RecipientEventsSheet extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  const Icon(Icons.phone_iphone,
+                  Icon(Icons.phone_iphone,
                       color: ErpColors.accentBlue),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Notifications for',
+                        Text('Notifications for',
                           style: TextStyle(
                               color: ErpColors.textSecondary,
                               fontSize: 12)),
                         Text(number,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textPrimary,
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
@@ -88,7 +88,7 @@ class RecipientEventsSheet extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               child: Row(
-                children: const [
+                children: [
                   Icon(Icons.info_outline,
                       size: 16, color: ErpColors.textSecondary),
                   SizedBox(width: 6),
@@ -112,7 +112,7 @@ class RecipientEventsSheet extends StatelessWidget {
                 return ListView.separated(
                   padding: const EdgeInsets.fromLTRB(8, 4, 8, 16),
                   itemCount: names.length,
-                  separatorBuilder: (_, __) => const Divider(
+                  separatorBuilder: (_, __) => Divider(
                       height: 1, color: ErpColors.borderLight),
                   itemBuilder: (_, i) {
                     final ev = names[i];
@@ -121,7 +121,7 @@ class RecipientEventsSheet extends StatelessWidget {
                     final overridden = ctrl.eventHasExplicitOverride(ev);
                     return SwitchListTile.adaptive(
                       title: Text(_humanize(ev),
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: ErpColors.textPrimary)),
                       subtitle: Padding(
@@ -131,7 +131,7 @@ class RecipientEventsSheet extends StatelessWidget {
                             _Pill(text: tier.isEmpty ? 'realtime' : tier),
                             const SizedBox(width: 6),
                             if (overridden)
-                              const _Pill(
+                              _Pill(
                                   text: 'custom recipients',
                                   color: ErpColors.warningAmber),
                           ],
@@ -182,7 +182,7 @@ class RecipientEventsSheet extends StatelessWidget {
 class _Pill extends StatelessWidget {
   final String text;
   final Color color;
-  const _Pill({required this.text, this.color = ErpColors.accentBlue});
+  _Pill({required this.text, Color? color}) : color = color ?? ErpColors.accentBlue;
   @override
   Widget build(BuildContext context) {
     return Container(

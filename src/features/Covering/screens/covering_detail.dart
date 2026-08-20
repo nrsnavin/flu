@@ -37,7 +37,7 @@ class _CoveringDetailPageState extends State<CoveringDetailPage> {
       appBar: _buildAppBar(),
       body: Obx(() {
         if (c.isLoading.value) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.errorMsg.value != null) {
@@ -101,7 +101,7 @@ class _CoveringDetailPageState extends State<CoveringDetailPage> {
                   : 'Covering Detail',
               style: ErpTextStyles.pageTitle,
             ),
-            const Text('Covering  ›  Detail',
+            Text('Covering  ›  Detail',
                 style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 10)),
           ],
@@ -152,7 +152,7 @@ class _HeroCard extends StatelessWidget {
       child: Column(children: [
         Container(
           padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.navyDark,
             borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
           ),
@@ -181,7 +181,7 @@ class _HeroCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     if (data.job.customerName != null)
                       Text(data.job.customerName!,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textOnDarkSub,
                               fontSize: 12)),
                     const SizedBox(height: 4),
@@ -266,13 +266,13 @@ class _Stat extends StatelessWidget {
       Icon(icon, size: 13, color: ErpColors.textMuted),
       const SizedBox(height: 3),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 9, fontWeight: FontWeight.w700,
               letterSpacing: 0.4)),
       const SizedBox(height: 3),
       Text(value,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textPrimary,
               fontSize: 11, fontWeight: FontWeight.w800),
           textAlign: TextAlign.center,
@@ -317,12 +317,12 @@ class _RemarksCard extends StatelessWidget {
           color: ErpColors.warningAmber.withOpacity(0.4)),
     ),
     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Icon(Icons.notes_rounded,
+      Icon(Icons.notes_rounded,
           size: 16, color: ErpColors.warningAmber),
       const SizedBox(width: 8),
       Expanded(
         child: Text(remarks,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textPrimary,
                 fontSize: 12,
                 fontWeight: FontWeight.w500)),
@@ -374,7 +374,7 @@ class _ElasticProgramCard extends StatelessWidget {
                             fontWeight: FontWeight.w800),
                         overflow: TextOverflow.ellipsis),
                     Text('${el.weaveType}  •  ${detail.quantity} m planned',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textOnDarkSub,
                             fontSize: 10)),
                   ]),
@@ -503,13 +503,13 @@ class _SpecBox extends StatelessWidget {
         Icon(icon, size: 14, color: ErpColors.textSecondary),
         const SizedBox(height: 4),
         Text(value,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textPrimary,
                 fontSize: 12,
                 fontWeight: FontWeight.w900),
             textAlign: TextAlign.center),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textMuted, fontSize: 8,
                 fontWeight: FontWeight.w700, letterSpacing: 0.3),
             textAlign: TextAlign.center),
@@ -530,7 +530,7 @@ class _TestBox extends StatelessWidget {
               color: color, fontSize: 16, fontWeight: FontWeight.w900),
           textAlign: TextAlign.center),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted, fontSize: 8,
               fontWeight: FontWeight.w700, letterSpacing: 0.3),
           textAlign: TextAlign.center),
@@ -543,7 +543,7 @@ class _SectionLabel extends StatelessWidget {
   const _SectionLabel(this.text);
   @override
   Widget build(BuildContext context) => Text(text,
-      style: const TextStyle(
+      style: TextStyle(
           color: ErpColors.textSecondary,
           fontSize: 11,
           fontWeight: FontWeight.w800,
@@ -573,10 +573,10 @@ class _ActionSection extends StatelessWidget {
               border: Border.all(color: ErpColors.accentBlue.withOpacity(0.3)),
             ),
             child: Row(children: [
-              const Icon(Icons.info_outline_rounded,
+              Icon(Icons.info_outline_rounded,
                   size: 16, color: ErpColors.accentBlue),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Text('Ready to begin covering process',
                     style: TextStyle(
                         color: ErpColors.accentBlue,
@@ -626,13 +626,13 @@ class _ActionSection extends StatelessWidget {
                   color: ErpColors.warningAmber.withOpacity(0.3)),
             ),
             child: Row(children: [
-              const SizedBox(
+              SizedBox(
                 width: 18, height: 18,
                 child: CircularProgressIndicator(
                     color: ErpColors.warningAmber, strokeWidth: 2.5),
               ),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Text('Covering is running…',
                     style: TextStyle(
                         color: ErpColors.warningAmber,
@@ -695,7 +695,7 @@ class _PdfButton extends StatelessWidget {
     height: 50,
     child: OutlinedButton.icon(
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: ErpColors.accentBlue, width: 1.5),
+        side: BorderSide(color: ErpColors.accentBlue, width: 1.5),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10)),
       ),
@@ -709,9 +709,9 @@ class _PdfButton extends StatelessWidget {
               snackPosition: SnackPosition.BOTTOM);
         }
       },
-      icon: const Icon(Icons.picture_as_pdf_outlined,
+      icon: Icon(Icons.picture_as_pdf_outlined,
           color: ErpColors.accentBlue, size: 19),
-      label: const Text('View Covering Program PDF',
+      label: Text('View Covering Program PDF',
           style: TextStyle(
               color: ErpColors.accentBlue,
               fontWeight: FontWeight.w700,
@@ -753,7 +753,7 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Container(
           padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.bgMuted,
             borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
             border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -767,10 +767,10 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const Icon(Icons.scale_outlined, size: 13,
+            Icon(Icons.scale_outlined, size: 13,
                 color: ErpColors.textSecondary),
             const SizedBox(width: 6),
-            const Expanded(
+            Expanded(
               child: Text('BEAM ENTRIES',
                   style: TextStyle(
                       color: ErpColors.textSecondary,
@@ -789,7 +789,7 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
                 ),
                 child: Text(
                   '${_wt(widget.data.producedWeight)} kg total',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.successGreen,
                       fontSize: 10,
                       fontWeight: FontWeight.w800),
@@ -807,7 +807,7 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
                 ),
                 child: Text(
                   '≈ ${_wt(widget.data.expectedProduceWeight)} kg exp.',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.warningAmber,
                       fontSize: 10,
                       fontWeight: FontWeight.w800),
@@ -871,7 +871,7 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
         if (entries.isNotEmpty)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
             ),
             child: Row(
@@ -905,7 +905,7 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
           ),
 
         if (entries.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
             child: Center(
               child: Text('No beam entries yet',
@@ -944,19 +944,19 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
         backgroundColor: ErpColors.bgSurface,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10)),
-        title: const Text('Remove Beam Entry?',
+        title: Text('Remove Beam Entry?',
             style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
                 color: ErpColors.textPrimary)),
         content: Text(
             'Beam #${entry.beamNo} — ${_wt(entry.weight)} kg will be removed.',
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 12, color: ErpColors.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel',
+            child: Text('Cancel',
                 style: TextStyle(color: ErpColors.textSecondary)),
           ),
           TextButton(
@@ -964,7 +964,7 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
               Navigator.of(context).pop();
               c.deleteBeamEntry(entry.id);
             },
-            child: const Text('Remove',
+            child: Text('Remove',
                 style: TextStyle(
                     color: ErpColors.errorRed,
                     fontWeight: FontWeight.w800)),
@@ -984,12 +984,12 @@ class _BeamEntryForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Color(0xFF0D1F35),
         border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('New Beam Entry',
+        Text('New Beam Entry',
             style: TextStyle(
                 color: ErpColors.textPrimary,
                 fontSize: 12,
@@ -1005,7 +1005,7 @@ class _BeamEntryForm extends StatelessWidget {
               decoration: ErpDecorations.formInput(
                 'Beam No *',
                 hint: '1',
-                prefix: const Icon(Icons.view_week_outlined,
+                prefix: Icon(Icons.view_week_outlined,
                     size: 16, color: ErpColors.textMuted),
               ),
             ),
@@ -1020,7 +1020,7 @@ class _BeamEntryForm extends StatelessWidget {
               decoration: ErpDecorations.formInput(
                 'Weight (kg) *',
                 hint: '0.000',
-                prefix: const Icon(Icons.scale_outlined,
+                prefix: Icon(Icons.scale_outlined,
                     size: 16, color: ErpColors.textMuted),
               ),
             ),
@@ -1033,7 +1033,7 @@ class _BeamEntryForm extends StatelessWidget {
           decoration: ErpDecorations.formInput(
             'Note (optional)',
             hint: 'Any observation about this beam…',
-            prefix: const Icon(Icons.notes_rounded,
+            prefix: Icon(Icons.notes_rounded,
                 size: 16, color: ErpColors.textMuted),
           ),
         ),
@@ -1129,11 +1129,11 @@ class _BeamEntryRow extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('${entry.beamNo}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.accentBlue,
                       fontSize: 14,
                       fontWeight: FontWeight.w900)),
-              const Text('BM',
+              Text('BM',
                   style: TextStyle(
                       color: ErpColors.accentBlue,
                       fontSize: 7,
@@ -1147,23 +1147,23 @@ class _BeamEntryRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.scale_outlined,
+              Icon(Icons.scale_outlined,
                   size: 13, color: ErpColors.textMuted),
               const SizedBox(width: 4),
               Text('${_wt(entry.weight)} kg',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w900)),
               if (entry.enteredByName != null) ...[
                 const SizedBox(width: 8),
-                const Icon(Icons.person_outline,
+                Icon(Icons.person_outline,
                     size: 11, color: ErpColors.textMuted),
                 const SizedBox(width: 2),
                 Flexible(
                   child: Text(
                     entry.enteredByName!,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textSecondary,
                         fontSize: 11,
                         fontWeight: FontWeight.w600),
@@ -1175,13 +1175,13 @@ class _BeamEntryRow extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               DateFormat('dd MMM yyyy  HH:mm').format(entry.enteredAt),
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textMuted, fontSize: 10),
             ),
             if (entry.note.isNotEmpty) ...[
               const SizedBox(height: 3),
               Text(entry.note,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary,
                       fontSize: 11,
                       fontStyle: FontStyle.italic),
@@ -1202,7 +1202,7 @@ class _BeamEntryRow extends StatelessWidget {
               border: Border.all(
                   color: ErpColors.accentBlue.withOpacity(0.3)),
             ),
-            child: const Icon(Icons.print_outlined,
+            child: Icon(Icons.print_outlined,
                 size: 15, color: ErpColors.accentBlue),
           ),
         ),
@@ -1217,7 +1217,7 @@ class _BeamEntryRow extends StatelessWidget {
                 border: Border.all(
                     color: ErpColors.errorRed.withOpacity(0.3)),
               ),
-              child: const Icon(Icons.delete_outline_rounded,
+              child: Icon(Icons.delete_outline_rounded,
                   size: 15, color: ErpColors.errorRed),
             ),
           ),
@@ -1236,7 +1236,7 @@ class _BeamStat extends StatelessWidget {
         style: TextStyle(
             color: color, fontSize: 15, fontWeight: FontWeight.w900)),
     Text(label,
-        style: const TextStyle(
+        style: TextStyle(
             color: ErpColors.textMuted,
             fontSize: 9,
             fontWeight: FontWeight.w700)),
@@ -1256,16 +1256,16 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
+      Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
       const SizedBox(height: 12),
-      const Text('Failed to load',
+      Text('Failed to load',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

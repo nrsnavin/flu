@@ -107,12 +107,12 @@ class _ServiceAnalyticsPageState extends State<ServiceAnalyticsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(_inr.format(s.total),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                     color: ErpColors.textPrimary)),
             Text('${s.services} services in this window',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12, color: ErpColors.textSecondary)),
             const SizedBox(height: 12),
             MiniBarChart(
@@ -147,7 +147,7 @@ class _ServiceAnalyticsPageState extends State<ServiceAnalyticsPage> {
             ),
             if (s.byType.isNotEmpty) ...[
               const SizedBox(height: 12),
-              const Text('By type',
+              Text('By type',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -170,14 +170,14 @@ class _ServiceAnalyticsPageState extends State<ServiceAnalyticsPage> {
           if (!a.ready) {
             return Text(
               a.reason ?? 'Not enough service history to say anything yet.',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 13, color: ErpColors.textSecondary),
             );
           }
           if (a.findings.isEmpty) {
             return Text(
               'Nothing stands out. ${a.services} services checked.',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 13, color: ErpColors.textSecondary),
             );
           }
@@ -193,7 +193,7 @@ class _ServiceAnalyticsPageState extends State<ServiceAnalyticsPage> {
   Widget _costliestCard(List<CostlyMachine> rows) => _Card(
         title: 'Costliest machines',
         child: rows.isEmpty
-            ? const Text('Nothing serviced in this window.',
+            ? Text('Nothing serviced in this window.',
                 style:
                     TextStyle(fontSize: 13, color: ErpColors.textSecondary))
             : Column(
@@ -233,12 +233,12 @@ class _FindingTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(finding.title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: ErpColors.textPrimary)),
           const SizedBox(height: 4),
           Text(finding.detail,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12, color: ErpColors.textSecondary)),
           if (finding.innocent.isNotEmpty) ...[
             const SizedBox(height: 6),
@@ -247,13 +247,13 @@ class _FindingTile extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.info_outline,
+                Icon(Icons.info_outline,
                     size: 14, color: ErpColors.textMuted),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     finding.innocent,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
                         color: ErpColors.textMuted),
@@ -289,13 +289,13 @@ class _Card extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: ErpColors.textPrimary)),
             if (subtitle != null) ...[
               const SizedBox(height: 2),
               Text(subtitle!,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11, color: ErpColors.textMuted)),
             ],
             const SizedBox(height: 10),
@@ -317,7 +317,7 @@ class _Stat extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11, color: ErpColors.textMuted)),
           Text(value,
               style: TextStyle(
@@ -342,11 +342,11 @@ class _Row extends StatelessWidget {
           children: [
             Expanded(
               child: Text(left,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 13, color: ErpColors.textSecondary)),
             ),
             Text(right,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: ErpColors.textPrimary)),
@@ -370,7 +370,7 @@ class _Message extends StatelessWidget {
             children: [
               Text(text,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: ErpColors.textSecondary)),
+                  style: TextStyle(color: ErpColors.textSecondary)),
               if (onRetry != null) ...[
                 const SizedBox(height: 12),
                 OutlinedButton(

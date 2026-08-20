@@ -152,7 +152,7 @@ class _DCListPageState extends State<DCListPage> {
       onPressed: () => Navigator.maybePop(context),
     ),
     titleSpacing: 4,
-    title: const Column(
+    title: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -186,7 +186,7 @@ class _SearchAndFilter extends StatelessWidget {
           onChanged: c.onSearch,
           decoration: ErpDecorations.formInput(
             'Search DC number, customer…',
-            prefix: const Icon(Icons.search, size: 18, color: ErpColors.textMuted),
+            prefix: Icon(Icons.search, size: 18, color: ErpColors.textMuted),
           ),
         ),
         const SizedBox(height: 8),
@@ -239,14 +239,14 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.isLoading.value && c.dcs.isEmpty) {
-        return const Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
+        return Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
       }
       if (c.dcs.isEmpty) {
         return Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.receipt_long_outlined, size: 52, color: ErpColors.textMuted),
+            Icon(Icons.receipt_long_outlined, size: 52, color: ErpColors.textMuted),
             const SizedBox(height: 12),
-            const Text('No delivery challans found',
+            Text('No delivery challans found',
                 style: TextStyle(color: ErpColors.textSecondary, fontSize: 14)),
             const SizedBox(height: 12),
             TextButton(onPressed: () => c.fetch(reset: true), child: const Text('Retry')),
@@ -264,7 +264,7 @@ class _Body extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (ctx, i) {
             if (i == c.dcs.length) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(16),
                 child: Center(child: CircularProgressIndicator(
                     color: ErpColors.accentBlue, strokeWidth: 2)),
@@ -366,22 +366,22 @@ class _DCCard extends StatelessWidget {
             child: Column(children: [
               // Customer + Date
               Row(children: [
-                const Icon(Icons.person_outline, size: 14, color: ErpColors.textMuted),
+                Icon(Icons.person_outline, size: 14, color: ErpColors.textMuted),
                 const SizedBox(width: 6),
                 Expanded(
-                  child: Text(dc.customerName, style: const TextStyle(
+                  child: Text(dc.customerName, style: TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w700, color: ErpColors.textPrimary),
                       overflow: TextOverflow.ellipsis),
                 ),
-                Text(dateStr, style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+                Text(dateStr, style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
               ]),
               if (dc.orderNo != null) ...[
                 const SizedBox(height: 4),
                 Row(children: [
-                  const Icon(Icons.receipt_outlined, size: 13, color: ErpColors.textMuted),
+                  Icon(Icons.receipt_outlined, size: 13, color: ErpColors.textMuted),
                   const SizedBox(width: 6),
                   Text('Order #${dc.orderNo}',
-                      style: const TextStyle(fontSize: 11, color: ErpColors.textSecondary)),
+                      style: TextStyle(fontSize: 11, color: ErpColors.textSecondary)),
                 ]),
               ],
               const SizedBox(height: 10),
@@ -402,7 +402,7 @@ class _DCCard extends StatelessWidget {
                     color: ErpColors.successGreen,
                   ),
                 const Spacer(),
-                const Icon(Icons.arrow_forward_ios, size: 12, color: ErpColors.textMuted),
+                Icon(Icons.arrow_forward_ios, size: 12, color: ErpColors.textMuted),
               ]),
             ]),
           ),

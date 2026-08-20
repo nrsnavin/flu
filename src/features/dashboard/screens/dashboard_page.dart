@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/theme_toggle.dart';
 import 'package:get/get.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
@@ -41,7 +43,7 @@ class DashboardPage extends StatelessWidget {
         elevation: 0,
         automaticallyImplyLeading: false,
         titleSpacing: 20,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -52,6 +54,10 @@ class DashboardPage extends StatelessWidget {
           ],
         ),
         actions: [
+          // One tap to the other theme, on the screen everybody starts
+          // from. The full three-way choice, including "match phone",
+          // lives in Document Settings.
+          const ThemeToggleButton(),
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white, size: 20),
             onPressed: () => ctrl.fetch(),
@@ -142,7 +148,7 @@ class _PendingShiftsBanner extends StatelessWidget {
                     color: ErpColors.warningAmber.withOpacity(0.18),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.hourglass_top_rounded,
+                  child: Icon(Icons.hourglass_top_rounded,
                       color: ErpColors.warningAmber, size: 20),
                 ),
                 const SizedBox(width: 12),
@@ -150,7 +156,7 @@ class _PendingShiftsBanner extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('SHIFTS PENDING VERIFICATION',
+                      Text('SHIFTS PENDING VERIFICATION',
                           style: TextStyle(
                               color: ErpColors.textSecondary,
                               fontSize: 10,
@@ -159,7 +165,7 @@ class _PendingShiftsBanner extends StatelessWidget {
                       const SizedBox(height: 2),
                       Row(children: [
                         Text('$n',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textPrimary,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,
@@ -169,7 +175,7 @@ class _PendingShiftsBanner extends StatelessWidget {
                           highlight
                               ? 'submitted shifts waiting for admin sign-off'
                               : 'nothing to verify right now',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textSecondary,
                               fontSize: 12),
                         ),
@@ -177,7 +183,7 @@ class _PendingShiftsBanner extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right,
+                Icon(Icons.chevron_right,
                     color: ErpColors.textMuted, size: 20),
               ],
             ),
@@ -294,20 +300,20 @@ class _KpiTile extends StatelessWidget {
                   ),
                   const Spacer(),
                   if (onTap != null)
-                    const Icon(Icons.chevron_right,
+                    Icon(Icons.chevron_right,
                         color: ErpColors.textMuted, size: 18),
                 ],
               ),
               const SizedBox(height: 10),
               Text(value,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textPrimary,
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5)),
               const SizedBox(height: 2),
               Text(label,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary,
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
@@ -315,7 +321,7 @@ class _KpiTile extends StatelessWidget {
               if (sub != null) ...[
                 const SizedBox(height: 4),
                 Text(sub!,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textMuted,
                         fontSize: 11,
                         fontWeight: FontWeight.w500)),
@@ -346,7 +352,7 @@ class _AttendanceCard extends StatelessWidget {
           Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               border: Border(
                   bottom: BorderSide(color: ErpColors.borderLight)),
@@ -354,7 +360,7 @@ class _AttendanceCard extends StatelessWidget {
                   BorderRadius.vertical(top: Radius.circular(8)),
             ),
             child: Row(
-              children: const [
+              children: [
                 Icon(Icons.people_alt_outlined,
                     size: 14, color: ErpColors.textSecondary),
                 SizedBox(width: 6),
@@ -372,7 +378,7 @@ class _AttendanceCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Text(
                     'No attendance marked yet · ${ctrl.attTotalEmployees.value} employees',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textSecondary, fontSize: 12),
                   ),
                 );
@@ -452,7 +458,7 @@ class _LowStockCard extends StatelessWidget {
           Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               border: Border(
                   bottom: BorderSide(color: ErpColors.borderLight)),
@@ -461,15 +467,15 @@ class _LowStockCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.inventory_2_outlined,
+                Icon(Icons.inventory_2_outlined,
                     size: 14, color: ErpColors.textSecondary),
                 const SizedBox(width: 6),
-                const Text('LOW STOCK',
+                Text('LOW STOCK',
                     style: ErpTextStyles.sectionHeader),
                 const Spacer(),
                 TextButton(
                   onPressed: () => Get.to(() => RawMaterialListPage()),
-                  child: const Text('View all',
+                  child: Text('View all',
                       style: TextStyle(
                           color: ErpColors.accentBlue,
                           fontWeight: FontWeight.w700,
@@ -480,7 +486,7 @@ class _LowStockCard extends StatelessWidget {
           ),
           Obx(() {
             if (ctrl.lowStockItems.isEmpty) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(14),
                 child: Text('Nothing is below minimum stock',
                     style: TextStyle(
@@ -501,7 +507,7 @@ class _LowStockCard extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(14, 2, 14, 10),
                     child: Text(
                       '+ $overflow more — open Stock Map for the full list',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary, fontSize: 11),
                     ),
                   ),
@@ -528,7 +534,7 @@ class _LowStockRow extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border:
             Border(bottom: BorderSide(color: ErpColors.borderLight)),
       ),
@@ -539,7 +545,7 @@ class _LowStockRow extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(name,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary,
                         fontSize: 13,
                         fontWeight: FontWeight.w700),
@@ -548,7 +554,7 @@ class _LowStockRow extends StatelessWidget {
               ),
               Text(
                 '${stock.toStringAsFixed(stock.truncateToDouble() == stock ? 0 : 1)} / ${minStock.toStringAsFixed(minStock.truncateToDouble() == minStock ? 0 : 1)}',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.errorRed,
                     fontSize: 12,
                     fontWeight: FontWeight.w800),
@@ -559,7 +565,7 @@ class _LowStockRow extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(category,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 11)),
             ),
           const SizedBox(height: 6),
@@ -570,7 +576,7 @@ class _LowStockRow extends StatelessWidget {
               minHeight: 4,
               backgroundColor: ErpColors.borderLight,
               valueColor:
-                  const AlwaysStoppedAnimation<Color>(ErpColors.errorRed),
+                  AlwaysStoppedAnimation<Color>(ErpColors.errorRed),
             ),
           ),
         ],
@@ -693,12 +699,12 @@ class _LinkRow extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(label,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w700)),
             ),
-            const Icon(Icons.chevron_right,
+            Icon(Icons.chevron_right,
                 color: ErpColors.textMuted, size: 18),
           ],
         ),
@@ -719,12 +725,12 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline,
+            Icon(Icons.error_outline,
                 size: 48, color: ErpColors.errorRed),
             const SizedBox(height: 10),
             Text(message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 13)),
             const SizedBox(height: 12),
             ErpPrimaryButton(

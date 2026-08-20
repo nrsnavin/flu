@@ -51,7 +51,7 @@ class _WarpingPlanPageState extends State<WarpingPlanPage> {
       // ── Single outer Obx — no nested Obx anywhere below ────
       body: Obx(() {
         if (c.isLoading.value && c.warpYarns.isEmpty) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.errorMsg.value != null && c.warpYarns.isEmpty) {
@@ -124,7 +124,7 @@ class _WarpingPlanPageState extends State<WarpingPlanPage> {
             size: 16, color: Colors.white),
         onPressed: Get.back),
     titleSpacing: 4,
-    title: const Column(
+    title: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -405,7 +405,7 @@ class _BeamCountCard extends StatelessWidget {
     title: 'NUMBER OF BEAMS',
     icon: Icons.table_rows_rounded,
     child: Row(children: [
-      const Expanded(
+      Expanded(
           child: Text('Total beams in this warping run',
               style: TextStyle(
                   color: ErpColors.textSecondary, fontSize: 12))),
@@ -444,7 +444,7 @@ class _UniformMetersCard extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: const Text(
+                child: Text(
                   'Same meters across all beams',
                   style: TextStyle(
                       color: ErpColors.textPrimary,
@@ -461,7 +461,7 @@ class _UniformMetersCard extends StatelessWidget {
             ),
           ]),
           if (!on)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(top: 4),
               child: Text(
                 'Leave off to enter a different meter value per section.',
@@ -471,7 +471,7 @@ class _UniformMetersCard extends StatelessWidget {
             )
           else ...[
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Per-section meter fields are locked while this is on.',
               style: TextStyle(color: ErpColors.textMuted, fontSize: 11),
             ),
@@ -482,13 +482,13 @@ class _UniformMetersCard extends StatelessWidget {
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
               ],
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: ErpColors.textPrimary),
               decoration: ErpDecorations.formInput('Meter').copyWith(
                 suffixText: 'm',
-                suffixStyle: const TextStyle(
+                suffixStyle: TextStyle(
                     color: ErpColors.textMuted, fontSize: 12),
                 hintText: 'e.g. 3000',
               ),
@@ -570,7 +570,7 @@ class _LotStockCard extends StatelessWidget {
                         children: [
                           Text(
                             s.warpYarnName.isEmpty ? '—' : s.warpYarnName,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: ErpColors.textPrimary),
@@ -580,7 +580,7 @@ class _LotStockCard extends StatelessWidget {
                             s.isEmpty
                                 ? 'No open lots'
                                 : '${s.lots.length} open lot${s.lots.length == 1 ? '' : 's'}',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 10, color: ErpColors.textMuted),
                           ),
                         ],
@@ -626,7 +626,7 @@ class _LotStat extends StatelessWidget {
                   color: color)),
           const SizedBox(height: 1),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 8.5,
                   fontWeight: FontWeight.w700,
                   color: ErpColors.textMuted)),
@@ -660,19 +660,19 @@ class _StepperField extends StatelessWidget {
             width: 32,
             height: 36,
             alignment: Alignment.center,
-            child: const Icon(Icons.remove,
+            child: Icon(Icons.remove,
                 size: 16, color: ErpColors.textSecondary)),
       ),
       Container(
         width: 44,
         height: 36,
         alignment: Alignment.center,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
             border: Border(
                 left: BorderSide(color: ErpColors.borderLight),
                 right: BorderSide(color: ErpColors.borderLight))),
         child: Text('$value',
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w900,
                 color: ErpColors.textPrimary)),
@@ -683,7 +683,7 @@ class _StepperField extends StatelessWidget {
             width: 32,
             height: 36,
             alignment: Alignment.center,
-            child: const Icon(Icons.add,
+            child: Icon(Icons.add,
                 size: 16, color: ErpColors.textSecondary)),
       ),
     ]),
@@ -841,9 +841,9 @@ class _BeamCard extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
                   child: TextButton.icon(
                     onPressed: () => c.addSection(beamIndex),
-                    icon: const Icon(Icons.add_circle_outline,
+                    icon: Icon(Icons.add_circle_outline,
                         size: 14, color: ErpColors.accentBlue),
-                    label: const Text('Add Section',
+                    label: Text('Add Section',
                         style: TextStyle(
                             color: ErpColors.accentBlue,
                             fontSize: 12,
@@ -886,7 +886,7 @@ class _SectionRow extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: ErpColors.borderLight))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -895,11 +895,11 @@ class _SectionRow extends StatelessWidget {
             // Section number badge
             Container(
               width: 22, height: 22,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                   color: ErpColors.bgMuted, shape: BoxShape.circle),
               child: Center(
                   child: Text('${si + 1}',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
                           color: ErpColors.textSecondary))),
@@ -911,7 +911,7 @@ class _SectionRow extends StatelessWidget {
               child: DropdownButtonFormField<WarpYarnOption>(
                 value: c.warpYarns.firstWhereOrNull((y) => y.id == section.warpYarnId),
                 decoration: ErpDecorations.formInput('Warp Yarn *'),
-                style: const TextStyle(fontSize: 12, color: ErpColors.textPrimary),
+                style: TextStyle(fontSize: 12, color: ErpColors.textPrimary),
                 dropdownColor: ErpColors.bgSurface,
                 isExpanded: true,
                 items: c.warpYarns
@@ -932,7 +932,7 @@ class _SectionRow extends StatelessWidget {
             if (canRemove) ...[
               const SizedBox(width: 4),
               IconButton(
-                icon: const Icon(Icons.close_rounded, size: 16, color: ErpColors.textMuted),
+                icon: Icon(Icons.close_rounded, size: 16, color: ErpColors.textMuted),
                 onPressed: () => c.removeSection(bi, si),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
@@ -949,7 +949,7 @@ class _SectionRow extends StatelessWidget {
             Expanded(
               child: TextFormField(
                 controller: c.endsCtrl(bi, si),
-                style: const TextStyle(fontSize: 12, color: ErpColors.textPrimary),
+                style: TextStyle(fontSize: 12, color: ErpColors.textPrimary),
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: ErpDecorations.formInput('Ends *'),
@@ -960,7 +960,7 @@ class _SectionRow extends StatelessWidget {
             Expanded(
               child: TextFormField(
                 controller: c.maxMetersCtrl(bi, si),
-                style: const TextStyle(fontSize: 12, color: ErpColors.textPrimary),
+                style: TextStyle(fontSize: 12, color: ErpColors.textPrimary),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
@@ -970,12 +970,12 @@ class _SectionRow extends StatelessWidget {
                 enabled: !c.uniformMaxMeters.value,
                 decoration: ErpDecorations.formInput('Meter').copyWith(
                   suffixText: 'm',
-                  suffixStyle: const TextStyle(
+                  suffixStyle: TextStyle(
                       color: ErpColors.textMuted, fontSize: 11),
                   hintText: c.uniformMaxMeters.value
                       ? 'set above'
                       : 'optional',
-                  hintStyle: const TextStyle(
+                  hintStyle: TextStyle(
                       color: ErpColors.textMuted, fontSize: 10),
                   fillColor: c.uniformMaxMeters.value
                       ? ErpColors.bgMuted
@@ -1050,16 +1050,16 @@ class _LotPicker extends StatelessWidget {
         DropdownButtonFormField<String>(
           value: chosenId.isEmpty ? null : chosenId,
           decoration: ErpDecorations.formInput('Dye Lot').copyWith(
-            prefixIcon: const Icon(Icons.science_outlined,
+            prefixIcon: Icon(Icons.science_outlined,
                 size: 15, color: ErpColors.textMuted),
             prefixIconConstraints:
                 const BoxConstraints(minWidth: 30, minHeight: 30),
           ),
-          style: const TextStyle(fontSize: 12, color: ErpColors.textPrimary),
+          style: TextStyle(fontSize: 12, color: ErpColors.textPrimary),
           dropdownColor: ErpColors.bgSurface,
           isExpanded: true,
           items: [
-            const DropdownMenuItem<String>(
+            DropdownMenuItem<String>(
               value: null,
               child: Text('Not decided',
                   style: TextStyle(
@@ -1071,7 +1071,7 @@ class _LotPicker extends StatelessWidget {
                 child: Text(
                   '${section.lotLabel ?? 'Chosen lot'} · no longer open',
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12, color: ErpColors.warningAmber),
                 ),
               ),
@@ -1085,7 +1085,7 @@ class _LotPicker extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text('${_qty(l.balance)} kg',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w800,
                             color: ErpColors.accentBlue)),
@@ -1116,9 +1116,9 @@ class _LotPicker extends StatelessWidget {
                 minimumSize: const Size(0, 28),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              icon: const Icon(Icons.done_all_rounded,
+              icon: Icon(Icons.done_all_rounded,
                   size: 13, color: ErpColors.accentBlue),
-              label: const Text('Use for every section of this yarn',
+              label: Text('Use for every section of this yarn',
                   style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -1143,12 +1143,12 @@ class _LotNote extends StatelessWidget {
           border: Border.all(color: ErpColors.borderLight),
         ),
         child: Row(children: [
-          const Icon(Icons.science_outlined,
+          Icon(Icons.science_outlined,
               size: 13, color: ErpColors.textMuted),
           const SizedBox(width: 6),
           Expanded(
             child: Text(msg,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 10.5, color: ErpColors.textMuted)),
           ),
         ]),
@@ -1173,17 +1173,17 @@ class _TotalEndsCard extends StatelessWidget {
       Border.all(color: ErpColors.accentBlue.withOpacity(0.25)),
     ),
     child: Row(children: [
-      const Icon(Icons.calculate_rounded,
+      Icon(Icons.calculate_rounded,
           color: ErpColors.accentBlue, size: 20),
       const SizedBox(width: 12),
       Text('Total Ends: ${c.totalEnds}',
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.accentBlue,
               fontSize: 15,
               fontWeight: FontWeight.w900)),
       const Spacer(),
       Text('${c.beams.length} Beams',
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.accentBlue,
               fontSize: 12,
               fontWeight: FontWeight.w700)),
@@ -1279,12 +1279,12 @@ class _WarnBanner extends StatelessWidget {
           color: ErpColors.warningAmber.withOpacity(0.4)),
     ),
     child: Row(children: [
-      const Icon(Icons.info_outline,
+      Icon(Icons.info_outline,
           color: ErpColors.warningAmber, size: 16),
       const SizedBox(width: 8),
       Expanded(
           child: Text(msg,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.warningAmber, fontSize: 11))),
     ]),
   );
@@ -1298,17 +1298,17 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.error_outline,
+      Icon(Icons.error_outline,
           size: 40, color: ErpColors.textMuted),
       const SizedBox(height: 12),
-      const Text('Failed to load',
+      Text('Failed to load',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

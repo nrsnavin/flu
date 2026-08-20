@@ -205,10 +205,10 @@ class ShiftPlanSummaryPdf extends StatelessWidget {
                   color: ErpColors.navyMid,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.picture_as_pdf, color: ErpColors.accentLight, size: 36),
+                child: Icon(Icons.picture_as_pdf, color: ErpColors.accentLight, size: 36),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 "Shift Plan Report",
                 style: TextStyle(
                   color: ErpColors.textPrimary,
@@ -217,7 +217,7 @@ class ShiftPlanSummaryPdf extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 "Your PDF will be generated and opened automatically.",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),

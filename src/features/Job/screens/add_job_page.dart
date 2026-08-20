@@ -50,10 +50,10 @@ class _AddJobOrderPageState extends State<AddJobOrderPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("Create Job Order", style: ErpTextStyles.pageTitle),
+            Text("Create Job Order", style: ErpTextStyles.pageTitle),
             Text(
               "Order #${widget.order.orderNo}  ›  New Job",
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 10),
             ),
           ],
@@ -68,7 +68,7 @@ class _AddJobOrderPageState extends State<AddJobOrderPage> {
           Expanded(
             child: Obx(() {
               if (_c.elasticInputs.isEmpty) {
-                return const Center(
+                return Center(
                   child: Padding(
                     padding: EdgeInsets.all(32),
                     child: Column(
@@ -108,13 +108,13 @@ class _AddJobOrderPageState extends State<AddJobOrderPage> {
                             color: ErpColors.statusApprovedBorder),
                       ),
                       child: Row(children: [
-                        const Icon(Icons.info_outline,
+                        Icon(Icons.info_outline,
                             size: 16, color: ErpColors.accentBlue),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             "Enter qty to allocate to this job. Up to ${kFreeExcessPct.toInt()}% over the ordered figure needs no reason. Leave blank to skip an elastic.",
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.accentBlue,
                                 fontSize: 12),
                           ),
@@ -200,7 +200,7 @@ class _ElasticAllocationRow extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Text("${index + 1}",
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.accentBlue,
                     fontSize: 11,
                     fontWeight: FontWeight.w800)),
@@ -215,12 +215,12 @@ class _ElasticAllocationRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 3),
                 Row(children: [
-                  const Icon(Icons.pending_outlined,
+                  Icon(Icons.pending_outlined,
                       size: 12, color: ErpColors.textMuted),
                   const SizedBox(width: 4),
                   Text(
                     "${_qty(input.notAssigned)} m not assigned of ${_qty(input.ordered)} m ordered",
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textSecondary,
                         fontSize: 11,
                         fontWeight: FontWeight.w500),
@@ -270,7 +270,7 @@ class _ElasticAllocationRow extends StatelessWidget {
               keyboardType:
               const TextInputType.numberWithOptions(decimal: true),
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: ErpColors.textPrimary),
@@ -284,14 +284,14 @@ class _ElasticAllocationRow extends StatelessWidget {
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
                     borderSide:
-                    const BorderSide(color: ErpColors.borderLight)),
+                    BorderSide(color: ErpColors.borderLight)),
                 enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
                     borderSide:
-                    const BorderSide(color: ErpColors.borderLight)),
+                    BorderSide(color: ErpColors.borderLight)),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(
+                    borderSide: BorderSide(
                         color: ErpColors.accentBlue, width: 1.5)),
               ),
             ),
@@ -342,7 +342,7 @@ class _ExcessPanel extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.inventory_2_outlined,
+                Icon(Icons.inventory_2_outlined,
                     size: 16, color: ErpColors.warningAmber),
                 const SizedBox(width: 10),
                 Expanded(
@@ -350,7 +350,7 @@ class _ExcessPanel extends StatelessWidget {
                     "Planning ${_qty(c.totalExcess)} m over this order. The extra yarn is "
                     "deducted from stock when the job is created — if it is not there, "
                     "the job is refused.",
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.warningAmber,
                         fontSize: 12,
                         height: 1.35),
@@ -372,12 +372,12 @@ class _ExcessPanel extends StatelessWidget {
                     minLines: 2,
                     maxLines: 4,
                     textCapitalization: TextCapitalization.sentences,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13, color: ErpColors.textPrimary),
                     decoration: InputDecoration(
                       hintText:
                           "e.g. loom set for a full beam; the customer takes the overrun",
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                           color: ErpColors.textMuted, fontSize: 12),
                       filled: true,
                       fillColor: ErpColors.bgSurface,
@@ -385,14 +385,14 @@ class _ExcessPanel extends StatelessWidget {
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4),
                           borderSide:
-                              const BorderSide(color: ErpColors.borderLight)),
+                              BorderSide(color: ErpColors.borderLight)),
                       enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4),
                           borderSide:
-                              const BorderSide(color: ErpColors.borderLight)),
+                              BorderSide(color: ErpColors.borderLight)),
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4),
-                          borderSide: const BorderSide(
+                          borderSide: BorderSide(
                               color: ErpColors.accentBlue, width: 1.5)),
                     ),
                   ),
@@ -448,17 +448,17 @@ class _ProcessRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                     color: ErpColors.textPrimary)),
             Text(description,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 11)),
           ],
         ),
       ),
-      const Icon(Icons.auto_awesome,
+      Icon(Icons.auto_awesome,
           size: 14, color: ErpColors.successGreen),
     ]);
   }
@@ -475,7 +475,7 @@ class _FooterBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
-        border: const Border(top: BorderSide(color: ErpColors.borderLight)),
+        border: Border(top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
             color: ErpColors.navyDark.withOpacity(0.06),
@@ -491,11 +491,11 @@ class _FooterBar extends StatelessWidget {
             child: OutlinedButton(
               onPressed: () => Navigator.of(context).pop(),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.borderMid),
+                side: BorderSide(color: ErpColors.borderMid),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
               ),
-              child: const Text("Cancel",
+              child: Text("Cancel",
                   style: TextStyle(
                       color: ErpColors.textSecondary,
                       fontWeight: FontWeight.w600)),

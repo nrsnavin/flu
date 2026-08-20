@@ -32,12 +32,12 @@ class ElasticGroupListPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline,
+                  Icon(Icons.error_outline,
                       size: 48, color: ErpColors.errorRed),
                   const SizedBox(height: 8),
                   Text(ctrl.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary, fontSize: 13)),
                   const SizedBox(height: 12),
                   ErpPrimaryButton(
@@ -48,7 +48,7 @@ class ElasticGroupListPage extends StatelessWidget {
           );
         }
         if (ctrl.groups.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -96,13 +96,13 @@ class ElasticGroupListPage extends StatelessWidget {
       ElasticGroupListController ctrl, Map<String, dynamic> g) {
     Get.defaultDialog(
       title: 'Delete group?',
-      titleStyle: const TextStyle(
+      titleStyle: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w800,
           color: ErpColors.textPrimary),
       middleText: 'Remove "${g['name']}"? Orders already created keep their lines.',
       middleTextStyle:
-          const TextStyle(color: ErpColors.textSecondary, fontSize: 12),
+          TextStyle(color: ErpColors.textSecondary, fontSize: 12),
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(
             backgroundColor: ErpColors.errorRed, elevation: 0),
@@ -148,7 +148,7 @@ class _GroupCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(name,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.w800)),
@@ -174,7 +174,7 @@ class _GroupCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text('$itemCount elastic${itemCount == 1 ? '' : 's'}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textMuted, fontSize: 11)),
                     ],
                   ),
@@ -182,11 +182,11 @@ class _GroupCard extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline,
+              icon: Icon(Icons.delete_outline,
                   color: ErpColors.errorRed, size: 20),
               onPressed: onDelete,
             ),
-            const Icon(Icons.chevron_right, color: ErpColors.textMuted, size: 18),
+            Icon(Icons.chevron_right, color: ErpColors.textMuted, size: 18),
           ],
         ),
       ),

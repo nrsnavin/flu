@@ -68,10 +68,10 @@ class _PackingOverviewPageState extends State<PackingOverviewPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Packing', style: ErpTextStyles.pageTitle),
+          Text('Packing', style: ErpTextStyles.pageTitle),
           Text(
             '${c.jobs.length} jobs  •  ${c.totalBoxes} boxes',
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textOnDarkSub, fontSize: 10),
           ),
         ],
@@ -132,9 +132,9 @@ class _SearchBar extends StatelessWidget {
           filled: true,
           fillColor: ErpColors.bgMuted,
           hintText: 'Search by job number or customer…',
-          hintStyle: const TextStyle(
+          hintStyle: TextStyle(
               color: ErpColors.textMuted, fontSize: 12),
-          prefixIcon: const Icon(Icons.search_rounded,
+          prefixIcon: Icon(Icons.search_rounded,
               color: ErpColors.textMuted, size: 17),
           suffixIcon: Obx(() => c.searchQuery.value.isNotEmpty
               ? GestureDetector(
@@ -142,7 +142,7 @@ class _SearchBar extends StatelessWidget {
               ctrl.clear();
               c.setSearch('');
             },
-            child: const Icon(Icons.close_rounded,
+            child: Icon(Icons.close_rounded,
                 size: 16, color: ErpColors.textMuted),
           )
               : const SizedBox.shrink()),
@@ -150,15 +150,15 @@ class _SearchBar extends StatelessWidget {
           const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: ErpColors.borderLight),
+            borderSide: BorderSide(color: ErpColors.borderLight),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: ErpColors.borderLight),
+            borderSide: BorderSide(color: ErpColors.borderLight),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(
+            borderSide: BorderSide(
                 color: ErpColors.accentBlue, width: 1.5),
           ),
         ),
@@ -248,7 +248,7 @@ class _JobList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.isLoading.value) {
-        return const Center(
+        return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue));
       }
       if (c.errorMsg.value != null) {
@@ -313,7 +313,7 @@ class _JobCard extends StatelessWidget {
                 border: Border.all(
                     color: ErpColors.accentBlue.withOpacity(0.3)),
               ),
-              child: const Icon(Icons.inventory_2_outlined,
+              child: Icon(Icons.inventory_2_outlined,
                   size: 22, color: ErpColors.accentBlue),
             ),
             const SizedBox(width: 12),
@@ -324,7 +324,7 @@ class _JobCard extends StatelessWidget {
                   children: [
                     Row(children: [
                       Text('Job #${job.jobNo}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
                               color: ErpColors.textPrimary)),
@@ -338,7 +338,7 @@ class _JobCard extends StatelessWidget {
                               color: ErpColors.statusInProgressBorder),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text('PACKING',
+                        child: Text('PACKING',
                             style: TextStyle(
                                 color: ErpColors.statusInProgressText,
                                 fontSize: 9,
@@ -348,11 +348,11 @@ class _JobCard extends StatelessWidget {
                     if (job.customerName != null) ...[
                       const SizedBox(height: 2),
                       Row(children: [
-                        const Icon(Icons.business_outlined,
+                        Icon(Icons.business_outlined,
                             size: 11, color: ErpColors.textMuted),
                         const SizedBox(width: 3),
                         Text(job.customerName!,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500)),
@@ -368,7 +368,7 @@ class _JobCard extends StatelessWidget {
                     ]),
                   ]),
             ),
-            const Icon(Icons.chevron_right_rounded,
+            Icon(Icons.chevron_right_rounded,
                 color: ErpColors.textMuted, size: 18),
           ]),
         ),
@@ -388,7 +388,7 @@ class _InfoChip extends StatelessWidget {
       Icon(icon, size: 11, color: ErpColors.textMuted),
       const SizedBox(width: 3),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 10,
               fontWeight: FontWeight.w600)),
@@ -410,13 +410,13 @@ class _EmptyState extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: ErpColors.borderLight),
         ),
-        child: const Icon(Icons.inventory_2_outlined,
+        child: Icon(Icons.inventory_2_outlined,
             size: 34, color: ErpColors.textMuted),
       ),
       const SizedBox(height: 14),
       Text(
         hasSearch ? 'No Matching Jobs' : 'No Packing Records',
-        style: const TextStyle(
+        style: TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 15,
             color: ErpColors.textPrimary),
@@ -426,7 +426,7 @@ class _EmptyState extends StatelessWidget {
         hasSearch
             ? 'Try a different search term'
             : 'Jobs in packing status will appear here',
-        style: const TextStyle(
+        style: TextStyle(
             color: ErpColors.textSecondary, fontSize: 12),
       ),
     ]),
@@ -440,16 +440,16 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
+      Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
       const SizedBox(height: 12),
-      const Text('Failed to load',
+      Text('Failed to load',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

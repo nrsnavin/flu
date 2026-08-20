@@ -48,7 +48,7 @@ class _WarpingDetailPageState extends State<WarpingDetailPage>
       appBar: _appBar(),
       body: Obx(() {
         if (c.isLoading.value && c.warping.value == null) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.errorMsg.value != null && c.warping.value == null) {
@@ -120,7 +120,7 @@ class _WarpingDetailPageState extends State<WarpingDetailPage>
             w != null ? 'Job #${w.jobOrderNo}' : 'Warping Detail',
             style: ErpTextStyles.pageTitle,
           ),
-          const Text('Warping  ›  Detail',
+          Text('Warping  ›  Detail',
               style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 10)),
         ],
@@ -188,7 +188,7 @@ class _HeroCard extends StatelessWidget {
                       fontSize: 17,
                       fontWeight: FontWeight.w900)),
               Text(DateFormat('dd MMM yyyy').format(w.date),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textOnDarkSub, fontSize: 11)),
             ],
           ),
@@ -236,7 +236,7 @@ class _StatBox extends StatelessWidget {
               fontWeight: FontWeight.w900)),
       const SizedBox(height: 2),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textOnDarkSub,
               fontSize: 9,
               fontWeight: FontWeight.w700)),
@@ -307,17 +307,17 @@ class _YarnBlocker extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Not completed — the yarn is still on the rack',
+              Text('Not completed — the yarn is still on the rack',
                   style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 13,
                       color: ErpColors.statusPartialText)),
               const SizedBox(height: 4),
               Text(msg,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12, color: ErpColors.textPrimary)),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'Issuing the batch is what moves the lot balances and ties '
                 'these beams to the dye lot inside them. Completing without '
                 'it leaves the lot ledger claiming yarn that has gone.',
@@ -389,7 +389,7 @@ class _StatusActions extends StatelessWidget {
           border:
           Border.all(color: ErpColors.successGreen.withOpacity(0.3)),
         ),
-        child: const Row(children: [
+        child: Row(children: [
           Icon(Icons.check_circle_rounded,
               color: ErpColors.successGreen, size: 16),
           SizedBox(width: 8),
@@ -551,7 +551,7 @@ class _ElasticsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (w.elastics.isEmpty) {
-      return const Center(
+      return Center(
           child: Text('No elastics found',
               style: TextStyle(color: ErpColors.textMuted)));
     }
@@ -593,7 +593,7 @@ class _ElasticCard extends StatelessWidget {
         child: Row(children: [
           Expanded(
             child: Text(e.elasticName,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                     color: ErpColors.textPrimary)),
@@ -606,7 +606,7 @@ class _ElasticCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text('Qty: ${e.plannedQty}',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.accentBlue,
                     fontSize: 10,
                     fontWeight: FontWeight.w800)),
@@ -621,7 +621,7 @@ class _ElasticCard extends StatelessWidget {
           _InfoChip(Icons.scale_outlined, '${e.weight}g/m'),
         ]),
       ),
-      const Divider(
+      Divider(
           height: 1,
           indent: 14,
           endIndent: 14,
@@ -633,7 +633,7 @@ class _ElasticCard extends StatelessWidget {
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('WARP SPANDEX',
+                Text('WARP SPANDEX',
                     style: TextStyle(
                         color: ErpColors.textMuted,
                         fontSize: 9,
@@ -643,7 +643,7 @@ class _ElasticCard extends StatelessWidget {
                 _MaterialRow(e.warpSpandex!),
               ]),
         ),
-        const Divider(
+        Divider(
             height: 1,
             indent: 14,
             endIndent: 14,
@@ -656,7 +656,7 @@ class _ElasticCard extends StatelessWidget {
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('WARP YARNS',
+                Text('WARP YARNS',
                     style: TextStyle(
                         color: ErpColors.textMuted,
                         fontSize: 9,
@@ -681,12 +681,12 @@ class _MaterialRow extends StatelessWidget {
       Container(
           width: 6,
           height: 6,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
               color: ErpColors.accentBlue, shape: BoxShape.circle)),
       const SizedBox(width: 8),
       Expanded(
           child: Text(m.name,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textPrimary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600))),
@@ -710,7 +710,7 @@ class _Chip extends StatelessWidget {
       border: Border.all(color: ErpColors.borderLight),
     ),
     child: Text(label,
-        style: const TextStyle(
+        style: TextStyle(
             color: ErpColors.textSecondary,
             fontSize: 10,
             fontWeight: FontWeight.w600)),
@@ -728,7 +728,7 @@ class _InfoChip extends StatelessWidget {
         Icon(icon, size: 11, color: ErpColors.textMuted),
         const SizedBox(width: 4),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary,
                 fontSize: 11,
                 fontWeight: FontWeight.w600)),
@@ -753,7 +753,7 @@ class _PlanTab extends StatelessWidget {
       return _NoPlanView(w: w, warpingId: warpingId, c: c);
     }
     if (plan == null) {
-      return const Center(
+      return Center(
           child:
           CircularProgressIndicator(color: ErpColors.accentBlue));
     }
@@ -779,17 +779,17 @@ class _NoPlanView extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: ErpColors.borderLight),
         ),
-        child: const Icon(Icons.assignment_outlined,
+        child: Icon(Icons.assignment_outlined,
             size: 34, color: ErpColors.textMuted),
       ),
       const SizedBox(height: 14),
-      const Text('No Warping Plan',
+      Text('No Warping Plan',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
-      const Text('Create a plan to start warping',
+      Text('Create a plan to start warping',
           style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12)),
       const SizedBox(height: 20),
@@ -835,7 +835,7 @@ class _NoPlanView extends StatelessWidget {
         OutlinedButton.icon(
           style: OutlinedButton.styleFrom(
             foregroundColor: ErpColors.accentBlue,
-            side: const BorderSide(color: ErpColors.accentBlue),
+            side: BorderSide(color: ErpColors.accentBlue),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           icon: const Icon(Icons.auto_fix_high, size: 16),
@@ -878,7 +878,7 @@ class _PlanView extends StatelessWidget {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('WARPING PLAN SUMMARY',
+                  Text('WARPING PLAN SUMMARY',
                       style: TextStyle(
                           color: ErpColors.textMuted,
                           fontSize: 9,
@@ -887,7 +887,7 @@ class _PlanView extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     '${plan.noOfBeams} Beams  ·  ${plan.totalEnds} Total Ends',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
                         color: ErpColors.textPrimary),
@@ -895,7 +895,7 @@ class _PlanView extends StatelessWidget {
                   if (plan.remarks?.isNotEmpty ?? false) ...[
                     const SizedBox(height: 3),
                     Text(plan.remarks!,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textSecondary,
                             fontSize: 11)),
                   ],
@@ -979,7 +979,7 @@ class _PlanView extends StatelessWidget {
         Obx(() => OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
                 foregroundColor: ErpColors.errorRed,
-                side: const BorderSide(color: ErpColors.errorRed),
+                side: BorderSide(color: ErpColors.errorRed),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 minimumSize: const Size.fromHeight(44),
               ),
@@ -1052,7 +1052,7 @@ class _BeamCard extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Text('Beam ${beam.beamNo}',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w900,
                   color: ErpColors.textPrimary)),
@@ -1065,7 +1065,7 @@ class _BeamCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text('${beam.totalEnds} Ends',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.accentBlue,
                     fontSize: 11,
                     fontWeight: FontWeight.w800)),
@@ -1143,11 +1143,11 @@ class _LotCell extends StatelessWidget {
                   if (s.shade.isNotEmpty)
                     Text(s.shade,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 10, color: ErpColors.textMuted)),
                 ],
               )
-            : const Text('Open',
+            : Text('Open',
                 style: TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
@@ -1158,7 +1158,7 @@ class _LotCell extends StatelessWidget {
 Widget _TH(String t) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
     child: Text(t,
-        style: const TextStyle(
+        style: TextStyle(
             fontWeight: FontWeight.w800,
             fontSize: 11,
             color: ErpColors.textSecondary)));
@@ -1166,14 +1166,14 @@ Widget _TH(String t) => Padding(
 Widget _TD(String t) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
     child: Text(t,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 12, color: ErpColors.textPrimary),
         textAlign: TextAlign.center));
 
 Widget _TDLeft(String t) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
     child: Text(t,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 12,
             color: ErpColors.textPrimary,
             fontWeight: FontWeight.w600)));
@@ -1190,10 +1190,10 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) =>
       Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.error_outline,
+          Icon(Icons.error_outline,
               size: 40, color: ErpColors.textMuted),
           const SizedBox(height: 12),
-          const Text('Failed to load',
+          Text('Failed to load',
               style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
@@ -1202,7 +1202,7 @@ class _ErrorState extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(msg,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 12),
                 textAlign: TextAlign.center),
           ),

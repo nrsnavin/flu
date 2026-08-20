@@ -743,7 +743,7 @@ class _HeroPlaceholder extends StatelessWidget {
   const _HeroPlaceholder();
   @override
   Widget build(BuildContext context) =>
-      const ColoredBox(color: ErpColors.navyDark);
+      ColoredBox(color: ErpColors.navyDark);
 }
 
 class _HeroCard extends StatelessWidget {
@@ -772,11 +772,11 @@ class _HeroCard extends StatelessWidget {
                           fontWeight: FontWeight.w900)),
                   const SizedBox(height: 2),
                   Text(job.customerName,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textOnDarkSub, fontSize: 12)),
                   if (job.customerPhone.isNotEmpty)
                     Text(job.customerPhone,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textOnDarkSub, fontSize: 11)),
                 ],
               ),
@@ -801,7 +801,7 @@ class _HeroCard extends StatelessWidget {
 
           // ── Progress bar ─────────────────────────────────────
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Text('Completion',
+            Text('Completion',
                 style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 11)),
             Text('${(pct * 100).toStringAsFixed(0)}%',
@@ -818,7 +818,7 @@ class _HeroCard extends StatelessWidget {
               minHeight: 5,
               backgroundColor: Colors.white.withOpacity(0.15),
               valueColor:
-              const AlwaysStoppedAnimation(ErpColors.accentBlue),
+              AlwaysStoppedAnimation(ErpColors.accentBlue),
             ),
           ),
         ],
@@ -842,7 +842,7 @@ class _KpiCell extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textOnDarkSub, fontSize: 9)),
       Text(value,
           style: const TextStyle(
@@ -858,7 +858,7 @@ class _StatusChip extends StatelessWidget {
   const _StatusChip(this.status);
   @override
   Widget build(BuildContext context) {
-    const map = {
+    final map = {
       'preparatory': (Color(0xFF7C3AED), Color(0xFFF5F3FF), 'Preparatory'),
       'weaving': (ErpColors.accentBlue, Color(0xFFEFF6FF), 'Weaving'),
       'finishing': (Color(0xFF0891B2), Color(0xFFECFEFF), 'Finishing'),
@@ -889,7 +889,7 @@ class _StatusChip extends StatelessWidget {
 class _LoadingView extends StatelessWidget {
   const _LoadingView();
   @override
-  Widget build(BuildContext context) => const Center(
+  Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
       CircularProgressIndicator(color: ErpColors.accentBlue),
       SizedBox(height: 12),
@@ -909,12 +909,12 @@ class _ErrorView extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(24),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.error_outline_rounded,
+        Icon(Icons.error_outline_rounded,
             color: ErpColors.errorRed, size: 48),
         const SizedBox(height: 12),
         Text(msg ?? 'Something went wrong.',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textPrimary, fontSize: 14)),
         if (onRetry != null) ...[
           const SizedBox(height: 16),
@@ -1013,12 +1013,12 @@ class _StatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(children: [
     Text(b.value,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w900,
             color: ErpColors.textPrimary)),
     Text(b.label,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 9, color: ErpColors.textSecondary)),
   ]);
 }
@@ -1028,7 +1028,7 @@ class _StatusBadge extends StatelessWidget {
   const _StatusBadge(this.status);
   @override
   Widget build(BuildContext context) {
-    const map = {
+    final map = {
       'completed': (ErpColors.successGreen, Color(0xFFF0FDF4)),
       'closed': (ErpColors.successGreen, Color(0xFFF0FDF4)),
       'in_progress': (Color(0xFF7C3AED), Color(0xFFF5F3FF)),
@@ -1111,13 +1111,13 @@ class _GeneralTab extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Completion',
+                      Text('Completion',
                           style: TextStyle(
                               fontSize: 11,
                               color: ErpColors.textSecondary)),
                       Text(
                           '${(job.completionPct * 100).toStringAsFixed(0)}%',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               color: ErpColors.textPrimary)),
@@ -1131,14 +1131,14 @@ class _GeneralTab extends StatelessWidget {
                       minHeight: 7,
                       backgroundColor:
                       ErpColors.borderLight,
-                      valueColor: const AlwaysStoppedAnimation(
+                      valueColor: AlwaysStoppedAnimation(
                           ErpColors.accentBlue),
                     ),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: ErpColors.borderLight),
+            Divider(height: 1, color: ErpColors.borderLight),
             _GRow('Total Planned', '${job.totalPlanned.toStringAsFixed(0)} m'),
             _GRow('Total Produced', '${job.totalProduced.toStringAsFixed(0)} m',
                 valueColor: ErpColors.accentBlue),
@@ -1162,7 +1162,7 @@ class _GeneralTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                   horizontal: 12, vertical: 7),
               child: Row(children: [
-                const SizedBox(
+                SizedBox(
                   width: 22,
                   child: Text('#',
                       style: TextStyle(
@@ -1170,7 +1170,7 @@ class _GeneralTab extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           color: ErpColors.textSecondary)),
                 ),
-                const Expanded(
+                Expanded(
                   flex: 3,
                   child: Text('ELASTIC',
                       style: TextStyle(
@@ -1178,7 +1178,7 @@ class _GeneralTab extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           color: ErpColors.textSecondary)),
                 ),
-                const SizedBox(
+                SizedBox(
                   width: 58,
                   child: Text('PLANNED',
                       style: TextStyle(
@@ -1187,7 +1187,7 @@ class _GeneralTab extends StatelessWidget {
                           color: ErpColors.textSecondary),
                       textAlign: TextAlign.right),
                 ),
-                const SizedBox(
+                SizedBox(
                   width: 62,
                   child: Text('PRODUCED',
                       style: TextStyle(
@@ -1196,7 +1196,7 @@ class _GeneralTab extends StatelessWidget {
                           color: ErpColors.textSecondary),
                       textAlign: TextAlign.right),
                 ),
-                const SizedBox(
+                SizedBox(
                   width: 58,
                   child: Text('WASTAGE',
                       style: TextStyle(
@@ -1207,9 +1207,9 @@ class _GeneralTab extends StatelessWidget {
                 ),
               ]),
             ),
-            const Divider(height: 1, color: ErpColors.borderLight),
+            Divider(height: 1, color: ErpColors.borderLight),
             if (job.plannedElastics.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(16),
                 child: Text('No elastics planned.',
                     style:
@@ -1246,7 +1246,7 @@ class _GeneralTab extends StatelessWidget {
                                   .withOpacity(0.12),
                               shape: BoxShape.circle),
                           child: Text('${i + 1}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w800,
                                   color: ErpColors.accentBlue)),
@@ -1255,7 +1255,7 @@ class _GeneralTab extends StatelessWidget {
                       Expanded(
                         flex: 3,
                         child: Text(e.elasticName,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: ErpColors.textPrimary)),
@@ -1264,7 +1264,7 @@ class _GeneralTab extends StatelessWidget {
                         width: 58,
                         child: Text(
                             '${e.quantity.toStringAsFixed(0)} m',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: ErpColors.textPrimary),
@@ -1276,7 +1276,7 @@ class _GeneralTab extends StatelessWidget {
                             produced > 0
                                 ? '${produced.toStringAsFixed(0)} m'
                                 : '—',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: ErpColors.accentBlue),
@@ -1299,7 +1299,7 @@ class _GeneralTab extends StatelessWidget {
                     ]),
                   ),
                   if (!isLast)
-                    const Divider(
+                    Divider(
                         height: 1, color: ErpColors.borderLight),
                 ]);
               }),
@@ -1316,7 +1316,7 @@ class _GeneralTab extends StatelessWidget {
                   horizontal: 12, vertical: 9),
               child: Row(children: [
                 const SizedBox(width: 22),
-                const Expanded(
+                Expanded(
                   flex: 3,
                   child: Text('TOTAL',
                       style: TextStyle(
@@ -1328,7 +1328,7 @@ class _GeneralTab extends StatelessWidget {
                   width: 58,
                   child: Text(
                       '${job.totalPlanned.toStringAsFixed(0)} m',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w900,
                           color: ErpColors.textPrimary),
@@ -1338,7 +1338,7 @@ class _GeneralTab extends StatelessWidget {
                   width: 62,
                   child: Text(
                       '${job.totalProduced.toStringAsFixed(0)} m',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w900,
                           color: ErpColors.accentBlue),
@@ -1374,11 +1374,11 @@ class _GeneralTab extends StatelessWidget {
               _GRow('Machine', job.machineName ?? '—'),
               _GRow('No. of Heads', '${job.machineNoOfHead}'),
               if (job.machineHeadPlan.isNotEmpty) ...[
-                const Divider(height: 1, color: ErpColors.borderLight),
+                Divider(height: 1, color: ErpColors.borderLight),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
                   child: Row(children: [
-                    const Text('HEAD PLAN',
+                    Text('HEAD PLAN',
                         style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -1412,7 +1412,7 @@ class _GeneralTab extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(h.elasticName,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 color: ErpColors.textPrimary)),
                       ),
@@ -1506,14 +1506,14 @@ class _GRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
           border:
           Border(bottom: BorderSide(color: ErpColors.borderLight))),
       child: Row(children: [
         SizedBox(
           width: 110,
           child: Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11, color: ErpColors.textSecondary)),
         ),
         Expanded(
@@ -1612,7 +1612,7 @@ class _YarnLotsPanel extends StatelessWidget {
         Row(children: [
           const Icon(Icons.science_outlined, size: 15, color: _purple),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Text('YARN LOTS',
                 style: TextStyle(
                     fontSize: 11,
@@ -1621,7 +1621,7 @@ class _YarnLotsPanel extends StatelessWidget {
                     color: ErpColors.textPrimary)),
           ),
           if (busy)
-            const SizedBox(
+            SizedBox(
                 width: 13,
                 height: 13,
                 child: CircularProgressIndicator(
@@ -1629,7 +1629,7 @@ class _YarnLotsPanel extends StatelessWidget {
           else
             InkWell(
               onTap: ctrl.fetchYarnLots,
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.all(2),
                 child: Icon(Icons.refresh_rounded,
                     size: 15, color: ErpColors.textMuted),
@@ -1640,10 +1640,10 @@ class _YarnLotsPanel extends StatelessWidget {
 
         if (err != null)
           Text(err,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11.5, color: ErpColors.errorRed))
         else if (lots.isEmpty)
-          const Text(
+          Text(
             'No lot recorded yet. Lots are named when the warping '
             'programme is written, and drawn when a batch is issued.',
             style: TextStyle(fontSize: 11.5, color: ErpColors.textMuted),
@@ -1652,7 +1652,7 @@ class _YarnLotsPanel extends StatelessWidget {
           _sectionsLine(lots.sections, lots.openBeamNos),
           if (lots.hasUnattributed) ...[
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Some batches did not say which elastic they were for, so those '
               'lots are listed job-wide.',
               style: TextStyle(fontSize: 10.5, color: ErpColors.warningAmber),
@@ -1667,7 +1667,7 @@ class _YarnLotsPanel extends StatelessWidget {
 
   Widget _sectionsLine(JobLotSections s, List<int> openBeams) {
     if (!s.hasProgramme) {
-      return const Text('No warping programme yet.',
+      return Text('No warping programme yet.',
           style: TextStyle(fontSize: 11.5, color: ErpColors.textMuted));
     }
     final allChosen = s.open == 0;
@@ -1700,14 +1700,14 @@ class _YarnLotsPanel extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(g.elasticName.toUpperCase(),
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.4,
                   color: ErpColors.textMuted)),
           const SizedBox(height: 6),
           if (g.lots.isEmpty)
-            const Text('Nothing recorded',
+            Text('Nothing recorded',
                 style: TextStyle(fontSize: 11, color: ErpColors.textMuted))
           else
             ...g.lots.map(_row),
@@ -1731,7 +1731,7 @@ class _YarnLotsPanel extends StatelessWidget {
               Flexible(
                 child: Text(r.lotLabel.isEmpty ? '—' : r.lotLabel,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w800,
                         color: ErpColors.textPrimary)),
@@ -1747,7 +1747,7 @@ class _YarnLotsPanel extends StatelessWidget {
                     color: ErpColors.errorRed.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: const Text('QUARANTINED',
+                  child: Text('QUARANTINED',
                       style: TextStyle(
                           fontSize: 8,
                           fontWeight: FontWeight.w900,
@@ -1764,7 +1764,7 @@ class _YarnLotsPanel extends StatelessWidget {
                 if (!r.isIssued && r.sections > 0)
                   '${r.sections} section${r.sections == 1 ? '' : 's'}',
               ].join('  ·  '),
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 10.5, color: ErpColors.textSecondary),
             ),
             if (r.isIssued && r.sharedAcross > 1)
@@ -1772,7 +1772,7 @@ class _YarnLotsPanel extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(
                   'Drawn once, shared across ${r.sharedAcross} elastics',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 9.5,
                       fontStyle: FontStyle.italic,
                       color: ErpColors.textMuted),
@@ -1799,7 +1799,7 @@ class _YarnLotsPanel extends StatelessWidget {
           // lot, it does not weigh it, and a zero would be invented.
           Text(
             r.quantity == null ? '—' : '${_lotQty(r.quantity!)} kg',
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
                 color: ErpColors.textPrimary),
@@ -1902,7 +1902,7 @@ class _BeamCard extends StatelessWidget {
               Expanded(
                   flex: 1,
                   child: Text('${s.sectionNo}',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: ErpColors.accentBlue))),
@@ -1912,14 +1912,14 @@ class _BeamCard extends StatelessWidget {
                       s.yarnUnit.isNotEmpty
                           ? '${s.yarnName} (${s.yarnUnit})'
                           : s.yarnName,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: ErpColors.textPrimary))),
               Expanded(
                   flex: 1,
                   child: Text('${s.ends}',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12, color: ErpColors.textPrimary),
                       textAlign: TextAlign.center)),
             ]),
@@ -1933,14 +1933,14 @@ class _BeamCard extends StatelessWidget {
               BorderRadius.vertical(bottom: Radius.circular(8))),
           child: Row(children: [
             const Spacer(),
-            const Text('Total Ends:',
+            Text('Total Ends:',
                 style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: ErpColors.textPrimary)),
             const SizedBox(width: 8),
             Text('${beam.totalEnds}',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w900,
                     color: ErpColors.successGreen)),
@@ -2008,7 +2008,7 @@ class _CoveringTab extends StatelessWidget {
               ]),
             ),
             if (c.elasticPlanned.isEmpty)
-              const Padding(
+              Padding(
                   padding: EdgeInsets.all(16),
                   child: Text('No elastics planned.',
                       style:
@@ -2026,7 +2026,7 @@ class _CoveringTab extends StatelessWidget {
                   child: Row(children: [
                     Expanded(
                         child: Text(e.elasticName,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: ErpColors.textPrimary))),
@@ -2046,7 +2046,7 @@ class _CoveringTab extends StatelessWidget {
                   borderRadius: BorderRadius.vertical(
                       bottom: Radius.circular(8))),
               child: Row(children: [
-                const Expanded(
+                Expanded(
                     child: Text('TOTAL',
                         style: TextStyle(
                             fontSize: 12,
@@ -2142,7 +2142,7 @@ class _ShiftDetailCard extends StatelessWidget {
                     color: accent)),
             Text(detail.date ?? '-',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 8,
                     color: ErpColors.textSecondary)),
           ]),
@@ -2153,25 +2153,25 @@ class _ShiftDetailCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('${detail.machineName}  ·  ${detail.operatorName}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: ErpColors.textPrimary)),
               const SizedBox(height: 2),
               if (detail.elastics.isNotEmpty)
                 Text(detail.elastics.map((e) => e.elasticName).join(', '),
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11,
                         color: ErpColors.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
               const SizedBox(height: 4),
               Row(children: [
-                const Icon(Icons.timer_outlined,
+                Icon(Icons.timer_outlined,
                     size: 12, color: ErpColors.textSecondary),
                 const SizedBox(width: 3),
                 Text(detail.timer,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11,
                         color: ErpColors.textSecondary)),
               ]),
@@ -2180,7 +2180,7 @@ class _ShiftDetailCard extends StatelessWidget {
         ),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('${detail.productionMeters} m',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
                   color: ErpColors.textPrimary)),
@@ -2265,7 +2265,7 @@ class _WastageTable extends StatelessWidget {
         // Header
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
               color: ErpColors.errorRed,
               borderRadius:
               BorderRadius.vertical(top: Radius.circular(7))),
@@ -2293,7 +2293,7 @@ class _WastageTable extends StatelessWidget {
                   SizedBox(
                     width: 20,
                     child: Text('${i + 1}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textMuted,
                             fontSize: 10,
                             fontWeight: FontWeight.w700)),
@@ -2305,13 +2305,13 @@ class _WastageTable extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(w.elasticName,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: ErpColors.textPrimary)),
                         if (w.date != null)
                           Text(w.date!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 10,
                                   color: ErpColors.textMuted)),
                       ],
@@ -2320,14 +2320,14 @@ class _WastageTable extends StatelessWidget {
                   Expanded(
                     flex: 2,
                     child: Text(w.employeeName,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11,
                             color: ErpColors.textSecondary)),
                   ),
                   SizedBox(
                     width: 44,
                     child: Text('${w.quantity.toStringAsFixed(1)}m',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             color: ErpColors.errorRed),
@@ -2358,12 +2358,12 @@ class _WastageTable extends StatelessWidget {
                 padding:
                 const EdgeInsets.fromLTRB(40, 0, 12, 8),
                 child: Row(children: [
-                  const Icon(Icons.subdirectory_arrow_right_rounded,
+                  Icon(Icons.subdirectory_arrow_right_rounded,
                       size: 12, color: ErpColors.textMuted),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(w.reason,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11,
                             color: ErpColors.textMuted,
                             fontStyle: FontStyle.italic)),
@@ -2371,7 +2371,7 @@ class _WastageTable extends StatelessWidget {
                 ]),
               ),
             if (i < wastages.length - 1)
-              const Divider(
+              Divider(
                   height: 1,
                   indent: 12,
                   endIndent: 12,
@@ -2389,7 +2389,7 @@ class _WastageTable extends StatelessWidget {
                   top: BorderSide(
                       color: ErpColors.errorRed.withOpacity(0.2)))),
           child: Row(children: [
-            const Expanded(
+            Expanded(
                 child: Text('TOTAL',
                     style: TextStyle(
                         fontSize: 11,
@@ -2397,14 +2397,14 @@ class _WastageTable extends StatelessWidget {
                         color: ErpColors.textPrimary))),
             Text(
                 '${wastages.fold(0.0, (s, w) => s + w.quantity).toStringAsFixed(1)}m',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                     color: ErpColors.errorRed)),
             const SizedBox(width: 8),
             Text(
                 '  Rs.${wastages.fold(0.0, (s, w) => s + w.penalty).toStringAsFixed(0)}',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: ErpColors.errorRed)),
@@ -2482,7 +2482,7 @@ class _PackingTable extends StatelessWidget {
         // ── Header ─────────────────────────────────────────────
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
               color: ErpColors.navyDark,
               borderRadius:
               BorderRadius.vertical(top: Radius.circular(7))),
@@ -2497,7 +2497,7 @@ class _PackingTable extends StatelessWidget {
         ...packingDetails.asMap().entries.map((entry) {
           final i = entry.key;
           final p = entry.value;
-          const statusColors = {
+          final statusColors = {
             'dispatched': ErpColors.successGreen,
             'ready': ErpColors.accentBlue,
             'packing': ErpColors.warningAmber,
@@ -2523,7 +2523,7 @@ class _PackingTable extends StatelessWidget {
                         border: Border.all(
                             color: ErpColors.accentBlue.withOpacity(0.3))),
                     child: Text(p.shortId,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
                             color: ErpColors.accentBlue),
@@ -2537,17 +2537,17 @@ class _PackingTable extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(p.elasticName,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: ErpColors.textPrimary)),
                         if (p.date != null)
                           Text(p.date!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 10,
                                   color: ErpColors.textMuted)),
                         Text('Batch: ${p.batch}',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 10,
                                 color: ErpColors.textMuted)),
                       ],
@@ -2617,7 +2617,7 @@ class _PackingTable extends StatelessWidget {
             ),
 
             if (i < packingDetails.length - 1)
-              const Divider(
+              Divider(
                   height: 1,
                   indent: 12,
                   endIndent: 12,
@@ -2635,7 +2635,7 @@ class _PackingTable extends StatelessWidget {
               border: Border(
                   top: BorderSide(color: Color(0xFFBBF7D0)))),
           child: Row(children: [
-            const Expanded(
+            Expanded(
                 child: Text('TOTAL',
                     style: TextStyle(
                         fontSize: 11,
@@ -2643,14 +2643,14 @@ class _PackingTable extends StatelessWidget {
                         color: ErpColors.textPrimary))),
             Text(
                 '${packingDetails.fold(0, (s, p) => s + p.total)} m',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                     color: ErpColors.successGreen)),
             const SizedBox(width: 10),
             Text(
                 '${packingDetails.fold(0, (s, p) => s + p.rolls)} rolls',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: ErpColors.textSecondary)),
@@ -2675,10 +2675,10 @@ class _PackCell extends StatelessWidget {
       Icon(icon, size: 11, color: ErpColors.textMuted),
       const SizedBox(width: 4),
       Text('$label: ',
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 10, color: ErpColors.textMuted)),
       Text(value,
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: ErpColors.textPrimary)),
@@ -2760,7 +2760,7 @@ class _EmptyCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight)),
     child: Center(
         child: Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 13))),
   );
 }
@@ -2775,7 +2775,7 @@ class _EmptyTab extends StatelessWidget {
       Icon(icon, color: ErpColors.textSecondary, size: 40),
       const SizedBox(height: 12),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 14)),
     ]),
   );
@@ -2838,7 +2838,7 @@ class _ActionBar extends StatelessWidget {
       decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           border:
-          const Border(top: BorderSide(color: ErpColors.borderLight)),
+          Border(top: BorderSide(color: ErpColors.borderLight)),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.06),
@@ -2847,11 +2847,11 @@ class _ActionBar extends StatelessWidget {
           ]),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Row(children: [
-          const Icon(Icons.precision_manufacturing_outlined,
+          Icon(Icons.precision_manufacturing_outlined,
               size: 14, color: ErpColors.textSecondary),
           const SizedBox(width: 6),
           if (job.hasMachine) ...[
-            const Text('Machine:',
+            Text('Machine:',
                 style: TextStyle(
                     fontSize: 11, color: ErpColors.textSecondary)),
             const SizedBox(width: 6),
@@ -2862,7 +2862,7 @@ class _ActionBar extends StatelessWidget {
                   color: ErpColors.successGreen.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8)),
               child: Text(job.machineName!,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
                       color: ErpColors.successGreen)),
@@ -2870,11 +2870,11 @@ class _ActionBar extends StatelessWidget {
             const SizedBox(width: 8),
             if (job.machineNoOfHead > 0)
               Text('${job.machineNoOfHead} heads',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11,
                       color: ErpColors.textSecondary)),
           ] else
-            const Text('No machine assigned',
+            Text('No machine assigned',
                 style: TextStyle(
                     fontSize: 12,
                     color: ErpColors.warningAmber,
@@ -2889,7 +2889,7 @@ class _ActionBar extends StatelessWidget {
                   : () => _openAssignMachineSheet(context),
               style: OutlinedButton.styleFrom(
                   foregroundColor: ErpColors.accentBlue,
-                  side: const BorderSide(color: ErpColors.accentBlue),
+                  side: BorderSide(color: ErpColors.accentBlue),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8))),
@@ -2950,7 +2950,7 @@ class _ActionBar extends StatelessWidget {
       decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           border:
-          const Border(top: BorderSide(color: ErpColors.borderLight)),
+          Border(top: BorderSide(color: ErpColors.borderLight)),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.06),
@@ -2995,7 +2995,7 @@ class _ActionBar extends StatelessWidget {
         border: Border(
             top: BorderSide(
                 color: ErpColors.successGreen.withOpacity(0.3)))),
-    child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       Icon(Icons.verified_rounded,
           color: ErpColors.successGreen, size: 20),
       SizedBox(width: 8),
@@ -3042,14 +3042,14 @@ class _ActionBar extends StatelessWidget {
                       fontSize: 15, fontWeight: FontWeight.w800))),
         ]),
         content: Text(message,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 13,
                 color: ErpColors.textSecondary,
                 height: 1.5)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel',
+            child: Text('Cancel',
                 style: TextStyle(color: ErpColors.textSecondary)),
           ),
           ElevatedButton(
@@ -3143,14 +3143,14 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
     final bottomPad = MediaQuery.of(context).padding.bottom;
     return Container(
       constraints: BoxConstraints(maxHeight: screenH * 0.92),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           borderRadius:
           BorderRadius.vertical(top: Radius.circular(16))),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         _handle(),
         _header(),
-        const Divider(height: 1, color: ErpColors.borderLight),
+        Divider(height: 1, color: ErpColors.borderLight),
         Flexible(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
@@ -3191,7 +3191,7 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Assign Machine',
+            Text('Assign Machine',
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -3201,7 +3201,7 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
                 _picked == null
                     ? 'Select a free machine below'
                     : 'Assign an elastic to each head',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12, color: ErpColors.textSecondary)),
           ],
         ),
@@ -3232,14 +3232,14 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
 
   Widget _machineSection() => Obx(() {
     if (_c.machinesLoading.value) {
-      return const Padding(
+      return Padding(
           padding: EdgeInsets.symmetric(vertical: 40),
           child: Center(
               child: CircularProgressIndicator(
                   color: ErpColors.accentBlue)));
     }
     if (_c.freeMachines.isEmpty) {
-      return const Padding(
+      return Padding(
           padding: EdgeInsets.symmetric(vertical: 40),
           child: Center(
               child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -3310,13 +3310,13 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
                               '${m.noOfHead} heads',
                               '${m.noOfHooks} hooks',
                             ].join('  ·  '),
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 11,
                                 color: ErpColors.textSecondary)),
                       ],
                     )),
                 if (isSelected)
-                  const Icon(Icons.check_circle_rounded,
+                  Icon(Icons.check_circle_rounded,
                       color: ErpColors.accentBlue, size: 20)
                 else
                   Container(
@@ -3326,7 +3326,7 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
                         color:
                         ErpColors.successGreen.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8)),
-                    child: const Text('FREE',
+                    child: Text('FREE',
                         style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
@@ -3353,7 +3353,7 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                   color: ErpColors.warningAmber.withOpacity(0.3))),
-          child: const Row(children: [
+          child: Row(children: [
             Icon(Icons.warning_amber_rounded,
                 color: ErpColors.warningAmber, size: 16),
             SizedBox(width: 8),
@@ -3390,7 +3390,7 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
                     color: ErpColors.accentBlue.withOpacity(0.1),
                     shape: BoxShape.circle),
                 child: Text('${i + 1}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
                         color: ErpColors.accentBlue)),
@@ -3401,14 +3401,14 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
                   child: DropdownButton<String>(
                     value: assignedVal,
                     isExpanded: true,
-                    hint: const Text('Select Elastic',
+                    hint: Text('Select Elastic',
                         style: TextStyle(
                             fontSize: 12, color: ErpColors.textMuted)),
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: ErpColors.textPrimary),
-                    icon: const Icon(Icons.arrow_drop_down,
+                    icon: Icon(Icons.arrow_drop_down,
                         color: ErpColors.textMuted),
                     onChanged: (v) {
                       if (v != null) _setHead(i, v);
@@ -3426,7 +3426,7 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
               ),
               if (isSet) ...[
                 const SizedBox(width: 8),
-                const Icon(Icons.check_circle_rounded,
+                Icon(Icons.check_circle_rounded,
                     color: ErpColors.successGreen, size: 18),
               ],
             ]),
@@ -3436,13 +3436,13 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
           Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Row(children: [
-              const Icon(Icons.info_outline_rounded,
+              Icon(Icons.info_outline_rounded,
                   size: 12, color: ErpColors.textMuted),
               const SizedBox(width: 6),
               Text(
                   'Assign an elastic to all '
                       '${machine.noOfHead} heads to confirm.',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11, color: ErpColors.textMuted)),
             ]),
           ),
@@ -3452,7 +3452,7 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
 
   Widget _footer(double bottomPad) => Container(
     padding: EdgeInsets.fromLTRB(16, 10, 16, 14 + bottomPad),
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         border:
         Border(top: BorderSide(color: ErpColors.borderLight))),
@@ -3462,12 +3462,12 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
         child: OutlinedButton(
           onPressed: () => Navigator.of(context).pop(),
           style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ErpColors.borderMid),
+              side: BorderSide(color: ErpColors.borderMid),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
               padding:
               const EdgeInsets.symmetric(horizontal: 20)),
-          child: const Text('Cancel',
+          child: Text('Cancel',
               style: TextStyle(
                   color: ErpColors.textSecondary,
                   fontWeight: FontWeight.w600)),
@@ -3519,7 +3519,7 @@ class _AssignMachineSheetState extends State<_AssignMachineSheet> {
   Widget _sectionLabel(String t) => Padding(
     padding: const EdgeInsets.only(bottom: 10),
     child: Text(t,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.8,

@@ -114,7 +114,7 @@ class _AddRawMaterialPageState extends State<AddRawMaterialPage> {
                 icon: Icons.business_outlined,
                 child: Obx(() {
                   if (c.isLoadingSup.value) {
-                    return const Center(
+                    return Center(
                       child: Padding(
                         padding: EdgeInsets.all(16),
                         child: CircularProgressIndicator(
@@ -124,15 +124,15 @@ class _AddRawMaterialPageState extends State<AddRawMaterialPage> {
                   }
                   if (c.suppliers.isEmpty) {
                     return Column(children: [
-                      const Text('No suppliers found',
+                      Text('No suppliers found',
                           style: TextStyle(
                               color: ErpColors.textMuted, fontSize: 12)),
                       const SizedBox(height: 8),
                       TextButton.icon(
                         onPressed: () => c.searchSuppliers(''),
-                        icon: const Icon(Icons.refresh,
+                        icon: Icon(Icons.refresh,
                             size: 14, color: ErpColors.accentBlue),
-                        label: const Text('Retry',
+                        label: Text('Retry',
                             style: TextStyle(
                                 color: ErpColors.accentBlue,
                                 fontSize: 12)),
@@ -279,7 +279,7 @@ class _AddRawMaterialPageState extends State<AddRawMaterialPage> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 4,
-      title: const Column(
+      title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [

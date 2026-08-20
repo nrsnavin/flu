@@ -65,7 +65,7 @@ class UserFormPage extends StatelessWidget {
               },
             ),
             const SizedBox(height: 14),
-            const Text('Preset (department)',
+            Text('Preset (department)',
                 style: TextStyle(
                     color: ErpColors.textSecondary,
                     fontSize: 12,
@@ -100,12 +100,12 @@ class UserFormPage extends StatelessWidget {
               );
             }),
             const SizedBox(height: 18),
-            const Text('Feature access',
+            Text('Feature access',
                 style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w800)),
-            const Text(
+            Text(
               'Pick what this user can open. The list is scoped to their role — '
               'only features that role can reach are shown.',
               style: TextStyle(color: ErpColors.textMuted, fontSize: 11),
@@ -158,7 +158,7 @@ class UserFormPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Text(section.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted,
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -189,7 +189,7 @@ class UserFormPage extends StatelessWidget {
                                     : ErpColors.textPrimary)),
                       ),
                       if (f.always)
-                        const Text('always',
+                        Text('always',
                             style: TextStyle(
                                 fontSize: 9,
                                 color: ErpColors.textMuted,

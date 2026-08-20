@@ -55,11 +55,11 @@ class _Placeholder extends StatelessWidget {
   final String message;
   final Color tone;
   final VoidCallback onRetry;
-  const _Placeholder({
+  _Placeholder({
     required this.message,
     required this.onRetry,
-    this.tone = ErpColors.textSecondary,
-  });
+    Color? tone,
+  }) : tone = tone ?? ErpColors.textSecondary;
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +90,7 @@ class _Placeholder extends StatelessWidget {
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: const Text('Retry',
+            child: Text('Retry',
                 style: TextStyle(
                   fontSize: 11, fontWeight: FontWeight.w800,
                   color: ErpColors.accentBlue, letterSpacing: 0.4,
@@ -119,7 +119,7 @@ class _Loading extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: ErpColors.borderLight),
       ),
-      child: const Row(children: [
+      child: Row(children: [
         SizedBox(
           width: 14, height: 14,
           child: CircularProgressIndicator(strokeWidth: 2, color: ErpColors.accentBlue),
@@ -185,7 +185,7 @@ class _Card extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('Predicted completion',
+                      Text('Predicted completion',
                           style: TextStyle(
                             fontSize: 10, fontWeight: FontWeight.w800,
                             color: ErpColors.textSecondary, letterSpacing: 0.6,
@@ -239,7 +239,7 @@ class _Card extends StatelessWidget {
                 children: [
                   Text(
                     'WHY ${r.workingDays} WORKING DAYS',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 9, fontWeight: FontWeight.w800,
                       color: ErpColors.textSecondary, letterSpacing: 0.6,
                     ),
@@ -277,10 +277,10 @@ class _Card extends StatelessWidget {
           // ── Per-job breakdown ──────────────────────────────
           if (r.jobs.isNotEmpty) ...[
             const SizedBox(height: 8),
-            const Divider(height: 1, color: ErpColors.borderLight),
+            Divider(height: 1, color: ErpColors.borderLight),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
-              child: const Text(
+              child: Text(
                 'PER JOB',
                 style: TextStyle(
                   fontSize: 9, fontWeight: FontWeight.w800,
@@ -337,13 +337,13 @@ class _Card extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(top: 4, right: 6),
                         child: Icon(Icons.circle, size: 4, color: ErpColors.textMuted),
                       ),
                       Expanded(
                         child: Text(a,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10, color: ErpColors.textMuted, height: 1.4,
                             )),
                       ),
@@ -382,7 +382,7 @@ class _JobRow extends StatelessWidget {
               job.machineLabel != null && job.machineLabel!.isNotEmpty
                   ? job.machineLabel!
                   : 'Job ${job.jobOrderNo ?? ''}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11, fontWeight: FontWeight.w700,
                 color: ErpColors.textPrimary,
               ),
@@ -463,13 +463,13 @@ class _SplitPart extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10, fontWeight: FontWeight.w800,
                 color: ErpColors.textPrimary,
               )),
           const SizedBox(height: 1),
           Text(sub,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 9, color: ErpColors.textMuted, height: 1.3,
               )),
         ],
@@ -486,7 +486,7 @@ class _Glyph extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Text(symbol,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16, fontWeight: FontWeight.w900,
             color: ErpColors.textMuted,
           )),

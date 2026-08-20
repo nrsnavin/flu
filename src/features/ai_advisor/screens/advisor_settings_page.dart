@@ -20,7 +20,7 @@ class AdvisorSettingsPage extends StatelessWidget {
         backgroundColor: ErpColors.navyDark,
         elevation: 0,
         titleSpacing: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -38,7 +38,7 @@ class AdvisorSettingsPage extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 4, bottom: 8),
               child: Text(
                 'Disabled categories are hidden from the dashboard '
@@ -122,14 +122,14 @@ class _CategoryTile extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(category.label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                           color: ErpColors.textPrimary,
                         )),
                     const SizedBox(height: 2),
                     Text(_subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: ErpColors.textSecondary,
                         )),

@@ -111,7 +111,7 @@ class _ComplaintListPageState extends State<ComplaintListPage> {
             children: [
               Text(text,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: ErpColors.textSecondary)),
+                  style: TextStyle(color: ErpColors.textSecondary)),
               if (onRetry != null) ...[
                 const SizedBox(height: 12),
                 OutlinedButton(
@@ -153,7 +153,7 @@ class _Tile extends StatelessWidget {
                 Expanded(
                   child: Text(
                     complaint.customerName,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: ErpColors.textPrimary),
                   ),
@@ -185,7 +185,7 @@ class _Tile extends StatelessWidget {
                 if (complaint.elasticName != '—') complaint.elasticName,
                 if (complaint.jobOrderNo != null) 'Job ${complaint.jobOrderNo}',
               ].join('  ·  '),
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12, color: ErpColors.textSecondary),
             ),
             if (complaint.reason.isNotEmpty) ...[
@@ -194,14 +194,14 @@ class _Tile extends StatelessWidget {
                 complaint.reason,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13, color: ErpColors.textPrimary),
               ),
             ],
             if (complaint.date != null) ...[
               const SizedBox(height: 6),
               Text(DateFormat('dd MMM yyyy').format(complaint.date!),
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11, color: ErpColors.textMuted)),
             ],
           ],

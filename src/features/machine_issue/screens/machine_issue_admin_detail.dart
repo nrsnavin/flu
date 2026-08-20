@@ -43,7 +43,7 @@ class _MachineIssueAdminDetailPageState
       return Scaffold(
         backgroundColor: ErpColors.bgBase,
         appBar: const ErpAppBar(title: 'Machine Issue'),
-        body: const Center(
+        body: Center(
           child: Text('No issue id supplied',
               style: TextStyle(color: ErpColors.textSecondary)),
         ),
@@ -55,7 +55,7 @@ class _MachineIssueAdminDetailPageState
       body: Obx(() {
         final issue = c.selected.value;
         if (issue == null) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue),
           );
         }
@@ -106,7 +106,7 @@ class _Body extends StatelessWidget {
               Row(children: [
                 Expanded(
                   child: Text(title,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.w900)),
@@ -140,7 +140,7 @@ class _Body extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('DESCRIPTION',
+                Text('DESCRIPTION',
                     style: TextStyle(
                         color: ErpColors.textMuted,
                         fontSize: 10,
@@ -148,7 +148,7 @@ class _Body extends StatelessWidget {
                         letterSpacing: 0.8)),
                 const SizedBox(height: 6),
                 Text(description,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary, fontSize: 13)),
               ],
             ),
@@ -164,7 +164,7 @@ class _Body extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('RESOLUTION NOTES',
+                Text('RESOLUTION NOTES',
                     style: TextStyle(
                         color: ErpColors.textMuted,
                         fontSize: 10,
@@ -172,7 +172,7 @@ class _Body extends StatelessWidget {
                         letterSpacing: 0.8)),
                 const SizedBox(height: 6),
                 Text(notes,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary, fontSize: 13)),
               ],
             ),
@@ -221,7 +221,7 @@ class _Body extends StatelessWidget {
                   status == 'resolved'
                       ? 'Issue closed as resolved'
                       : 'Issue rejected',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textPrimary,
                       fontWeight: FontWeight.w700),
                 ),
@@ -238,11 +238,11 @@ class _Body extends StatelessWidget {
           Icon(icon, size: 12, color: ErpColors.textMuted),
           const SizedBox(width: 6),
           Text('$label: ',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textMuted, fontSize: 11)),
           Expanded(
             child: Text(value,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.w700),
@@ -304,7 +304,7 @@ void _showStatusSheet(
           padding: EdgeInsets.only(
               bottom: MediaQuery.of(sheetCtx).viewInsets.bottom),
           child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgSurface,
               borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
             ),
@@ -324,7 +324,7 @@ void _showStatusSheet(
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Text('Update Status',
+                Text('Update Status',
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,

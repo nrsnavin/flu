@@ -58,7 +58,7 @@ class _AddWastagePageState extends State<AddWastagePage> {
         key: _formKey,
         child: Obx(() {
           if (c.isLoadingJobs.value) {
-            return const Center(
+            return Center(
                 child: CircularProgressIndicator(color: ErpColors.accentBlue));
           }
           if (c.errorMsg.value != null && c.jobs.isEmpty) {
@@ -118,7 +118,7 @@ class _AddWastagePageState extends State<AddWastagePage> {
                     decoration: ErpDecorations.formInput('Wastage Quantity (m) *')
                         .copyWith(
                       suffixText: 'm',
-                      suffixStyle: const TextStyle(
+                      suffixStyle: TextStyle(
                           color: ErpColors.textMuted, fontSize: 12),
                     ),
                     validator: (v) {
@@ -145,10 +145,10 @@ class _AddWastagePageState extends State<AddWastagePage> {
                     decoration: ErpDecorations.formInput('Penalty (₹)')
                         .copyWith(
                       prefixText: '₹ ',
-                      prefixStyle: const TextStyle(
+                      prefixStyle: TextStyle(
                           color: ErpColors.textMuted, fontSize: 12),
                       hintText: '0.00 (optional)',
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                           color: ErpColors.textMuted, fontSize: 11),
                     ),
                   ),
@@ -219,12 +219,12 @@ class _AddWastagePageState extends State<AddWastagePage> {
           border: Border.all(color: ErpColors.borderLight),
         ),
         child: Row(children: [
-          const Icon(Icons.info_outline, size: 14, color: ErpColors.textMuted),
+          Icon(Icons.info_outline, size: 14, color: ErpColors.textMuted),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'No jobs in weaving / finishing / checking',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textSecondary, fontSize: 11),
             ),
           ),
@@ -262,7 +262,7 @@ class _AddWastagePageState extends State<AddWastagePage> {
     if (c.selectedJob.value == null) {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        child: const Text('Select a job first',
+        child: Text('Select a job first',
             style: TextStyle(color: ErpColors.textMuted, fontSize: 11)),
       );
     }
@@ -271,7 +271,7 @@ class _AddWastagePageState extends State<AddWastagePage> {
     if (elastics.isEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        child: const Text('No elastics in this job',
+        child: Text('No elastics in this job',
             style: TextStyle(color: ErpColors.textMuted, fontSize: 11)),
       );
     }
@@ -305,7 +305,7 @@ class _AddWastagePageState extends State<AddWastagePage> {
   Widget _buildEmployeeDropdown() {
     return Obx(() {
       if (c.isLoadingOps.value) {
-        return const Padding(
+        return Padding(
           padding: EdgeInsets.symmetric(vertical: 10),
           child: Row(children: [
             SizedBox(
@@ -323,7 +323,7 @@ class _AddWastagePageState extends State<AddWastagePage> {
       if (c.selectedJob.value == null) {
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          child: const Text('Select a job first',
+          child: Text('Select a job first',
               style: TextStyle(color: ErpColors.textMuted, fontSize: 11)),
         );
       }
@@ -331,7 +331,7 @@ class _AddWastagePageState extends State<AddWastagePage> {
       if (c.operators.isEmpty) {
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          child: const Text('No operators assigned to this job',
+          child: Text('No operators assigned to this job',
               style: TextStyle(color: ErpColors.textMuted, fontSize: 11)),
         );
       }
@@ -346,7 +346,7 @@ class _AddWastagePageState extends State<AddWastagePage> {
             .map((e) => DropdownMenuItem(
           value: e,
           child: Row(children: [
-            const Icon(Icons.person_outline,
+            Icon(Icons.person_outline,
                 size: 13, color: ErpColors.textMuted),
             const SizedBox(width: 6),
             Flexible(
@@ -377,7 +377,7 @@ class _AddWastagePageState extends State<AddWastagePage> {
       onPressed: () => Navigator.of(context).pop(),
     ),
     titleSpacing: 4,
-    title: const Column(
+    title: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -448,16 +448,16 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
+      Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
       const SizedBox(height: 12),
-      const Text('Failed to load',
+      Text('Failed to load',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

@@ -57,7 +57,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.bgSurface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
@@ -90,14 +90,14 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                         color: ErpColors.accentBlue.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.view_week_outlined,
                         size: 20,
                         color: ErpColors.accentBlue,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -123,7 +123,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                   ],
                 ),
               ),
-              const Divider(height: 1, color: ErpColors.borderLight),
+              Divider(height: 1, color: ErpColors.borderLight),
               // Stepper row
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
@@ -144,7 +144,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                           textAlign: TextAlign.center,
                           keyboardType: TextInputType.number,
 
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w900,
                             color: ErpColors.textPrimary,
@@ -170,7 +170,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                   ),
                 ),
               ),
-              const Text(
+              Text(
                 'heads',
                 style: TextStyle(
                   color: ErpColors.textSecondary,
@@ -189,7 +189,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                     borderRadius: BorderRadius.circular(7),
                     border: Border.all(color: ErpColors.statusApprovedBorder),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
                       Icon(
                         Icons.info_outline_rounded,
@@ -225,13 +225,13 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: ErpColors.borderMid),
+                          side: BorderSide(color: ErpColors.borderMid),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Cancel',
                           style: TextStyle(
                             color: ErpColors.textSecondary,
@@ -305,7 +305,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
       appBar: _buildAppBar(),
       body: Obx(() {
         if (c.isLoading.value) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue),
           );
         }
@@ -372,7 +372,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
               m != null ? m.machineCode : 'Machine Detail',
               style: ErpTextStyles.pageTitle,
             ),
-            const Text(
+            Text(
               'Machines  ›  Detail',
               style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 10),
             ),
@@ -459,14 +459,14 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: ErpColors.borderLight),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.error_outline,
               size: 34,
               color: ErpColors.textMuted,
             ),
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'Failed to load machine',
             style: TextStyle(
               fontWeight: FontWeight.w700,
@@ -477,7 +477,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
           const SizedBox(height: 4),
           Text(
             c.errorMsg.value ?? 'Unknown error',
-            style: const TextStyle(
+            style: TextStyle(
               color: ErpColors.textSecondary,
               fontSize: 12,
             ),
@@ -536,7 +536,7 @@ class _HeroCard extends StatelessWidget {
           // ── Dark navy header ─────────────────────────────────
           Container(
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.navyDark,
               borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
             ),
@@ -571,7 +571,7 @@ class _HeroCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.business_outlined,
                             size: 12,
                             color: ErpColors.textOnDarkSub,
@@ -579,7 +579,7 @@ class _HeroCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             machine.manufacturer,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: ErpColors.textOnDarkSub,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -591,7 +591,7 @@ class _HeroCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.work_outline,
                               size: 11,
                               color: ErpColors.textOnDarkSub,
@@ -599,7 +599,7 @@ class _HeroCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               'Job #${machine.currentJobNo}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: ErpColors.textOnDarkSub,
                                 fontSize: 11,
                               ),
@@ -710,7 +710,7 @@ class _StatBox extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             color: ErpColors.textMuted,
             fontSize: 9,
             fontWeight: FontWeight.w700,
@@ -720,7 +720,7 @@ class _StatBox extends StatelessWidget {
         const SizedBox(height: 3),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             color: ErpColors.textPrimary,
             fontSize: 12,
             fontWeight: FontWeight.w800,
@@ -819,7 +819,7 @@ class _ElasticAssignmentCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -902,7 +902,7 @@ class _PerformanceStats extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Text(
+                  Text(
                     'Average Efficiency',
                     style: TextStyle(
                       color: ErpColors.textSecondary,
@@ -988,7 +988,7 @@ class _PerfBox extends StatelessWidget {
           ),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 9,
               fontWeight: FontWeight.w700,
@@ -998,7 +998,7 @@ class _PerfBox extends StatelessWidget {
           ),
           Text(
             subLabel,
-            style: const TextStyle(color: ErpColors.textMuted, fontSize: 9),
+            style: TextStyle(color: ErpColors.textMuted, fontSize: 9),
           ),
         ],
       ),
@@ -1022,7 +1022,7 @@ class _Legend extends StatelessWidget {
       const SizedBox(width: 4),
       Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           color: ErpColors.textMuted,
           fontSize: 9,
           fontWeight: FontWeight.w600,
@@ -1047,7 +1047,7 @@ class _ShiftHistorySection extends StatelessWidget {
       title: 'LAST ${shifts.length} SHIFTS',
       icon: Icons.schedule_outlined,
       child: shifts.isEmpty
-          ? const Padding(
+          ? Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Center(
           child: Text(
@@ -1116,7 +1116,7 @@ class _ShiftRow extends StatelessWidget {
                 children: [
                   Text(
                     '${DateFormat('dd MMM yyyy').format(shift.date)}  •  ${shift.shiftType}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
                       color: ErpColors.textPrimary,
@@ -1125,7 +1125,7 @@ class _ShiftRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.person_outline,
                         size: 11,
                         color: ErpColors.textMuted,
@@ -1134,7 +1134,7 @@ class _ShiftRow extends StatelessWidget {
                       Expanded(
                         child: Text(
                           shift.operatorName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: ErpColors.textSecondary,
                             fontSize: 11,
                           ),
@@ -1177,7 +1177,7 @@ class _ShiftRow extends StatelessWidget {
                     fontSize: 16,
                   ),
                 ),
-                const Text(
+                Text(
                   'efficiency',
                   style: TextStyle(color: ErpColors.textMuted, fontSize: 9),
                 ),
@@ -1197,7 +1197,7 @@ class _ShiftRow extends StatelessWidget {
               ],
             ),
             const SizedBox(width: 6),
-            const Icon(
+            Icon(
               Icons.chevron_right_rounded,
               color: ErpColors.textMuted,
               size: 16,
@@ -1267,7 +1267,7 @@ class _ServiceLogSection extends StatelessWidget {
       icon: Icons.build_outlined,
       accentColor: ErpColors.warningAmber,
       child: logs.isEmpty
-          ? const Padding(
+          ? Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Center(
           child: Text(
@@ -1317,7 +1317,7 @@ class _ServiceLogSection extends StatelessWidget {
                         color: ErpColors.errorRed.withOpacity(0.10),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text('OPEN',
+                      child: Text('OPEN',
                           style: TextStyle(
                               color: ErpColors.errorRed, fontSize: 9,
                               fontWeight: FontWeight.w800)),
@@ -1325,7 +1325,7 @@ class _ServiceLogSection extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     DateFormat('dd MMM yyyy').format(log.date),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textMuted, fontSize: 10),
                   ),
                 ]),
@@ -1333,7 +1333,7 @@ class _ServiceLogSection extends StatelessWidget {
 
                 // Description
                 Text(log.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary,
                         fontSize: 12, fontWeight: FontWeight.w600)),
 
@@ -1342,19 +1342,19 @@ class _ServiceLogSection extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(children: [
                     if (log.technician.isNotEmpty) ...[
-                      const Icon(Icons.engineering_outlined,
+                      Icon(Icons.engineering_outlined,
                           size: 11, color: ErpColors.textMuted),
                       const SizedBox(width: 4),
                       Text(log.technician,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textSecondary, fontSize: 11)),
                     ],
                     if (log.technician.isNotEmpty && log.cost > 0)
-                      const Text('  ·  ',
+                      Text('  ·  ',
                           style: TextStyle(color: ErpColors.textMuted)),
                     if (log.cost > 0)
                       Text('₹${log.cost.toStringAsFixed(0)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textSecondary,
                               fontSize: 11, fontWeight: FontWeight.w700)),
                   ]),
@@ -1364,12 +1364,12 @@ class _ServiceLogSection extends StatelessWidget {
                 if (log.nextServiceDate != null) ...[
                   const SizedBox(height: 6),
                   Row(children: [
-                    const Icon(Icons.event_rounded,
+                    Icon(Icons.event_rounded,
                         size: 11, color: ErpColors.accentBlue),
                     const SizedBox(width: 4),
                     Text(
                         'Next: ${DateFormat('dd MMM yyyy').format(log.nextServiceDate!)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.accentBlue, fontSize: 11,
                             fontWeight: FontWeight.w600)),
                   ]),

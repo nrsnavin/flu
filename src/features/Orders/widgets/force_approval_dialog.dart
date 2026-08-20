@@ -40,7 +40,7 @@ Future<String?> showForceApprovalDialog({
           titlePadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
           contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
           title: Row(
-            children: const [
+            children: [
               Icon(Icons.warning_amber_rounded,
                   color: ErpColors.warningAmber, size: 22),
               SizedBox(width: 8),
@@ -62,7 +62,7 @@ Future<String?> showForceApprovalDialog({
                       originalMessage.isNotEmpty
                           ? originalMessage
                           : 'Raw-material stock is short of the order requirement.',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary, fontSize: 12),
                     ),
                     const SizedBox(height: 12),
@@ -78,7 +78,7 @@ Future<String?> showForceApprovalDialog({
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(materialName,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: ErpColors.textPrimary,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800)),
@@ -87,7 +87,7 @@ Future<String?> showForceApprovalDialog({
                             'Need ${fmt(required)} kg · '
                             'Available ${fmt(available)} kg · '
                             'Short ${fmt(short)} kg',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600),
@@ -96,7 +96,7 @@ Future<String?> showForceApprovalDialog({
                       ),
                     ),
                     const SizedBox(height: 14),
-                    const Text(
+                    Text(
                       'Forcing approval will deduct what is available '
                       '(remaining clamped at 0) and record the override '
                       'in the order audit trail. Provide a reason so the '
@@ -134,7 +134,7 @@ Future<String?> showForceApprovalDialog({
               // (not this dialog) whenever an error toast from the
               // failed approve is still on screen.
               onPressed: () => Navigator.of(dialogCtx).pop(null),
-              child: const Text('Cancel',
+              child: Text('Cancel',
                   style: TextStyle(color: ErpColors.textSecondary)),
             ),
             ElevatedButton.icon(

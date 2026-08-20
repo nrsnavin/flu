@@ -80,7 +80,7 @@ class _ElasticListPageState extends State<ElasticListPage> {
             child: Center(
               child: Text(
                 "${_c.elastics.length} items",
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 12),
               ),
             ),
@@ -121,7 +121,7 @@ class _SearchBar extends StatelessWidget {
     return Container(
 
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           border: Border(bottom: BorderSide(color: ErpColors.borderLight))),
       child: SizedBox(
@@ -131,25 +131,25 @@ class _SearchBar extends StatelessWidget {
           style: const TextStyle(fontSize: 14),
           decoration: InputDecoration(
             hintText: "Search elastics…",
-            hintStyle: const TextStyle(
+            hintStyle: TextStyle(
                 color: ErpColors.textMuted, fontSize: 13),
-            prefixIcon: const Icon(Icons.search,
+            prefixIcon: Icon(Icons.search,
                 size: 19, color: ErpColors.textMuted),
             filled: true,
             fillColor: ErpColors.bgMuted,
             contentPadding: const EdgeInsets.symmetric(vertical: 0),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
               borderSide:
-              const BorderSide(color: ErpColors.accentBlue, width: 1.5),
+              BorderSide(color: ErpColors.accentBlue, width: 1.5),
             ),
           ),
         ),
@@ -167,7 +167,7 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.loading.value && c.elastics.isEmpty) {
-        return const Center(
+        return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue));
       }
       if (c.elastics.isEmpty) {
@@ -183,7 +183,7 @@ class _Body extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (_, i) {
             if (i == c.elastics.length) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                     child: CircularProgressIndicator(
@@ -217,7 +217,7 @@ class _ElasticCard extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: const Text('Cancel',
+            child: Text('Cancel',
                 style: TextStyle(color: ErpColors.textSecondary)),
           ),
           ElevatedButton(
@@ -277,7 +277,7 @@ class _ElasticCard extends StatelessWidget {
                       color: ErpColors.accentBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.layers_outlined,
+                    child: Icon(Icons.layers_outlined,
                         size: 20, color: ErpColors.accentBlue),
                   ),
                   const SizedBox(width: 12),
@@ -288,7 +288,7 @@ class _ElasticCard extends StatelessWidget {
                         Row(children: [
                           Flexible(
                             child: Text(e.name,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                     color: ErpColors.textPrimary),
@@ -303,7 +303,7 @@ class _ElasticCard extends StatelessWidget {
                                 color: const Color(0xFFFEF3C7),
                                 borderRadius: BorderRadius.circular(3),
                               ),
-                              child: const Text('ARCHIVED',
+                              child: Text('ARCHIVED',
                                   style: TextStyle(
                                       color: ErpColors.warningAmber,
                                       fontSize: 8,
@@ -313,7 +313,7 @@ class _ElasticCard extends StatelessWidget {
                           ],
                         ]),
                         Text("Weave Type: ${e.weaveType}",
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 color: ErpColors.textSecondary)),
                       ],
@@ -341,7 +341,7 @@ class _ElasticCard extends StatelessWidget {
             ),
             Container(
               padding: const EdgeInsets.fromLTRB(14, 7, 14, 10),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: ErpColors.bgMuted,
                 borderRadius:
                 BorderRadius.vertical(bottom: Radius.circular(8)),
@@ -366,7 +366,7 @@ class _ElasticCard extends StatelessWidget {
                         fontWeight: FontWeight.w600),
                   ),
                   const Spacer(),
-                  const Icon(Icons.chevron_right,
+                  Icon(Icons.chevron_right,
                       size: 16, color: ErpColors.textMuted),
                 ],
               ),
@@ -396,27 +396,27 @@ class _EmptyState extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: ErpColors.borderLight),
             ),
-            child: const Icon(Icons.layers_outlined,
+            child: Icon(Icons.layers_outlined,
                 size: 32, color: ErpColors.textMuted),
           ),
           const SizedBox(height: 16),
-          const Text("No Elastics Found",
+          Text("No Elastics Found",
               style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                   color: ErpColors.textPrimary)),
           const SizedBox(height: 4),
-          const Text("Tap + to create your first elastic",
+          Text("Tap + to create your first elastic",
               style:
               TextStyle(color: ErpColors.textSecondary, fontSize: 13)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: onRefresh,
             style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.borderMid)),
-            icon: const Icon(Icons.refresh,
+                side: BorderSide(color: ErpColors.borderMid)),
+            icon: Icon(Icons.refresh,
                 size: 16, color: ErpColors.textSecondary),
-            label: const Text("Refresh",
+            label: Text("Refresh",
                 style: TextStyle(color: ErpColors.textSecondary)),
           ),
         ],

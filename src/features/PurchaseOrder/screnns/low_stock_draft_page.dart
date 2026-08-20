@@ -26,7 +26,7 @@ class LowStockDraftPage extends StatelessWidget {
         backgroundColor: ErpColors.navyDark,
         elevation: 0,
         titleSpacing: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -110,7 +110,7 @@ class _HorizonSelector extends StatelessWidget {
                 backgroundColor: ErpColors.bgSurface,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
-                    side: const BorderSide(color: ErpColors.borderLight)),
+                    side: BorderSide(color: ErpColors.borderLight)),
               ),
             );
           }).toList(),
@@ -143,7 +143,7 @@ class _StatsRow extends StatelessWidget {
             border: Border.all(color: ErpColors.borderLight),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+            Text(label, style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
             const SizedBox(height: 4),
             Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: color)),
           ]),
@@ -162,17 +162,17 @@ class _AiSummaryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         borderRadius: BorderRadius.circular(10),
-        border: const Border(left: BorderSide(color: ErpColors.accentBlue, width: 4)),
+        border: Border(left: BorderSide(color: ErpColors.accentBlue, width: 4)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Row(children: [
+        Row(children: [
           Icon(Icons.auto_awesome, size: 14, color: ErpColors.accentBlue),
           SizedBox(width: 6),
           Text('AI PROCUREMENT SUMMARY',
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.accentBlue)),
         ]),
         const SizedBox(height: 8),
-        Text(text, style: const TextStyle(fontSize: 13, color: ErpColors.textPrimary, height: 1.4)),
+        Text(text, style: TextStyle(fontSize: 13, color: ErpColors.textPrimary, height: 1.4)),
       ]),
     );
   }
@@ -206,7 +206,7 @@ class _SupplierGroupCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
               border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -218,7 +218,7 @@ class _SupplierGroupCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(supplierName,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
                               color: ErpColors.textPrimary)),
@@ -227,7 +227,7 @@ class _SupplierGroupCard extends StatelessWidget {
                         '${items.length} material'
                         '${items.length == 1 ? '' : 's'}  ·  '
                         '₹${totalValue.toStringAsFixed(0)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11, color: ErpColors.textSecondary),
                       ),
                     ],
@@ -272,7 +272,7 @@ class _MaterialRow extends StatelessWidget {
               Expanded(
                 child: Text(m.name,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: ErpColors.textPrimary)),
@@ -303,7 +303,7 @@ class _MaterialRow extends StatelessWidget {
                 ),
                 child: Text(
                   '+${m.suggestedQty.toStringAsFixed(0)}${m.unit.isNotEmpty ? ' ${m.unit}' : ''}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11, fontWeight: FontWeight.w800, color: ErpColors.accentBlue),
                 ),
               ),
@@ -326,7 +326,7 @@ class _MaterialRow extends StatelessWidget {
             'on-hand ${m.stock.toStringAsFixed(0)}'
             '${m.committedDemand > 0 ? '  ·  committed ${m.committedDemand.toStringAsFixed(0)}' : ''}'
             '  ·  proj ${m.projectedStock.toStringAsFixed(0)}',
-            style: const TextStyle(fontSize: 11, color: ErpColors.textSecondary),
+            style: TextStyle(fontSize: 11, color: ErpColors.textSecondary),
           ),
         ],
       ),
@@ -350,14 +350,14 @@ class _SkippedNote extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded, size: 14, color: ErpColors.warningAmber),
+          Icon(Icons.info_outline_rounded, size: 14, color: ErpColors.warningAmber),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               '${c.skippedNoSupplier.value} '
               'material${c.skippedNoSupplier.value == 1 ? '' : 's'} '
               'need reordering but have no default supplier set.',
-              style: const TextStyle(fontSize: 12, color: ErpColors.warningAmber),
+              style: TextStyle(fontSize: 12, color: ErpColors.warningAmber),
             ),
           ),
         ],
@@ -371,7 +371,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
         padding: EdgeInsets.all(24),
         child: Column(
@@ -406,11 +406,11 @@ class _Error extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline_rounded, size: 40, color: ErpColors.errorRed),
+            Icon(Icons.error_outline_rounded, size: 40, color: ErpColors.errorRed),
             const SizedBox(height: 12),
             Text(message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 13, color: ErpColors.textSecondary)),
+                style: TextStyle(fontSize: 13, color: ErpColors.textSecondary)),
             const SizedBox(height: 12),
             OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
           ],

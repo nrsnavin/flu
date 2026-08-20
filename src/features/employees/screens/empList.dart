@@ -69,12 +69,12 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Employees', style: ErpTextStyles.pageTitle),
+          Text('Employees', style: ErpTextStyles.pageTitle),
           Text(
             c.totalCount > 0
                 ? '${c.totalCount} employees registered'
                 : 'Employee Registry',
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textOnDarkSub, fontSize: 10),
           ),
         ],
@@ -139,8 +139,8 @@ class _SearchBar extends StatelessWidget {
             fillColor: ErpColors.bgMuted,
             hintText: 'Search by name or role…',
             hintStyle:
-            const TextStyle(color: ErpColors.textMuted, fontSize: 12),
-            prefixIcon: const Icon(Icons.search_rounded,
+            TextStyle(color: ErpColors.textMuted, fontSize: 12),
+            prefixIcon: Icon(Icons.search_rounded,
                 color: ErpColors.textMuted, size: 17),
             suffixIcon: Obx(() => c.searchQuery.value.isNotEmpty
                 ? GestureDetector(
@@ -148,7 +148,7 @@ class _SearchBar extends StatelessWidget {
                 ctrl.clear();
                 c.setSearch('');
               },
-              child: const Icon(Icons.close_rounded,
+              child: Icon(Icons.close_rounded,
                   size: 16, color: ErpColors.textMuted),
             )
                 : const SizedBox.shrink()),
@@ -156,16 +156,16 @@ class _SearchBar extends StatelessWidget {
             const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
               borderSide:
-              const BorderSide(color: ErpColors.accentBlue, width: 1.5),
+              BorderSide(color: ErpColors.accentBlue, width: 1.5),
             ),
           ),
         ),
@@ -295,7 +295,7 @@ class _EmployeeList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.isLoading.value) {
-        return const Center(
+        return Center(
             child:
             CircularProgressIndicator(color: ErpColors.accentBlue));
       }
@@ -378,7 +378,7 @@ class _EmployeeCard extends StatelessWidget {
               ),
               child: Center(
                 child: Text(employee.initial,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.accentBlue,
                         fontSize: 18,
                         fontWeight: FontWeight.w900)),
@@ -393,7 +393,7 @@ class _EmployeeCard extends StatelessWidget {
                     Row(children: [
                       Expanded(
                         child: Text(employee.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
                                 color: ErpColors.textPrimary),
@@ -420,7 +420,7 @@ class _EmployeeCard extends StatelessWidget {
                     ]),
                     const SizedBox(height: 3),
                     Text(employee.role,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textSecondary,
                             fontSize: 11,
                             fontWeight: FontWeight.w500),
@@ -438,7 +438,7 @@ class _EmployeeCard extends StatelessWidget {
                   ]),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.chevron_right_rounded,
+            Icon(Icons.chevron_right_rounded,
                 color: ErpColors.textMuted, size: 18),
           ]),
         ),
@@ -458,7 +458,7 @@ class _Chip extends StatelessWidget {
       Icon(icon, size: 11, color: ErpColors.textMuted),
       const SizedBox(width: 3),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 10,
               fontWeight: FontWeight.w600)),
@@ -482,12 +482,12 @@ class _EmptyState extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: ErpColors.borderLight),
           ),
-          child: const Icon(Icons.people_outline_rounded,
+          child: Icon(Icons.people_outline_rounded,
               size: 34, color: ErpColors.textMuted),
         ),
         const SizedBox(height: 14),
         Text(hasFilter ? 'No Matching Employees' : 'No Employees Yet',
-            style: const TextStyle(
+            style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
                 color: ErpColors.textPrimary)),
@@ -496,7 +496,7 @@ class _EmptyState extends StatelessWidget {
           hasFilter
               ? 'Try adjusting your search or department filter'
               : 'Add your first employee using the button below',
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center,
         ),
@@ -505,10 +505,10 @@ class _EmptyState extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onReset,
             style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.borderMid)),
-            icon: const Icon(Icons.filter_alt_off_outlined,
+                side: BorderSide(color: ErpColors.borderMid)),
+            icon: Icon(Icons.filter_alt_off_outlined,
                 size: 15, color: ErpColors.textSecondary),
-            label: const Text('Clear filters',
+            label: Text('Clear filters',
                 style: TextStyle(
                     color: ErpColors.textSecondary,
                     fontWeight: FontWeight.w600)),
@@ -533,18 +533,18 @@ class _ErrorState extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: ErpColors.borderLight),
         ),
-        child: const Icon(Icons.error_outline,
+        child: Icon(Icons.error_outline,
             size: 34, color: ErpColors.textMuted),
       ),
       const SizedBox(height: 14),
-      const Text('Failed to load',
+      Text('Failed to load',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(message,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

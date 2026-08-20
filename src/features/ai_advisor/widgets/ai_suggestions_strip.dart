@@ -113,13 +113,13 @@ class _Header extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Text('SUGGESTED ACTIONS',
+          Text('SUGGESTED ACTIONS',
               style: ErpTextStyles.sectionHeader),
           const SizedBox(width: 6),
           InkWell(
             onTap: _openDiagnostics,
             borderRadius: BorderRadius.circular(20),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.all(2),
               child: Icon(Icons.info_outline_rounded,
                   size: 14, color: ErpColors.textSecondary),
@@ -129,7 +129,7 @@ class _Header extends StatelessWidget {
           InkWell(
             onTap: advisor.refreshNow,
             borderRadius: BorderRadius.circular(20),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.all(4),
               child: Icon(Icons.refresh_rounded,
                   size: 16, color: ErpColors.textSecondary),
@@ -151,7 +151,7 @@ class _DiagnosticsSheet extends StatelessWidget {
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(16)),
@@ -169,7 +169,7 @@ class _DiagnosticsSheet extends StatelessWidget {
               ),
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: Row(
               children: [
@@ -182,7 +182,7 @@ class _DiagnosticsSheet extends StatelessWidget {
               ],
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
             child: Text(
               'Each row is one signal the advisor checks. '
@@ -192,12 +192,12 @@ class _DiagnosticsSheet extends StatelessWidget {
                   fontSize: 11, color: ErpColors.textSecondary),
             ),
           ),
-          const Divider(height: 1, color: ErpColors.borderLight),
+          Divider(height: 1, color: ErpColors.borderLight),
           Flexible(
             child: Obx(() {
               final rows = advisor.endpointDiagnostics.toList();
               if (rows.isEmpty) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.all(24),
                   child: Center(
                     child: Text('No diagnostic data yet — refresh first.',
@@ -209,7 +209,7 @@ class _DiagnosticsSheet extends StatelessWidget {
               return ListView.separated(
                 shrinkWrap: true,
                 itemCount: rows.length,
-                separatorBuilder: (_, __) => const Divider(
+                separatorBuilder: (_, __) => Divider(
                     height: 1, color: ErpColors.borderLight),
                 itemBuilder: (_, i) => _DiagRow(d: rows[i]),
               );
@@ -300,14 +300,14 @@ class _DiagRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(d.label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: ErpColors.textPrimary,
                     )),
                 const SizedBox(height: 2),
                 Text(d.path,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       color: ErpColors.textMuted,
                     )),
@@ -349,7 +349,7 @@ class _StripLoading extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: ErpColors.borderLight),
       ),
-      child: const SizedBox(
+      child: SizedBox(
         width: 18,
         height: 18,
         child: CircularProgressIndicator(
@@ -406,14 +406,14 @@ class _StripMessage extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                           color: ErpColors.textPrimary,
                         )),
                     const SizedBox(height: 2),
                     Text(subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: ErpColors.textSecondary,
                         )),
@@ -421,7 +421,7 @@ class _StripMessage extends StatelessWidget {
                 ),
               ),
               if (onTap != null)
-                const Icon(Icons.chevron_right_rounded,
+                Icon(Icons.chevron_right_rounded,
                     size: 18, color: ErpColors.textMuted),
             ],
           ),
@@ -508,7 +508,7 @@ class _SuggestionCard extends StatelessWidget {
                   s.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: ErpColors.textPrimary,
@@ -521,7 +521,7 @@ class _SuggestionCard extends StatelessWidget {
                     s.subtitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       color: ErpColors.textSecondary,
                       height: 1.3,

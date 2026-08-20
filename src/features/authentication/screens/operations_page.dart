@@ -101,7 +101,7 @@ class ModuleTile extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: ErpColors.textPrimary,
@@ -111,7 +111,7 @@ class ModuleTile extends StatelessWidget {
                 if (!reg.pinned.contains(module.id)) {
                   return const SizedBox.shrink();
                 }
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.only(top: 2),
                   child: Icon(Icons.push_pin_rounded,
                       size: 11, color: ErpColors.accentBlue),

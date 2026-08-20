@@ -32,12 +32,12 @@ class UsersListPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline,
+                  Icon(Icons.error_outline,
                       size: 48, color: ErpColors.errorRed),
                   const SizedBox(height: 8),
                   Text(ctrl.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary, fontSize: 13)),
                   const SizedBox(height: 12),
                   ErpPrimaryButton(
@@ -48,7 +48,7 @@ class UsersListPage extends StatelessWidget {
           );
         }
         if (ctrl.users.isEmpty) {
-          return const Center(
+          return Center(
             child: Text('No users',
                 style: TextStyle(
                     color: ErpColors.textSecondary,
@@ -88,13 +88,13 @@ class UsersListPage extends StatelessWidget {
   void _confirmDelete(UsersController ctrl, Map<String, dynamic> u) {
     Get.defaultDialog(
       title: 'Delete user?',
-      titleStyle: const TextStyle(
+      titleStyle: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w800,
           color: ErpColors.textPrimary),
       middleText: '${u['name']} will lose access to the app.',
       middleTextStyle:
-          const TextStyle(color: ErpColors.textSecondary, fontSize: 12),
+          TextStyle(color: ErpColors.textSecondary, fontSize: 12),
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(
             backgroundColor: ErpColors.errorRed, elevation: 0),
@@ -140,7 +140,7 @@ class _UserCard extends StatelessWidget {
               backgroundColor: ErpColors.statusOpenBg,
               child: Text(
                 name.isNotEmpty ? name[0].toUpperCase() : '?',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.statusOpenText,
                     fontWeight: FontWeight.w800),
               ),
@@ -151,13 +151,13 @@ class _UserCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(name,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.w800)),
                   const SizedBox(height: 2),
                   Text(email,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary, fontSize: 12)),
                   const SizedBox(height: 4),
                   Row(
@@ -173,7 +173,7 @@ class _UserCard extends StatelessWidget {
                                 Border.all(color: ErpColors.statusOpenBorder),
                           ),
                           child: Text(role,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: ErpColors.statusOpenText,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700)),
@@ -181,7 +181,7 @@ class _UserCard extends StatelessWidget {
                       if (dept != null && dept.isNotEmpty) ...[
                         const SizedBox(width: 6),
                         Text(dept,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textMuted, fontSize: 11)),
                       ],
                     ],
@@ -190,7 +190,7 @@ class _UserCard extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline,
+              icon: Icon(Icons.delete_outline,
                   color: ErpColors.errorRed, size: 20),
               onPressed: onDelete,
             ),

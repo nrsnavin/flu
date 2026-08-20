@@ -117,7 +117,7 @@ class _StockCountListPageViewState extends State<StockCountListPageView> {
               Text(
                 text,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: ErpColors.textSecondary),
+                style: TextStyle(color: ErpColors.textSecondary),
               ),
               if (onRetry != null) ...[
                 const SizedBox(height: 12),
@@ -157,7 +157,7 @@ class _CountCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     count.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: ErpColors.textPrimary,
                     ),
@@ -171,7 +171,7 @@ class _CountCard extends StatelessWidget {
               count.frozenAt == null
                   ? 'Not frozen'
                   : 'Frozen ${DateFormat('dd MMM yyyy').format(count.frozenAt!)}',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12, color: ErpColors.textSecondary),
             ),
             const SizedBox(height: 10),
@@ -190,7 +190,7 @@ class _CountCard extends StatelessWidget {
               '${t.counted} of ${t.lines} counted'
               '${t.varied > 0 ? '  ·  ${t.varied} varied' : ''}'
               '${t.needingReason > 0 ? '  ·  ${t.needingReason} need a reason' : ''}',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12, color: ErpColors.textSecondary),
             ),
           ],

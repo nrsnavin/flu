@@ -27,7 +27,7 @@ import '../models/service_bill.dart';
 //  disagree, that disagreement is the useful part.
 // ══════════════════════════════════════════════════════════════
 
-const _amber = ErpColors.warningAmber;
+final _amber = ErpColors.warningAmber;
 
 void _snack(String msg, {required bool isError}) => Get.snackbar(
       isError ? 'Error' : 'Done',
@@ -108,7 +108,7 @@ class _ServiceBillsSheetState extends State<_ServiceBillsSheet> {
     return Container(
       constraints:
           BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgBase,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -122,7 +122,7 @@ class _ServiceBillsSheetState extends State<_ServiceBillsSheet> {
 
   Widget _header() => Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.navyDark,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
@@ -139,12 +139,12 @@ class _ServiceBillsSheetState extends State<_ServiceBillsSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Service & Spare Bills',
+                  Text('Service & Spare Bills',
                       style: ErpTextStyles.pageTitle),
                   Text(
                     '${widget.machineDisplayId}  ›  ${widget.log.type}  ›  '
                     '${DateFormat('dd MMM yyyy').format(widget.log.date)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textOnDarkSub, fontSize: 10),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -161,7 +161,7 @@ class _ServiceBillsSheetState extends State<_ServiceBillsSheet> {
 
   Widget _body() {
     if (c.isLoading.value && c.bills.isEmpty) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.symmetric(vertical: 50),
         child: Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue)),
@@ -184,7 +184,7 @@ class _ServiceBillsSheetState extends State<_ServiceBillsSheet> {
         const SizedBox(height: 12),
 
         if (c.bills.isEmpty)
-          const _Note(
+          _Note(
             'No bills filed against this log yet. Photograph the vendor '
             'invoice or attach their PDF.',
             ErpColors.textMuted,
@@ -204,7 +204,7 @@ class _ServiceBillsSheetState extends State<_ServiceBillsSheet> {
   Widget _footer() => Container(
         padding: EdgeInsets.fromLTRB(
             14, 10, 14, 14 + MediaQuery.of(context).padding.bottom),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           border: Border(top: BorderSide(color: ErpColors.borderLight)),
         ),
@@ -379,7 +379,7 @@ class _Totals extends StatelessWidget {
             gap > 0
                 ? 'Bills come to ${_money(gap)} more than the log booked.'
                 : 'Bills come to ${_money(-gap)} less than the log booked.',
-            style: const TextStyle(fontSize: 10.5, color: _amber),
+            style: TextStyle(fontSize: 10.5, color: _amber),
           ),
         ],
       ]),
@@ -400,7 +400,7 @@ class _Figure extends StatelessWidget {
                 fontSize: 15, fontWeight: FontWeight.w900, color: color)),
         const SizedBox(height: 2),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 9.5,
                 fontWeight: FontWeight.w700,
                 color: ErpColors.textMuted)),
@@ -464,7 +464,7 @@ class _BillCard extends StatelessWidget {
               children: [
                 Text(bill.label,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                         color: ErpColors.textPrimary)),
@@ -472,7 +472,7 @@ class _BillCard extends StatelessWidget {
                 Text(
                   '${billKindLabel(bill.kind)}  ·  ${facts.join('  ·  ')}',
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 10.5, color: ErpColors.textSecondary),
                 ),
               ],
@@ -480,7 +480,7 @@ class _BillCard extends StatelessWidget {
           ),
           if (bill.amount > 0)
             Text(_money(bill.amount),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                     color: ErpColors.textPrimary)),
@@ -488,7 +488,7 @@ class _BillCard extends StatelessWidget {
         if (bill.notes.isNotEmpty) ...[
           const SizedBox(height: 8),
           Text(bill.notes,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11,
                   fontStyle: FontStyle.italic,
                   color: ErpColors.textSecondary)),
@@ -500,14 +500,14 @@ class _BillCard extends StatelessWidget {
               height: 32,
               child: OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: ErpColors.borderMid),
+                  side: BorderSide(color: ErpColors.borderMid),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6)),
                 ),
                 onPressed: busy ? null : onOpen,
-                icon: const Icon(Icons.open_in_new_rounded,
+                icon: Icon(Icons.open_in_new_rounded,
                     size: 13, color: ErpColors.textSecondary),
-                label: const Text('Open',
+                label: Text('Open',
                     style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w700,
@@ -526,7 +526,7 @@ class _BillCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
               ),
               onPressed: busy ? null : onDelete,
-              child: const Icon(Icons.delete_outline,
+              child: Icon(Icons.delete_outline,
                   size: 15, color: ErpColors.errorRed),
             ),
           ),
@@ -665,14 +665,14 @@ class _BillDetailsSheetState extends State<_BillDetailsSheet> {
       child: Container(
         constraints:
             BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.85),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgBase,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.navyDark,
               borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
             ),
@@ -685,7 +685,7 @@ class _BillDetailsSheetState extends State<_BillDetailsSheet> {
                         style: ErpTextStyles.pageTitle),
                     Text(widget.filename,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textOnDarkSub, fontSize: 10)),
                   ],
                 ),
@@ -714,13 +714,13 @@ class _BillDetailsSheetState extends State<_BillDetailsSheet> {
                           FilteringTextInputFormatter.allow(
                               RegExp(r'^\d*\.?\d*')),
                         ],
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13, color: ErpColors.textPrimary),
                         decoration:
                             ErpDecorations.formInput('Amount', hint: '0')
                                 .copyWith(
                           prefixText: '₹ ',
-                          prefixStyle: const TextStyle(
+                          prefixStyle: TextStyle(
                               color: ErpColors.textMuted, fontSize: 13),
                         ),
                       ),
@@ -732,7 +732,7 @@ class _BillDetailsSheetState extends State<_BillDetailsSheet> {
                   TextField(
                     controller: _vendor,
                     textCapitalization: TextCapitalization.words,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13, color: ErpColors.textPrimary),
                     decoration: ErpDecorations.formInput('Vendor',
                         hint: 'Who issued it'),
@@ -740,7 +740,7 @@ class _BillDetailsSheetState extends State<_BillDetailsSheet> {
                   const SizedBox(height: 10),
                   TextField(
                     controller: _billNo,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13, color: ErpColors.textPrimary),
                     decoration: ErpDecorations.formInput('Bill number',
                         hint: 'As printed on the invoice'),
@@ -750,7 +750,7 @@ class _BillDetailsSheetState extends State<_BillDetailsSheet> {
                     TextField(
                       controller: _part,
                       textCapitalization: TextCapitalization.sentences,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 13, color: ErpColors.textPrimary),
                       decoration: ErpDecorations.formInput('Part fitted',
                           hint: 'e.g. Take-up roller bearing'),
@@ -762,7 +762,7 @@ class _BillDetailsSheetState extends State<_BillDetailsSheet> {
                     minLines: 2,
                     maxLines: 4,
                     textCapitalization: TextCapitalization.sentences,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13, color: ErpColors.textPrimary),
                     decoration: ErpDecorations.formInput('Notes',
                         hint: 'Anything the next person should know'),
@@ -774,7 +774,7 @@ class _BillDetailsSheetState extends State<_BillDetailsSheet> {
           Container(
             padding: EdgeInsets.fromLTRB(
                 14, 10, 14, 14 + MediaQuery.of(context).padding.bottom),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgSurface,
               border: Border(top: BorderSide(color: ErpColors.borderLight)),
             ),
@@ -814,7 +814,7 @@ class _BillDetailsSheetState extends State<_BillDetailsSheet> {
   Widget _datePicker(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Bill date', style: ErpTextStyles.fieldLabel),
+          Text('Bill date', style: ErpTextStyles.fieldLabel),
           const SizedBox(height: 4),
           InkWell(
             onTap: () async {

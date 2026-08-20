@@ -41,7 +41,7 @@ class _WastageSummaryPageState extends State<WastageSummaryPage> {
       appBar: _appBar(),
       body: Obx(() {
         if (c.isLoading.value && c.analytics.value == null) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.errorMsg.value != null && c.analytics.value == null) {
@@ -93,11 +93,11 @@ class _WastageSummaryPageState extends State<WastageSummaryPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Wastage Analytics',
+        Text('Wastage Analytics',
             style: ErpTextStyles.pageTitle),
         Text(
           'Last ${c.days.value} days',
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textOnDarkSub, fontSize: 10),
         ),
       ],
@@ -136,7 +136,7 @@ class _DaySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Obx(() => Row(children: [
-    const Text('Period:',
+    Text('Period:',
         style: TextStyle(
             color: ErpColors.textSecondary,
             fontSize: 11,
@@ -230,7 +230,7 @@ class _KPI extends StatelessWidget {
             overflow: TextOverflow.ellipsis),
         const SizedBox(height: 3),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textMuted,
                 fontSize: 8,
                 fontWeight: FontWeight.w700,
@@ -272,14 +272,14 @@ class _TrendCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(_fmtDate(data.first.dateTime),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 9)),
               if (data.length > 2)
                 Text(_fmtDate(data[data.length ~/ 2].dateTime),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textMuted, fontSize: 9)),
               Text(_fmtDate(data.last.dateTime),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 9)),
             ],
           ),
@@ -427,7 +427,7 @@ class _EmployeeLeaderboard extends StatelessWidget {
                             ]),
                             if (emp.department?.isNotEmpty ?? false)
                               Text(emp.department!,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       color: ErpColors.textMuted, fontSize: 10)),
                           ]),
                     ),
@@ -464,7 +464,7 @@ class _EmployeeLeaderboard extends StatelessWidget {
                       width: 36,
                       child: Text(
                         '${emp.count}×',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textMuted,
                             fontSize: 9,
                             fontWeight: FontWeight.w700),
@@ -528,7 +528,7 @@ class _ElasticBreakdown extends StatelessWidget {
                       color: color, borderRadius: BorderRadius.circular(2))),
               const SizedBox(width: 5),
               Text(e.value.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary,
                       fontSize: 10,
                       fontWeight: FontWeight.w600)),
@@ -552,7 +552,7 @@ class _ElasticBreakdown extends StatelessWidget {
               SizedBox(
                 width: 90,
                 child: Text(e.value.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textSecondary, fontSize: 10),
                     overflow: TextOverflow.ellipsis),
               ),
@@ -673,7 +673,7 @@ class _ByStatusCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       s.status[0].toUpperCase() + s.status.substring(1),
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textPrimary,
                           fontSize: 12,
                           fontWeight: FontWeight.w700),
@@ -686,7 +686,7 @@ class _ByStatusCard extends StatelessWidget {
                             fontWeight: FontWeight.w900)),
                     const SizedBox(width: 8),
                     Text('(${s.count}×)',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textMuted, fontSize: 10)),
                   ]),
                   const SizedBox(height: 5),
@@ -733,7 +733,7 @@ class _EmptyCard extends StatelessWidget {
     ),
     child: Center(
       child: Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted, fontSize: 12)),
     ),
   );
@@ -746,17 +746,17 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.error_outline,
+      Icon(Icons.error_outline,
           size: 40, color: ErpColors.textMuted),
       const SizedBox(height: 12),
-      const Text('Failed to load analytics',
+      Text('Failed to load analytics',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

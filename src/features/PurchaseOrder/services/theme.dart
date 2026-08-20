@@ -1,76 +1,119 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/erp_palette.dart';
+
+export '../../../core/theme/erp_palette.dart' show ErpPalette;
+
 // ══════════════════════════════════════════════════════════════
 //  ERP DESIGN SYSTEM — Production Tracking App
 //  Palette: Deep Navy + Cool White + Electric Blue accent
 //  Typography: Weight-driven hierarchy, tight letter-spacing
 // ══════════════════════════════════════════════════════════════
 
+// ══════════════════════════════════════════════════════════════
+//  ONE NAME PER COLOUR, TWO SETS OF VALUES
+//
+//  These were `static const Color` for the life of the app, and
+//  5,576 places across 200-odd files say `ErpColors.something`. That
+//  is far too many to rewrite, and rewriting them is also the wrong
+//  goal: the NAMES are good and the call sites are already correct.
+//  Only the values needed to become live.
+//
+//  So each is now a getter over a current ErpPalette. Every existing
+//  call site keeps compiling and starts obeying the theme.
+//
+//  ── Losing `const` at some call sites is the POINT ─────────────
+//  A getter cannot be used in a const expression, so switching these
+//  turns every `const Text(style: TextStyle(color: ErpColors.x))`
+//  into a compile error. That looked like the cost of this change
+//  until you notice what those sites are: a const widget is
+//  canonicalised once and never rebuilt, so every one of them is a
+//  widget that would have kept its light colour after a switch to
+//  dark. The analyser is not listing obstacles — it is listing the
+//  exact set of widgets that would otherwise go stale, and dropping
+//  `const` there is the fix, not a workaround for one.
+//
+//  ── Reading is safe before anything is registered ──────────────
+//  The default is the light palette, so a widget built during boot —
+//  before ThemeController has resolved the stored preference — gets
+//  the palette this app has always had rather than an exception.
+// ══════════════════════════════════════════════════════════════
+
 class ErpColors {
   ErpColors._();
 
+  static ErpPalette _palette = ErpPalette.light;
+
+  /// The whole current set. For code that needs to branch on the mode
+  /// rather than read one colour — `ErpColors.palette.isDark`.
+  static ErpPalette get palette => _palette;
+
+  /// Set by ThemeController. Changing this alone repaints nothing:
+  /// the controller rebuilds the tree above it, which is what makes
+  /// the new values visible.
+  static set palette(ErpPalette p) => _palette = p;
+
   // ── Brand ──────────────────────────────────────────────────
-  static const navyDark    = Color(0xFF0D1B2A);   // AppBar, header strips
-  static const navyMid     = Color(0xFF1B2B45);   // Secondary surfaces
-  static const navyLight   = Color(0xFF2D4A6E);   // Hover states
-  static const accentBlue  = Color(0xFF1D6FEB);   // Primary action
-  static const accentLight = Color(0xFF5A9EFF);   // Icon accents
+  static Color get navyDark    => _palette.navyDark;    // AppBar, header strips
+  static Color get navyMid     => _palette.navyMid;     // Secondary surfaces
+  static Color get navyLight   => _palette.navyLight;   // Hover states
+  static Color get accentBlue  => _palette.accentBlue;  // Primary action
+  static Color get accentLight => _palette.accentLight; // Icon accents
 
   // ── Background ─────────────────────────────────────────────
-  static const bgBase      = Color(0xFFEEF1F7);   // Page background
-  static const bgSurface   = Color(0xFFFFFFFF);   // Cards, panels
-  static const bgMuted     = Color(0xFFF8FAFD);   // Table alt rows
-  static const bgHover     = Color(0xFFEFF4FF);   // Row hover
+  static Color get bgBase      => _palette.bgBase;      // Page background
+  static Color get bgSurface   => _palette.bgSurface;   // Cards, panels
+  static Color get bgMuted     => _palette.bgMuted;     // Table alt rows
+  static Color get bgHover     => _palette.bgHover;     // Row hover
 
   // ── Borders ────────────────────────────────────────────────
-  static const borderLight = Color(0xFFDDE3EE);
-  static const borderMid   = Color(0xFFBCC6D8);
+  static Color get borderLight => _palette.borderLight;
+  static Color get borderMid   => _palette.borderMid;
 
   // ── Text ───────────────────────────────────────────────────
-  static const textPrimary   = Color(0xFF0D1B2A);
-  static const textSecondary = Color(0xFF5A6A85);
-  static const textMuted     = Color(0xFF94A3B8);
-  static const textOnDark    = Color(0xFFFFFFFF);
-  static const textOnDarkSub = Color(0xFFB0C4E0);
+  static Color get textPrimary   => _palette.textPrimary;
+  static Color get textSecondary => _palette.textSecondary;
+  static Color get textMuted     => _palette.textMuted;
+  /// Text on the NAVY — which is dark in both themes, so this stays
+  /// white in both. Not "text when the app is dark".
+  static Color get textOnDark    => _palette.textOnDark;
+  static Color get textOnDarkSub => _palette.textOnDarkSub;
 
   // ── Status ─────────────────────────────────────────────────
-  static const statusOpenBg     = Color(0xFFEFF6FF);
-  static const statusOpenText   = Color(0xFF1D6FEB);
-  static const statusOpenBorder = Color(0xFFBFDBFE);
+  static Color get statusOpenBg     => _palette.statusOpenBg;
+  static Color get statusOpenText   => _palette.statusOpenText;
+  static Color get statusOpenBorder => _palette.statusOpenBorder;
 
-  static const statusPartialBg     = Color(0xFFFFFBEB);
-  static const statusPartialText   = Color(0xFFB45309);
-  static const statusPartialBorder = Color(0xFFFDE68A);
+  static Color get statusPartialBg     => _palette.statusPartialBg;
+  static Color get statusPartialText   => _palette.statusPartialText;
+  static Color get statusPartialBorder => _palette.statusPartialBorder;
 
-  static const statusCompletedBg     = Color(0xFFF0FDF4);
-  static const statusCompletedText   = Color(0xFF15803D);
-  static const statusCompletedBorder = Color(0xFFBBF7D0);
+  static Color get statusCompletedBg     => _palette.statusCompletedBg;
+  static Color get statusCompletedText   => _palette.statusCompletedText;
+  static Color get statusCompletedBorder => _palette.statusCompletedBorder;
 
-  static const errorRed    = Color(0xFFDC2626);
-  static const successGreen = Color(0xFF16A34A);
-  static const warningAmber = Color(0xFFD97706);
+  static Color get statusApprovedBg     => _palette.statusApprovedBg;
+  static Color get statusApprovedBorder => _palette.statusApprovedBorder;
+  static Color get statusApprovedText   => _palette.statusApprovedText;
 
+  static Color get statusInProgressBg     => _palette.statusInProgressBg;
+  static Color get statusInProgressBorder => _palette.statusInProgressBorder;
+  static Color get statusInProgressText   => _palette.statusInProgressText;
 
+  static Color get statusCancelledBg     => _palette.statusCancelledBg;
+  static Color get statusCancelledBorder => _palette.statusCancelledBorder;
+  static Color get statusCancelledText   => _palette.statusCancelledText;
 
-  static const Color statusApprovedBg     = Color(0xFFEFF6FF);
-  static const Color statusApprovedBorder = Color(0xFFBFDBFE);
-  static const Color statusApprovedText   = Color(0xFF1D6FEB);
-
-  static const Color statusInProgressBg     = Color(0xFFFFFBEB);
-  static const Color statusInProgressBorder = Color(0xFFFDE68A);
-  static const Color statusInProgressText   = Color(0xFFD97706);
-
-
-  static const Color statusCancelledBg     = Color(0xFFFEF2F2);
-  static const Color statusCancelledBorder = Color(0xFFFECACA);
-  static const Color statusCancelledText   = Color(0xFFDC2626);
+  static Color get errorRed     => _palette.errorRed;
+  static Color get successGreen => _palette.successGreen;
+  static Color get warningAmber => _palette.warningAmber;
 }
 
 class ErpTextStyles {
   ErpTextStyles._();
 
   // ── Page title (AppBar) ────────────────────────────────────
-  static const pageTitle = TextStyle(
+  static final pageTitle = TextStyle(
     color: ErpColors.textOnDark,
     fontSize: 16,
     fontWeight: FontWeight.w700,
@@ -78,7 +121,7 @@ class ErpTextStyles {
   );
 
   // ── Section header ─────────────────────────────────────────
-  static const sectionHeader = TextStyle(
+  static final sectionHeader = TextStyle(
     color: ErpColors.textPrimary,
     fontSize: 12,
     fontWeight: FontWeight.w700,
@@ -86,7 +129,7 @@ class ErpTextStyles {
   );
 
   // ── Card title ─────────────────────────────────────────────
-  static const cardTitle = TextStyle(
+  static final cardTitle = TextStyle(
     color: ErpColors.textPrimary,
     fontSize: 14,
     fontWeight: FontWeight.w700,
@@ -94,7 +137,7 @@ class ErpTextStyles {
   );
 
   // ── Field label ────────────────────────────────────────────
-  static const fieldLabel = TextStyle(
+  static final fieldLabel = TextStyle(
     color: ErpColors.textSecondary,
     fontSize: 11,
     fontWeight: FontWeight.w600,
@@ -102,14 +145,14 @@ class ErpTextStyles {
   );
 
   // ── Field value ────────────────────────────────────────────
-  static const fieldValue = TextStyle(
+  static final fieldValue = TextStyle(
     color: ErpColors.textPrimary,
     fontSize: 13,
     fontWeight: FontWeight.w500,
   );
 
   // ── Table header ───────────────────────────────────────────
-  static const tableHeader = TextStyle(
+  static final tableHeader = TextStyle(
     color: ErpColors.textSecondary,
     fontSize: 11,
     fontWeight: FontWeight.w700,
@@ -117,21 +160,21 @@ class ErpTextStyles {
   );
 
   // ── Table cell ─────────────────────────────────────────────
-  static const tableCell = TextStyle(
+  static final tableCell = TextStyle(
     color: ErpColors.textPrimary,
     fontSize: 13,
     fontWeight: FontWeight.w400,
   );
 
   // ── KPI number ─────────────────────────────────────────────
-  static const kpiValue = TextStyle(
+  static final kpiValue = TextStyle(
     color: ErpColors.textOnDark,
     fontSize: 22,
     fontWeight: FontWeight.w800,
     letterSpacing: -0.5,
   );
 
-  static const kpiLabel = TextStyle(
+  static final kpiLabel = TextStyle(
     color: ErpColors.textOnDarkSub,
     fontSize: 11,
     fontWeight: FontWeight.w500,
@@ -139,14 +182,14 @@ class ErpTextStyles {
   );
 
   // ── Button ─────────────────────────────────────────────────
-  static const buttonPrimary = TextStyle(
+  static final buttonPrimary = TextStyle(
     color: ErpColors.textOnDark,
     fontSize: 13,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.3,
   );
 
-  static const buttonSecondary = TextStyle(
+  static final buttonSecondary = TextStyle(
     color: ErpColors.accentBlue,
     fontSize: 13,
     fontWeight: FontWeight.w600,
@@ -199,13 +242,13 @@ class ErpDecorations {
       InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle: const TextStyle(color: ErpColors.textMuted, fontSize: 13),
-        labelStyle: const TextStyle(
+        hintStyle: TextStyle(color: ErpColors.textMuted, fontSize: 13),
+        labelStyle: TextStyle(
           color: ErpColors.textSecondary,
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
-        floatingLabelStyle: const TextStyle(
+        floatingLabelStyle: TextStyle(
           color: ErpColors.accentBlue,
           fontSize: 12,
           fontWeight: FontWeight.w600,
@@ -218,19 +261,19 @@ class ErpDecorations {
         prefixIcon: prefix,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
-          borderSide: const BorderSide(color: ErpColors.borderLight),
+          borderSide: BorderSide(color: ErpColors.borderLight),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
-          borderSide: const BorderSide(color: ErpColors.borderLight),
+          borderSide: BorderSide(color: ErpColors.borderLight),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
-          borderSide: const BorderSide(color: ErpColors.accentBlue, width: 1.5),
+          borderSide: BorderSide(color: ErpColors.accentBlue, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
-          borderSide: const BorderSide(color: ErpColors.errorRed),
+          borderSide: BorderSide(color: ErpColors.errorRed),
         ),
       );
 }
@@ -301,14 +344,14 @@ class ErpSectionCard extends StatelessWidget {
   // the whole card.
   final Widget? trailing;
 
-  const ErpSectionCard({
+  ErpSectionCard({
     super.key,
     required this.title,
     required this.icon,
     required this.child,
-    this.accentColor = ErpColors.accentBlue,
+    Color? accentColor,
     this.trailing,
-  });
+  }) : accentColor = accentColor ?? ErpColors.accentBlue;
 
   @override
   Widget build(BuildContext context) {
@@ -331,7 +374,7 @@ class ErpSectionCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: 14, vertical: 10),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               borderRadius:
               BorderRadius.vertical(top: Radius.circular(8)),
@@ -428,7 +471,7 @@ class ErpAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: showBack,
       leading: showBack
           ? IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new,
+        icon: Icon(Icons.arrow_back_ios_new,
             size: 16, color: ErpColors.textOnDark),
         onPressed: () => Navigator.of(context).maybePop(),
       )
@@ -442,7 +485,7 @@ class ErpAppBar extends StatelessWidget implements PreferredSizeWidget {
           if (subtitle != null)
             Text(
               subtitle!,
-              style: const TextStyle(
+              style: TextStyle(
                 color: ErpColors.textOnDarkSub,
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
@@ -470,7 +513,7 @@ class ErpStatusBadge extends StatelessWidget {
 
   const ErpStatusBadge({super.key, required this.status});
 
-  static const _configs = {
+  static final _configs = {
     'Open': (ErpColors.statusOpenBg, ErpColors.statusOpenText,
     ErpColors.statusOpenBorder, Icons.radio_button_unchecked),
     'Partial': (ErpColors.statusPartialBg, ErpColors.statusPartialText,
@@ -520,14 +563,14 @@ class ErpKpiCard extends StatelessWidget {
   final IconData icon;
   final Color accentColor;
 
-  const ErpKpiCard({
+  ErpKpiCard({
     super.key,
     required this.label,
     required this.value,
     this.sub,
     required this.icon,
-    this.accentColor = ErpColors.accentBlue,
-  });
+    Color? accentColor,
+  }) : accentColor = accentColor ?? ErpColors.accentBlue;
 
   @override
   Widget build(BuildContext context) {
@@ -570,7 +613,7 @@ class ErpKpiCard extends StatelessWidget {
                 Text(value, style: ErpTextStyles.kpiValue),
                 if (sub != null)
                   Text(sub!,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textOnDarkSub, fontSize: 10)),
               ],
             ),
@@ -631,7 +674,7 @@ class ErpFormSection extends StatelessWidget {
           Container(
             padding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
               borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
@@ -746,7 +789,7 @@ class ErpOutlineButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: ErpColors.accentBlue, width: 1),
+          side: BorderSide(color: ErpColors.accentBlue, width: 1),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           padding:
           EdgeInsets.symmetric(horizontal: compact ? 12 : 18, vertical: 0),
@@ -776,7 +819,7 @@ class ErpTableHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgMuted,
         border: Border(
           top: BorderSide(color: ErpColors.borderLight),
@@ -844,7 +887,7 @@ class _ErpDataRowState extends State<ErpDataRow> {
                 : widget.isAlt
                 ? ErpColors.bgMuted
                 : ErpColors.bgSurface,
-            border: const Border(
+            border: Border(
                 bottom: BorderSide(color: ErpColors.borderLight)),
           ),
           child: Row(

@@ -156,9 +156,9 @@ class AnnouncementFormPage extends StatelessWidget {
               children: [
                 Obx(() => SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Pin to top',
+                      title: Text('Pin to top',
                           style: ErpTextStyles.fieldValue),
-                      subtitle: const Text(
+                      subtitle: Text(
                         'Pinned items always show first on the worker portal',
                         style: TextStyle(
                             color: ErpColors.textMuted, fontSize: 11),
@@ -170,9 +170,9 @@ class AnnouncementFormPage extends StatelessWidget {
                 if (ctrl.isEdit)
                   Obx(() => SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Active',
+                        title: Text('Active',
                             style: ErpTextStyles.fieldValue),
-                        subtitle: const Text(
+                        subtitle: Text(
                           'Disable to hide without deleting',
                           style: TextStyle(
                               color: ErpColors.textMuted, fontSize: 11),
@@ -183,7 +183,7 @@ class AnnouncementFormPage extends StatelessWidget {
                       )),
                 Obx(() => ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.event_outlined,
+                      leading: Icon(Icons.event_outlined,
                           color: ErpColors.textSecondary),
                       title: Text(
                         ctrl.validUntil.value == null

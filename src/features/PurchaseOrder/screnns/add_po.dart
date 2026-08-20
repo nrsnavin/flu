@@ -59,7 +59,7 @@ class _AddPOPageState extends State<AddPOPage> {
       appBar: _buildAppBar(),
       body: Obx(() {
         if (c.isDataLoading.value) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -118,7 +118,7 @@ class _AddPOPageState extends State<AddPOPage> {
                 ),
                 Text(
                   "Procurement  ›  Purchase Orders",
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textOnDarkSub, fontSize: 10),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -139,7 +139,7 @@ class _AddPOPageState extends State<AddPOPage> {
               border: Border.all(
                   color: ErpColors.warningAmber.withOpacity(0.4)),
             ),
-            child: const Icon(Icons.edit_note,
+            child: Icon(Icons.edit_note,
                 size: 16, color: ErpColors.warningAmber),
           ),
       ],
@@ -176,7 +176,7 @@ class _FormBody extends StatelessWidget {
                   style: ErpTextStyles.fieldValue,
                   decoration: ErpDecorations.formInput(
                     "Select Supplier *",
-                    prefix: const Icon(Icons.business_outlined,
+                    prefix: Icon(Icons.business_outlined,
                         size: 18, color: ErpColors.textSecondary),
                   ),
                   items: c.suppliers
@@ -207,7 +207,7 @@ class _FormBody extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline,
+                        Icon(Icons.info_outline,
                             size: 14, color: ErpColors.accentBlue),
                         const SizedBox(width: 8),
                         Expanded(
@@ -215,7 +215,7 @@ class _FormBody extends StatelessWidget {
                             sup.gstin != null
                                 ? "GSTIN: ${sup.gstin}"
                                 : "No GSTIN on record",
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary, fontSize: 12),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -224,7 +224,7 @@ class _FormBody extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             sup.phone!,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary, fontSize: 12),
                           ),
                         ],
@@ -243,7 +243,7 @@ class _FormBody extends StatelessWidget {
             title: "LINE ITEMS",
             titleSuffix: Obx(() => Text(
               "${c.rows.length} item${c.rows.length != 1 ? 's' : ''}",
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textMuted,
                   fontSize: 11,
                   fontWeight: FontWeight.w500),
@@ -268,14 +268,14 @@ class _FormBody extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: c.addRow,
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: ErpColors.accentBlue),
+                    side: BorderSide(color: ErpColors.accentBlue),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6)),
                   ),
-                  icon: const Icon(Icons.add,
+                  icon: Icon(Icons.add,
                       size: 18, color: ErpColors.accentBlue),
-                  label: const Text(
+                  label: Text(
                     "Add Line Item",
                     style: TextStyle(
                         color: ErpColors.accentBlue,
@@ -323,14 +323,14 @@ class _FormBody extends StatelessWidget {
                           children: [
                             Text(
                               "${r.quantity} kg  ×  ₹${r.price}",
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: ErpColors.textSecondary,
                                   fontSize: 12),
                             ),
                             const Spacer(),
                             Text(
                               "₹${r.lineTotal.toStringAsFixed(2)}",
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 13,
                                   color: ErpColors.textPrimary),
@@ -350,7 +350,7 @@ class _FormBody extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         "GRAND TOTAL",
                         style: TextStyle(
                             fontWeight: FontWeight.w800,
@@ -360,7 +360,7 @@ class _FormBody extends StatelessWidget {
                       ),
                       Text(
                         "₹${total.toStringAsFixed(2)}",
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 18,
                           color: ErpColors.accentBlue,
@@ -416,7 +416,7 @@ class _ItemCard extends StatelessWidget {
           // ── Card header: index badge + delete ──────────
           Container(
             padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
               border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -433,14 +433,14 @@ class _ItemCard extends StatelessWidget {
                   ),
                   child: Text(
                     "${index + 1}",
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.accentBlue,
                         fontSize: 11,
                         fontWeight: FontWeight.w800),
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Text(
+                Text(
                   "LINE ITEM",
                   style: TextStyle(
                       color: ErpColors.textSecondary,
@@ -457,7 +457,7 @@ class _ItemCard extends StatelessWidget {
                       color: ErpColors.errorRed.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Icon(Icons.delete_outline,
+                    child: Icon(Icons.delete_outline,
                         color: ErpColors.errorRed, size: 16),
                   ),
                 ),
@@ -506,14 +506,14 @@ class _ItemCard extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 6),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline_rounded,
+                        Icon(Icons.info_outline_rounded,
                             size: 12, color: ErpColors.textMuted),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             "Usually ordered from "
                             "${row.material!.defaultSupplierName ?? 'another supplier'}",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               color: ErpColors.textMuted,
                             ),
@@ -543,7 +543,7 @@ class _ItemCard extends StatelessWidget {
                             decoration:
                             ErpDecorations.formInput("0.00").copyWith(
                               prefixText: "₹ ",
-                              prefixStyle: const TextStyle(
+                              prefixStyle: TextStyle(
                                   color: ErpColors.textSecondary,
                                   fontSize: 13),
                             ),
@@ -567,7 +567,7 @@ class _ItemCard extends StatelessWidget {
                             decoration:
                             ErpDecorations.formInput("0").copyWith(
                               suffixText: "kg",
-                              suffixStyle: const TextStyle(
+                              suffixStyle: TextStyle(
                                   color: ErpColors.textSecondary,
                                   fontSize: 12),
                             ),
@@ -594,7 +594,7 @@ class _ItemCard extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           "Line Total",
                           style: TextStyle(
                               color: ErpColors.textSecondary,
@@ -603,7 +603,7 @@ class _ItemCard extends StatelessWidget {
                         ),
                         Text(
                           "₹${row.lineTotal.toStringAsFixed(2)}",
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 14,
                             color: ErpColors.accentBlue,
@@ -628,13 +628,13 @@ class _ItemCard extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline,
+                        Icon(Icons.info_outline,
                             size: 13, color: ErpColors.warningAmber),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             "Already received: ${row.receivedQuantity} kg — quantity cannot go below this",
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.warningAmber, fontSize: 11),
                           ),
                         ),
@@ -679,7 +679,7 @@ class _FooterBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
-        border: const Border(top: BorderSide(color: ErpColors.borderLight)),
+        border: Border(top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
             color: ErpColors.navyDark.withOpacity(0.06),
@@ -698,7 +698,7 @@ class _FooterBar extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   "TOTAL ORDER VALUE",
                   style: TextStyle(
                     color: ErpColors.textMuted,
@@ -709,7 +709,7 @@ class _FooterBar extends StatelessWidget {
                 ),
                 Text(
                   "₹${total.toStringAsFixed(2)}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 20,
                     color: ErpColors.accentBlue,
@@ -731,11 +731,11 @@ class _FooterBar extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: ErpColors.borderMid),
+                        side: BorderSide(color: ErpColors.borderMid),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6)),
                       ),
-                      child: const Text(
+                      child: Text(
                         "Cancel",
                         style: TextStyle(
                             color: ErpColors.textSecondary,
@@ -823,7 +823,7 @@ class _SectionCard extends StatelessWidget {
           // Header bar
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
               border:

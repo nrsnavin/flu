@@ -103,7 +103,7 @@ class _BulkEntrySheet extends StatelessWidget {
       maxChildSize:     0.97,
       expand: false,
       builder: (_, scrollCtrl) => Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgBase,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
@@ -127,7 +127,7 @@ class _BulkEntrySheet extends StatelessWidget {
             // ── Machine entry cards ───────────────────────
             Expanded(
               child: Obx(() => c.bulkEntries.isEmpty
-                  ? const Center(
+                  ? Center(
                 child: Text(
                   'No open machines to update.',
                   style: TextStyle(color: ErpColors.textSecondary),
@@ -173,9 +173,9 @@ class _BulkSheetHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.bolt_rounded, size: 14, color: ErpColors.accentBlue),
+            Icon(Icons.bolt_rounded, size: 14, color: ErpColors.accentBlue),
             const SizedBox(width: 4),
-            const Text('Bulk Entry',
+            Text('Bulk Entry',
                 style: TextStyle(
                     color: ErpColors.accentBlue,
                     fontSize: 11, fontWeight: FontWeight.w800)),
@@ -184,7 +184,7 @@ class _BulkSheetHeader extends StatelessWidget {
         const SizedBox(width: 10),
         Obx(() => Text(
           '${c.bulkEntries.length} open ${c.bulkEntries.length == 1 ? 'machine' : 'machines'}',
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary,
               fontSize: 13, fontWeight: FontWeight.w600),
         )),
@@ -199,12 +199,12 @@ class _BulkSheetHeader extends StatelessWidget {
             border: Border.all(color: ErpColors.successGreen.withOpacity(0.3)),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.straighten_rounded,
+            Icon(Icons.straighten_rounded,
                 size: 13, color: ErpColors.successGreen),
             const SizedBox(width: 4),
             Text(
               '${c.bulkTotalMeters.value} m total',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.successGreen,
                   fontSize: 11, fontWeight: FontWeight.w800),
             ),
@@ -213,7 +213,7 @@ class _BulkSheetHeader extends StatelessWidget {
             : const SizedBox.shrink()),
       ]),
       const SizedBox(height: 6),
-      const Text(
+      Text(
         'Enter production meters and run time for each machine. '
             'Machines already completed are not shown here.',
         style: TextStyle(
@@ -273,7 +273,7 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('M', style: TextStyle(
+                  Text('M', style: TextStyle(
                       color: ErpColors.accentBlue, fontSize: 7,
                       fontWeight: FontWeight.w700)),
                   Text(
@@ -295,11 +295,11 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
                         fontSize: 13, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 2),
                 Row(children: [
-                  const Icon(Icons.person_outline_rounded,
+                  Icon(Icons.person_outline_rounded,
                       size: 12, color: ErpColors.textOnDarkSub),
                   const SizedBox(width: 4),
                   Text(m.operatorName,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textOnDarkSub, fontSize: 11)),
                 ]),
               ],
@@ -314,7 +314,7 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text('TARGET',
+                  Text('TARGET',
                       style: TextStyle(
                           color: ErpColors.textOnDarkSub,
                           fontSize: 8, fontWeight: FontWeight.w600,
@@ -348,13 +348,13 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: ErpColors.textPrimary),
                       decoration: _inputDeco(
                         hint: '0',
-                        suffix: const Text('m',
+                        suffix: Text('m',
                             style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 16, fontWeight: FontWeight.w700)),
@@ -412,7 +412,7 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
                       controller: e.timerCtrl,
                       keyboardType: TextInputType.text,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: ErpColors.textPrimary,
@@ -420,7 +420,7 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
                       decoration: _inputDeco(hint: 'HH:MM:SS'),
                     ),
                     const SizedBox(height: 4),
-                    const Text('HH:MM:SS',
+                    Text('HH:MM:SS',
                         style: TextStyle(
                             color: ErpColors.textMuted, fontSize: 9)),
                   ],
@@ -440,7 +440,7 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
                 const SizedBox(width: 4),
                 Text(
                   _showRemarks ? 'Hide remarks' : 'Add remarks (optional)',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary,
                       fontSize: 11, fontWeight: FontWeight.w600),
                 ),
@@ -452,7 +452,7 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
               TextField(
                 controller: e.remarksCtrl,
                 maxLines: 2,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textPrimary, fontSize: 13),
                 decoration: _inputDeco(hint: 'Any issues or notes…'),
               ),
@@ -472,7 +472,7 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
             child: suffix)
             : null,
         suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        hintStyle: const TextStyle(
+        hintStyle: TextStyle(
             color: ErpColors.textMuted, fontSize: 14),
         filled: true,
         fillColor: ErpColors.bgBase,
@@ -480,16 +480,16 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
         const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: ErpColors.borderLight),
+          borderSide: BorderSide(color: ErpColors.borderLight),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: ErpColors.borderLight),
+          borderSide: BorderSide(color: ErpColors.borderLight),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
-          const BorderSide(color: ErpColors.accentBlue, width: 2),
+          BorderSide(color: ErpColors.accentBlue, width: 2),
         ),
       );
 }
@@ -499,7 +499,7 @@ class _FieldLabel extends StatelessWidget {
   const _FieldLabel(this.text);
   @override
   Widget build(BuildContext context) => Text(text,
-      style: const TextStyle(
+      style: TextStyle(
           color: ErpColors.textSecondary,
           fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.2));
 }
@@ -516,7 +516,7 @@ class _BulkSubmitBar extends StatelessWidget {
         16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
     decoration: BoxDecoration(
       color: ErpColors.bgSurface,
-      border: const Border(top: BorderSide(color: ErpColors.borderLight)),
+      border: Border(top: BorderSide(color: ErpColors.borderLight)),
       boxShadow: [
         BoxShadow(
             color: Colors.black.withOpacity(0.06),
@@ -529,7 +529,7 @@ class _BulkSubmitBar extends StatelessWidget {
       Expanded(
         child: OutlinedButton(
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: ErpColors.borderLight),
+            side: BorderSide(color: ErpColors.borderLight),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10)),
             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -537,7 +537,7 @@ class _BulkSubmitBar extends StatelessWidget {
           onPressed: c.isBulkUpdating.value
               ? null
               : () => Navigator.of(context).pop(),
-          child: const Text('Cancel',
+          child: Text('Cancel',
               style: TextStyle(
                   color: ErpColors.textSecondary,
                   fontSize: 14, fontWeight: FontWeight.w700)),
@@ -692,7 +692,7 @@ class _HeroBanner extends StatelessWidget {
               style: const TextStyle(
                   color: Colors.white, fontSize: 36,
                   fontWeight: FontWeight.w900, height: 1)),
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(bottom: 4, left: 4),
             child: Text('m',
                 style: TextStyle(
@@ -703,7 +703,7 @@ class _HeroBanner extends StatelessWidget {
         ]),
         const SizedBox(height: 4),
         Text('Target: ${s.totalTarget} m',
-            style: const TextStyle(color: ErpColors.textOnDarkSub, fontSize: 11)),
+            style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 11)),
         const SizedBox(height: 12),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -752,7 +752,7 @@ class _HeroChip extends StatelessWidget {
         Text(value,
             style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w800)),
         Text(label,
-            style: const TextStyle(color: ErpColors.textOnDarkSub, fontSize: 8)),
+            style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 8)),
       ]),
     ]),
   );
@@ -774,7 +774,7 @@ class _MachineLogTab extends StatelessWidget {
         child: Obx(() {
           final machines = c.filteredMachines;
           if (machines.isEmpty) {
-            return const Center(
+            return Center(
               child: Text('No machines match this filter',
                   style: TextStyle(color: ErpColors.textSecondary, fontSize: 13)),
             );
@@ -803,7 +803,7 @@ class _FilterBar extends StatelessWidget {
       color: ErpColors.bgSurface,
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
       child: Row(children: [
-        const Text('Sort:', style: TextStyle(color: ErpColors.textSecondary, fontSize: 11)),
+        Text('Sort:', style: TextStyle(color: ErpColors.textSecondary, fontSize: 11)),
         const SizedBox(width: 8),
         Expanded(
           child: SingleChildScrollView(
@@ -825,7 +825,7 @@ class _FilterBar extends StatelessWidget {
               ('in_progress', 'In Progress'), ('open', 'Open'),
             ])
               PopupMenuItem(value: e.$1,
-                  child: Text(e.$2, style: const TextStyle(
+                  child: Text(e.$2, style: TextStyle(
                       color: ErpColors.textPrimary, fontSize: 13))),
           ],
           child: Container(
@@ -839,10 +839,10 @@ class _FilterBar extends StatelessWidget {
                 c.filterStatus.value == 'all'
                     ? 'All Status'
                     : c.filterStatus.value.replaceAll('_', ' ').toUpperCase(),
-                style: const TextStyle(fontSize: 11, color: ErpColors.textPrimary),
+                style: TextStyle(fontSize: 11, color: ErpColors.textPrimary),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.arrow_drop_down_rounded,
+              Icon(Icons.arrow_drop_down_rounded,
                   size: 16, color: ErpColors.textSecondary),
             ]),
           ),
@@ -951,7 +951,7 @@ class _MachineCardState extends State<_MachineCard> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('M', style: TextStyle(
+                      Text('M', style: TextStyle(
                           fontSize: 8, color: ErpColors.textSecondary)),
                       Text(
                         m.machineNo.replaceAll(RegExp(r'[^0-9]'), ''),
@@ -968,7 +968,7 @@ class _MachineCardState extends State<_MachineCard> {
                   children: [
                     Row(children: [
                       Text(m.machineNo,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w800,
                               color: ErpColors.textPrimary)),
                       const SizedBox(width: 6),
@@ -986,7 +986,7 @@ class _MachineCardState extends State<_MachineCard> {
                             border: Border.all(
                                 color: ErpColors.warningAmber.withOpacity(0.4)),
                           ),
-                          child: const Text('OPEN',
+                          child: Text('OPEN',
                               style: TextStyle(
                                   color: ErpColors.warningAmber,
                                   fontSize: 8, fontWeight: FontWeight.w800,
@@ -995,18 +995,18 @@ class _MachineCardState extends State<_MachineCard> {
                     ]),
                     const SizedBox(height: 2),
                     Row(children: [
-                      const Icon(Icons.person_outline_rounded,
+                      Icon(Icons.person_outline_rounded,
                           size: 12, color: ErpColors.textSecondary),
                       const SizedBox(width: 3),
                       Text(m.operatorName,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 11, color: ErpColors.textSecondary)),
                     ]),
                   ],
                 )),
                 Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                   Text('${m.production}m',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w900,
                           color: ErpColors.textPrimary)),
                   const SizedBox(height: 2),
@@ -1047,7 +1047,7 @@ class _MachineCardState extends State<_MachineCard> {
                 ])),
                 const SizedBox(width: 8),
                 Text('${m.production}/${m.target}m',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 9, color: ErpColors.textSecondary)),
               ]),
               const SizedBox(height: 8),
@@ -1131,14 +1131,14 @@ class _MachineCardState extends State<_MachineCard> {
                     border: Border.all(color: ErpColors.warningAmber.withOpacity(0.3)),
                   ),
                   child: Row(children: [
-                    const Icon(Icons.warning_amber_rounded,
+                    Icon(Icons.warning_amber_rounded,
                         size: 14, color: ErpColors.warningAmber),
                     const SizedBox(width: 8),
                     Expanded(child: Text(r.reason,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11, color: ErpColors.textPrimary))),
                     Text('${r.minutes}m',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11, fontWeight: FontWeight.w800,
                             color: ErpColors.warningAmber)),
                   ]),
@@ -1164,11 +1164,11 @@ class _MachineCardState extends State<_MachineCard> {
                       color: ErpColors.bgMuted,
                       borderRadius: BorderRadius.circular(7)),
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Icon(Icons.notes_rounded,
+                    Icon(Icons.notes_rounded,
                         size: 13, color: ErpColors.textSecondary),
                     const SizedBox(width: 6),
                     Expanded(child: Text(m.remarks,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11, color: ErpColors.textSecondary,
                             fontStyle: FontStyle.italic))),
                   ]),
@@ -1200,7 +1200,7 @@ class _QuickStat extends StatelessWidget {
         const SizedBox(height: 2),
         Text(value, style: TextStyle(
             fontSize: 10, fontWeight: FontWeight.w800, color: color)),
-        Text(label, style: const TextStyle(
+        Text(label, style: TextStyle(
             fontSize: 8, color: ErpColors.textSecondary)),
       ]),
     ),
@@ -1212,7 +1212,7 @@ class _SectionHead extends StatelessWidget {
   const _SectionHead(this.title);
   @override
   Widget build(BuildContext context) => Text(title,
-      style: const TextStyle(
+      style: TextStyle(
           fontSize: 10, fontWeight: FontWeight.w800,
           color: ErpColors.textSecondary, letterSpacing: 0.8));
 }
@@ -1233,10 +1233,10 @@ class _DetailGrid extends StatelessWidget {
           border: Border.all(color: ErpColors.borderLight)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(item.label,
-            style: const TextStyle(fontSize: 8, color: ErpColors.textSecondary)),
+            style: TextStyle(fontSize: 8, color: ErpColors.textSecondary)),
         const SizedBox(height: 2),
         Text(item.value,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
                 color: ErpColors.textPrimary)),
       ]),
     )).toList(),
@@ -1252,7 +1252,7 @@ class _TimerRow extends StatelessWidget {
   Widget build(BuildContext context) => Row(children: [
     Icon(icon, size: 14, color: color),
     const SizedBox(width: 8),
-    Text(label, style: const TextStyle(fontSize: 11, color: ErpColors.textSecondary)),
+    Text(label, style: TextStyle(fontSize: 11, color: ErpColors.textSecondary)),
     const Spacer(),
     Text(value, style: TextStyle(
         fontSize: 12, fontWeight: FontWeight.w800, color: color)),
@@ -1268,7 +1268,7 @@ class _TypeTag extends StatelessWidget {
     decoration: BoxDecoration(
         color: ErpColors.bgMuted, borderRadius: BorderRadius.circular(4)),
     child: Text(type,
-        style: const TextStyle(fontSize: 9, color: ErpColors.textSecondary)),
+        style: TextStyle(fontSize: 9, color: ErpColors.textSecondary)),
   );
 }
 
@@ -1374,16 +1374,16 @@ class _SummaryTab extends StatelessWidget {
                 color: ErpColors.bgSurface, borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: ErpColors.borderLight)),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Icon(Icons.notes_rounded, color: ErpColors.textSecondary, size: 16),
+              Icon(Icons.notes_rounded, color: ErpColors.textSecondary, size: 16),
               const SizedBox(width: 8),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('Shift Remarks',
+                Text('Shift Remarks',
                     style: TextStyle(
                         fontSize: 11, fontWeight: FontWeight.w700,
                         color: ErpColors.textSecondary)),
                 const SizedBox(height: 4),
                 Text(detail.remarks,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12, color: ErpColors.textPrimary,
                         fontStyle: FontStyle.italic)),
               ])),
@@ -1443,8 +1443,8 @@ class _SummaryRow extends StatelessWidget {
     padding: const EdgeInsets.symmetric(vertical: 5),
     child: Row(children: [
       SizedBox(width: 130, child: Text(label,
-          style: const TextStyle(fontSize: 12, color: ErpColors.textSecondary))),
-      Expanded(child: Text(value, style: const TextStyle(
+          style: TextStyle(fontSize: 12, color: ErpColors.textSecondary))),
+      Expanded(child: Text(value, style: TextStyle(
           fontSize: 12, fontWeight: FontWeight.w700, color: ErpColors.textPrimary))),
     ]),
   );
@@ -1482,7 +1482,7 @@ class _TD extends StatelessWidget {
 class _FullPageLoader extends StatelessWidget {
   const _FullPageLoader();
   @override
-  Widget build(BuildContext context) => const Scaffold(
+  Widget build(BuildContext context) => Scaffold(
     backgroundColor: ErpColors.bgBase,
     body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
       CircularProgressIndicator(color: ErpColors.accentBlue),
@@ -1511,10 +1511,10 @@ class _FullPageError extends StatelessWidget {
     body: Center(child: Padding(
       padding: const EdgeInsets.all(24),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.cloud_off_rounded, color: ErpColors.errorRed, size: 52),
+        Icon(Icons.cloud_off_rounded, color: ErpColors.errorRed, size: 52),
         const SizedBox(height: 14),
         Text(msg, textAlign: TextAlign.center,
-            style: const TextStyle(color: ErpColors.textSecondary, fontSize: 13)),
+            style: TextStyle(color: ErpColors.textSecondary, fontSize: 13)),
         const SizedBox(height: 20),
         ElevatedButton.icon(
           style: ElevatedButton.styleFrom(

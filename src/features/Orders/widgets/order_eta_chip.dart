@@ -65,7 +65,7 @@ class OrderEtaChip extends StatelessWidget {
           ],
           if (isLearned) ...[
             const SizedBox(width: 5),
-            const Icon(
+            Icon(
               Icons.psychology_rounded,
               size: 10,
               color: ErpColors.accentBlue,

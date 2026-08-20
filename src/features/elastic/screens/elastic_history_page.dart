@@ -93,10 +93,10 @@ class _ElasticHistoryPageViewState extends State<ElasticHistoryPageView>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Product History', style: ErpTextStyles.pageTitle),
+              Text('Product History', style: ErpTextStyles.pageTitle),
               Text(widget.elasticName,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textOnDarkSub, fontSize: 10)),
             ],
           ),
@@ -133,7 +133,7 @@ class _OrdersTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Obx(() {
         if (c.ordersLoading.value && c.orders.isEmpty) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
 
@@ -215,7 +215,7 @@ class _OrderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(o.label,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
                         color: ErpColors.textPrimary)),
@@ -228,7 +228,7 @@ class _OrderCard extends StatelessWidget {
                       DateFormat('dd MMM yyyy').format(o.date!),
                   ].join('  ·  '),
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 10.5, color: ErpColors.textSecondary),
                 ),
               ],
@@ -250,22 +250,22 @@ class _OrderCard extends StatelessWidget {
               value: f,
               minHeight: 5,
               backgroundColor: ErpColors.bgMuted,
-              valueColor: const AlwaysStoppedAnimation(ErpColors.successGreen),
+              valueColor: AlwaysStoppedAnimation(ErpColors.successGreen),
             ),
           ),
           const SizedBox(height: 4),
           Text('${(f * 100).toStringAsFixed(0)}% packed',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 9.5, color: ErpColors.textMuted)),
         ],
         if (o.supplyDate != null) ...[
           const SizedBox(height: 6),
           Row(children: [
-            const Icon(Icons.event_rounded,
+            Icon(Icons.event_rounded,
                 size: 11, color: ErpColors.accentBlue),
             const SizedBox(width: 4),
             Text('Supply by ${DateFormat('dd MMM yyyy').format(o.supplyDate!)}',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
                     color: ErpColors.accentBlue)),
@@ -286,7 +286,7 @@ class _JobsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Obx(() {
         if (c.jobsLoading.value && c.jobs.isEmpty) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
 
@@ -369,7 +369,7 @@ class _JobCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(j.label,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
                         color: ErpColors.textPrimary)),
@@ -382,7 +382,7 @@ class _JobCard extends StatelessWidget {
                       DateFormat('dd MMM yyyy').format(j.date!),
                   ].join('  ·  '),
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 10.5, color: ErpColors.textSecondary),
                 ),
               ],
@@ -403,7 +403,7 @@ class _JobCard extends StatelessWidget {
         if (w != null && j.wastage > 0) ...[
           const SizedBox(height: 6),
           Text('${w.toStringAsFixed(1)}% of what it produced',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 9.5, color: ErpColors.textMuted)),
         ],
       ]),
@@ -454,7 +454,7 @@ class _Totals extends StatelessWidget {
                                 color: f.color)),
                         const SizedBox(height: 2),
                         Text(f.label,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 9.5,
                                 fontWeight: FontWeight.w700,
                                 color: ErpColors.textMuted)),
@@ -489,7 +489,7 @@ class _Cell extends StatelessWidget {
   Widget build(BuildContext context) => Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
                   color: ErpColors.textMuted)),
@@ -542,7 +542,7 @@ class _IncludeToggle extends StatelessWidget {
   Widget build(BuildContext context) => Row(children: [
         Expanded(
           child: Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
                   color: ErpColors.textSecondary)),
@@ -572,24 +572,24 @@ class _LoadMore extends StatelessWidget {
           height: 42,
           child: OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ErpColors.accentBlue),
+              side: BorderSide(color: ErpColors.accentBlue),
               shape:
                   RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: busy ? null : onTap,
             icon: busy
-                ? const SizedBox(
+                ? SizedBox(
                     width: 14,
                     height: 14,
                     child: CircularProgressIndicator(
                         strokeWidth: 2, color: ErpColors.accentBlue))
-                : const Icon(Icons.expand_more_rounded,
+                : Icon(Icons.expand_more_rounded,
                     size: 16, color: ErpColors.accentBlue),
             label: Text(
               busy
                   ? 'Loading…'
                   : 'Load more${remaining > 0 ? ' ($remaining left)' : ''}',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.accentBlue,
                   fontSize: 12,
                   fontWeight: FontWeight.w800),
@@ -621,7 +621,7 @@ class _Empty extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                   color: ErpColors.textPrimary)),
@@ -630,7 +630,7 @@ class _Empty extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(body,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 12)),
           ),
         ]),

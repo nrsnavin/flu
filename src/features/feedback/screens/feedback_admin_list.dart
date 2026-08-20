@@ -133,7 +133,7 @@ class _Dropdown extends StatelessWidget {
           value: value,
           isExpanded: true,
           icon: const Icon(Icons.expand_more_rounded, size: 18),
-          style: const TextStyle(
+          style: TextStyle(
             color: ErpColors.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -233,7 +233,7 @@ class _FeedbackCard extends StatelessWidget {
                     ),
                     child: Text(
                       category.toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: ErpColors.textSecondary,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -252,7 +252,7 @@ class _FeedbackCard extends StatelessWidget {
                 body,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   color: ErpColors.textSecondary,
                   height: 1.4,
@@ -270,14 +270,14 @@ class _FeedbackCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       dept.isEmpty ? empName : '$empName · $dept',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textMuted, fontSize: 11),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   if (dateLabel.isNotEmpty)
                     Text(dateLabel,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textMuted, fontSize: 11)),
                 ],
               ),
@@ -347,7 +347,7 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState();
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -377,11 +377,11 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: ErpColors.errorRed),
+            Icon(Icons.error_outline, size: 48, color: ErpColors.errorRed),
             const SizedBox(height: 10),
             Text(message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 13)),
             const SizedBox(height: 12),
             ErpPrimaryButton(label: 'Retry', icon: Icons.refresh, onPressed: onRetry),
@@ -440,11 +440,11 @@ class FeedbackDetailPage extends StatelessWidget {
                 ErpInfoRow('Category', feedback['category']),
                 ErpInfoRow('Status', feedback['status']),
                 const SizedBox(height: 8),
-                const Text('Message', style: ErpTextStyles.fieldLabel),
+                Text('Message', style: ErpTextStyles.fieldLabel),
                 const SizedBox(height: 4),
                 Text(
                   feedback['body'] as String? ?? '',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textPrimary, fontSize: 13, height: 1.5),
                 ),
               ],
@@ -466,7 +466,7 @@ class FeedbackDetailPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text('Set status', style: ErpTextStyles.fieldLabel),
+                Text('Set status', style: ErpTextStyles.fieldLabel),
                 const SizedBox(height: 6),
                 Obx(() => Wrap(
                       spacing: 8,

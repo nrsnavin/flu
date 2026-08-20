@@ -46,7 +46,7 @@ class _MaterialPickerSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -65,7 +65,7 @@ class _MaterialPickerSheet extends StatelessWidget {
           // Header
           Container(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(color: ErpColors.borderLight)),
             ),
@@ -82,7 +82,7 @@ class _MaterialPickerSheet extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(title,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: ErpColors.textPrimary),
@@ -90,7 +90,7 @@ class _MaterialPickerSheet extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () => Get.back(),
-                  icon: const Icon(Icons.close,
+                  icon: Icon(Icons.close,
                       color: ErpColors.textMuted, size: 20),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -108,9 +108,9 @@ class _MaterialPickerSheet extends StatelessWidget {
                 style: const TextStyle(fontSize: 14),
                 decoration: InputDecoration(
                   hintText: "Search materials…",
-                  hintStyle: const TextStyle(
+                  hintStyle: TextStyle(
                       color: ErpColors.textMuted, fontSize: 13),
-                  prefixIcon: const Icon(Icons.search,
+                  prefixIcon: Icon(Icons.search,
                       size: 18, color: ErpColors.textMuted),
                   filled: true,
                   fillColor: ErpColors.bgMuted,
@@ -118,16 +118,16 @@ class _MaterialPickerSheet extends StatelessWidget {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6),
                     borderSide:
-                    const BorderSide(color: ErpColors.borderLight),
+                    BorderSide(color: ErpColors.borderLight),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6),
                     borderSide:
-                    const BorderSide(color: ErpColors.borderLight),
+                    BorderSide(color: ErpColors.borderLight),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6),
-                    borderSide: const BorderSide(
+                    borderSide: BorderSide(
                         color: ErpColors.accentBlue, width: 1.5),
                   ),
                 ),
@@ -144,7 +144,7 @@ class _MaterialPickerSheet extends StatelessWidget {
                 children: [
                   Text(
                     "$count material${count == 1 ? '' : 's'}",
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textMuted,
                         fontSize: 11,
                         fontWeight: FontWeight.w600),
@@ -159,7 +159,7 @@ class _MaterialPickerSheet extends StatelessWidget {
               final filtered =
               controller.filteredMaterials(materials);
               if (filtered.isEmpty) {
-                return const Center(
+                return Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -207,7 +207,7 @@ class _MaterialPickerSheet extends StatelessWidget {
                               ErpColors.accentBlue.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Icon(Icons.line_axis,
+                            child: Icon(Icons.line_axis,
                                 size: 18, color: ErpColors.accentBlue),
                           ),
                           const SizedBox(width: 12),
@@ -217,13 +217,13 @@ class _MaterialPickerSheet extends StatelessWidget {
                               CrossAxisAlignment.start,
                               children: [
                                 Text(m.name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
                                         color: ErpColors.textPrimary),
                                     overflow: TextOverflow.ellipsis),
                                 Text(m.category,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 11,
                                         color: ErpColors.textSecondary)),
                               ],
@@ -241,7 +241,7 @@ class _MaterialPickerSheet extends StatelessWidget {
                             ),
                             child: Text(
                               "₹${m.price}/kg",
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: ErpColors.successGreen,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700),

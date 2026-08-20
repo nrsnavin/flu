@@ -22,10 +22,10 @@ class WastageRootCausePage extends StatelessWidget {
       ),
       body: Obx(() {
         if (c.isLoading.value && c.data.value == null) {
-          return const Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
+          return Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.errorMsg.value != null && c.data.value == null) {
-          return Center(child: Text(c.errorMsg.value!, style: const TextStyle(color: ErpColors.textSecondary)));
+          return Center(child: Text(c.errorMsg.value!, style: TextStyle(color: ErpColors.textSecondary)));
         }
         final d = c.data.value;
         if (d == null) return const SizedBox.shrink();
@@ -92,7 +92,7 @@ class WastageRootCausePage extends StatelessWidget {
             border: Border.all(color: ErpColors.borderLight),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+            Text(label, style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
             const SizedBox(height: 4),
             Text(value, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: color)),
           ]),
@@ -104,17 +104,17 @@ class WastageRootCausePage extends StatelessWidget {
         decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           borderRadius: BorderRadius.circular(10),
-          border: const Border(left: BorderSide(color: ErpColors.accentBlue, width: 4)),
+          border: Border(left: BorderSide(color: ErpColors.accentBlue, width: 4)),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Row(children: [
+          Row(children: [
             Icon(Icons.auto_awesome, size: 14, color: ErpColors.accentBlue),
             SizedBox(width: 6),
             Text('AI ROOT-CAUSE ANALYSIS',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.accentBlue)),
           ]),
           const SizedBox(height: 8),
-          Text(text, style: const TextStyle(fontSize: 13, color: ErpColors.textPrimary, height: 1.4)),
+          Text(text, style: TextStyle(fontSize: 13, color: ErpColors.textPrimary, height: 1.4)),
         ]),
       );
 
@@ -134,9 +134,9 @@ class WastageRootCausePage extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(ins.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: ErpColors.textPrimary)),
+            Text(ins.title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: ErpColors.textPrimary)),
             const SizedBox(height: 2),
-            Text(ins.detail, style: const TextStyle(fontSize: 12, color: ErpColors.textSecondary)),
+            Text(ins.detail, style: TextStyle(fontSize: 12, color: ErpColors.textSecondary)),
           ]),
         ),
       ]),
@@ -151,10 +151,10 @@ class WastageRootCausePage extends StatelessWidget {
           border: Border.all(color: ErpColors.borderLight),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
+          Text(title, style: TextStyle(fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
           const SizedBox(height: 8),
           if (rows.isEmpty)
-            const Text('No data', style: TextStyle(color: ErpColors.textMuted, fontSize: 12))
+            Text('No data', style: TextStyle(color: ErpColors.textMuted, fontSize: 12))
           else
             ...rows.map((r) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
@@ -162,13 +162,13 @@ class WastageRootCausePage extends StatelessWidget {
                     Expanded(
                       child: Text(
                         showSub && r.sub.isNotEmpty ? '${r.label} · ${r.sub}' : r.label,
-                        style: const TextStyle(fontSize: 13, color: ErpColors.textPrimary),
+                        style: TextStyle(fontSize: 13, color: ErpColors.textPrimary),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Text('${_n.format(r.qty)} m',
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
-                    Text(' (${r.count})', style: const TextStyle(fontSize: 12, color: ErpColors.textMuted)),
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
+                    Text(' (${r.count})', style: TextStyle(fontSize: 12, color: ErpColors.textMuted)),
                   ]),
                 )),
         ]),

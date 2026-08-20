@@ -20,7 +20,7 @@ class DataImportPage extends StatelessWidget {
         backgroundColor: ErpColors.navyDark,
         elevation: 0,
         titleSpacing: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -63,7 +63,7 @@ class _HelpCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           Row(children: [
             Icon(Icons.info_outline_rounded, size: 16, color: ErpColors.accentBlue),
             SizedBox(width: 8),
@@ -103,13 +103,13 @@ class _PickCard extends StatelessWidget {
             children: [
               if (c.pickedName.value != null) ...[
                 Row(children: [
-                  const Icon(Icons.description_outlined,
+                  Icon(Icons.description_outlined,
                       size: 18, color: ErpColors.textSecondary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(c.pickedName.value!,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 12, color: ErpColors.textSecondary)),
                   ),
                 ]),
@@ -166,7 +166,7 @@ class _ResultCard extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(result.message,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w800,
                       color: ErpColors.textPrimary)),
             ),
@@ -181,7 +181,7 @@ class _ResultCard extends StatelessWidget {
           ),
           if (result.skipped.isNotEmpty) ...[
             const SizedBox(height: 14),
-            const Text('Skipped rows',
+            Text('Skipped rows',
                 style: TextStyle(
                     fontSize: 11, fontWeight: FontWeight.w800,
                     color: ErpColors.warningAmber, letterSpacing: 0.4)),
@@ -191,12 +191,12 @@ class _ResultCard extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('•  ',
+                      Text('•  ',
                           style: TextStyle(
                               fontSize: 12, color: ErpColors.textMuted)),
                       Expanded(
                         child: Text(s,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 11, color: ErpColors.textSecondary)),
                       ),
                     ],
@@ -220,12 +220,12 @@ class _Stat extends StatelessWidget {
       child: Column(
         children: [
           Text('$value',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 20, fontWeight: FontWeight.w900,
                   color: ErpColors.accentBlue)),
           const SizedBox(height: 2),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 10, color: ErpColors.textSecondary)),
         ],
       ),
@@ -247,12 +247,12 @@ class _ErrorCard extends StatelessWidget {
         border: Border.all(color: ErpColors.errorRed.withOpacity(0.4)),
       ),
       child: Row(children: [
-        const Icon(Icons.error_outline_rounded,
+        Icon(Icons.error_outline_rounded,
             size: 18, color: ErpColors.errorRed),
         const SizedBox(width: 8),
         Expanded(
           child: Text(message,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12, color: ErpColors.textSecondary)),
         ),
       ]),

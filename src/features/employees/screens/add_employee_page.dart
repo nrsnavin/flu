@@ -166,14 +166,14 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
                   value: _selectedDept,
                   isExpanded: true,
                   style: ErpTextStyles.fieldValue,
-                  icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                  icon: Icon(Icons.keyboard_arrow_down_rounded,
                       color: ErpColors.textSecondary, size: 18),
                   decoration: ErpDecorations.formInput(
                     'Department',
-                    prefix: const Icon(Icons.business_outlined,
+                    prefix: Icon(Icons.business_outlined,
                         size: 16, color: ErpColors.textMuted),
                   ),
-                  hint: const Text('Select department',
+                  hint: Text('Select department',
                       style:
                       TextStyle(color: ErpColors.textMuted, fontSize: 12)),
                   items: _departments.map((d) {
@@ -181,7 +181,7 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
                     return DropdownMenuItem(
                       value: d,
                       child: Text(label,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: ErpColors.textPrimary)),
@@ -265,7 +265,7 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 4,
-      title: const Column(
+      title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [

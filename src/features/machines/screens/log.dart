@@ -81,7 +81,7 @@ class _AddServiceLogPageState extends State<AddServiceLogPage> {
                   decoration: ErpDecorations.formInput(
                     'Description *',
                     hint: 'What was done, what part was replaced…',
-                    prefix: const Icon(Icons.notes_rounded,
+                    prefix: Icon(Icons.notes_rounded,
                         size: 16, color: ErpColors.textMuted),
                   ),
                   validator: (v) =>
@@ -95,7 +95,7 @@ class _AddServiceLogPageState extends State<AddServiceLogPage> {
                   decoration: ErpDecorations.formInput(
                     'Technician Name',
                     hint: 'e.g. Rajan Kumar',
-                    prefix: const Icon(Icons.engineering_outlined,
+                    prefix: Icon(Icons.engineering_outlined,
                         size: 16, color: ErpColors.textMuted),
                   ),
                 ),
@@ -118,7 +118,7 @@ class _AddServiceLogPageState extends State<AddServiceLogPage> {
                   decoration: ErpDecorations.formInput(
                     'Service Cost (₹)',
                     hint: '0',
-                    prefix: const Icon(Icons.currency_rupee_rounded,
+                    prefix: Icon(Icons.currency_rupee_rounded,
                         size: 16, color: ErpColors.textMuted),
                   ),
                 ),
@@ -133,7 +133,7 @@ class _AddServiceLogPageState extends State<AddServiceLogPage> {
                       lastDate: DateTime(2035),
                       builder: (ctx, child) => Theme(
                         data: Theme.of(ctx).copyWith(
-                          colorScheme: const ColorScheme.dark(
+                          colorScheme: ColorScheme.dark(
                             primary: ErpColors.accentBlue,
                             onSurface: ErpColors.textPrimary,
                             surface: ErpColors.bgSurface,
@@ -152,12 +152,12 @@ class _AddServiceLogPageState extends State<AddServiceLogPage> {
                       decoration: ErpDecorations.formInput(
                         'Next Service Date (optional)',
                         hint: 'Tap to pick a date',
-                        prefix: const Icon(Icons.event_rounded,
+                        prefix: Icon(Icons.event_rounded,
                             size: 16, color: ErpColors.textMuted),
                         suffix: c.nextDateCtrl.text.isNotEmpty
                             ? GestureDetector(
                             onTap: () { c.clearNextDate(); setState(() {}); },
-                            child: const Icon(Icons.close_rounded,
+                            child: Icon(Icons.close_rounded,
                                 size: 16, color: ErpColors.textMuted))
                             : null,
                       ),
@@ -174,10 +174,10 @@ class _AddServiceLogPageState extends State<AddServiceLogPage> {
                     border: Border.all(color: ErpColors.borderLight),
                   ),
                   child: Row(children: [
-                    const Icon(Icons.check_circle_outline_rounded,
+                    Icon(Icons.check_circle_outline_rounded,
                         size: 16, color: ErpColors.textMuted),
                     const SizedBox(width: 10),
-                    const Expanded(child: Column(
+                    Expanded(child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Issue Resolved',
@@ -222,10 +222,10 @@ class _AddServiceLogPageState extends State<AddServiceLogPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Add Service Log', style: ErpTextStyles.pageTitle),
+        Text('Add Service Log', style: ErpTextStyles.pageTitle),
         Text(
           '${widget.machineDisplayId}  ›  Service Entry',
-          style: const TextStyle(color: ErpColors.textOnDarkSub, fontSize: 10),
+          style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 10),
           overflow: TextOverflow.ellipsis,
         ),
       ],
@@ -337,7 +337,7 @@ class _MaintenanceToggle extends StatelessWidget {
               size: 16,
               color: on ? ErpColors.warningAmber : ErpColors.textMuted),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -376,7 +376,7 @@ class _MaintenanceToggle extends StatelessWidget {
             border: Border.all(color: ErpColors.errorRed.withOpacity(0.35)),
           ),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Icon(Icons.block_rounded,
+            Icon(Icons.block_rounded,
                 size: 15, color: ErpColors.errorRed),
             const SizedBox(width: 8),
             Expanded(
@@ -384,12 +384,12 @@ class _MaintenanceToggle extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(blocked,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.errorRed,
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: 3),
-                  const Text(
+                  Text(
                     'Nothing was saved. Stop the job, or turn this off to '
                     'record the log without taking the machine out.',
                     style: TextStyle(
@@ -422,7 +422,7 @@ class _SectionCard extends StatelessWidget {
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgMuted,
           borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
           border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -455,7 +455,7 @@ class _FooterBar extends StatelessWidget {
         16, 10, 16, 16 + MediaQuery.of(context).padding.bottom),
     decoration: BoxDecoration(
       color: ErpColors.bgSurface,
-      border: const Border(top: BorderSide(color: ErpColors.borderLight)),
+      border: Border(top: BorderSide(color: ErpColors.borderLight)),
       boxShadow: [
         BoxShadow(color: ErpColors.navyDark.withOpacity(0.06),
             blurRadius: 8, offset: const Offset(0, -3)),
@@ -468,11 +468,11 @@ class _FooterBar extends StatelessWidget {
         child: OutlinedButton(
           onPressed: () => Navigator.of(context).pop(),
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: ErpColors.borderMid),
+            side: BorderSide(color: ErpColors.borderMid),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6)),
           ),
-          child: const Text('Cancel',
+          child: Text('Cancel',
               style: TextStyle(color: ErpColors.textSecondary,
                   fontWeight: FontWeight.w600)),
         ),

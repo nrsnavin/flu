@@ -112,7 +112,7 @@ class _ErpShellState extends State<ErpShell> {
             onTap: (i) => setState(() => _index = i),
             onSearch: _openSearch,
           ),
-          const VerticalDivider(width: 1, color: ErpColors.borderLight),
+          VerticalDivider(width: 1, color: ErpColors.borderLight),
           Expanded(
             child: IndexedStack(
               index: _index,

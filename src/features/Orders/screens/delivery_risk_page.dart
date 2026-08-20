@@ -33,10 +33,10 @@ class DeliveryRiskPage extends StatelessWidget {
       ),
       body: Obx(() {
         if (c.isLoading.value && c.risks.isEmpty) {
-          return const Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
+          return Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.errorMsg.value != null && c.risks.isEmpty) {
-          return Center(child: Text(c.errorMsg.value!, style: const TextStyle(color: ErpColors.textSecondary)));
+          return Center(child: Text(c.errorMsg.value!, style: TextStyle(color: ErpColors.textSecondary)));
         }
         if (c.risks.isEmpty) {
           return _empty();
@@ -51,7 +51,7 @@ class DeliveryRiskPage extends StatelessWidget {
               const SizedBox(height: 12),
               ...c.risks.map(_riskCard),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'You review and send each message — nothing goes out automatically.',
                 style: TextStyle(fontSize: 11, color: ErpColors.textMuted),
               ),
@@ -64,7 +64,7 @@ class DeliveryRiskPage extends StatelessWidget {
   }
 
   Widget _empty() => ListView(
-        children: const [
+        children: [
           SizedBox(height: 120),
           Icon(Icons.check_circle_outline, size: 48, color: ErpColors.successGreen),
           SizedBox(height: 12),
@@ -80,15 +80,15 @@ class DeliveryRiskPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: ErpColors.statusCancelledBg,
           borderRadius: BorderRadius.circular(10),
-          border: const Border(left: BorderSide(color: ErpColors.errorRed, width: 4)),
+          border: Border(left: BorderSide(color: ErpColors.errorRed, width: 4)),
         ),
         child: Row(children: [
-          const Icon(Icons.warning_amber_rounded, size: 18, color: ErpColors.errorRed),
+          Icon(Icons.warning_amber_rounded, size: 18, color: ErpColors.errorRed),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               '$n order${n == 1 ? '' : 's'} predicted late — draft customer updates ready',
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: ErpColors.errorRed),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: ErpColors.errorRed),
             ),
           ),
         ]),
@@ -108,13 +108,13 @@ class DeliveryRiskPage extends StatelessWidget {
           Expanded(
             child: Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
               Text('Order #${r.orderNo}',
-                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: ErpColors.textPrimary)),
-              Text(r.customerName, style: const TextStyle(fontSize: 13, color: ErpColors.textSecondary)),
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: ErpColors.textPrimary)),
+              Text(r.customerName, style: TextStyle(fontSize: 13, color: ErpColors.textSecondary)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(color: ErpColors.statusCancelledBg, borderRadius: BorderRadius.circular(20)),
                 child: Text('${r.lateWorkingDays}d late',
-                    style: const TextStyle(color: ErpColors.errorRed, fontSize: 11, fontWeight: FontWeight.w700)),
+                    style: TextStyle(color: ErpColors.errorRed, fontSize: 11, fontWeight: FontWeight.w700)),
               ),
             ]),
           ),
@@ -122,7 +122,7 @@ class DeliveryRiskPage extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           'promised ${_d.format(r.promised ?? DateTime.now())} → predicted ${r.expectedDate == null ? '—' : _d.format(r.expectedDate!)}',
-          style: const TextStyle(fontSize: 11, color: ErpColors.textMuted),
+          style: TextStyle(fontSize: 11, color: ErpColors.textMuted),
         ),
         const SizedBox(height: 8),
         Container(
@@ -135,13 +135,13 @@ class DeliveryRiskPage extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 6),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(color: ErpColors.statusOpenBg, borderRadius: BorderRadius.circular(4)),
-                child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Icon(Icons.auto_awesome, size: 11, color: ErpColors.accentBlue),
                   SizedBox(width: 4),
                   Text('AI', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: ErpColors.accentBlue)),
                 ]),
               ),
-            Text(r.draft, style: const TextStyle(fontSize: 13, color: ErpColors.textPrimary, height: 1.4)),
+            Text(r.draft, style: TextStyle(fontSize: 13, color: ErpColors.textPrimary, height: 1.4)),
           ]),
         ),
         const SizedBox(height: 8),

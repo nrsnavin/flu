@@ -97,7 +97,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
             Text(widget.isEditing ? 'Edit Order' : 'New Order',
                 style: ErpTextStyles.pageTitle),
             Text(widget.isEditing ? 'Orders  ›  Edit' : 'Orders  ›  Create New',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 10)),
           ],
         ),
@@ -216,14 +216,14 @@ class _AddOrderPageState extends State<AddOrderPage> {
           child: OutlinedButton.icon(
             onPressed: c.addElasticRow,
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ErpColors.accentBlue),
+              side: BorderSide(color: ErpColors.accentBlue),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6)),
               padding: const EdgeInsets.symmetric(vertical: 10),
             ),
-            icon: const Icon(Icons.add,
+            icon: Icon(Icons.add,
                 size: 16, color: ErpColors.accentBlue),
-            label: const Text('Add Elastic',
+            label: Text('Add Elastic',
                 style: TextStyle(
                     color: ErpColors.accentBlue,
                     fontWeight: FontWeight.w600)),
@@ -239,7 +239,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
-        border: const Border(top: BorderSide(color: ErpColors.borderLight)),
+        border: Border(top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
             color: ErpColors.navyDark.withOpacity(0.06),
@@ -256,11 +256,11 @@ class _AddOrderPageState extends State<AddOrderPage> {
             child: OutlinedButton(
               onPressed: () => Navigator.of(context).pop(),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.borderMid),
+                side: BorderSide(color: ErpColors.borderMid),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
               ),
-              child: const Text('Cancel',
+              child: Text('Cancel',
                   style: TextStyle(
                       color: ErpColors.textSecondary,
                       fontWeight: FontWeight.w600)),
@@ -344,7 +344,7 @@ class _ElasticRowCard extends StatelessWidget {
         // Row header
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.bgSurface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
             border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -358,13 +358,13 @@ class _ElasticRowCard extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Text('${index + 1}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.accentBlue,
                       fontSize: 11,
                       fontWeight: FontWeight.w800)),
             ),
             const SizedBox(width: 8),
-            const Expanded(
+            Expanded(
               child: Text('Elastic',
                   style: TextStyle(
                       fontWeight: FontWeight.w700,
@@ -379,7 +379,7 @@ class _ElasticRowCard extends StatelessWidget {
                   color: ErpColors.errorRed.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Icon(Icons.delete_outline,
+                child: Icon(Icons.delete_outline,
                     color: ErpColors.errorRed, size: 16),
               ),
             ),
@@ -415,7 +415,7 @@ class _ElasticRowCard extends StatelessWidget {
               style: ErpTextStyles.fieldValue,
               decoration: ErpDecorations.formInput(
                 'Quantity (meters)',
-                prefix: const Icon(Icons.straighten,
+                prefix: Icon(Icons.straighten,
                     size: 18, color: ErpColors.textMuted),
               ),
               onChanged: (_) => onChanged(),
@@ -465,12 +465,12 @@ class _DatePicker extends StatelessWidget {
   final BuildContext ctx;
   final Color accentColor;
 
-  const _DatePicker({
+  _DatePicker({
     required this.label,
     required this.date,
     required this.ctx,
-    this.accentColor = ErpColors.accentBlue,
-  });
+    Color? accentColor,
+  }) : accentColor = accentColor ?? ErpColors.accentBlue;
 
   @override
   Widget build(BuildContext context) {
@@ -567,7 +567,7 @@ class _PickerField extends StatelessWidget {
                 if (selected != null) ...[
                   const SizedBox(height: 1),
                   Text(selected!,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: ErpColors.textPrimary),
@@ -577,11 +577,11 @@ class _PickerField extends StatelessWidget {
             ),
           ),
           if (selected == null)
-            const Text('Tap to search',
+            Text('Tap to search',
                 style: TextStyle(
                     color: ErpColors.textMuted, fontSize: 12)),
           const SizedBox(width: 4),
-          const Icon(Icons.arrow_drop_down,
+          Icon(Icons.arrow_drop_down,
               color: ErpColors.textMuted, size: 20),
         ]),
       ),

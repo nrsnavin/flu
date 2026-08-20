@@ -84,7 +84,7 @@ class _SupplierListPageState extends State<SupplierListPage> {
           child: Center(
             child: Text(
               '${_c.suppliers.length} records',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 12),
             ),
           ),
@@ -107,7 +107,7 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
       ),
       child: SizedBox(
@@ -117,25 +117,25 @@ class _SearchBar extends StatelessWidget {
           style: const TextStyle(fontSize: 14),
           decoration: InputDecoration(
             hintText: 'Search by name or GSTIN…',
-            hintStyle: const TextStyle(
+            hintStyle: TextStyle(
                 color: ErpColors.textMuted, fontSize: 13),
-            prefixIcon: const Icon(Icons.search,
+            prefixIcon: Icon(Icons.search,
                 size: 19, color: ErpColors.textMuted),
             filled: true,
             fillColor: ErpColors.bgMuted,
             contentPadding: const EdgeInsets.symmetric(vertical: 0),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
               borderSide:
-              const BorderSide(color: ErpColors.accentBlue, width: 1.5),
+              BorderSide(color: ErpColors.accentBlue, width: 1.5),
             ),
           ),
         ),
@@ -154,7 +154,7 @@ class _ListBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.loading.value && c.suppliers.isEmpty) {
-        return const Center(
+        return Center(
             child: CircularProgressIndicator(
                 color: ErpColors.accentBlue));
       }
@@ -173,7 +173,7 @@ class _ListBody extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (_, i) {
             if (i == c.suppliers.length) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                     child: CircularProgressIndicator(
@@ -266,7 +266,7 @@ class _SupplierCard extends StatelessWidget {
                       children: [
                         Text(
                           supplier['name'] ?? '—',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: ErpColors.textPrimary,
@@ -278,7 +278,7 @@ class _SupplierCard extends StatelessWidget {
                             true)
                           Text(
                             supplier['contactPerson'],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: ErpColors.textSecondary,
                             ),
@@ -313,7 +313,7 @@ class _SupplierCard extends StatelessWidget {
             // ── Meta row ──────────────────────────────────
             Container(
               padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border:
                 Border(top: BorderSide(color: ErpColors.borderLight)),
                 color: ErpColors.bgMuted,
@@ -338,7 +338,7 @@ class _SupplierCard extends StatelessWidget {
                     ),
                   ],
                   const Spacer(),
-                  const Icon(Icons.chevron_right,
+                  Icon(Icons.chevron_right,
                       size: 16, color: ErpColors.textMuted),
                 ],
               ),
@@ -363,7 +363,7 @@ class _MetaChip extends StatelessWidget {
         Icon(icon, size: 13, color: ErpColors.textMuted),
         const SizedBox(width: 4),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 12)),
       ],
     );
@@ -389,27 +389,27 @@ class _EmptyState extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: ErpColors.borderLight),
             ),
-            child: const Icon(Icons.local_shipping_outlined,
+            child: Icon(Icons.local_shipping_outlined,
                 size: 32, color: ErpColors.textMuted),
           ),
           const SizedBox(height: 16),
-          const Text('No Suppliers Found',
+          Text('No Suppliers Found',
               style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                   color: ErpColors.textPrimary)),
           const SizedBox(height: 4),
-          const Text('Tap + to add your first supplier',
+          Text('Tap + to add your first supplier',
               style: TextStyle(
                   color: ErpColors.textSecondary, fontSize: 13)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: onRefresh,
             style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.borderMid)),
-            icon: const Icon(Icons.refresh,
+                side: BorderSide(color: ErpColors.borderMid)),
+            icon: Icon(Icons.refresh,
                 size: 16, color: ErpColors.textSecondary),
-            label: const Text('Refresh',
+            label: Text('Refresh',
                 style: TextStyle(color: ErpColors.textSecondary)),
           ),
         ],

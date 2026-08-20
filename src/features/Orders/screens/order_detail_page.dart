@@ -50,7 +50,7 @@ class OrderDetailPage extends StatelessWidget {
                 order != null ? "Order #${order["orderNo"]}" : "Order Detail",
                 style: ErpTextStyles.pageTitle,
               ),
-              const Text("Orders  ›  Detail",
+              Text("Orders  ›  Detail",
                   style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 10)),
             ],
           );
@@ -82,13 +82,13 @@ class OrderDetailPage extends StatelessWidget {
       ),
       body: Obx(() {
         if (c.isLoading.value) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
 
         final order = c.order.value;
         if (order == null) {
-          return const Center(
+          return Center(
             child: Text("Order not found",
                 style: TextStyle(color: ErpColors.textSecondary)),
           );
@@ -170,7 +170,7 @@ class _HeroCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.navyDark,
               borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
             ),
@@ -196,11 +196,11 @@ class _HeroCard extends StatelessWidget {
                               color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 2),
                       Text(order["customer"]?["name"] ?? "—",
-                          style: const TextStyle(color: ErpColors.textOnDarkSub, fontSize: 12),
+                          style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 12),
                           overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 4),
                       Text("PO: ${order["po"] ?? "—"}",
-                          style: const TextStyle(color: ErpColors.textOnDarkSub, fontSize: 11)),
+                          style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 11)),
                     ],
                   ),
                 ),
@@ -290,12 +290,12 @@ class _DateStat extends StatelessWidget {
     return Column(
       children: [
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textMuted, fontSize: 10,
                 fontWeight: FontWeight.w600, letterSpacing: 0.4)),
         const SizedBox(height: 4),
         Text(value,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w700)),
       ],
     );
@@ -420,26 +420,26 @@ class _ActivityTrail extends StatelessWidget {
                     children: [
                       const SizedBox(height: 4),
                       Text(e["label"] as String,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize:   13,
                               color:      ErpColors.textPrimary)),
                       const SizedBox(height: 3),
                       Row(children: [
-                        const Icon(Icons.person_outline, size: 11, color: ErpColors.textMuted),
+                        Icon(Icons.person_outline, size: 11, color: ErpColors.textMuted),
                         const SizedBox(width: 4),
                         Text(e["actor"] as String,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color:      ErpColors.textSecondary,
                                 fontSize:   11,
                                 fontWeight: FontWeight.w600)),
                       ]),
                       const SizedBox(height: 2),
                       Row(children: [
-                        const Icon(Icons.access_time, size: 11, color: ErpColors.textMuted),
+                        Icon(Icons.access_time, size: 11, color: ErpColors.textMuted),
                         const SizedBox(width: 4),
                         Text(e["at"] as String,
-                            style: const TextStyle(color: ErpColors.textMuted, fontSize: 11)),
+                            style: TextStyle(color: ErpColors.textMuted, fontSize: 11)),
                       ]),
                     ],
                   ),
@@ -478,9 +478,9 @@ class _ActionBar extends StatelessWidget {
                 border: Border.all(color: ErpColors.errorRed.withOpacity(0.3)),
               ),
               child: Row(children: [
-                const Icon(Icons.warning_amber_rounded, size: 16, color: ErpColors.errorRed),
+                Icon(Icons.warning_amber_rounded, size: 16, color: ErpColors.errorRed),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text(
                     "Insufficient stock — receive pending materials before approving.",
                     style: TextStyle(
@@ -514,13 +514,13 @@ class _ActionBar extends StatelessWidget {
                             if (updated == true) c.fetchOrderDetail();
                           }),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: ErpColors.accentBlue),
+                    side: BorderSide(color: ErpColors.accentBlue),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6)),
                   ),
-                  icon: const Icon(Icons.edit_outlined,
+                  icon: Icon(Icons.edit_outlined,
                       size: 16, color: ErpColors.accentBlue),
-                  label: const Text("Edit",
+                  label: Text("Edit",
                       style: TextStyle(
                           color: ErpColors.accentBlue,
                           fontWeight: FontWeight.w700)),
@@ -536,13 +536,13 @@ class _ActionBar extends StatelessWidget {
                       ? null
                       : () => _confirmDelete(context, c, order),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: ErpColors.errorRed),
+                    side: BorderSide(color: ErpColors.errorRed),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6)),
                   ),
-                  icon: const Icon(Icons.delete_outline,
+                  icon: Icon(Icons.delete_outline,
                       size: 16, color: ErpColors.errorRed),
-                  label: const Text("Delete",
+                  label: Text("Delete",
                       style: TextStyle(
                           color: ErpColors.errorRed,
                           fontWeight: FontWeight.w700)),
@@ -576,13 +576,13 @@ class _ActionBar extends StatelessWidget {
                   ? null
                   : () => _confirmCancel(context, c),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.errorRed),
+                side: BorderSide(color: ErpColors.errorRed),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
               ),
-              icon: const Icon(Icons.cancel_outlined,
+              icon: Icon(Icons.cancel_outlined,
                   size: 16, color: ErpColors.errorRed),
-              label: const Text('Cancel Order',
+              label: Text('Cancel Order',
                   style: TextStyle(
                       color: ErpColors.errorRed,
                       fontWeight: FontWeight.w700)),
@@ -610,7 +610,7 @@ class _ActionBar extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: ErpColors.errorRed.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.cancel_outlined,
+                child: Icon(Icons.cancel_outlined,
                     color: ErpColors.errorRed, size: 18),
               ),
               const SizedBox(width: 12),
@@ -618,7 +618,7 @@ class _ActionBar extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
             ]),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               "The order will be marked Cancelled. Already-deducted "
               "raw material is NOT auto-refunded — adjust stock manually "
               "if needed.",
@@ -659,14 +659,14 @@ class _ActionBar extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: ErpColors.accentBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.check_circle_outline, color: ErpColors.accentBlue, size: 18),
+                child: Icon(Icons.check_circle_outline, color: ErpColors.accentBlue, size: 18),
               ),
               const SizedBox(width: 12),
               const Text("Approve Order",
                   style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
             ]),
             const SizedBox(height: 12),
-            const Text("This will deduct raw materials from stock. Cannot be undone.",
+            Text("This will deduct raw materials from stock. Cannot be undone.",
                 style: TextStyle(color: ErpColors.textSecondary, fontSize: 13)),
             const SizedBox(height: 18),
             Row(children: [
@@ -709,14 +709,14 @@ class _ActionBar extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: ErpColors.warningAmber.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.play_circle_outline, color: ErpColors.warningAmber, size: 18),
+                child: Icon(Icons.play_circle_outline, color: ErpColors.warningAmber, size: 18),
               ),
               const SizedBox(width: 12),
               const Text("Start Production",
                   style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
             ]),
             const SizedBox(height: 12),
-            const Text("Move this order to In Progress and begin production?",
+            Text("Move this order to In Progress and begin production?",
                 style: TextStyle(color: ErpColors.textSecondary, fontSize: 13)),
             const SizedBox(height: 18),
             Row(children: [
@@ -758,7 +758,7 @@ class _ActionBar extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: ErpColors.errorRed.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.delete_outline,
+                child: Icon(Icons.delete_outline,
                     color: ErpColors.errorRed, size: 18),
               ),
               const SizedBox(width: 12),
@@ -769,10 +769,10 @@ class _ActionBar extends StatelessWidget {
             if (jobCount > 0)
               Text(
                 "This order has $jobCount job(s). Cancel them first.",
-                style: const TextStyle(color: ErpColors.errorRed, fontSize: 13),
+                style: TextStyle(color: ErpColors.errorRed, fontSize: 13),
               )
             else
-              const Text(
+              Text(
                 "The order will be hidden from active lists and an "
                 "audit entry will be recorded. The action cannot be undone.",
                 style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
@@ -906,7 +906,7 @@ class _ElasticTable extends StatelessWidget {
               color: ErpColors.navyDark.withOpacity(0.04),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Expanded(flex: 3, child: Text("ELASTIC", style: ErpTextStyles.fieldLabel)),
                 _ColHeader("ORDERED"),
@@ -934,7 +934,7 @@ class _ElasticTable extends StatelessWidget {
                   Expanded(
                     flex: 3,
                     child: Text(e["name"] ?? "—",
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 12, fontWeight: FontWeight.w600,
                             color: ErpColors.textPrimary),
                         overflow: TextOverflow.ellipsis),
@@ -1031,7 +1031,7 @@ class _ExcessPlanningSection extends StatelessWidget {
                 "${_qty(totalExcess)} m planned over what this order asked for"
                 "$beyondNote"
                 ". The extra yarn was drawn from stock when the job was raised.",
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 12, height: 1.35),
               ),
               const SizedBox(height: 10),
@@ -1114,13 +1114,13 @@ class _ExcessRow extends StatelessWidget {
             "${row["jobNo"] ?? "—"}  ·  "
             "${_ExcessPlanningSection._qty(row["plannedQuantity"] as num?)} m planned "
             "against ${_ExcessPlanningSection._qty(row["orderedQuantity"] as num?)} m ordered",
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 11.5),
           ),
           if (drawn.isNotEmpty) ...[
             const SizedBox(height: 3),
             Text("Yarn drawn: $drawn",
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted, fontSize: 11)),
           ],
           const SizedBox(height: 6),
@@ -1212,7 +1212,7 @@ class _RawMaterialSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Text("LIVE STOCK",
+              Text("LIVE STOCK",
                   style: TextStyle(
                       fontSize: 10, fontWeight: FontWeight.w800,
                       letterSpacing: 0.8, color: ErpColors.successGreen)),
@@ -1269,7 +1269,7 @@ class _RawMaterialSection extends StatelessWidget {
                   Row(children: [
                     Expanded(
                       child: Text(m["name"] ?? "—",
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontWeight: FontWeight.w700, fontSize: 13,
                               color: ErpColors.textPrimary)),
                     ),
@@ -1290,12 +1290,12 @@ class _RawMaterialSection extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(children: [
                     Text("Required: ${required.toStringAsFixed(2)} kg",
-                        style: const TextStyle(color: ErpColors.textSecondary, fontSize: 11)),
+                        style: TextStyle(color: ErpColors.textSecondary, fontSize: 11)),
                     const Spacer(),
                     Container(
                       width: 5, height: 5,
                       margin: const EdgeInsets.only(right: 4),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                           color: ErpColors.successGreen, shape: BoxShape.circle),
                     ),
                     Text(
@@ -1309,7 +1309,7 @@ class _RawMaterialSection extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       "Short by ${(required - inStock).toStringAsFixed(2)} kg — receive more stock to approve",
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.errorRed, fontSize: 11, fontStyle: FontStyle.italic),
                     ),
                   ],
@@ -1368,18 +1368,18 @@ class _JobOrdersSection extends StatelessWidget {
                   Get.to(() => AddJobOrderPage(order: OrderModel.fromJson(order)));
                 },
                 style: OutlinedButton.styleFrom(
-                  side:    const BorderSide(color: ErpColors.accentBlue),
+                  side:    BorderSide(color: ErpColors.accentBlue),
                   shape:   RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                 ),
-                icon:  const Icon(Icons.add, size: 16, color: ErpColors.accentBlue),
-                label: const Text("Add Job Order",
+                icon:  Icon(Icons.add, size: 16, color: ErpColors.accentBlue),
+                label: Text("Add Job Order",
                     style: TextStyle(color: ErpColors.accentBlue, fontWeight: FontWeight.w600)),
               ),
             ),
           if (status == "InProgress") const SizedBox(height: 10),
           if (jobs.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Text("No job orders yet",
                   style: TextStyle(color: ErpColors.textMuted, fontSize: 13)),
@@ -1413,7 +1413,7 @@ class _JobOrdersSection extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Text("${i + 1}",
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.accentBlue,
                               fontSize: 12, fontWeight: FontWeight.w800)),
                     ),
@@ -1423,17 +1423,17 @@ class _JobOrdersSection extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text("Job #${j["no"] ?? i + 1}",
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontWeight: FontWeight.w700, fontSize: 13,
                                   color: ErpColors.textPrimary)),
                           if (jobId != null)
                             Text(jobId,
-                                style: const TextStyle(color: ErpColors.textMuted, fontSize: 10),
+                                style: TextStyle(color: ErpColors.textMuted, fontSize: 10),
                                 overflow: TextOverflow.ellipsis),
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right, size: 16, color: ErpColors.textMuted),
+                    Icon(Icons.chevron_right, size: 16, color: ErpColors.textMuted),
                   ]),
                 ),
               );

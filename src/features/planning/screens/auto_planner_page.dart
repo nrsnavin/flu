@@ -24,7 +24,7 @@ class AutoPlannerPage extends StatelessWidget {
         backgroundColor: ErpColors.navyDark,
         foregroundColor: ErpColors.textOnDark,
         titleSpacing: 0,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -47,7 +47,7 @@ class AutoPlannerPage extends StatelessWidget {
       ),
       body: Obx(() {
         if (c.isLoading.value && c.objective.value == null) {
-          return const Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
+          return Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.errorMsg.value != null && c.objective.value == null) {
           return _center(c.errorMsg.value!);
@@ -90,7 +90,7 @@ class AutoPlannerPage extends StatelessWidget {
   }
 
   Widget _center(String msg) => Center(
-      child: Text(msg, style: const TextStyle(color: ErpColors.textSecondary)));
+      child: Text(msg, style: TextStyle(color: ErpColors.textSecondary)));
 
   Widget _planOfRecordBanner(PlannerController c) {
     String when = c.acceptedAt.value ?? '';
@@ -102,15 +102,15 @@ class AutoPlannerPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: ErpColors.statusCompletedBg,
         borderRadius: BorderRadius.circular(10),
-        border: const Border(left: BorderSide(color: ErpColors.successGreen, width: 4)),
+        border: Border(left: BorderSide(color: ErpColors.successGreen, width: 4)),
       ),
       child: Row(children: [
-        const Icon(Icons.check_circle_outline, size: 16, color: ErpColors.successGreen),
+        Icon(Icons.check_circle_outline, size: 16, color: ErpColors.successGreen),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             'Plan of record accepted $when by ${c.acceptedBy.value ?? 'admin'} · ${c.acceptedCount.value} assignments',
-            style: const TextStyle(fontSize: 12, color: ErpColors.textPrimary),
+            style: TextStyle(fontSize: 12, color: ErpColors.textPrimary),
           ),
         ),
       ]),
@@ -133,7 +133,7 @@ class AutoPlannerPage extends StatelessWidget {
               backgroundColor: ErpColors.bgSurface,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
-                  side: const BorderSide(color: ErpColors.borderLight)),
+                  side: BorderSide(color: ErpColors.borderLight)),
             ),
           );
         }).toList(),
@@ -159,7 +159,7 @@ class AutoPlannerPage extends StatelessWidget {
             border: Border.all(color: ErpColors.borderLight),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: const TextStyle(fontSize: 10, color: ErpColors.textMuted)),
+            Text(label, style: TextStyle(fontSize: 10, color: ErpColors.textMuted)),
             const SizedBox(height: 4),
             Text(value, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: color)),
           ]),
@@ -174,19 +174,19 @@ class AutoPlannerPage extends StatelessWidget {
           border: Border.all(color: ErpColors.borderLight),
         ),
         child: Row(children: [
-          const Icon(Icons.auto_fix_high, size: 18, color: ErpColors.accentBlue),
+          Icon(Icons.auto_fix_high, size: 18, color: ErpColors.accentBlue),
           const SizedBox(width: 8),
           Expanded(
             child: RichText(text: TextSpan(
-              style: const TextStyle(fontSize: 12, color: ErpColors.textSecondary),
+              style: TextStyle(fontSize: 12, color: ErpColors.textSecondary),
               children: [
                 TextSpan(text: '${o.machinesUsed} machines',
-                    style: const TextStyle(fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
+                    style: TextStyle(fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
                 const TextSpan(text: ' scheduled · '),
                 o.late > 0
                     ? TextSpan(text: '${o.totalLateDays} late-days total',
-                        style: const TextStyle(color: ErpColors.errorRed, fontWeight: FontWeight.w700))
-                    : const TextSpan(text: 'all orders hit their supply date',
+                        style: TextStyle(color: ErpColors.errorRed, fontWeight: FontWeight.w700))
+                    : TextSpan(text: 'all orders hit their supply date',
                         style: TextStyle(color: ErpColors.successGreen, fontWeight: FontWeight.w700)),
               ],
             )),
@@ -251,17 +251,17 @@ class AutoPlannerPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           borderRadius: BorderRadius.circular(10),
-          border: const Border(left: BorderSide(color: ErpColors.accentBlue, width: 4)),
+          border: Border(left: BorderSide(color: ErpColors.accentBlue, width: 4)),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Row(children: [
+          Row(children: [
             Icon(Icons.auto_awesome, size: 14, color: ErpColors.accentBlue),
             SizedBox(width: 6),
             Text('AI PLAN RATIONALE',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.accentBlue)),
           ]),
           const SizedBox(height: 8),
-          Text(text, style: const TextStyle(fontSize: 13, color: ErpColors.textPrimary, height: 1.4)),
+          Text(text, style: TextStyle(fontSize: 13, color: ErpColors.textPrimary, height: 1.4)),
         ]),
       );
 
@@ -275,7 +275,7 @@ class AutoPlannerPage extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Container(
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
               border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -283,16 +283,16 @@ class AutoPlannerPage extends StatelessWidget {
             child: Row(children: [
               Expanded(
                 child: Text('Machine ${mp.machineID}',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
               ),
-              Text('${mp.heads} heads', style: const TextStyle(fontSize: 11, color: ErpColors.textSecondary)),
+              Text('${mp.heads} heads', style: TextStyle(fontSize: 11, color: ErpColors.textSecondary)),
               if (mp.changeovers > 0) ...[
                 const SizedBox(width: 8),
                 Row(children: [
-                  const Icon(Icons.sync, size: 12, color: ErpColors.warningAmber),
+                  Icon(Icons.sync, size: 12, color: ErpColors.warningAmber),
                   const SizedBox(width: 2),
                   Text('${mp.changeovers}',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.warningAmber)),
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.warningAmber)),
                 ]),
               ],
             ]),
@@ -311,7 +311,7 @@ class AutoPlannerPage extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(color: ErpColors.bgMuted, shape: BoxShape.circle),
           child: Text('${r.sequence + 1}',
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.textSecondary)),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.textSecondary)),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -320,17 +320,17 @@ class AutoPlannerPage extends StatelessWidget {
               Flexible(
                 child: Text(r.elasticName,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
               ),
               if (r.changeover) ...[
                 const SizedBox(width: 6),
-                const Icon(Icons.sync, size: 11, color: ErpColors.warningAmber),
-                const Text(' changeover', style: TextStyle(fontSize: 10, color: ErpColors.warningAmber)),
+                Icon(Icons.sync, size: 11, color: ErpColors.warningAmber),
+                Text(' changeover', style: TextStyle(fontSize: 10, color: ErpColors.warningAmber)),
               ],
             ]),
             const SizedBox(height: 2),
             Text('#${r.orderNo} · ${r.customer} · ${_n.format(r.qtyMeters)} m · ${r.heads} heads',
-                style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+                style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
             const SizedBox(height: 4),
             Row(children: [
               Container(
@@ -339,17 +339,17 @@ class AutoPlannerPage extends StatelessWidget {
                 child: Text(rate.$3, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: rate.$2)),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.schedule, size: 12, color: ErpColors.textMuted),
+              Icon(Icons.schedule, size: 12, color: ErpColors.textMuted),
               const SizedBox(width: 3),
               Text('${r.weavingDays}d → ${r.projectedFinish == null ? '—' : _d.format(DateTime.parse(r.projectedFinish!))}',
-                  style: const TextStyle(fontSize: 11, color: ErpColors.textSecondary)),
+                  style: TextStyle(fontSize: 11, color: ErpColors.textSecondary)),
             ]),
             const SizedBox(height: 3),
             r.late
                 ? Text('Late ${r.lateWorkingDays}d',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.errorRed))
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: ErpColors.errorRed))
                 : Text('On time (due ${r.dueDate == null ? '—' : _d.format(DateTime.parse(r.dueDate!))})',
-                    style: const TextStyle(fontSize: 11, color: ErpColors.successGreen)),
+                    style: TextStyle(fontSize: 11, color: ErpColors.successGreen)),
           ]),
         ),
       ]),
@@ -374,22 +374,22 @@ class AutoPlannerPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           borderRadius: BorderRadius.circular(10),
-          border: const Border(left: BorderSide(color: ErpColors.warningAmber, width: 4)),
+          border: Border(left: BorderSide(color: ErpColors.warningAmber, width: 4)),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.warning_amber_rounded, size: 16, color: ErpColors.warningAmber),
+            Icon(Icons.warning_amber_rounded, size: 16, color: ErpColors.warningAmber),
             const SizedBox(width: 6),
             Text('Couldn\'t place (${c.unplaceable.length})',
-                style: const TextStyle(fontWeight: FontWeight.w700, color: ErpColors.warningAmber)),
+                style: TextStyle(fontWeight: FontWeight.w700, color: ErpColors.warningAmber)),
           ]),
           const SizedBox(height: 8),
           ...c.unplaceable.map((u) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('${u.elasticName} · #${u.orderNo} ${u.customer} · ${_n.format(u.qtyMeters)} m',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: ErpColors.textPrimary)),
-                  Text(u.reason, style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: ErpColors.textPrimary)),
+                  Text(u.reason, style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
                 ]),
               )),
         ]),
@@ -402,7 +402,7 @@ class AutoPlannerPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: ErpColors.borderLight),
         ),
-        child: const Center(
+        child: Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.event_busy_outlined, size: 40, color: ErpColors.textMuted),
             SizedBox(height: 10),
@@ -422,9 +422,9 @@ class AutoPlannerPage extends StatelessWidget {
             .map((a) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Icon(Icons.arrow_right, size: 14, color: ErpColors.textMuted),
+                    Icon(Icons.arrow_right, size: 14, color: ErpColors.textMuted),
                     Expanded(
-                      child: Text(a, style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+                      child: Text(a, style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
                     ),
                   ]),
                 ))

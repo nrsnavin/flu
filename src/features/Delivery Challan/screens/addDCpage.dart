@@ -333,7 +333,7 @@ class _AddDCPageState extends State<AddDCPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         titleSpacing: 4,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -456,7 +456,7 @@ class _TypeTile extends StatelessWidget {
         const SizedBox(height: 6),
         Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
             color: active ? color : ErpColors.textSecondary)),
-        Text(sub, style: const TextStyle(fontSize: 9, color: ErpColors.textMuted)),
+        Text(sub, style: TextStyle(fontSize: 9, color: ErpColors.textMuted)),
       ]),
     ),
   );
@@ -491,17 +491,17 @@ class _OrderCard extends StatelessWidget {
                   color: ErpColors.accentBlue.withOpacity(0.10),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Icon(Icons.receipt_outlined, size: 18, color: ErpColors.accentBlue),
+                child: Icon(Icons.receipt_outlined, size: 18, color: ErpColors.accentBlue),
               ),
               const SizedBox(width: 10),
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Order #${c.orderInfo.value!.orderNo}',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700,
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700,
                           color: ErpColors.textPrimary)),
                   Text(c.orderInfo.value!.customerName,
-                      style: const TextStyle(fontSize: 11, color: ErpColors.textSecondary)),
+                      style: TextStyle(fontSize: 11, color: ErpColors.textSecondary)),
                 ],
               )),
               GestureDetector(
@@ -513,7 +513,7 @@ class _OrderCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: ErpColors.borderLight),
                   ),
-                  child: const Icon(Icons.close, size: 14, color: ErpColors.textMuted),
+                  child: Icon(Icons.close, size: 14, color: ErpColors.textMuted),
                 ),
               ),
             ]),
@@ -527,9 +527,9 @@ class _OrderCard extends StatelessWidget {
             decoration: ErpDecorations.formInput(
               'Search order number or customer…',
               prefix: c.searchingOrders.value
-                  ? const SizedBox(width: 18, height: 18,
+                  ? SizedBox(width: 18, height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2, color: ErpColors.accentBlue))
-                  : const Icon(Icons.search, size: 18, color: ErpColors.textMuted),
+                  : Icon(Icons.search, size: 18, color: ErpColors.textMuted),
             ),
           ),
 
@@ -552,13 +552,13 @@ class _OrderCard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Row(children: [
-                      const Icon(Icons.receipt_long_outlined,
+                      Icon(Icons.receipt_long_outlined,
                           size: 15, color: ErpColors.accentBlue),
                       const SizedBox(width: 10),
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text('Order #$no', style: const TextStyle(
+                        Text('Order #$no', style: TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
-                        Text(cn, style: const TextStyle(
+                        Text(cn, style: TextStyle(
                             fontSize: 11, color: ErpColors.textSecondary)),
                       ]),
                     ]),
@@ -568,7 +568,7 @@ class _OrderCard extends StatelessWidget {
             ),
           ],
           if (c.loadingOrder.value)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 14),
               child: Center(child: CircularProgressIndicator(
                   color: ErpColors.accentBlue, strokeWidth: 2)),
@@ -636,7 +636,7 @@ class _ElasticPickerCard extends StatelessWidget {
                               fontSize: 13, fontWeight: FontWeight.w700,
                               color: sel ? ErpColors.textPrimary : ErpColors.textSecondary)),
                           Text('${opt.weaveType}  •  Order qty: ${opt.orderedQty.toStringAsFixed(0)} m',
-                              style: const TextStyle(fontSize: 10, color: ErpColors.textMuted)),
+                              style: TextStyle(fontSize: 10, color: ErpColors.textMuted)),
                         ],
                       )),
                     ]),
@@ -656,10 +656,10 @@ class _ElasticPickerCard extends StatelessWidget {
                           c.elasticItems.refresh();
                         },
                         decoration: ErpDecorations.formInput('Qty (m) *',
-                          prefix: const Icon(Icons.straighten, size: 16, color: ErpColors.textMuted),
+                          prefix: Icon(Icons.straighten, size: 16, color: ErpColors.textMuted),
                         ).copyWith(
                           errorText: qErr,
-                          errorStyle: const TextStyle(fontSize: 10, color: ErpColors.errorRed),
+                          errorStyle: TextStyle(fontSize: 10, color: ErpColors.errorRed),
                         ),
                       )),
                       const SizedBox(width: 8),
@@ -669,7 +669,7 @@ class _ElasticPickerCard extends StatelessWidget {
                         style: ErpTextStyles.fieldValue,
                         onChanged: (_) => c.elasticItems.refresh(),
                         decoration: ErpDecorations.formInput('Rate/m (₹)',
-                          prefix: const Icon(Icons.currency_rupee, size: 16, color: ErpColors.textMuted),
+                          prefix: Icon(Icons.currency_rupee, size: 16, color: ErpColors.textMuted),
                         ),
                       )),
                     ]),
@@ -680,7 +680,7 @@ class _ElasticPickerCard extends StatelessWidget {
 
           // ── Totals row ──────────────────────────────────────
           if (c.selectedIds.isNotEmpty) ...[
-            const Divider(height: 1, color: ErpColors.borderLight),
+            Divider(height: 1, color: ErpColors.borderLight),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
               child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
@@ -743,7 +743,7 @@ class _MachineItemsCard extends StatelessWidget {
                       fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF7C3AED))),
                 ),
                 const SizedBox(width: 8),
-                const Expanded(child: Text('Part / Item',
+                Expanded(child: Text('Part / Item',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
                         color: ErpColors.textPrimary))),
                 if (c.machineItems.length > 1)
@@ -755,7 +755,7 @@ class _MachineItemsCard extends StatelessWidget {
                         color: ErpColors.errorRed.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Icon(Icons.delete_outline, color: ErpColors.errorRed, size: 16),
+                      child: Icon(Icons.delete_outline, color: ErpColors.errorRed, size: 16),
                     ),
                   ),
               ]),
@@ -770,10 +770,10 @@ class _MachineItemsCard extends StatelessWidget {
                   c.machineItems.refresh();
                 },
                 decoration: ErpDecorations.formInput('Description / Part Name *',
-                  prefix: const Icon(Icons.build_outlined, size: 16, color: ErpColors.textMuted),
+                  prefix: Icon(Icons.build_outlined, size: 16, color: ErpColors.textMuted),
                 ).copyWith(
                   errorText: descErr,
-                  errorStyle: const TextStyle(fontSize: 10, color: ErpColors.errorRed),
+                  errorStyle: TextStyle(fontSize: 10, color: ErpColors.errorRed),
                 ),
               ),
               const SizedBox(height: 8),
@@ -790,7 +790,7 @@ class _MachineItemsCard extends StatelessWidget {
                   },
                   decoration: ErpDecorations.formInput('Qty *').copyWith(
                     errorText: qtyErr,
-                    errorStyle: const TextStyle(fontSize: 10, color: ErpColors.errorRed),
+                    errorStyle: TextStyle(fontSize: 10, color: ErpColors.errorRed),
                   ),
                 )),
                 const SizedBox(width: 8),
@@ -825,7 +825,7 @@ class _MachineItemsCard extends StatelessWidget {
                   style: ErpTextStyles.fieldValue,
                   onChanged: (_) => c.machineItems.refresh(),
                   decoration: ErpDecorations.formInput('Rate (₹)',
-                    prefix: const Icon(Icons.currency_rupee, size: 14, color: ErpColors.textMuted),
+                    prefix: Icon(Icons.currency_rupee, size: 14, color: ErpColors.textMuted),
                   ),
                 )),
               ]),
@@ -835,7 +835,7 @@ class _MachineItemsCard extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text('= ₹${_fmt(item.amount)}',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
                           color: ErpColors.successGreen)),
                 ),
               ],
@@ -923,7 +923,7 @@ class _DispatchCard extends StatelessWidget {
               lastDate: DateTime(2099),
               builder: (c, child) => Theme(
                 data: Theme.of(c).copyWith(
-                  colorScheme: const ColorScheme.dark(
+                  colorScheme: ColorScheme.dark(
                     primary: ErpColors.accentBlue,
                     surface: ErpColors.bgSurface,
                     onSurface: ErpColors.textPrimary,
@@ -976,7 +976,7 @@ class _Footer extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
-        border: const Border(top: BorderSide(color: ErpColors.borderLight)),
+        border: Border(top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05),
             blurRadius: 8, offset: const Offset(0, -3))],
       ),
@@ -986,10 +986,10 @@ class _Footer extends StatelessWidget {
           child: OutlinedButton(
             onPressed: () => Navigator.of(context).pop(),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ErpColors.borderMid),
+              side: BorderSide(color: ErpColors.borderMid),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
             ),
-            child: const Text('Cancel', style: TextStyle(
+            child: Text('Cancel', style: TextStyle(
                 color: ErpColors.textSecondary, fontWeight: FontWeight.w600)),
           ),
         )),
@@ -1028,8 +1028,8 @@ class _Card extends StatelessWidget {
   final Widget child;
   final Color accentColor;
   final String? errorText;
-  const _Card({required this.title, required this.icon, required this.child,
-    this.accentColor = ErpColors.accentBlue, this.errorText});
+  _Card({required this.title, required this.icon, required this.child,
+    Color? accentColor, this.errorText}) : accentColor = accentColor ?? ErpColors.accentBlue;
 
   @override
   Widget build(BuildContext context) {
@@ -1045,7 +1045,7 @@ class _Card extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.bgMuted,
             borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
             border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -1060,9 +1060,9 @@ class _Card extends StatelessWidget {
             Expanded(child: Text(title, style: ErpTextStyles.sectionHeader)),
             if (errorText != null)
               Row(children: [
-                const Icon(Icons.error_outline, size: 13, color: ErpColors.errorRed),
+                Icon(Icons.error_outline, size: 13, color: ErpColors.errorRed),
                 const SizedBox(width: 4),
-                Text(errorText!, style: const TextStyle(
+                Text(errorText!, style: TextStyle(
                     fontSize: 10, color: ErpColors.errorRed)),
               ]),
           ]),
@@ -1096,7 +1096,7 @@ class _Field extends StatelessWidget {
       prefix: prefix != null ? Icon(prefix, size: 18, color: ErpColors.textMuted) : null,
     ).copyWith(
       errorText: errorText,
-      errorStyle: const TextStyle(color: ErpColors.errorRed, fontSize: 10),
+      errorStyle: TextStyle(color: ErpColors.errorRed, fontSize: 10),
       enabledBorder: errorText != null ? OutlineInputBorder(
         borderRadius: BorderRadius.circular(4),
         borderSide: BorderSide(color: ErpColors.errorRed.withOpacity(0.6)),

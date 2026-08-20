@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/theme_toggle.dart';
 import 'package:get/get.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
@@ -32,12 +34,12 @@ class DocumentSettingsPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline,
+                  Icon(Icons.error_outline,
                       size: 48, color: ErpColors.errorRed),
                   const SizedBox(height: 8),
                   Text(ctrl.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary, fontSize: 13)),
                   const SizedBox(height: 12),
                   ErpPrimaryButton(
@@ -52,6 +54,12 @@ class DocumentSettingsPage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
             children: [
+              // Appearance is a device preference, not a document one,
+              // so it saves on its own the moment it is tapped rather
+              // than waiting for this form's Save button. Putting it
+              // behind Save would be a control that looks broken.
+              const ThemeModePicker(),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: ctrl.companyCtrl,
                 decoration: ErpDecorations.formInput('Company name'),
@@ -124,7 +132,7 @@ class DocumentSettingsPage extends StatelessWidget {
                     onPressed: ctrl.save,
                   )),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 'The PDF template layout designer is available in the web app.',
                 style: TextStyle(color: ErpColors.textMuted, fontSize: 11),
               ),

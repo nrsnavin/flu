@@ -65,10 +65,10 @@ class _WarpingListPageState extends State<WarpingListPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Warping', style: ErpTextStyles.pageTitle),
+          Text('Warping', style: ErpTextStyles.pageTitle),
           Text(
             '${c.warpings.length} records',
-            style: const TextStyle(
+            style: TextStyle(
               color: ErpColors.textOnDarkSub,
               fontSize: 10,
             ),
@@ -114,18 +114,18 @@ class _SearchBar extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
     child: TextField(
       controller: ctrl,
-      style: const TextStyle(fontSize: 13, color: ErpColors.textPrimary),
+      style: TextStyle(fontSize: 13, color: ErpColors.textPrimary),
       decoration: InputDecoration(
         hintText: 'Search job order no…',
-        hintStyle: const TextStyle(color: ErpColors.textMuted, fontSize: 12),
-        prefixIcon: const Icon(
+        hintStyle: TextStyle(color: ErpColors.textMuted, fontSize: 12),
+        prefixIcon: Icon(
           Icons.search,
           size: 16,
           color: ErpColors.textMuted,
         ),
         suffixIcon: ctrl.text.isNotEmpty
             ? IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.close,
                   size: 14,
                   color: ErpColors.textMuted,
@@ -141,15 +141,15 @@ class _SearchBar extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: ErpColors.borderLight),
+          borderSide: BorderSide(color: ErpColors.borderLight),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: ErpColors.borderLight),
+          borderSide: BorderSide(color: ErpColors.borderLight),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: ErpColors.accentBlue, width: 1.4),
+          borderSide: BorderSide(color: ErpColors.accentBlue, width: 1.4),
         ),
       ),
       onChanged: c.onSearch,
@@ -310,7 +310,7 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Obx(() {
     if (c.isLoading.value && c.warpings.isEmpty)
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(color: ErpColors.accentBlue),
       );
     if (c.errorMsg.value != null)
@@ -332,7 +332,7 @@ class _Body extends StatelessWidget {
           itemCount: c.warpings.length + (c.hasMore.value ? 1 : 0),
           itemBuilder: (_, i) {
             if (i >= c.warpings.length)
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(16),
                 child: Center(
                   child: CircularProgressIndicator(color: ErpColors.accentBlue),
@@ -404,7 +404,7 @@ class _WarpingCard extends StatelessWidget {
                   child: Center(
                     child: Text(
                       'W',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: ErpColors.accentBlue,
                         fontWeight: FontWeight.w900,
                         fontSize: 16,
@@ -419,7 +419,7 @@ class _WarpingCard extends StatelessWidget {
                     children: [
                       Text(
                         'Job #${w.jobOrderNo}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
                           color: ErpColors.textPrimary,
@@ -427,7 +427,7 @@ class _WarpingCard extends StatelessWidget {
                       ),
                       Text(
                         DateFormat('dd MMM yyyy').format(w.date),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontSize: 10,
                         ),
@@ -471,7 +471,7 @@ class _WarpingCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.work_outline,
                   size: 12,
                   color: ErpColors.textMuted,
@@ -479,13 +479,13 @@ class _WarpingCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   'Job status: ${w.jobStatus}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: ErpColors.textSecondary,
                     fontSize: 11,
                   ),
                 ),
                 const Spacer(),
-                const Text(
+                Text(
                   'View Details',
                   style: TextStyle(
                     color: ErpColors.accentBlue,
@@ -493,7 +493,7 @@ class _WarpingCard extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.chevron_right_rounded,
                   size: 14,
                   color: ErpColors.accentBlue,
@@ -533,7 +533,7 @@ class _StatusPill extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   const _EmptyState();
   @override
-  Widget build(BuildContext context) => const Center(
+  Widget build(BuildContext context) => Center(
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -566,9 +566,9 @@ class _ErrorState extends StatelessWidget {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
+        Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
         const SizedBox(height: 12),
-        const Text(
+        Text(
           'Failed to load',
           style: TextStyle(
             fontWeight: FontWeight.w700,
@@ -579,7 +579,7 @@ class _ErrorState extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           msg,
-          style: const TextStyle(color: ErpColors.textSecondary, fontSize: 12),
+          style: TextStyle(color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 14),

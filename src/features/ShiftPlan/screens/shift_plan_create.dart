@@ -57,7 +57,7 @@ class _CreateShiftPlanPageState extends State<CreateShiftPlanPage> {
       body: Obx(() {
         // ── Loading ──────────────────────────────────────────
         if (c.isLoading.value) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -117,7 +117,7 @@ class _CreateShiftPlanPageState extends State<CreateShiftPlanPage> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 4,
-      title: const Column(
+      title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -169,18 +169,18 @@ class _ErrorState extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: ErpColors.borderLight),
             ),
-            child: const Icon(Icons.cloud_off_outlined,
+            child: Icon(Icons.cloud_off_outlined,
                 size: 36, color: ErpColors.textMuted),
           ),
           const SizedBox(height: 16),
-          const Text('Failed to load data',
+          Text('Failed to load data',
               style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                   color: ErpColors.textPrimary)),
           const SizedBox(height: 6),
           Text(message,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textSecondary, fontSize: 12),
               textAlign: TextAlign.center),
           const SizedBox(height: 20),
@@ -227,13 +227,13 @@ class _ShiftHeaderCard extends StatelessWidget {
                   border: Border.all(color: ErpColors.borderLight),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.calendar_today_outlined,
+                  Icon(Icons.calendar_today_outlined,
                       size: 16, color: ErpColors.accentBlue),
                   const SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('DATE',
+                      Text('DATE',
                           style: TextStyle(
                               color: ErpColors.textMuted,
                               fontSize: 9,
@@ -242,7 +242,7 @@ class _ShiftHeaderCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Obx(() => Text(
                         c.formattedDate,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textPrimary,
                             fontSize: 13,
                             fontWeight: FontWeight.w800),
@@ -269,7 +269,7 @@ class _ShiftHeaderCard extends StatelessWidget {
           decoration: ErpDecorations.formInput(
             'Description (optional)',
             hint: 'e.g. Extra care for Job #45',
-            prefix: const Icon(Icons.notes_outlined,
+            prefix: Icon(Icons.notes_outlined,
                 size: 16, color: ErpColors.textMuted),
           ),
         ),
@@ -285,7 +285,7 @@ class _ShiftHeaderCard extends StatelessWidget {
       lastDate:  DateTime(2030),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(
+          colorScheme: ColorScheme.light(
             primary: ErpColors.accentBlue,
             onPrimary: Colors.white,
             surface: ErpColors.bgSurface,
@@ -504,17 +504,17 @@ class _EmptyMachines extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: ErpColors.borderLight),
           ),
-          child: const Icon(Icons.precision_manufacturing_outlined,
+          child: Icon(Icons.precision_manufacturing_outlined,
               size: 32, color: ErpColors.textMuted),
         ),
         const SizedBox(height: 14),
-        const Text('No Running Machines',
+        Text('No Running Machines',
             style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
                 color: ErpColors.textPrimary)),
         const SizedBox(height: 4),
-        const Text(
+        Text(
           'All machines are idle. Assign a machine to a weaving job first.',
           style: TextStyle(color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center,
@@ -563,7 +563,7 @@ class _MachineOperatorCard extends StatelessWidget {
                     color: ErpColors.accentBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.precision_manufacturing_outlined,
+                  child: Icon(Icons.precision_manufacturing_outlined,
                       size: 20, color: ErpColors.accentBlue),
                 ),
                 const SizedBox(width: 12),
@@ -573,7 +573,7 @@ class _MachineOperatorCard extends StatelessWidget {
                     children: [
                       Text(
                         machine.displayName,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                             color: ErpColors.textPrimary),
@@ -581,20 +581,20 @@ class _MachineOperatorCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Row(children: [
-                        const Icon(Icons.tag_outlined,
+                        Icon(Icons.tag_outlined,
                             size: 11, color: ErpColors.textMuted),
                         const SizedBox(width: 3),
                         Text('Job #${machine.jobOrderNo}',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600)),
                         const SizedBox(width: 8),
-                        const Icon(Icons.memory_outlined,
+                        Icon(Icons.memory_outlined,
                             size: 11, color: ErpColors.textMuted),
                         const SizedBox(width: 3),
                         Text('${machine.noOfHeads} heads',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textMuted, fontSize: 10)),
                       ]),
                     ],
@@ -612,7 +612,7 @@ class _MachineOperatorCard extends StatelessWidget {
                           color:
                           ErpColors.successGreen.withOpacity(0.35)),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.check_rounded,
@@ -637,7 +637,7 @@ class _MachineOperatorCard extends StatelessWidget {
                           color:
                           ErpColors.warningAmber.withOpacity(0.35)),
                     ),
-                    child: const Text('Unassigned',
+                    child: Text('Unassigned',
                         style: TextStyle(
                             color: ErpColors.warningAmber,
                             fontSize: 9,
@@ -679,21 +679,21 @@ class _OperatorDropdown extends StatelessWidget {
       value: selectedId,
       isExpanded: true,
       style: ErpTextStyles.fieldValue,
-      icon: const Icon(Icons.keyboard_arrow_down_rounded,
+      icon: Icon(Icons.keyboard_arrow_down_rounded,
           color: ErpColors.textSecondary, size: 18),
       decoration: ErpDecorations.formInput(
         'Assign Operator',
-        prefix: const Icon(Icons.person_outline,
+        prefix: Icon(Icons.person_outline,
             size: 16, color: ErpColors.textMuted),
       ).copyWith(
         filled: true,
         fillColor: ErpColors.bgSurface,
       ),
-      hint: const Text('Select operator',
+      hint: Text('Select operator',
           style: TextStyle(color: ErpColors.textMuted, fontSize: 12)),
       items: [
         // "None" option to clear
-        const DropdownMenuItem<String>(
+        DropdownMenuItem<String>(
           value: null,
           child: Text('— None —',
               style: TextStyle(
@@ -711,7 +711,7 @@ class _OperatorDropdown extends StatelessWidget {
                   color: ErpColors.accentBlue.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.person_outline,
+                child: Icon(Icons.person_outline,
                     size: 13, color: ErpColors.accentBlue),
               ),
               const SizedBox(width: 8),
@@ -721,14 +721,14 @@ class _OperatorDropdown extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(o.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: ErpColors.textPrimary),
                         overflow: TextOverflow.ellipsis),
                     if (o.department != null && o.department!.isNotEmpty)
                       Text(o.department!,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 10,
                               color: ErpColors.textMuted)),
                   ],
@@ -756,7 +756,7 @@ class _SaveBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
-        border: const Border(top: BorderSide(color: ErpColors.borderLight)),
+        border: Border(top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
             color: ErpColors.navyDark.withOpacity(0.08),
@@ -778,11 +778,11 @@ class _SaveBar extends StatelessWidget {
             child: OutlinedButton(
               onPressed: saving ? null : () => Navigator.of(context).pop(),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.borderMid),
+                side: BorderSide(color: ErpColors.borderMid),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(9)),
               ),
-              child: const Text('Cancel',
+              child: Text('Cancel',
                   style: TextStyle(
                       color: ErpColors.textSecondary,
                       fontWeight: FontWeight.w700)),

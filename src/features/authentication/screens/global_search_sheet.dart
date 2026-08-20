@@ -58,7 +58,7 @@ class _GlobalSearchSheetState extends State<GlobalSearchSheet> {
         minChildSize: 0.4,
         maxChildSize: 0.95,
         builder: (_, scrollCtrl) => Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.bgSurface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
           ),
@@ -78,21 +78,21 @@ class _GlobalSearchSheetState extends State<GlobalSearchSheet> {
                   controller: _ctrl,
                   focusNode: _focus,
                   autofocus: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15, color: ErpColors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                   decoration: InputDecoration(
                     hintText: 'Search modules — orders, po, stock, payroll…',
-                    hintStyle: const TextStyle(
+                    hintStyle: TextStyle(
                       color: ErpColors.textMuted, fontSize: 14,
                     ),
-                    prefixIcon: const Icon(Icons.search_rounded,
+                    prefixIcon: Icon(Icons.search_rounded,
                         color: ErpColors.accentBlue, size: 22),
                     suffixIcon: _q.isEmpty
                         ? null
                         : IconButton(
-                            icon: const Icon(Icons.close_rounded,
+                            icon: Icon(Icons.close_rounded,
                                 size: 18, color: ErpColors.textSecondary),
                             onPressed: () {
                               _ctrl.clear();
@@ -246,13 +246,13 @@ class _ResultTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(module.label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: ErpColors.textPrimary,
                         )),
                     Text(module.section,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: ErpColors.textSecondary,
                           letterSpacing: 0.4,

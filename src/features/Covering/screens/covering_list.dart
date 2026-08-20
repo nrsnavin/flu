@@ -73,10 +73,10 @@ class _CoveringListPageState extends State<CoveringListPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Covering', style: ErpTextStyles.pageTitle),
+          Text('Covering', style: ErpTextStyles.pageTitle),
           Text(
             '${c.list.length} records  •  ${c.statusFilter.value.toUpperCase()}',
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textOnDarkSub, fontSize: 10),
           ),
         ],
@@ -123,9 +123,9 @@ class _SearchBar extends StatelessWidget {
           filled: true,
           fillColor: ErpColors.bgMuted,
           hintText: 'Search by job order number…',
-          hintStyle: const TextStyle(
+          hintStyle: TextStyle(
               color: ErpColors.textMuted, fontSize: 12),
-          prefixIcon: const Icon(Icons.search_rounded,
+          prefixIcon: Icon(Icons.search_rounded,
               color: ErpColors.textMuted, size: 17),
           suffixIcon: Obx(() => c.searchQuery.value.isNotEmpty
               ? GestureDetector(
@@ -133,7 +133,7 @@ class _SearchBar extends StatelessWidget {
               ctrl.clear();
               c.setSearch('');
             },
-            child: const Icon(Icons.close_rounded,
+            child: Icon(Icons.close_rounded,
                 size: 16, color: ErpColors.textMuted),
           )
               : const SizedBox.shrink()),
@@ -141,15 +141,15 @@ class _SearchBar extends StatelessWidget {
           const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: ErpColors.borderLight),
+            borderSide: BorderSide(color: ErpColors.borderLight),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: ErpColors.borderLight),
+            borderSide: BorderSide(color: ErpColors.borderLight),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(
+            borderSide: BorderSide(
                 color: ErpColors.accentBlue, width: 1.5),
           ),
         ),
@@ -277,7 +277,7 @@ class _CoveringList extends StatelessWidget {
     return Obx(() {
       // Initial load spinner
       if (c.isLoading.value && c.list.isEmpty) {
-        return const Center(
+        return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue));
       }
       // Error
@@ -306,7 +306,7 @@ class _CoveringList extends StatelessWidget {
             if (i >= c.list.length) {
               // FIX: infinite scroll — only fetch when not already loading
               if (!c.isLoading.value) c.fetchList();
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Center(
                     child: CircularProgressIndicator(
@@ -372,7 +372,7 @@ class _CoveringCard extends StatelessWidget {
                   children: [
                     Row(children: [
                       Text('Job #${item.jobOrderNo}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
                               color: ErpColors.textPrimary)),
@@ -382,23 +382,23 @@ class _CoveringCard extends StatelessWidget {
                     if (item.customerName != null) ...[
                       const SizedBox(height: 2),
                       Row(children: [
-                        const Icon(Icons.business_outlined,
+                        Icon(Icons.business_outlined,
                             size: 11, color: ErpColors.textMuted),
                         const SizedBox(width: 3),
                         Text(item.customerName!,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary, fontSize: 11),
                             overflow: TextOverflow.ellipsis),
                       ]),
                     ],
                     const SizedBox(height: 4),
                     Row(children: [
-                      const Icon(Icons.calendar_today_outlined,
+                      Icon(Icons.calendar_today_outlined,
                           size: 10, color: ErpColors.textMuted),
                       const SizedBox(width: 3),
                       Text(
                         DateFormat('dd MMM yyyy').format(item.date),
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textMuted,
                             fontSize: 10,
                             fontWeight: FontWeight.w600),
@@ -406,7 +406,7 @@ class _CoveringCard extends StatelessWidget {
                     ]),
                   ]),
             ),
-            const Icon(Icons.chevron_right_rounded,
+            Icon(Icons.chevron_right_rounded,
                 color: ErpColors.textMuted, size: 18),
           ]),
         ),
@@ -478,19 +478,19 @@ class _EmptyState extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: ErpColors.borderLight),
         ),
-        child: const Icon(Icons.loop_rounded,
+        child: Icon(Icons.loop_rounded,
             size: 34, color: ErpColors.textMuted),
       ),
       const SizedBox(height: 14),
       Text(
         hasSearch ? 'No matching records' : 'No $status coverings',
-        style: const TextStyle(
+        style: TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 15,
             color: ErpColors.textPrimary),
       ),
       const SizedBox(height: 4),
-      const Text('Covering jobs will appear here',
+      Text('Covering jobs will appear here',
           style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12)),
     ]),
@@ -504,16 +504,16 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
+      Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
       const SizedBox(height: 12),
-      const Text('Failed to load',
+      Text('Failed to load',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

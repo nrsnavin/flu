@@ -227,7 +227,7 @@ class _MaterialGroupsPageState extends State<MaterialGroupsPage> {
                 children: [
                   Text(c.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: ErpColors.textSecondary)),
+                      style: TextStyle(color: ErpColors.textSecondary)),
                   const SizedBox(height: 12),
                   OutlinedButton(
                       onPressed: c.fetch, child: const Text('Try again')),
@@ -248,7 +248,7 @@ class _MaterialGroupsPageState extends State<MaterialGroupsPage> {
                     : 'No active material groups. Tap the archive icon to '
                         'see archived ones.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: ErpColors.textSecondary),
+                style: TextStyle(color: ErpColors.textSecondary),
               ),
             ),
           );
@@ -300,7 +300,7 @@ class _MaterialGroupsPageState extends State<MaterialGroupsPage> {
                         child: Text(g.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 14,
                                 color: ErpColors.textPrimary)),
@@ -314,7 +314,7 @@ class _MaterialGroupsPageState extends State<MaterialGroupsPage> {
                             color: ErpColors.bgMuted,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Text('Archived',
+                          child: Text('Archived',
                               style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
@@ -331,7 +331,7 @@ class _MaterialGroupsPageState extends State<MaterialGroupsPage> {
                         '$live material${live == 1 ? '' : 's'}',
                       if (g.defaultUnit.isNotEmpty) g.defaultUnit,
                     ].join('  ·  '),
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11.5, color: ErpColors.textMuted),
                   ),
                 ],
@@ -354,7 +354,7 @@ class _MaterialGroupsPageState extends State<MaterialGroupsPage> {
               ),
               IconButton(
                 tooltip: 'Remove',
-                icon: const Icon(Icons.delete_outline,
+                icon: Icon(Icons.delete_outline,
                     size: 20, color: ErpColors.errorRed),
                 onPressed: () => _confirmRemove(g),
               ),
@@ -500,7 +500,7 @@ class _GroupSheetState extends State<_GroupSheet> {
       padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
@@ -522,7 +522,7 @@ class _GroupSheetState extends State<_GroupSheet> {
               ),
               const SizedBox(height: 14),
               Text(isNew ? 'New material group' : 'Edit material group',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
                       color: ErpColors.textPrimary)),
@@ -536,13 +536,13 @@ class _GroupSheetState extends State<_GroupSheet> {
                     'Code ${widget.existing!.code} — this does not change '
                     'when the name does. Renaming moves every material '
                     'filed under the old name.',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11, color: ErpColors.textMuted),
                   ),
                 ),
               const SizedBox(height: 12),
 
-              const Text('What does this group answer?',
+              Text('What does this group answer?',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -557,15 +557,15 @@ class _GroupSheetState extends State<_GroupSheet> {
                   contentPadding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
                   title: Text(e.value.label,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 13, color: ErpColors.textPrimary)),
                   subtitle: Text(e.value.hint,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 11, color: ErpColors.textMuted)),
                 ),
               const SizedBox(height: 8),
 
-              const Text('Colour',
+              Text('Colour',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -610,7 +610,7 @@ class _GroupSheetState extends State<_GroupSheet> {
                           width: _colour.isEmpty ? 2 : 1,
                         ),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text('Default',
                             style: TextStyle(
                                 fontSize: 11.5,

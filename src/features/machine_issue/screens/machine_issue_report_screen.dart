@@ -201,7 +201,7 @@ class _MachineIssueReportScreenState extends State<MachineIssueReportScreen> {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: ErpColors.borderLight),
         ),
-        child: Row(children: const [
+        child: Row(children: [
           SizedBox(
               width: 16,
               height: 16,
@@ -217,7 +217,7 @@ class _MachineIssueReportScreenState extends State<MachineIssueReportScreen> {
       return Row(children: [
         Expanded(
           child: Text(_machineError!,
-              style: const TextStyle(color: ErpColors.errorRed, fontSize: 13)),
+              style: TextStyle(color: ErpColors.errorRed, fontSize: 13)),
         ),
         TextButton(onPressed: _loadMachines, child: const Text('Retry')),
       ]);
@@ -228,7 +228,7 @@ class _MachineIssueReportScreenState extends State<MachineIssueReportScreen> {
       style: ErpTextStyles.fieldValue,
       decoration: ErpDecorations.formInput('Machine',
           hint: 'Select machine',
-          prefix: const Icon(Icons.precision_manufacturing_outlined,
+          prefix: Icon(Icons.precision_manufacturing_outlined,
               size: 16, color: ErpColors.textMuted)),
       items: _machines
           .map((m) => DropdownMenuItem(

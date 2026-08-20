@@ -72,9 +72,9 @@ class _RawMaterialListPageState extends State<RawMaterialListPage> {
             padding: const EdgeInsets.symmetric(
                 horizontal: 10, vertical: 6),
           ),
-          icon: const Icon(Icons.price_change_outlined,
+          icon: Icon(Icons.price_change_outlined,
               size: 15, color: ErpColors.warningAmber),
-          label: const Text('Bulk Price',
+          label: Text('Bulk Price',
               style: TextStyle(
                   color: ErpColors.warningAmber,
                   fontSize: 12, fontWeight: FontWeight.w700)),
@@ -129,7 +129,7 @@ class _SearchAndActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
     ),
     child: Column(children: [
@@ -141,24 +141,24 @@ class _SearchAndActions extends StatelessWidget {
           style: const TextStyle(fontSize: 14),
           decoration: InputDecoration(
             hintText: 'Search by name…',
-            hintStyle: const TextStyle(
+            hintStyle: TextStyle(
                 color: ErpColors.textMuted, fontSize: 13),
-            prefixIcon: const Icon(Icons.search,
+            prefixIcon: Icon(Icons.search,
                 size: 19, color: ErpColors.textMuted),
             filled: true,
             fillColor: ErpColors.bgMuted,
             contentPadding: const EdgeInsets.symmetric(vertical: 0),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                   color: ErpColors.accentBlue, width: 1.5),
             ),
           ),
@@ -203,11 +203,11 @@ class _FilterChip extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback onRemove;
-  const _FilterChip({
+  _FilterChip({
     required this.label,
     required this.onRemove,
-    this.color = ErpColors.accentBlue,
-  });
+    Color? color,
+  }) : color = color ?? ErpColors.accentBlue;
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -240,7 +240,7 @@ class _MaterialList extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Obx(() {
     if (c.loading.value && c.materials.isEmpty) {
-      return const Center(
+      return Center(
           child: CircularProgressIndicator(color: ErpColors.accentBlue));
     }
     if (c.materials.isEmpty) {
@@ -302,7 +302,7 @@ class _MaterialCard extends StatelessWidget {
                   material.name.isNotEmpty
                       ? material.name[0].toUpperCase()
                       : '?',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.accentBlue,
                       fontSize: 15, fontWeight: FontWeight.w800),
                 ),
@@ -314,13 +314,13 @@ class _MaterialCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(material.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w700,
                             color: ErpColors.textPrimary),
                         overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
                     Text(material.category,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11,
                             color: ErpColors.textSecondary)),
                   ],
@@ -329,10 +329,10 @@ class _MaterialCard extends StatelessWidget {
               // Price
               Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Text('₹${material.price.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary,
                         fontSize: 14, fontWeight: FontWeight.w800)),
-                const Text('per kg',
+                Text('per kg',
                     style: TextStyle(
                         color: ErpColors.textMuted, fontSize: 9)),
               ]),
@@ -347,7 +347,7 @@ class _MaterialCard extends StatelessWidget {
                   : ErpColors.bgMuted,
               borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(8)),
-              border: const Border(
+              border: Border(
                   top: BorderSide(color: ErpColors.borderLight)),
             ),
             child: Row(children: [
@@ -367,7 +367,7 @@ class _MaterialCard extends StatelessWidget {
                     border: Border.all(
                         color: ErpColors.errorRed.withOpacity(0.35)),
                   ),
-                  child: const Text('LOW STOCK',
+                  child: Text('LOW STOCK',
                       style: TextStyle(
                           color: ErpColors.errorRed,
                           fontSize: 8,
@@ -375,7 +375,7 @@ class _MaterialCard extends StatelessWidget {
                           letterSpacing: 0.4)),
                 )
               else
-                const Icon(Icons.chevron_right,
+                Icon(Icons.chevron_right,
                     size: 16, color: ErpColors.textMuted),
             ]),
           ),
@@ -396,7 +396,7 @@ class _Meta extends StatelessWidget {
       Icon(icon, size: 12, color: ErpColors.textMuted),
       const SizedBox(width: 4),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 11)),
     ],
   );
@@ -420,7 +420,7 @@ class _FilterSheet extends StatelessWidget {
               color: ErpColors.borderMid,
               borderRadius: BorderRadius.circular(2)))),
       const SizedBox(height: 16),
-      const Text('Filter Materials',
+      Text('Filter Materials',
           style: TextStyle(
               fontSize: 16, fontWeight: FontWeight.w800,
               color: ErpColors.textPrimary)),
@@ -437,7 +437,7 @@ class _FilterSheet extends StatelessWidget {
         dropdownColor: ErpColors.bgSurface,
         style: ErpTextStyles.fieldValue,
         decoration: ErpDecorations.formInput('Category',
-            prefix: const Icon(Icons.category_outlined,
+            prefix: Icon(Icons.category_outlined,
                 size: 16, color: ErpColors.textMuted)),
         items: c.categories
             .map((cat) =>
@@ -460,7 +460,7 @@ class _FilterSheet extends StatelessWidget {
           ),
         ),
         child: CheckboxListTile(
-          title: const Text('Show Low Stock Only',
+          title: Text('Show Low Stock Only',
               style: TextStyle(
                   fontSize: 13, fontWeight: FontWeight.w600,
                   color: ErpColors.textPrimary)),
@@ -481,11 +481,11 @@ class _FilterSheet extends StatelessWidget {
               Navigator.of(context).pop();
             },
             style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.borderMid),
+                side: BorderSide(color: ErpColors.borderMid),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
                 padding: const EdgeInsets.symmetric(vertical: 12)),
-            child: const Text('Reset',
+            child: Text('Reset',
                 style: TextStyle(color: ErpColors.textSecondary,
                     fontWeight: FontWeight.w600)),
           ),
@@ -608,7 +608,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
       minChildSize:     0.5,
       maxChildSize:     0.95,
       builder: (ctx, scrollCtrl) => Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgBase,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
@@ -616,7 +616,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
           // ── Header ────────────────────────────────────────
           Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgSurface,
               borderRadius:
               BorderRadius.vertical(top: Radius.circular(16)),
@@ -637,11 +637,11 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
                     color: ErpColors.warningAmber.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.price_change_outlined,
+                  child: Icon(Icons.price_change_outlined,
                       size: 18, color: ErpColors.warningAmber),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -660,7 +660,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
                 ),
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
-                  child: const Icon(Icons.close,
+                  child: Icon(Icons.close,
                       color: ErpColors.textMuted, size: 20),
                 ),
               ]),
@@ -680,7 +680,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
                   decoration: ErpDecorations.formInput(
                     'Reason for update (optional)',
                     hint: 'e.g. Monthly price revision',
-                    prefix: const Icon(Icons.edit_note_outlined,
+                    prefix: Icon(Icons.edit_note_outlined,
                         size: 18, color: ErpColors.textMuted),
                   ),
                 ),
@@ -691,7 +691,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 4, vertical: 4),
                   child: Row(children: [
-                    const Expanded(
+                    Expanded(
                       child: Text('Material',
                           style: TextStyle(
                               fontSize: 10,
@@ -704,7 +704,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
                       width: 90,
                       child: Text('Current Price',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: ErpColors.textMuted,
@@ -713,7 +713,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
                     const SizedBox(width: 8),
                     SizedBox(
                       width: 110,
-                      child: const Text('New Price (₹/kg)',
+                      child: Text('New Price (₹/kg)',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 10,
@@ -741,7 +741,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
             decoration: BoxDecoration(
               color: ErpColors.bgSurface,
-              border: const Border(
+              border: Border(
                   top: BorderSide(color: ErpColors.borderLight)),
               boxShadow: [
                 BoxShadow(
@@ -853,12 +853,12 @@ class _PriceRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(material.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12, fontWeight: FontWeight.w700,
                       color: ErpColors.textPrimary),
                   overflow: TextOverflow.ellipsis),
               Text(material.category,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 10, color: ErpColors.textMuted)),
             ],
           ),
@@ -953,7 +953,7 @@ class _PriceRow extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6),
-                borderSide: const BorderSide(
+                borderSide: BorderSide(
                     color: ErpColors.warningAmber, width: 1.5),
               ),
             ),
@@ -987,11 +987,11 @@ class _ConfirmBulkDialog extends StatelessWidget {
           color: ErpColors.warningAmber.withOpacity(0.12),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Icon(Icons.price_change_outlined,
+        child: Icon(Icons.price_change_outlined,
             color: ErpColors.warningAmber, size: 20),
       ),
       const SizedBox(width: 12),
-      const Expanded(
+      Expanded(
         child: Text('Confirm Price Update',
             style: TextStyle(
                 fontSize: 15, fontWeight: FontWeight.w800,
@@ -1029,7 +1029,7 @@ class _ConfirmBulkDialog extends StatelessWidget {
         ]),
       ),
       const SizedBox(height: 12),
-      const Text(
+      Text(
         'This action will update prices in the database and '
             'affect all future costing calculations.',
         style: TextStyle(
@@ -1045,11 +1045,11 @@ class _ConfirmBulkDialog extends StatelessWidget {
           child: OutlinedButton(
             onPressed: () => Navigator.of(context).pop(false),
             style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.borderMid),
+                side: BorderSide(color: ErpColors.borderMid),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
                 padding: const EdgeInsets.symmetric(vertical: 12)),
-            child: const Text('Cancel',
+            child: Text('Cancel',
                 style: TextStyle(
                     color: ErpColors.textSecondary,
                     fontWeight: FontWeight.w600)),
@@ -1111,26 +1111,26 @@ class _EmptyState extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: ErpColors.borderLight),
         ),
-        child: const Icon(Icons.category_outlined,
+        child: Icon(Icons.category_outlined,
             size: 32, color: ErpColors.textMuted),
       ),
       const SizedBox(height: 16),
-      const Text('No Materials Found',
+      Text('No Materials Found',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15, color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
-      const Text('Tap + to add a material',
+      Text('Tap + to add a material',
           style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 13)),
       const SizedBox(height: 16),
       OutlinedButton.icon(
         onPressed: onRefresh,
         style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: ErpColors.borderMid)),
-        icon: const Icon(Icons.refresh,
+            side: BorderSide(color: ErpColors.borderMid)),
+        icon: Icon(Icons.refresh,
             size: 16, color: ErpColors.textSecondary),
-        label: const Text('Refresh',
+        label: Text('Refresh',
             style: TextStyle(color: ErpColors.textSecondary)),
       ),
     ]),

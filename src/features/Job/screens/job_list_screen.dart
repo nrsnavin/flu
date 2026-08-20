@@ -37,7 +37,7 @@ class _JobListPageState extends State<JobListPage> {
           Expanded(child: _JobList(c: _c)),
           // Footer loading indicator
           Obx(() => _c.isLoading.value && _c.jobs.isNotEmpty
-              ? const Padding(
+              ? Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Center(
               child: SizedBox(
@@ -61,13 +61,13 @@ class _JobListPageState extends State<JobListPage> {
       elevation: 0,
       automaticallyImplyLeading: false,
       titleSpacing: 16,
-      title: const Text("Job Orders", style: ErpTextStyles.pageTitle),
+      title: Text("Job Orders", style: ErpTextStyles.pageTitle),
       actions: [
         Obx(() => Padding(
           padding: const EdgeInsets.only(right: 16),
           child: Center(
             child: Text("${_c.jobs.length} jobs",
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 12)),
           ),
         )),
@@ -90,7 +90,7 @@ class _SearchBar extends StatelessWidget {
     return Container(
 
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           border:
           Border(bottom: BorderSide(color: ErpColors.borderLight))),
@@ -104,24 +104,24 @@ class _SearchBar extends StatelessWidget {
           decoration: InputDecoration(
             hintText: "Search by job number…",
             hintStyle:
-            const TextStyle(color: ErpColors.textMuted, fontSize: 13),
-            prefixIcon: const Icon(Icons.search,
+            TextStyle(color: ErpColors.textMuted, fontSize: 13),
+            prefixIcon: Icon(Icons.search,
                 size: 18, color: ErpColors.textMuted),
             filled: true,
             fillColor: ErpColors.bgMuted,
             contentPadding: EdgeInsets.zero,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
               borderSide:
-              const BorderSide(color: ErpColors.accentBlue, width: 1.5),
+              BorderSide(color: ErpColors.accentBlue, width: 1.5),
             ),
           ),
         ),
@@ -150,7 +150,7 @@ class _StatusTabs extends StatelessWidget {
     return Container(
 
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
           color: ErpColors.bgSurface,
           border:
           Border(bottom: BorderSide(color: ErpColors.borderLight))),
@@ -217,7 +217,7 @@ class _JobList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.isLoading.value && c.jobs.isEmpty) {
-        return const Center(
+        return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue));
       }
       if (c.jobs.isEmpty) {
@@ -293,7 +293,7 @@ class _JobCard extends StatelessWidget {
                             style: ErpTextStyles.cardTitle),
                         const SizedBox(height: 2),
                         Text(job.customerName,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500),
@@ -331,7 +331,7 @@ class _JobCard extends StatelessWidget {
             // Footer
             Container(
               padding: const EdgeInsets.fromLTRB(14, 7, 14, 9),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: ErpColors.bgMuted,
                 borderRadius:
                 BorderRadius.vertical(bottom: Radius.circular(8)),
@@ -340,20 +340,20 @@ class _JobCard extends StatelessWidget {
               ),
               child: Row(children: [
                 if (job.machineId != null) ...[
-                  const Icon(Icons.precision_manufacturing_outlined,
+                  Icon(Icons.precision_manufacturing_outlined,
                       size: 12, color: ErpColors.textMuted),
                   const SizedBox(width: 4),
                   Text("Machine ${job.machineId}",
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontSize: 11,
                           fontWeight: FontWeight.w600)),
                 ] else
-                  const Text("No machine assigned",
+                  Text("No machine assigned",
                       style: TextStyle(
                           color: ErpColors.textMuted, fontSize: 11)),
                 const Spacer(),
-                const Icon(Icons.chevron_right,
+                Icon(Icons.chevron_right,
                     size: 16, color: ErpColors.textMuted),
               ]),
             ),
@@ -400,27 +400,27 @@ class _EmptyState extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: ErpColors.borderLight),
             ),
-            child: const Icon(Icons.work_outline,
+            child: Icon(Icons.work_outline,
                 size: 32, color: ErpColors.textMuted),
           ),
           const SizedBox(height: 16),
-          const Text("No Job Orders",
+          Text("No Job Orders",
               style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                   color: ErpColors.textPrimary)),
           const SizedBox(height: 4),
-          const Text("Jobs appear here once created from an Order",
+          Text("Jobs appear here once created from an Order",
               style: TextStyle(
                   color: ErpColors.textSecondary, fontSize: 13)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: onRefresh,
             style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.borderMid)),
-            icon: const Icon(Icons.refresh,
+                side: BorderSide(color: ErpColors.borderMid)),
+            icon: Icon(Icons.refresh,
                 size: 16, color: ErpColors.textSecondary),
-            label: const Text("Refresh",
+            label: Text("Refresh",
                 style: TextStyle(color: ErpColors.textSecondary)),
           ),
         ],

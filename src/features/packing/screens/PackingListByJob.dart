@@ -67,7 +67,7 @@ class _PackingListByJobPageState extends State<PackingListByJobPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text('Job #$jobNo', style: ErpTextStyles.pageTitle),
-          const Text('Packing  ›  Job Detail',
+          Text('Packing  ›  Job Detail',
               style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 10)),
         ],
@@ -117,7 +117,7 @@ class _JobHeader extends StatelessWidget {
             border: Border.all(
                 color: ErpColors.accentBlue.withOpacity(0.3)),
           ),
-          child: const Icon(Icons.inventory_2_outlined,
+          child: Icon(Icons.inventory_2_outlined,
               size: 20, color: ErpColors.accentBlue),
         ),
         const SizedBox(width: 12),
@@ -127,13 +127,13 @@ class _JobHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Job #$jobNo',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: ErpColors.textPrimary)),
                 if (customerName != null)
                   Text(customerName!,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontSize: 11)),
               ]),
@@ -142,14 +142,14 @@ class _JobHeader extends StatelessWidget {
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text(
             '${c.packings.length} boxes',
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.accentBlue,
                 fontWeight: FontWeight.w800,
                 fontSize: 14),
           ),
           Text(
             '${c.totalMeters.toStringAsFixed(0)} m total',
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 10),
           ),
         ]),
@@ -168,20 +168,20 @@ class _PackingList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.isLoading.value) {
-        return const Center(
+        return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue));
       }
       if (c.errorMsg.value != null) {
         return Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.error_outline, size: 34, color: ErpColors.textMuted),
+            Icon(Icons.error_outline, size: 34, color: ErpColors.textMuted),
             const SizedBox(height: 12),
-            const Text('Failed to load',
+            Text('Failed to load',
                 style: TextStyle(
                     fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
             const SizedBox(height: 4),
             Text(c.errorMsg.value!,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 12)),
             const SizedBox(height: 14),
             ElevatedButton.icon(
@@ -207,17 +207,17 @@ class _PackingList extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: ErpColors.borderLight),
               ),
-              child: const Icon(Icons.inbox_outlined,
+              child: Icon(Icons.inbox_outlined,
                   size: 34, color: ErpColors.textMuted),
             ),
             const SizedBox(height: 14),
             Text('No boxes for Job #$jobNo',
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
                     color: ErpColors.textPrimary)),
             const SizedBox(height: 4),
-            const Text('Add a packing record to get started',
+            Text('Add a packing record to get started',
                 style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 12)),
           ]),
@@ -282,13 +282,13 @@ class _PackingCard extends StatelessWidget {
                 child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('BOX',
+                      Text('BOX',
                           style: TextStyle(
                               color: ErpColors.accentBlue,
                               fontSize: 7,
                               fontWeight: FontWeight.w800)),
                       Text('$boxNo',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.accentBlue,
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
@@ -303,7 +303,7 @@ class _PackingCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(pack.elasticName,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                             color: ErpColors.textPrimary),
@@ -314,7 +314,7 @@ class _PackingCard extends StatelessWidget {
                         final d = DateTime.tryParse(pack.date);
                         return d != null ? DateFormat('dd MMM yyyy').format(d) : '—';
                       })(),
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary, fontSize: 11),
                     ),
                     const SizedBox(height: 4),
@@ -328,7 +328,7 @@ class _PackingCard extends StatelessWidget {
                     ]),
                   ]),
             ),
-            const Icon(Icons.chevron_right_rounded,
+            Icon(Icons.chevron_right_rounded,
                 color: ErpColors.textMuted, size: 18),
           ]),
         ),

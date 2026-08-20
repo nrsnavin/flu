@@ -135,7 +135,7 @@ class _SkillQuestionnaireSectionState extends State<SkillQuestionnaireSection> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(e.value,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: ErpColors.textPrimary)),
@@ -210,7 +210,7 @@ class _SkillQuestionnaireSectionState extends State<SkillQuestionnaireSection> {
   }) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 12, fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
       const SizedBox(height: 6),
       Wrap(
@@ -240,12 +240,12 @@ class _SkillQuestionnaireSectionState extends State<SkillQuestionnaireSection> {
       isExpanded: true,
       style: ErpTextStyles.fieldValue,
       decoration: ErpDecorations.formInput(label),
-      hint: const Text('—', style: TextStyle(color: ErpColors.textMuted, fontSize: 12)),
+      hint: Text('—', style: TextStyle(color: ErpColors.textMuted, fontSize: 12)),
       items: [1, 2, 3, 4, 5]
           .map((n) => DropdownMenuItem(
               value: n,
               child: Text('$n',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w600, color: ErpColors.textPrimary))))
           .toList(),
       onChanged: onChanged,

@@ -95,7 +95,7 @@ class _ScanSheetState extends State<_ScanSheet> {
     final height = MediaQuery.of(context).size.height * 0.62;
     return Container(
       height: height,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.navyDark,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -114,7 +114,7 @@ class _ScanSheetState extends State<_ScanSheet> {
             padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text('Scan the job label',
                       style: TextStyle(
                           color: ErpColors.textOnDark,
@@ -124,13 +124,13 @@ class _ScanSheetState extends State<_ScanSheet> {
                 IconButton(
                   tooltip: 'Torch',
                   onPressed: _controller.toggleTorch,
-                  icon: const Icon(Icons.flashlight_on_outlined,
+                  icon: Icon(Icons.flashlight_on_outlined,
                       color: ErpColors.textOnDark),
                 ),
                 IconButton(
                   tooltip: 'Close',
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, color: ErpColors.textOnDark),
+                  icon: Icon(Icons.close, color: ErpColors.textOnDark),
                 ),
               ],
             ),
@@ -154,7 +154,7 @@ class _ScanSheetState extends State<_ScanSheet> {
                         child: Text(
                           _cameraMessage(error),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textOnDarkSub, fontSize: 13),
                         ),
                       ),

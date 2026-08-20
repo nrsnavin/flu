@@ -86,7 +86,7 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         titleSpacing: 4,
-        title: const Text("Raise Sample Request",
+        title: Text("Raise Sample Request",
             style: ErpTextStyles.pageTitle),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
@@ -171,7 +171,7 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Wanted by", style: ErpTextStyles.fieldLabel),
+        Text("Wanted by", style: ErpTextStyles.fieldLabel),
         const SizedBox(height: 4),
         InkWell(
           onTap: () async {
@@ -214,7 +214,7 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Priority", style: ErpTextStyles.fieldLabel),
+        Text("Priority", style: ErpTextStyles.fieldLabel),
         const SizedBox(height: 6),
         Row(
           children: ['low', 'normal', 'high'].map((p) {
@@ -254,7 +254,7 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
   Widget _footer(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         border: Border(top: BorderSide(color: ErpColors.borderLight)),
       ),
@@ -265,11 +265,11 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
             child: OutlinedButton(
               onPressed: () => Navigator.of(context).pop(),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: ErpColors.borderMid),
+                side: BorderSide(color: ErpColors.borderMid),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
               ),
-              child: const Text("Cancel",
+              child: Text("Cancel",
                   style: TextStyle(
                       color: ErpColors.textSecondary,
                       fontWeight: FontWeight.w600)),
@@ -344,25 +344,25 @@ class _Field extends StatelessWidget {
           keyboardType: keyboardType,
           textCapitalization: TextCapitalization.sentences,
           onChanged: onChanged,
-          style: const TextStyle(fontSize: 13, color: ErpColors.textPrimary),
+          style: TextStyle(fontSize: 13, color: ErpColors.textPrimary),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle:
-                const TextStyle(color: ErpColors.textMuted, fontSize: 12),
+                TextStyle(color: ErpColors.textMuted, fontSize: 12),
             filled: true,
             fillColor: ErpColors.bgSurface,
             isDense: true,
             contentPadding: const EdgeInsets.all(10),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: ErpColors.borderLight)),
+                borderSide: BorderSide(color: ErpColors.borderLight)),
             enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: ErpColors.borderLight)),
+                borderSide: BorderSide(color: ErpColors.borderLight)),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
                 borderSide:
-                    const BorderSide(color: ErpColors.accentBlue, width: 1.5)),
+                    BorderSide(color: ErpColors.accentBlue, width: 1.5)),
           ),
         ),
       ],

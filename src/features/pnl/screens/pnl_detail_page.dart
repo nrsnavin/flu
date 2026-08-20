@@ -113,7 +113,7 @@ class _PnlDetailPageViewState extends State<PnlDetailPageView> {
                       ? 'Profit and loss'
                       : p.order.customerName,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textOnDarkSub, fontSize: 10),
                 ),
               ],
@@ -145,7 +145,7 @@ class _PnlDetailPageViewState extends State<PnlDetailPageView> {
         body: Obx(() {
           if (c.forbidden.value) return const PnlForbidden();
           if (c.loading.value && c.pnl.value == null) {
-            return const Center(
+            return Center(
                 child: CircularProgressIndicator(color: ErpColors.accentBlue));
           }
           if (c.errorMsg.value != null && c.pnl.value == null) {
@@ -216,7 +216,7 @@ class _Headline extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('PROFIT',
+                Text('PROFIT',
                     style: TextStyle(
                         fontSize: 9,
                         letterSpacing: 0.6,
@@ -273,7 +273,7 @@ class _Headline extends StatelessWidget {
         if (p.invoiced.challans > 0) ...[
           const SizedBox(height: 14),
           Row(children: [
-            const Icon(Icons.local_shipping_outlined,
+            Icon(Icons.local_shipping_outlined,
                 size: 13, color: ErpColors.textOnDarkSub),
             const SizedBox(width: 6),
             Expanded(
@@ -282,7 +282,7 @@ class _Headline extends StatelessWidget {
                 '${p.invoiced.challans} challan'
                 '${p.invoiced.challans == 1 ? '' : 's'}'
                 '${f == null ? '' : ' · ${(f * 100).toStringAsFixed(0)}% of order value'}',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 10.5, color: ErpColors.textOnDarkSub),
               ),
             ),
@@ -296,7 +296,7 @@ class _Headline extends StatelessWidget {
             if (p.order.supplyDate != null)
               Text(
                 'Supply by ${DateFormat('dd MMM yyyy').format(p.order.supplyDate!)}',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 10.5, color: ErpColors.textOnDarkSub),
               ),
           ]),
@@ -325,7 +325,7 @@ class _DarkStat extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
                   color: ErpColors.textOnDarkSub)),
@@ -355,13 +355,13 @@ class _Warnings extends StatelessWidget {
                             width: 5,
                             height: 5,
                             margin: const EdgeInsets.only(top: 6, right: 8),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                                 color: ErpColors.warningAmber,
                                 shape: BoxShape.circle),
                           ),
                           Expanded(
                             child: Text(w,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 11.5,
                                     height: 1.45,
                                     color: ErpColors.textSecondary)),
@@ -385,7 +385,7 @@ class _Revenue extends StatelessWidget {
         accentColor: ErpColors.successGreen,
         child: Column(children: [
           if (p.lines.isEmpty)
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text('No lines on this order',
                   style:
@@ -400,17 +400,17 @@ class _Revenue extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(l.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: ErpColors.textPrimary)),
                           const SizedBox(height: 2),
                           Row(children: [
                             Text('${qty(l.quantity)} m',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 10.5,
                                     color: ErpColors.textSecondary)),
-                            const Text('  ×  ',
+                            Text('  ×  ',
                                 style: TextStyle(
                                     fontSize: 10.5,
                                     color: ErpColors.textMuted)),
@@ -432,15 +432,15 @@ class _Revenue extends StatelessWidget {
                       ),
                     ),
                     Text(money(l.amount),
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,
                             color: ErpColors.textPrimary)),
                   ]),
                 )),
-          const Divider(height: 18, color: ErpColors.borderLight),
+          Divider(height: 18, color: ErpColors.borderLight),
           Row(children: [
-            const Expanded(
+            Expanded(
               child: Text('Order value',
                   style: TextStyle(
                       fontSize: 12,
@@ -448,7 +448,7 @@ class _Revenue extends StatelessWidget {
                       color: ErpColors.textPrimary)),
             ),
             Text(money(p.orderValue),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w900,
                     color: ErpColors.successGreen)),
@@ -482,18 +482,18 @@ class _CostSplit extends StatelessWidget {
               Row(children: [
                 Expanded(
                   child: Text(e.key,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12, color: ErpColors.textPrimary)),
                 ),
                 if (total > 0)
                   Padding(
                     padding: const EdgeInsets.only(right: 10),
                     child: Text('${(share * 100).toStringAsFixed(0)}%',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 10, color: ErpColors.textMuted)),
                   ),
                 Text(money(e.value),
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w800,
                         color: ErpColors.textPrimary)),
@@ -507,16 +507,16 @@ class _CostSplit extends StatelessWidget {
                     minHeight: 3,
                     backgroundColor: ErpColors.bgMuted,
                     valueColor:
-                        const AlwaysStoppedAnimation(ErpColors.accentBlue),
+                        AlwaysStoppedAnimation(ErpColors.accentBlue),
                   ),
                 ),
               ],
             ]),
           );
         }),
-        const Divider(height: 18, color: ErpColors.borderLight),
+        Divider(height: 18, color: ErpColors.borderLight),
         Row(children: [
-          const Expanded(
+          Expanded(
             child: Text('Total cost',
                 style: TextStyle(
                     fontSize: 12,
@@ -524,7 +524,7 @@ class _CostSplit extends StatelessWidget {
                     color: ErpColors.textPrimary)),
           ),
           Text(money(total),
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
                   color: ErpColors.errorRed)),
@@ -544,7 +544,7 @@ class _Materials extends StatelessWidget {
         title: 'YARN ISSUED',
         icon: Icons.inventory_2_outlined,
         child: p.materialLines.isEmpty
-            ? const Align(
+            ? Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Nothing issued against this order, so yarn cost is ₹0.',
@@ -562,7 +562,7 @@ class _Materials extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(m.name,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w700,
                                           color: ErpColors.textPrimary)),
@@ -588,7 +588,7 @@ class _Materials extends StatelessWidget {
                               ),
                             ),
                             Text(money(m.amount),
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w800,
                                     color: ErpColors.textPrimary)),
@@ -610,7 +610,7 @@ class _Jobs extends StatelessWidget {
         icon: Icons.precision_manufacturing_outlined,
         accentColor: _purple,
         child: p.jobs.isEmpty
-            ? const Align(
+            ? Align(
                 alignment: Alignment.centerLeft,
                 child: Text('No jobs on this order yet.',
                     style: TextStyle(
@@ -621,7 +621,7 @@ class _Jobs extends StatelessWidget {
                 const SizedBox(height: 2),
                 // Said once, here, rather than left as a hole in every
                 // job card for somebody to notice and mistrust.
-                const Text(
+                Text(
                   'Yarn is drawn against the order at approval, not the '
                   'job, so there is no honest per-job split of it — see '
                   'the order total above.',
@@ -660,7 +660,7 @@ class _JobCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(j.jobNo,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w900,
                         color: ErpColors.textPrimary)),
@@ -672,14 +672,14 @@ class _JobCard extends StatelessWidget {
                     if (j.costPerMeter != null)
                       '${money(j.costPerMeter)}/m',
                   ].join('  ·  '),
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 10.5, color: ErpColors.textSecondary),
                 ),
               ],
             ),
           ),
           Text(money(j.total),
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w900,
                   color: ErpColors.textPrimary)),
@@ -742,7 +742,7 @@ class _JobCard extends StatelessWidget {
               children: [
                 Row(children: [
                   Text(label,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 11.5, color: ErpColors.textSecondary)),
                   if (badge != null) ...[
                     const SizedBox(width: 5),
@@ -763,13 +763,13 @@ class _JobCard extends StatelessWidget {
                 ]),
                 if (sub != null)
                   Text(sub,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 9.5, color: ErpColors.textMuted)),
               ],
             ),
           ),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w700,
                   color: ErpColors.textPrimary)),
@@ -790,7 +790,7 @@ class _RateCard extends StatelessWidget {
       icon: Icons.tune_rounded,
       child: Column(children: [
         if (!rc.configured)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(bottom: 10),
             child: PnlNote(
               'Never set, so finishing, checking, packing and overhead are '
@@ -805,11 +805,11 @@ class _RateCard extends StatelessWidget {
               child: Row(children: [
                 Expanded(
                   child: Text(e.key,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12, color: ErpColors.textPrimary)),
                 ),
                 Text('${money(e.value)} / m',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
                         color: ErpColors.textSecondary)),
@@ -824,7 +824,7 @@ class _ReadOnlyNote extends StatelessWidget {
   const _ReadOnlyNote();
 
   @override
-  Widget build(BuildContext context) => const PnlNote(
+  Widget build(BuildContext context) => PnlNote(
         'Selling rates, per-job cost overrides and the rate card are '
         'entered on the web. A mistyped rate card re-costs every order in '
         'the factory, so it is not editable from a phone.',

@@ -112,7 +112,7 @@ class ScanJobButton<T> extends StatelessWidget {
         icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
         style: OutlinedButton.styleFrom(
           foregroundColor: ErpColors.accentBlue,
-          side: const BorderSide(color: ErpColors.accentBlue),
+          side: BorderSide(color: ErpColors.accentBlue),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
         ),
         label: Text(label,

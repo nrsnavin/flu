@@ -34,12 +34,12 @@ class AnnouncementListPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline,
+                  Icon(Icons.error_outline,
                       size: 48, color: ErpColors.errorRed),
                   const SizedBox(height: 8),
                   Text(ctrl.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary, fontSize: 13)),
                   const SizedBox(height: 12),
                   ErpPrimaryButton(
@@ -53,7 +53,7 @@ class AnnouncementListPage extends StatelessWidget {
           );
         }
         if (ctrl.items.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -101,7 +101,7 @@ class AnnouncementListPage extends StatelessWidget {
       AnnouncementListController ctrl, Map<String, dynamic> a) {
     Get.defaultDialog(
       title: 'Deactivate announcement?',
-      titleStyle: const TextStyle(
+      titleStyle: TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w800,
         color: ErpColors.textPrimary,
@@ -109,7 +109,7 @@ class AnnouncementListPage extends StatelessWidget {
       middleText:
           'Employees will no longer see "${a['title']}" on their notice board.',
       middleTextStyle:
-          const TextStyle(color: ErpColors.textSecondary, fontSize: 12),
+          TextStyle(color: ErpColors.textSecondary, fontSize: 12),
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: ErpColors.errorRed,
@@ -201,7 +201,7 @@ class _AnnouncementCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                       color: ErpColors.textPrimary,
@@ -211,7 +211,7 @@ class _AnnouncementCard extends StatelessWidget {
                   ),
                 ),
                 if (pinned)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(left: 6),
                     child: Icon(Icons.push_pin,
                         size: 14, color: ErpColors.accentBlue),
@@ -243,7 +243,7 @@ class _AnnouncementCard extends StatelessWidget {
               children: [
                 Text(
                   body,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.5,
                     color: ErpColors.textPrimary,
                     height: 1.5,
@@ -274,9 +274,9 @@ class _AnnouncementCard extends StatelessWidget {
                   children: [
                     TextButton.icon(
                       onPressed: onEdit,
-                      icon: const Icon(Icons.edit_outlined,
+                      icon: Icon(Icons.edit_outlined,
                           size: 16, color: ErpColors.accentBlue),
-                      label: const Text('Edit',
+                      label: Text('Edit',
                           style: TextStyle(
                               color: ErpColors.accentBlue,
                               fontWeight: FontWeight.w700)),
@@ -284,9 +284,9 @@ class _AnnouncementCard extends StatelessWidget {
                     if (active)
                       TextButton.icon(
                         onPressed: onDeactivate,
-                        icon: const Icon(Icons.delete_outline,
+                        icon: Icon(Icons.delete_outline,
                             size: 16, color: ErpColors.errorRed),
-                        label: const Text('Deactivate',
+                        label: Text('Deactivate',
                             style: TextStyle(
                                 color: ErpColors.errorRed,
                                 fontWeight: FontWeight.w700)),
@@ -322,7 +322,7 @@ class _MetaChip extends StatelessWidget {
           Icon(icon, size: 12, color: ErpColors.textSecondary),
           const SizedBox(width: 4),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textSecondary,
                   fontSize: 11,
                   fontWeight: FontWeight.w600)),

@@ -128,14 +128,14 @@ class _DCDetailPageState extends State<DCDetailPage> {
       appBar: _appBar(context),
       body: Obx(() {
         if (c.loading.value) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.error.value != null) {
           return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.error_outline, color: ErpColors.errorRed, size: 38),
+            Icon(Icons.error_outline, color: ErpColors.errorRed, size: 38),
             const SizedBox(height: 8),
-            Text(c.error.value!, style: const TextStyle(color: ErpColors.textSecondary)),
+            Text(c.error.value!, style: TextStyle(color: ErpColors.textSecondary)),
             const SizedBox(height: 12),
             TextButton(onPressed: c.fetchDetail, child: const Text('Retry')),
           ]));
@@ -189,7 +189,7 @@ class _DCDetailPageState extends State<DCDetailPage> {
           children: [
             Text(d?.dcNumber ?? 'DC Detail', style: ErpTextStyles.pageTitle),
             Text('Dispatch  ›  Detail',
-                style: const TextStyle(color: ErpColors.textOnDarkSub, fontSize: 10)),
+                style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 10)),
           ],
         );
       }),
@@ -278,18 +278,18 @@ class _DCDetailPageState extends State<DCDetailPage> {
               color: ErpColors.errorRed.withOpacity(0.10),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.delete_outline, color: ErpColors.errorRed, size: 20),
+            child: Icon(Icons.delete_outline, color: ErpColors.errorRed, size: 20),
           ),
           const SizedBox(width: 12),
-          const Text('Delete Challan', style: TextStyle(
+          Text('Delete Challan', style: TextStyle(
               fontSize: 16, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
         ]),
         content: RichText(
           text: TextSpan(
-            style: const TextStyle(fontSize: 13, color: ErpColors.textSecondary, height: 1.5),
+            style: TextStyle(fontSize: 13, color: ErpColors.textSecondary, height: 1.5),
             children: [
               const TextSpan(text: 'Delete '),
-              TextSpan(text: d.dcNumber, style: const TextStyle(
+              TextSpan(text: d.dcNumber, style: TextStyle(
                   fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
               const TextSpan(text: '?\n\nThis is permanent and cannot be undone.'),
             ],
@@ -300,11 +300,11 @@ class _DCDetailPageState extends State<DCDetailPage> {
           Expanded(child: OutlinedButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ErpColors.borderMid),
+              side: BorderSide(color: ErpColors.borderMid),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
-            child: const Text('Cancel', style: TextStyle(
+            child: Text('Cancel', style: TextStyle(
                 color: ErpColors.textSecondary, fontWeight: FontWeight.w600)),
           )),
           const SizedBox(width: 10),
@@ -505,10 +505,10 @@ class _ItemsSection extends StatelessWidget {
             border: Border.all(color: typeColor.withOpacity(0.15)),
           ),
           child: Row(children: [
-            const Expanded(flex: 3, child: Text('ITEM',
+            Expanded(flex: 3, child: Text('ITEM',
                 style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800,
                     color: ErpColors.textSecondary, letterSpacing: 0.4))),
-            const SizedBox(width: 6,
+            SizedBox(width: 6,
                 child: Text('QTY', style: TextStyle(fontSize: 10,
                     fontWeight: FontWeight.w800, color: ErpColors.textSecondary))),
             Expanded(flex: 1, child: Text('QTY',
@@ -516,11 +516,11 @@ class _ItemsSection extends StatelessWidget {
                     color: typeColor, letterSpacing: 0.4),
                 textAlign: TextAlign.right)),
             const SizedBox(width: 8),
-            const Expanded(flex: 1, child: Text('RATE',
+            Expanded(flex: 1, child: Text('RATE',
                 style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800,
                     color: ErpColors.textSecondary), textAlign: TextAlign.right)),
             const SizedBox(width: 8),
-            const Expanded(flex: 1, child: Text('AMT',
+            Expanded(flex: 1, child: Text('AMT',
                 style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800,
                     color: ErpColors.successGreen), textAlign: TextAlign.right)),
           ]),
@@ -536,17 +536,17 @@ class _ItemsSection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
             decoration: BoxDecoration(
               color: isEven ? ErpColors.bgMuted : ErpColors.bgSurface,
-              border: const Border(
+              border: Border(
                   bottom: BorderSide(color: ErpColors.borderLight, width: 0.5)),
             ),
             child: Row(children: [
               Expanded(flex: 3, child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.displayName, style: const TextStyle(
+                  Text(item.displayName, style: TextStyle(
                       fontSize: 12, fontWeight: FontWeight.w700,
                       color: ErpColors.textPrimary)),
-                  Text(item.unit, style: const TextStyle(
+                  Text(item.unit, style: TextStyle(
                       fontSize: 10, color: ErpColors.textMuted)),
                 ],
               )),
@@ -559,13 +559,13 @@ class _ItemsSection extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(flex: 1, child: Text(
                 item.rate > 0 ? '₹${_fmt(item.rate)}' : '—',
-                style: const TextStyle(fontSize: 11, color: ErpColors.textSecondary),
+                style: TextStyle(fontSize: 11, color: ErpColors.textSecondary),
                 textAlign: TextAlign.right,
               )),
               const SizedBox(width: 8),
               Expanded(flex: 1, child: Text(
                 item.amount > 0 ? '₹${_fmt(item.amount)}' : '—',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
                     color: ErpColors.successGreen),
                 textAlign: TextAlign.right,
               )),
@@ -583,7 +583,7 @@ class _ItemsSection extends StatelessWidget {
             border: Border.all(color: typeColor.withOpacity(0.15)),
           ),
           child: Row(children: [
-            const Expanded(flex: 3, child: Text('TOTAL',
+            Expanded(flex: 3, child: Text('TOTAL',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800,
                     color: ErpColors.textPrimary))),
             Expanded(flex: 1, child: Text(
@@ -597,7 +597,7 @@ class _ItemsSection extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(flex: 1, child: Text(
               d.totalAmount > 0 ? '₹${_fmt(d.totalAmount)}' : '—',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900,
                   color: ErpColors.successGreen),
               textAlign: TextAlign.right,
             )),
@@ -627,7 +627,7 @@ class _StatusSection extends StatelessWidget {
   final DCDetailController c;
   const _StatusSection({required this.d, required this.c});
 
-  static const _flow = [
+  static final _flow = [
     ('draft',       'Draft',       Icons.edit_note_outlined,     ErpColors.warningAmber),
     ('dispatched',  'Dispatched',  Icons.local_shipping_outlined, ErpColors.accentBlue),
     ('delivered',   'Delivered',   Icons.check_circle_outline,    ErpColors.successGreen),
@@ -711,10 +711,10 @@ class _StatusSection extends StatelessWidget {
                 onPressed: c.updating.value
                     ? null : () => _confirmStatus(context, 'cancelled'),
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: ErpColors.borderMid),
+                  side: BorderSide(color: ErpColors.borderMid),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                 ),
-                child: const Text('Cancel DC',
+                child: Text('Cancel DC',
                     style: TextStyle(color: ErpColors.errorRed, fontSize: 12,
                         fontWeight: FontWeight.w600)),
               ),
@@ -774,22 +774,22 @@ class _StatusSection extends StatelessWidget {
         backgroundColor: ErpColors.bgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         title: Text(labels[status] ?? 'Update Status',
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800,
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800,
                 color: ErpColors.textPrimary)),
         content: Text(
           'Confirm status change to "${status.capitalizeFirst}" for ${d.dcNumber}?',
-          style: const TextStyle(fontSize: 13, color: ErpColors.textSecondary, height: 1.5),
+          style: TextStyle(fontSize: 13, color: ErpColors.textSecondary, height: 1.5),
         ),
         actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         actions: [Row(children: [
           Expanded(child: OutlinedButton(
             onPressed: () => Navigator.of(ctx).pop(),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ErpColors.borderMid),
+              side: BorderSide(color: ErpColors.borderMid),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
-            child: const Text('Cancel', style: TextStyle(
+            child: Text('Cancel', style: TextStyle(
                 color: ErpColors.textSecondary, fontWeight: FontWeight.w600)),
           )),
           const SizedBox(width: 10),
@@ -821,8 +821,8 @@ class _Section extends StatelessWidget {
   final IconData icon;
   final Widget child;
   final Color accentColor;
-  const _Section({required this.title, required this.icon, required this.child,
-    this.accentColor = ErpColors.accentBlue});
+  _Section({required this.title, required this.icon, required this.child,
+    Color? accentColor}) : accentColor = accentColor ?? ErpColors.accentBlue;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -836,7 +836,7 @@ class _Section extends StatelessWidget {
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgMuted,
           borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
           border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -886,7 +886,7 @@ class _DCPdfPreviewPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(title, style: ErpTextStyles.pageTitle),
-            const Text('Delivery Challan  ›  PDF Preview',
+            Text('Delivery Challan  ›  PDF Preview',
                 style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 10)),
           ],
         ),
@@ -902,7 +902,7 @@ class _DCPdfPreviewPage extends StatelessWidget {
         canChangeOrientation: false,
         canChangePageFormat: false,
         canDebug: false,
-        loadingWidget: const Center(
+        loadingWidget: Center(
           child: CircularProgressIndicator(color: ErpColors.accentBlue),
         ),
         actions: [

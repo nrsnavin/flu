@@ -306,7 +306,7 @@ class AssignMachinePage extends StatelessWidget {
           Text('Assign Machine',
               style: ErpTextStyles.pageTitle),
           Text('Job #$jobNo  ›  Machine Assignment',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 10)),
         ],
       ),

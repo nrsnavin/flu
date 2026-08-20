@@ -36,7 +36,7 @@ class ElasticGroupFormPage extends StatelessWidget {
                   (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
             const SizedBox(height: 14),
-            const Text('Customer',
+            Text('Customer',
                 style: TextStyle(
                     color: ErpColors.textSecondary,
                     fontSize: 12,
@@ -87,7 +87,7 @@ class ElasticGroupFormPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Elastics',
+                Text('Elastics',
                     style: TextStyle(
                         color: ErpColors.textPrimary,
                         fontSize: 13,
@@ -102,7 +102,7 @@ class ElasticGroupFormPage extends StatelessWidget {
             const SizedBox(height: 6),
             Obx(() {
               if (ctrl.items.isEmpty) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text('No elastics added yet',
                       style: TextStyle(
@@ -125,7 +125,7 @@ class ElasticGroupFormPage extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(it['name'] as String? ?? 'Elastic',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: ErpColors.textPrimary,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600)),
@@ -146,7 +146,7 @@ class ElasticGroupFormPage extends StatelessWidget {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close,
+                          icon: Icon(Icons.close,
                               size: 18, color: ErpColors.textMuted),
                           onPressed: () => ctrl.removeItem(i),
                         ),
@@ -212,7 +212,7 @@ class ElasticGroupFormPage extends StatelessWidget {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (ctrl.elasticResults.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Text('No elastics found',
                             style: TextStyle(
                                 color: ErpColors.textMuted, fontSize: 12)),
@@ -230,9 +230,9 @@ class ElasticGroupFormPage extends StatelessWidget {
                           title: Text(e['name'] as String? ?? '—',
                               style: const TextStyle(fontSize: 13)),
                           trailing: already
-                              ? const Icon(Icons.check,
+                              ? Icon(Icons.check,
                                   color: ErpColors.successGreen, size: 18)
-                              : const Icon(Icons.add,
+                              : Icon(Icons.add,
                                   color: ErpColors.accentBlue, size: 18),
                           onTap: already
                               ? null

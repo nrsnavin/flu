@@ -33,12 +33,12 @@ class AuditTrailPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline,
+                  Icon(Icons.error_outline,
                       size: 48, color: ErpColors.errorRed),
                   const SizedBox(height: 8),
                   Text(ctrl.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary, fontSize: 13)),
                   const SizedBox(height: 12),
                   ErpPrimaryButton(
@@ -52,7 +52,7 @@ class AuditTrailPage extends StatelessWidget {
           );
         }
         if (ctrl.entries.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -141,7 +141,7 @@ class _AuditCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   (data['label'] as String?) ?? 'Activity',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w800),
@@ -149,7 +149,7 @@ class _AuditCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(_when(),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 11)),
             ],
           ),
@@ -165,7 +165,7 @@ class _AuditCard extends StatelessWidget {
                   border: Border.all(color: ErpColors.statusOpenBorder),
                 ),
                 child: Text(_entityLabel,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.statusOpenText,
                         fontSize: 11,
                         fontWeight: FontWeight.w700)),
@@ -177,7 +177,7 @@ class _AuditCard extends StatelessWidget {
                       ? '$actorName · $role'
                       : actorName,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 12),
                 ),
               ),
@@ -186,7 +186,7 @@ class _AuditCard extends StatelessWidget {
           if (reason != null && reason.trim().isNotEmpty) ...[
             const SizedBox(height: 6),
             Text('Reason: ${reason.trim()}',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary,
                     fontSize: 12,
                     fontStyle: FontStyle.italic)),
@@ -194,7 +194,7 @@ class _AuditCard extends StatelessWidget {
           if (shortId != null && shortId.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text('#$shortId',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted,
                     fontSize: 10,
                     fontFamily: 'monospace')),

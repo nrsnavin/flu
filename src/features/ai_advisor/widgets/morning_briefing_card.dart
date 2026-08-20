@@ -56,7 +56,7 @@ class MorningBriefingCard extends StatelessWidget {
                       color: ErpColors.accentBlue.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.auto_awesome_rounded,
+                    child: Icon(Icons.auto_awesome_rounded,
                         color: ErpColors.accentBlue, size: 18),
                   ),
                   const SizedBox(width: 12),
@@ -67,7 +67,7 @@ class MorningBriefingCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            const Text(
+                            Text(
                               'Morning briefing',
                               style: TextStyle(
                                 fontSize: 12,
@@ -88,14 +88,14 @@ class MorningBriefingCard extends StatelessWidget {
                             _stripMarkdown(c.summary.value),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: ErpColors.textSecondary,
                               height: 1.35,
                             ),
                           )
                         else
-                          const Text(
+                          Text(
                             'Tap to generate today\'s 2-line summary',
                             style: TextStyle(
                               fontSize: 12,
@@ -107,7 +107,7 @@ class MorningBriefingCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Icon(Icons.chevron_right_rounded,
+                  Icon(Icons.chevron_right_rounded,
                       size: 18, color: ErpColors.textMuted),
                 ],
               ),
@@ -131,7 +131,7 @@ class _MockBadge extends StatelessWidget {
         color: ErpColors.warningAmber.withOpacity(0.14),
         borderRadius: BorderRadius.circular(3),
       ),
-      child: const Text(
+      child: Text(
         'MOCK',
         style: TextStyle(
           fontSize: 8,
@@ -148,7 +148,7 @@ class _ThinkingRow extends StatelessWidget {
   const _ThinkingRow();
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
         SizedBox(
           width: 12, height: 12,
@@ -179,7 +179,7 @@ class MorningBriefingSheet extends StatelessWidget {
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.7,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(16)),
@@ -207,11 +207,11 @@ class MorningBriefingSheet extends StatelessWidget {
                     color: ErpColors.accentBlue.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.auto_awesome_rounded,
+                  child: Icon(Icons.auto_awesome_rounded,
                       color: ErpColors.accentBlue, size: 18),
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Morning briefing',
                     style: TextStyle(
@@ -229,7 +229,7 @@ class MorningBriefingSheet extends StatelessWidget {
                           color: ErpColors.warningAmber.withOpacity(0.14),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text(
+                        child: Text(
                           'MOCK',
                           style: TextStyle(
                             fontSize: 9,
@@ -249,17 +249,17 @@ class MorningBriefingSheet extends StatelessWidget {
                   c.lastRunAt.value == null
                       ? 'Not yet generated'
                       : 'Generated ${_relative(c.lastRunAt.value!)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 10, color: ErpColors.textMuted),
                 ),
               )),
-          const Divider(height: 1, color: ErpColors.borderLight),
+          Divider(height: 1, color: ErpColors.borderLight),
           Flexible(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
               child: Obx(() {
                 if (c.loading.value) {
-                  return const Padding(
+                  return Padding(
                     padding: EdgeInsets.symmetric(vertical: 40),
                     child: Center(
                       child: SizedBox(
@@ -272,7 +272,7 @@ class MorningBriefingSheet extends StatelessWidget {
                   );
                 }
                 if (c.summary.value.isEmpty) {
-                  return const Padding(
+                  return Padding(
                     padding: EdgeInsets.symmetric(vertical: 40),
                     child: Center(
                       child: Text(
@@ -341,7 +341,7 @@ class _RichBriefing extends StatelessWidget {
       }
       spans.add(TextSpan(
         text: m.group(1),
-        style: const TextStyle(
+        style: TextStyle(
             fontWeight: FontWeight.w800,
             color: ErpColors.textPrimary),
       ));
@@ -352,7 +352,7 @@ class _RichBriefing extends StatelessWidget {
     }
     return RichText(
       text: TextSpan(
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           height: 1.5,
           color: ErpColors.textSecondary,

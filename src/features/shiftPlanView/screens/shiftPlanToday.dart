@@ -28,14 +28,14 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
         showBack: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: ErpColors.textOnDark, size: 20),
+            icon: Icon(Icons.refresh, color: ErpColors.textOnDark, size: 20),
             onPressed: controller.fetchTodayShifts,
           ),
         ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue),
           );
         }
@@ -51,7 +51,7 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     colors: [ErpColors.navyMid, ErpColors.navyDark],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -60,11 +60,11 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today, color: ErpColors.accentLight, size: 14),
+                    Icon(Icons.calendar_today, color: ErpColors.accentLight, size: 14),
                     const SizedBox(width: 8),
                     Text(
                       DateFormat('EEEE, dd MMMM yyyy').format(now),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: ErpColors.textOnDark,
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -81,7 +81,7 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
                       ),
                       child: Text(
                         DateFormat('HH:mm').format(now),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: ErpColors.accentLight,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -307,7 +307,7 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               color: ErpColors.textMuted,
               fontWeight: FontWeight.w600,
@@ -353,7 +353,7 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
             children: [
               Text(title, style: ErpTextStyles.cardTitle),
               const SizedBox(height: 3),
-              const Text(
+              Text(
                 "No shift plan created",
                 style: TextStyle(color: ErpColors.textMuted, fontSize: 12),
               ),

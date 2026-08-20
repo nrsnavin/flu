@@ -63,7 +63,7 @@ class _PODetailViewState extends State<_PODetailView>
         backgroundColor: ErpColors.bgBase,
         appBar: _buildAppBar(po, c),
         body: c.loading.value
-            ? const Center(
+            ? Center(
             child: CircularProgressIndicator(
                 color: ErpColors.accentBlue))
             : po == null
@@ -94,7 +94,7 @@ class _PODetailViewState extends State<_PODetailView>
                 ],
               ),
             ),
-            const Divider(
+            Divider(
                 height: 1, color: ErpColors.borderLight),
             Expanded(
               child: TabBarView(
@@ -147,7 +147,7 @@ class _PODetailViewState extends State<_PODetailView>
               style: ErpTextStyles.pageTitle,
               overflow: TextOverflow.ellipsis,
             ),
-            const Text(
+            Text(
               "Purchase Orders",
               style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 10),
@@ -343,7 +343,7 @@ class _PdfPreviewPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(title, style: ErpTextStyles.pageTitle),
-            const Text(
+            Text(
               "Purchase Order PDF",
               style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 10),
@@ -390,7 +390,7 @@ class _PdfPreviewPage extends StatelessWidget {
         canChangePageFormat: false,
         canDebug: false,
         // Error widget styled to match app
-        loadingWidget: const Center(
+        loadingWidget: Center(
           child: CircularProgressIndicator(
               color: ErpColors.accentBlue),
         ),
@@ -430,14 +430,14 @@ class _SummaryHeader extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("PURCHASE ORDER",
+                      Text("PURCHASE ORDER",
                           style: ErpTextStyles.fieldLabel),
                       const SizedBox(height: 3),
                       Row(
                         children: [
                           Text(
                             "#${po.poNo}",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.w900,
                               color: ErpColors.textPrimary,
@@ -451,7 +451,7 @@ class _SummaryHeader extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         dateFmt.format(po.date),
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textSecondary,
                             fontSize: 12),
                       ),
@@ -461,12 +461,12 @@ class _SummaryHeader extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text("ORDER VALUE",
+                    Text("ORDER VALUE",
                         style: ErpTextStyles.fieldLabel),
                     const SizedBox(height: 3),
                     Text(
                       "₹${NumberFormat('#,##,###').format(po.totalOrderValue)}",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 18,
                         color: ErpColors.textPrimary,
@@ -475,7 +475,7 @@ class _SummaryHeader extends StatelessWidget {
                     if (po.totalPendingValue > 0)
                       Text(
                         "Pending: ₹${NumberFormat('#,##,###').format(po.totalPendingValue)}",
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.warningAmber,
                             fontSize: 11),
                       ),
@@ -488,7 +488,7 @@ class _SummaryHeader extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
             child: Row(
               children: [
-                const Icon(Icons.business_outlined,
+                Icon(Icons.business_outlined,
                     size: 13, color: ErpColors.textMuted),
                 const SizedBox(width: 6),
                 Expanded(
@@ -503,7 +503,7 @@ class _SummaryHeader extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     po.supplier!.phone!,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textSecondary,
                         fontSize: 12),
                   ),
@@ -516,7 +516,7 @@ class _SummaryHeader extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(35, 2, 16, 0),
               child: Text(
                 "GSTIN: ${po.supplier!.gstin!}",
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted, fontSize: 11),
               ),
             ),
@@ -533,7 +533,7 @@ class _SummaryHeader extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("RECEIPT PROGRESS",
+                    Text("RECEIPT PROGRESS",
                         style: ErpTextStyles.fieldLabel),
                     Text(
                       "${(received * 100).clamp(0, 100).toStringAsFixed(0)}% received  ·  ${po.items.length} items",
@@ -560,7 +560,7 @@ class _SummaryHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          const Divider(height: 1, color: ErpColors.borderLight),
+          Divider(height: 1, color: ErpColors.borderLight),
         ],
       ),
     );
@@ -577,7 +577,7 @@ class _ItemsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (po.items.isEmpty) {
-      return const Center(
+      return Center(
         child: Text("No items in this PO",
             style: TextStyle(color: ErpColors.textSecondary)),
       );
@@ -626,7 +626,7 @@ class _ItemCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               borderRadius:
               BorderRadius.vertical(top: Radius.circular(8)),
@@ -672,7 +672,7 @@ class _ItemCard extends StatelessWidget {
                     ),
                     child: Text(
                       item.rawMaterial!.unit!,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontSize: 10),
                     ),
@@ -775,7 +775,7 @@ class _StatCell extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textMuted,
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
@@ -811,7 +811,7 @@ class _InwardHistoryTab extends StatelessWidget {
               Icon(Icons.input_outlined,
                   size: 48, color: Colors.grey[300]),
               const SizedBox(height: 12),
-              const Text("No inward records yet",
+              Text("No inward records yet",
                   style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 14)),
             ],
@@ -862,7 +862,7 @@ class _InwardRecordCard extends StatelessWidget {
             border: Border.all(
                 color: ErpColors.successGreen.withOpacity(0.3)),
           ),
-          child: const Icon(Icons.arrow_downward,
+          child: Icon(Icons.arrow_downward,
               size: 18, color: ErpColors.successGreen),
         ),
         title: Text(
@@ -873,7 +873,7 @@ class _InwardRecordCard extends StatelessWidget {
         ),
         subtitle: Text(
           dateFmt.format(record.inwardDate),
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
         ),
         trailing: Column(
@@ -882,7 +882,7 @@ class _InwardRecordCard extends StatelessWidget {
           children: [
             Text(
               "${record.quantity} kg",
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.successGreen,
                   fontWeight: FontWeight.w800,
                   fontSize: 15),
@@ -892,7 +892,7 @@ class _InwardRecordCard extends StatelessWidget {
                 width: 100,
                 child: Text(
                   record.remarks!,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 10),
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.end,

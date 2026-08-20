@@ -77,7 +77,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
               Text(s?.title ?? "",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textOnDarkSub, fontSize: 10)),
             ],
           );
@@ -98,7 +98,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
               padding: const EdgeInsets.all(32),
               child: Text(_c.errorMsg.value ?? "Sample not found",
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: ErpColors.textSecondary)),
+                  style: TextStyle(color: ErpColors.textSecondary)),
             ),
           );
         }
@@ -143,7 +143,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
             const SizedBox(width: 8),
             if (s.ended && s.closedAt != null)
               Text("on ${DateFormat('dd MMM yyyy').format(s.closedAt!)}",
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 11)),
           ]),
           const SizedBox(height: 10),
@@ -156,7 +156,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
             _kv("Wanted by", DateFormat('dd MMM yyyy').format(s.targetDate!)),
           _kv("Priority", s.priority),
           const SizedBox(height: 8),
-          const Text("WHAT WAS ASKED FOR",
+          Text("WHAT WAS ASKED FOR",
               style: TextStyle(
                   color: ErpColors.textMuted,
                   fontSize: 9.5,
@@ -164,7 +164,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                   letterSpacing: 0.5)),
           const SizedBox(height: 3),
           Text(s.details,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textPrimary, fontSize: 13, height: 1.4)),
         ],
       ),
@@ -179,12 +179,12 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
             SizedBox(
               width: 84,
               child: Text(k,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 11.5)),
             ),
             Expanded(
               child: Text(v,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textPrimary,
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600)),
@@ -260,7 +260,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                       : s.ended
                           ? "Reopening undoes a decision somebody made — say why, and it goes into the log."
                           : "This goes into the log against your name.",
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 12.5),
                 ),
                 const SizedBox(height: 10),
@@ -274,7 +274,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                   style: const TextStyle(fontSize: 13),
                   decoration: InputDecoration(
                     hintText: reasonRequired ? "Why?" : "Note (optional)",
-                    hintStyle: const TextStyle(
+                    hintStyle: TextStyle(
                         color: ErpColors.textMuted, fontSize: 12),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(4)),
@@ -311,11 +311,11 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ...s.log.map(_entry),
-          const Divider(height: 20, color: ErpColors.borderLight),
+          Divider(height: 20, color: ErpColors.borderLight),
           if (s.ended)
             Text(
               "This sample is ${sampleStatusLabel(s.status).toLowerCase()}. An admin can reopen it to add more.",
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textMuted, fontSize: 12),
             )
           else ...[
@@ -329,19 +329,19 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                 hintText:
                     "e.g. Warped 60 m on loom 4. Shade a touch light against the card.",
                 hintStyle:
-                    const TextStyle(color: ErpColors.textMuted, fontSize: 12),
+                    TextStyle(color: ErpColors.textMuted, fontSize: 12),
                 filled: true,
                 fillColor: ErpColors.bgMuted,
                 contentPadding: const EdgeInsets.all(10),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(color: ErpColors.borderLight)),
+                    borderSide: BorderSide(color: ErpColors.borderLight)),
                 enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(color: ErpColors.borderLight)),
+                    borderSide: BorderSide(color: ErpColors.borderLight)),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(
+                    borderSide: BorderSide(
                         color: ErpColors.accentBlue, width: 1.5)),
               ),
             ),
@@ -415,7 +415,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(e.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
                         color: ErpColors.textPrimary)),
@@ -423,7 +423,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(e.note,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textPrimary,
                             fontSize: 12.5,
                             height: 1.35)),
@@ -432,7 +432,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                 Text(
                   "${e.byName.isEmpty ? "—" : e.byName}"
                   "${e.at != null ? " · ${DateFormat('dd MMM yyyy, HH:mm').format(e.at!)}" : ""}",
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 10.5),
                 ),
               ],
@@ -452,7 +452,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (s.photos.isEmpty)
-            const Text(
+            Text(
               "No photos yet. A shade card or a shot off the loom says more than the note under it.",
               style: TextStyle(color: ErpColors.textMuted, fontSize: 12),
             )
@@ -474,7 +474,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                   .toList(),
             ),
           if (!s.ended) ...[
-            const Divider(height: 20, color: ErpColors.borderLight),
+            Divider(height: 20, color: ErpColors.borderLight),
             TextField(
               controller: _caption,
               style: const TextStyle(fontSize: 13),
@@ -484,12 +484,12 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                 labelStyle: ErpTextStyles.fieldLabel,
                 hintText: "e.g. Trial off loom 4, shade slightly light",
                 hintStyle:
-                    const TextStyle(color: ErpColors.textMuted, fontSize: 12),
+                    TextStyle(color: ErpColors.textMuted, fontSize: 12),
                 isDense: true,
                 contentPadding: const EdgeInsets.all(10),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(color: ErpColors.borderLight)),
+                    borderSide: BorderSide(color: ErpColors.borderLight)),
               ),
             ),
             const SizedBox(height: 8),
@@ -503,15 +503,15 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                         if (err == null) _caption.clear();
                         _toast(err ?? "Photo added", ok: err == null);
                       },
-                icon: const Icon(Icons.add_a_photo_outlined,
+                icon: Icon(Icons.add_a_photo_outlined,
                     size: 16, color: ErpColors.accentBlue),
-                label: const Text("Add photo",
+                label: Text("Add photo",
                     style: TextStyle(
                         color: ErpColors.accentBlue,
                         fontSize: 13,
                         fontWeight: FontWeight.w700)),
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: ErpColors.accentBlue),
+                  side: BorderSide(color: ErpColors.accentBlue),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6)),
                 ),
@@ -522,7 +522,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
               padding: const EdgeInsets.only(top: 10),
               child: Text(
                 "This sample is ${sampleStatusLabel(s.status).toLowerCase()} — reopen it to add photos.",
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted, fontSize: 12),
               ),
             ),
@@ -544,7 +544,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "The photo comes down but the log keeps the entry that put it here, with your reason against it.",
                 style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 12.5),
@@ -557,7 +557,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                 style: const TextStyle(fontSize: 13),
                 decoration: InputDecoration(
                   hintText: "e.g. Photo of the wrong sample",
-                  hintStyle: const TextStyle(
+                  hintStyle: TextStyle(
                       color: ErpColors.textMuted, fontSize: 12),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4)),
@@ -619,7 +619,7 @@ class _PhotoTile extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.hide_image_outlined,
+            Icon(Icons.hide_image_outlined,
                 size: 20, color: ErpColors.textMuted),
             const SizedBox(height: 4),
             Text(
@@ -627,7 +627,7 @@ class _PhotoTile extends StatelessWidget {
               maxLines: 3,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textMuted, fontSize: 9.5),
             ),
           ],
@@ -688,7 +688,7 @@ class _PhotoTile extends StatelessWidget {
         if (snap.hasError || snap.data == null || snap.data!.isEmpty) {
           return Container(
             color: ErpColors.bgMuted,
-            child: const Center(
+            child: Center(
               child: Icon(Icons.broken_image_outlined,
                   size: 20, color: ErpColors.textMuted),
             ),
@@ -725,7 +725,7 @@ class _PhotoTile extends StatelessWidget {
                   Text(
                     "${photo.uploadedByName.isEmpty ? "—" : photo.uploadedByName}"
                     "${photo.createdAt != null ? " · ${DateFormat('dd MMM yyyy, HH:mm').format(photo.createdAt!)}" : ""}",
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textMuted, fontSize: 11),
                   ),
                 ],

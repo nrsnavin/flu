@@ -147,7 +147,7 @@ class _SearchablePickerSheetState<T>
 
     return Container(
       height: screenH * 0.75,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -165,7 +165,7 @@ class _SearchablePickerSheetState<T>
         // Header
         Container(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
           ),
           child: Row(children: [
@@ -179,7 +179,7 @@ class _SearchablePickerSheetState<T>
             ),
             Expanded(
               child: Text(widget.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: ErpColors.textPrimary),
@@ -187,7 +187,7 @@ class _SearchablePickerSheetState<T>
             ),
             IconButton(
               onPressed: () => Get.back(),
-              icon: const Icon(Icons.close,
+              icon: Icon(Icons.close,
                   color: ErpColors.textMuted, size: 20),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
@@ -209,13 +209,13 @@ class _SearchablePickerSheetState<T>
                 hintText: _isApiMode
                     ? 'Type to search ${widget.title.toLowerCase()}…'
                     : 'Search ${widget.title.toLowerCase()}…',
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                     color: ErpColors.textMuted, fontSize: 13),
-                prefixIcon: const Icon(Icons.search,
+                prefixIcon: Icon(Icons.search,
                     size: 18, color: ErpColors.textMuted),
                 // Spinner replaces clear button while loading
                 suffixIcon: _loading
-                    ? const Padding(
+                    ? Padding(
                   padding: EdgeInsets.all(10),
                   child: SizedBox(
                     width: 16, height: 16,
@@ -227,7 +227,7 @@ class _SearchablePickerSheetState<T>
                 )
                     : _query.isNotEmpty
                     ? IconButton(
-                  icon: const Icon(Icons.close,
+                  icon: Icon(Icons.close,
                       size: 16, color: ErpColors.textMuted),
                   onPressed: () {
                     _ctrl.clear();
@@ -240,15 +240,15 @@ class _SearchablePickerSheetState<T>
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6),
-                  borderSide: const BorderSide(color: ErpColors.borderLight),
+                  borderSide: BorderSide(color: ErpColors.borderLight),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6),
-                  borderSide: const BorderSide(color: ErpColors.borderLight),
+                  borderSide: BorderSide(color: ErpColors.borderLight),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6),
-                  borderSide: const BorderSide(
+                  borderSide: BorderSide(
                       color: ErpColors.accentBlue, width: 1.5),
                 ),
               ),
@@ -261,7 +261,7 @@ class _SearchablePickerSheetState<T>
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
           child: Row(children: [
             if (_isApiMode && !_hasFetched && !_loading)
-              const Text('Start typing to search…',
+              Text('Start typing to search…',
                   style: TextStyle(
                       color: ErpColors.textMuted,
                       fontSize: 11,
@@ -269,7 +269,7 @@ class _SearchablePickerSheetState<T>
             else
               Text(
                 '${_results.length} result${_results.length == 1 ? '' : 's'}',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted,
                     fontSize: 11,
                     fontWeight: FontWeight.w600),
@@ -293,11 +293,11 @@ class _SearchablePickerSheetState<T>
           const SizedBox(height: 10),
           Text(
             'Search for ${widget.title.toLowerCase()}',
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 13),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Results load as you type',
             style: TextStyle(color: ErpColors.textMuted, fontSize: 11),
           ),
@@ -307,7 +307,7 @@ class _SearchablePickerSheetState<T>
 
     // Loading first fetch
     if (_loading && _results.isEmpty) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(color: ErpColors.accentBlue),
       );
     }
@@ -316,16 +316,16 @@ class _SearchablePickerSheetState<T>
     if (_results.isEmpty) {
       return Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.search_off,
+          Icon(Icons.search_off,
               size: 32, color: ErpColors.textMuted),
           const SizedBox(height: 8),
-          const Text('No results found',
+          Text('No results found',
               style: TextStyle(
                   color: ErpColors.textSecondary, fontSize: 14)),
           if (_query.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text('for "$_query"',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted, fontSize: 12)),
           ],
         ]),
@@ -368,13 +368,13 @@ class _SearchablePickerSheetState<T>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(widget.label(item),
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: ErpColors.textPrimary),
                     overflow: TextOverflow.ellipsis),
               ),
-              const Icon(Icons.chevron_right,
+              Icon(Icons.chevron_right,
                   size: 16, color: ErpColors.textMuted),
             ]),
           ),

@@ -198,7 +198,7 @@ class _SearchFilterBar extends StatelessWidget {
     return Container(
 
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
         color: ErpColors.bgSurface,
       ),
@@ -213,24 +213,24 @@ class _SearchFilterBar extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: "Search by PO number...",
                 hintStyle:
-                const TextStyle(color: ErpColors.textMuted, fontSize: 13),
-                prefixIcon: const Icon(Icons.search,
+                TextStyle(color: ErpColors.textMuted, fontSize: 13),
+                prefixIcon: Icon(Icons.search,
                     size: 18, color: ErpColors.textMuted),
                 filled: true,
                 fillColor: ErpColors.bgMuted,
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6),
-                  borderSide: const BorderSide(color: ErpColors.borderLight),
+                  borderSide: BorderSide(color: ErpColors.borderLight),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6),
-                  borderSide: const BorderSide(color: ErpColors.borderLight),
+                  borderSide: BorderSide(color: ErpColors.borderLight),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6),
                   borderSide:
-                  const BorderSide(color: ErpColors.accentBlue, width: 1.5),
+                  BorderSide(color: ErpColors.accentBlue, width: 1.5),
                 ),
               ),
               keyboardType: TextInputType.number,
@@ -245,7 +245,7 @@ class _SearchFilterBar extends StatelessWidget {
               children: [
                 Obx(() => Text(
                   "${c.total.value} records",
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w500),
@@ -307,7 +307,7 @@ class _POListBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.loading.value) {
-        return const Center(
+        return Center(
           child: CircularProgressIndicator(color: ErpColors.accentBlue),
         );
       }
@@ -325,7 +325,7 @@ class _POListBody extends StatelessWidget {
             if (i == c.pos.length) {
               WidgetsBinding.instance.addPostFrameCallback(
                       (_) => c.fetchPOs());
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                   child:
@@ -348,19 +348,19 @@ class _POCard extends StatelessWidget {
 
   const _POCard({required this.po, required this.c});
 
-  static const _statusColors = {
+  static final _statusColors = {
     'Open': ErpColors.statusOpenText,
     'Partial': ErpColors.warningAmber,
     'Completed': ErpColors.successGreen,
   };
 
-  static const _statusBg = {
+  static final _statusBg = {
     'Open': ErpColors.statusOpenBg,
     'Partial': ErpColors.statusPartialBg,
     'Completed': ErpColors.statusCompletedBg,
   };
 
-  static const _statusBorder = {
+  static final _statusBorder = {
     'Open': ErpColors.statusOpenBorder,
     'Partial': ErpColors.statusPartialBorder,
     'Completed': ErpColors.statusCompletedBorder,
@@ -406,7 +406,7 @@ class _POCard extends StatelessWidget {
                   // PO number
                   Text(
                     "PO #${po.poNo}",
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: ErpColors.accentBlue,
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -445,13 +445,13 @@ class _POCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
               child: Row(
                 children: [
-                  const Icon(Icons.business_outlined,
+                  Icon(Icons.business_outlined,
                       size: 13, color: ErpColors.textMuted),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       po.supplier?.name ?? "—",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: ErpColors.textPrimary,
@@ -474,7 +474,7 @@ class _POCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     dateFmt.format(po.date),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textSecondary, fontSize: 11),
                   ),
                   const SizedBox(width: 14),
@@ -484,14 +484,14 @@ class _POCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     "${po.items.length} item${po.items.length != 1 ? 's' : ''}",
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textSecondary, fontSize: 11),
                   ),
                   const Spacer(),
                   // Order value
                   Text(
                     "₹${NumberFormat('#,##,###').format(po.totalOrderValue)}",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                       color: ErpColors.textPrimary,
@@ -521,7 +521,7 @@ class _POCard extends StatelessWidget {
                     if (po.totalPendingValue > 0)
                       Text(
                         "Pending: ₹${NumberFormat('#,##,###').format(po.totalPendingValue)}",
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textMuted, fontSize: 10),
                       ),
                   ],
@@ -571,11 +571,11 @@ class _CardMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert,
+      icon: Icon(Icons.more_vert,
           size: 18, color: ErpColors.textSecondary),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(6),
-        side: const BorderSide(color: ErpColors.borderLight),
+        side: BorderSide(color: ErpColors.borderLight),
       ),
       elevation: 4,
       onSelected: (v) async {
@@ -610,7 +610,7 @@ class _CardMenu extends StatelessWidget {
             Icon(icon, size: 16, color: ErpColors.textSecondary),
             const SizedBox(width: 10),
             Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13, color: ErpColors.textPrimary)),
           ],
         ),
@@ -633,11 +633,11 @@ class _EmptyState extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: ErpColors.borderLight),
             ),
-            child: const Icon(Icons.receipt_long_outlined,
+            child: Icon(Icons.receipt_long_outlined,
                 size: 32, color: ErpColors.textMuted),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             "No Purchase Orders",
             style: TextStyle(
               fontWeight: FontWeight.w700,
@@ -646,7 +646,7 @@ class _EmptyState extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             "Tap + to create your first PO",
             style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
           ),

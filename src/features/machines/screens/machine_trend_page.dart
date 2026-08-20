@@ -76,7 +76,7 @@ class _MachineTrendPageState extends State<MachineTrendPage> {
                 children: [
                   Text(c.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: ErpColors.textSecondary)),
+                      style: TextStyle(color: ErpColors.textSecondary)),
                   const SizedBox(height: 12),
                   OutlinedButton(
                       onPressed: c.fetch, child: const Text('Try again')),
@@ -102,7 +102,7 @@ class _MachineTrendPageState extends State<MachineTrendPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('${_num.format(p.totalMeters.round())} m',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
                                   color: ErpColors.textPrimary)),
@@ -128,12 +128,12 @@ class _MachineTrendPageState extends State<MachineTrendPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(_inr.format(s.total),
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
                                   color: ErpColors.textPrimary)),
                           Text('${s.services} services',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 12,
                                   color: ErpColors.textSecondary)),
                           const SizedBox(height: 10),
@@ -168,7 +168,7 @@ class _MachineTrendPageState extends State<MachineTrendPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: ErpColors.textPrimary)),
             const SizedBox(height: 10),

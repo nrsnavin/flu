@@ -107,7 +107,7 @@ class _StockCountSheetPageState extends State<StockCountSheetPage> {
                   children: [
                     Text(msg,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: ErpColors.textSecondary)),
+                        style: TextStyle(color: ErpColors.textSecondary)),
                     const SizedBox(height: 12),
                     OutlinedButton(
                         onPressed: c.fetch, child: const Text('Try again')),
@@ -128,7 +128,7 @@ class _StockCountSheetPageState extends State<StockCountSheetPage> {
                 child: Builder(builder: (_) {
                   final rows = c.visible;
                   if (rows.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Text('Nothing matches that search.',
                           style: TextStyle(color: ErpColors.textSecondary)),
                     );
@@ -197,7 +197,7 @@ class _StockCountSheetPageState extends State<StockCountSheetPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('${t.counted} of ${t.lines} counted',
-              style: const TextStyle(
+              style: TextStyle(
                   fontWeight: FontWeight.w700,
                   color: ErpColors.textPrimary)),
           const SizedBox(height: 4),
@@ -206,7 +206,7 @@ class _StockCountSheetPageState extends State<StockCountSheetPage> {
                 ? '${t.uncounted} still to walk'
                 : 'Posted — this sheet is history now.',
             style:
-                const TextStyle(fontSize: 12, color: ErpColors.textSecondary),
+                TextStyle(fontSize: 12, color: ErpColors.textSecondary),
           ),
         ],
       ),
@@ -225,7 +225,7 @@ class _StockCountSheetPageState extends State<StockCountSheetPage> {
             fillColor: ErpColors.bgSurface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
           ),
         ),
@@ -295,12 +295,12 @@ class _LineTileState extends State<_LineTile> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(l.name,
-              style: const TextStyle(
+              style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: ErpColors.textPrimary)),
           if (l.category.isNotEmpty)
             Text(l.category,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 11, color: ErpColors.textMuted)),
           const SizedBox(height: 10),
           Row(
@@ -308,7 +308,7 @@ class _LineTileState extends State<_LineTile> {
               Expanded(
                 child: Text(
                   'System ${_fmt(l.systemQty)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12, color: ErpColors.textSecondary),
                 ),
               ),
@@ -367,7 +367,7 @@ class _LineTileState extends State<_LineTile> {
             Text(
               'Another count already corrected ${_fmt(l.correctedElsewhere)} '
               'of this gap; only the rest will be applied.',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11, color: ErpColors.textMuted),
             ),
           ],

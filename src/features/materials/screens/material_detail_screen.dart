@@ -55,7 +55,7 @@ class _RawMaterialDetailPageState extends State<RawMaterialDetailPage>
       appBar: _appBar(context),
       body: Obx(() {
         if (_c.isLoading.value) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (_c.errorMsg.value != null) {
@@ -87,7 +87,7 @@ class _RawMaterialDetailPageState extends State<RawMaterialDetailPage>
           Text(m?.name ?? 'Material Detail',
               style: ErpTextStyles.pageTitle,
               overflow: TextOverflow.ellipsis),
-          const Text('Raw Materials  ›  Detail',
+          Text('Raw Materials  ›  Detail',
               style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 10)),
         ],
@@ -163,7 +163,7 @@ class _HeroCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.navyDark,
         border: Border(
             bottom: BorderSide(color: Color(0xFF1E3A5F))),
@@ -219,7 +219,7 @@ class _HeroCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text('₹${material.price.toStringAsFixed(2)}/kg',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textOnDarkSub,
                   fontSize: 11, fontWeight: FontWeight.w600)),
         ]),
@@ -245,7 +245,7 @@ class _HeroPill extends StatelessWidget {
         const SizedBox(width: 4),
       ],
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textOnDarkSub,
               fontSize: 10, fontWeight: FontWeight.w600)),
     ]),
@@ -262,7 +262,7 @@ class _SummaryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(vertical: 10),
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       color: ErpColors.bgSurface,
       border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
     ),
@@ -335,7 +335,7 @@ class _SumChip extends StatelessWidget {
       ]),
       const SizedBox(height: 2),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 9, fontWeight: FontWeight.w600,
               letterSpacing: 0.3)),
@@ -423,7 +423,7 @@ class _InwardCard extends StatelessWidget {
             color: ErpColors.successGreen.withOpacity(0.1),
             borderRadius: BorderRadius.circular(7),
           ),
-          child: const Icon(Icons.arrow_downward_rounded,
+          child: Icon(Icons.arrow_downward_rounded,
               size: 18, color: ErpColors.successGreen),
         ),
         const SizedBox(width: 12),
@@ -443,11 +443,11 @@ class _InwardCard extends StatelessWidget {
                       color: ErpColors.successGreen.withOpacity(0.3)),
                 ),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Icon(Icons.receipt_outlined,
+                  Icon(Icons.receipt_outlined,
                       size: 11, color: ErpColors.successGreen),
                   const SizedBox(width: 4),
                   Text(record.referenceLabel,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.successGreen,
                           fontSize: 11,
                           fontWeight: FontWeight.w700)),
@@ -455,19 +455,19 @@ class _InwardCard extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               Row(children: [
-                const Icon(Icons.calendar_today_outlined,
+                Icon(Icons.calendar_today_outlined,
                     size: 11, color: ErpColors.textMuted),
                 const SizedBox(width: 4),
                 Text(
                   DateFormat('dd MMM yyyy').format(record.inwardDate),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 11),
                 ),
               ]),
               if (record.remarks.isNotEmpty) ...[
                 const SizedBox(height: 3),
                 Text(record.remarks,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textMuted,
                         fontSize: 10,
                         fontStyle: FontStyle.italic),
@@ -479,10 +479,10 @@ class _InwardCard extends StatelessWidget {
         // Quantity
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('+${record.quantity.toStringAsFixed(2)}',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.successGreen,
                   fontSize: 16, fontWeight: FontWeight.w900)),
-          const Text('kg',
+          Text('kg',
               style: TextStyle(
                   color: ErpColors.textMuted, fontSize: 10)),
         ]),
@@ -584,7 +584,7 @@ class _OutwardCard extends StatelessWidget {
                 // Reference
                 Expanded(
                   child: Text(record.referenceLabel,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textPrimary,
                           fontSize: 12,
                           fontWeight: FontWeight.w700),
@@ -593,19 +593,19 @@ class _OutwardCard extends StatelessWidget {
               ]),
               const SizedBox(height: 5),
               Row(children: [
-                const Icon(Icons.calendar_today_outlined,
+                Icon(Icons.calendar_today_outlined,
                     size: 11, color: ErpColors.textMuted),
                 const SizedBox(width: 4),
                 Text(
                   DateFormat('dd MMM yyyy').format(record.outwardDate),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 11),
                 ),
               ]),
               if (record.remarks.isNotEmpty) ...[
                 const SizedBox(height: 3),
                 Text(record.remarks,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textMuted,
                         fontSize: 10,
                         fontStyle: FontStyle.italic),
@@ -619,7 +619,7 @@ class _OutwardCard extends StatelessWidget {
               style: TextStyle(
                   color: _typeColor,
                   fontSize: 16, fontWeight: FontWeight.w900)),
-          const Text('kg',
+          Text('kg',
               style: TextStyle(
                   color: ErpColors.textMuted, fontSize: 10)),
         ]),
@@ -647,12 +647,12 @@ class _LedgerTab extends StatelessWidget {
       Container(
         padding: const EdgeInsets.symmetric(
             horizontal: 16, vertical: 8),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgMuted,
           border: Border(
               bottom: BorderSide(color: ErpColors.borderLight)),
         ),
-        child: const Row(children: [
+        child: Row(children: [
           Expanded(flex: 2,
               child: Text('Date',
                   style: TextStyle(fontSize: 10,
@@ -723,14 +723,14 @@ class _LedgerRow extends StatelessWidget {
         Expanded(flex: 2,
           child: Text(
             DateFormat('dd MMM yy').format(movement.date),
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary,
                 fontSize: 11),
           ),
         ),
         Expanded(flex: 2,
           child: Text(typeShort,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textPrimary,
                   fontSize: 11,
                   fontWeight: FontWeight.w600),
@@ -751,7 +751,7 @@ class _LedgerRow extends StatelessWidget {
           child: Text(
             movement.balance.toStringAsFixed(2),
             textAlign: TextAlign.right,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700),
@@ -787,7 +787,7 @@ class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
     final sign    = isUp ? '+' : '';
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         border: Border(
             bottom: BorderSide(color: ErpColors.borderLight)),
@@ -818,14 +818,14 @@ class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
                       children: [
                         Row(children: [
                           Text('Current Price',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: ErpColors.textMuted,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.3)),
                           const SizedBox(width: 6),
                           Text('₹${latest.price.toStringAsFixed(2)}/kg',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: ErpColors.textPrimary,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w900)),
@@ -848,7 +848,7 @@ class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
                         Text(
                           'Last changed ${DateFormat('dd MMM yyyy').format(latest.changedAt)}'
                               '${latest.reason.isNotEmpty ? ' · ${latest.reason}' : ''}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textMuted, fontSize: 10),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -866,12 +866,12 @@ class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
 
             // ── Expanded history list ─────────────────────────────
             if (_expanded) ...[
-              const Divider(height: 1, color: ErpColors.borderLight),
+              Divider(height: 1, color: ErpColors.borderLight),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
                 child: Column(children: [
                   // Header
-                  const Row(children: [
+                  Row(children: [
                     Expanded(child: Text('Date',
                         style: TextStyle(fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -910,14 +910,14 @@ class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
                             children: [
                               Text(
                                 DateFormat('dd MMM yy').format(h.changedAt),
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 11,
                                     color: ErpColors.textPrimary,
                                     fontWeight: FontWeight.w600),
                               ),
                               if (h.reason.isNotEmpty)
                                 Text(h.reason,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 9,
                                         color: ErpColors.textMuted,
                                         fontStyle: FontStyle.italic),
@@ -929,7 +929,7 @@ class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
                           child: Text(
                             '₹${h.oldPrice.toStringAsFixed(2)}',
                             textAlign: TextAlign.right,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 11,
                                 color: ErpColors.textSecondary,
                                 decoration: TextDecoration.lineThrough),
@@ -940,7 +940,7 @@ class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
                           child: Text(
                             '₹${h.price.toStringAsFixed(2)}',
                             textAlign: TextAlign.right,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 11,
                                 color: ErpColors.textPrimary,
                                 fontWeight: FontWeight.w700),
@@ -994,7 +994,7 @@ class _LotsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.lotsLoading.value && c.lots.isEmpty) {
-        return const Center(
+        return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue));
       }
       if (c.lotsError.value != null && c.lots.isEmpty) {
@@ -1070,7 +1070,7 @@ class _LotSummary extends StatelessWidget {
             ),
           ]),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'A beam wants to come off one lot, so the largest single balance '
             'matters as much as the total. Yarn received before lot tracking '
             'has no lot, so this is a floor on what is present, not the whole '
@@ -1094,14 +1094,14 @@ class _LotStat extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 8.5,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.4,
                   color: ErpColors.textMuted)),
           const SizedBox(height: 2),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: ErpColors.textPrimary)),
@@ -1142,7 +1142,7 @@ class _LotCard extends StatelessWidget {
           Row(children: [
             Expanded(
               child: Text(lot.lotNo,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
                       color: ErpColors.textPrimary)),
@@ -1193,14 +1193,14 @@ class _LotCard extends StatelessWidget {
                 if (lot.receivedDate != null)
                   DateFormat('dd MMM yyyy').format(lot.receivedDate!),
               ].join('  ·  '),
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 11, color: ErpColors.textSecondary),
             ),
           ],
           if (lot.remarks.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(lot.remarks,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 11, color: ErpColors.textMuted)),
           ],
         ],
@@ -1222,14 +1222,14 @@ class _OpenLotButton extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: () => _openDialog(context),
-        icon: const Icon(Icons.add, size: 16, color: ErpColors.accentBlue),
-        label: const Text('Open a lot',
+        icon: Icon(Icons.add, size: 16, color: ErpColors.accentBlue),
+        label: Text('Open a lot',
             style: TextStyle(
                 color: ErpColors.accentBlue,
                 fontSize: 13,
                 fontWeight: FontWeight.w700)),
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: ErpColors.accentBlue),
+          side: BorderSide(color: ErpColors.accentBlue),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1258,7 +1258,7 @@ class _OpenLotButton extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  Text(
                     'Assigns stock this material already holds. The quantity '
                     'cannot exceed what is not yet on some other lot.',
                     style: TextStyle(
@@ -1362,7 +1362,7 @@ class _EmptyTab extends StatelessWidget {
       ),
       const SizedBox(height: 14),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary,
               fontSize: 13, fontWeight: FontWeight.w500)),
     ]),
@@ -1379,16 +1379,16 @@ class _ErrorBody extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(32),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.cloud_off_outlined,
+        Icon(Icons.cloud_off_outlined,
             size: 48, color: ErpColors.textMuted),
         const SizedBox(height: 14),
-        const Text('Failed to load material',
+        Text('Failed to load material',
             style: TextStyle(
                 color: ErpColors.textPrimary,
                 fontSize: 15, fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
         Text(msg,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 12),
             textAlign: TextAlign.center),
         const SizedBox(height: 20),

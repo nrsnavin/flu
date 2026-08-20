@@ -54,17 +54,17 @@ class DispatchReportScreen extends StatelessWidget {
               onRefresh: c.fetch,
               child: Obx(() {
                 if (c.loading.value && c.summary.value == null) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(color: ErpColors.accentBlue),
                   );
                 }
                 if (c.errorMsg.value != null && c.summary.value == null) {
                   return ListView(children: [
                     const SizedBox(height: 120),
-                    const Icon(Icons.cloud_off_outlined, size: 44, color: ErpColors.textMuted),
+                    Icon(Icons.cloud_off_outlined, size: 44, color: ErpColors.textMuted),
                     const SizedBox(height: 10),
                     Center(child: Text(c.errorMsg.value ?? 'Error',
-                        style: const TextStyle(color: ErpColors.textSecondary))),
+                        style: TextStyle(color: ErpColors.textSecondary))),
                     const SizedBox(height: 12),
                     Center(child: OutlinedButton(onPressed: c.fetch, child: const Text('Retry'))),
                   ]);
@@ -148,7 +148,7 @@ class DispatchReportScreen extends StatelessWidget {
 
   List<Widget> _rows(DispatchReportController c) {
     if (c.rows.isEmpty) {
-      return const [
+      return [
         Padding(
           padding: EdgeInsets.only(top: 28),
           child: Center(
@@ -171,19 +171,19 @@ class DispatchReportScreen extends StatelessWidget {
             child: Text(label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontWeight: FontWeight.w700,
                     fontSize: 13)),
           ),
           Text(_money(amount),
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textPrimary,
                   fontWeight: FontWeight.w800,
                   fontSize: 13)),
           const SizedBox(width: 10),
           Text('${_nf.format(qty)} m',
-              style: const TextStyle(color: ErpColors.textMuted, fontSize: 11)),
+              style: TextStyle(color: ErpColors.textMuted, fontSize: 11)),
         ]),
       );
     }).toList();
@@ -239,18 +239,18 @@ class _Tile extends StatelessWidget {
         children: [
           Row(children: [
             Expanded(child: Text(label,
-                style: const TextStyle(color: ErpColors.textMuted, fontSize: 11))),
+                style: TextStyle(color: ErpColors.textMuted, fontSize: 11))),
             if (trailing != null) trailing!,
           ]),
           const SizedBox(height: 4),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textPrimary,
                   fontSize: 19,
                   fontWeight: FontWeight.w800)),
           if (sub != null)
             Text(sub!,
-                style: const TextStyle(color: ErpColors.textSecondary, fontSize: 11)),
+                style: TextStyle(color: ErpColors.textSecondary, fontSize: 11)),
         ],
       ),
     );

@@ -40,7 +40,7 @@ class _StockMapPageState extends State<StockMapPage> {
               size: 16, color: Colors.white),
           onPressed: () => Get.back(),
         ),
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -73,12 +73,12 @@ class _StockMapPageState extends State<StockMapPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline,
+                  Icon(Icons.error_outline,
                       size: 48, color: ErpColors.errorRed),
                   const SizedBox(height: 10),
                   Text(c.summaryErrorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontSize: 13)),
                   const SizedBox(height: 12),
@@ -161,7 +161,7 @@ class _StockMapPageState extends State<StockMapPage> {
                             _lowOnly
                                 ? 'No low-stock elastics'
                                 : 'No elastics yet',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 12)),
                       )
@@ -203,10 +203,10 @@ class _StockMapPageState extends State<StockMapPage> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.fact_check_outlined,
+                      Icon(Icons.fact_check_outlined,
                           color: ErpColors.accentBlue),
                       const SizedBox(width: 8),
-                      const Text('Reconcile',
+                      Text('Reconcile',
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
@@ -218,7 +218,7 @@ class _StockMapPageState extends State<StockMapPage> {
                       ),
                     ],
                   ),
-                  const Text(
+                  Text(
                     'Compares Elastic.stock with the sum of ledger movements. Tap "Write correction" on a drift row to open a pre-filled manual adjust.',
                     style: TextStyle(
                         color: ErpColors.textSecondary, fontSize: 11),
@@ -231,7 +231,7 @@ class _StockMapPageState extends State<StockMapPage> {
                     )
                   else if (c.reconcileError.value != null)
                     Text(c.reconcileError.value!,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.errorRed, fontSize: 12))
                   else if (c.drifts.isEmpty)
                     Container(
@@ -242,7 +242,7 @@ class _StockMapPageState extends State<StockMapPage> {
                             color: ErpColors.successGreen.withOpacity(0.4)),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Row(children: [
+                      child: Row(children: [
                         Icon(Icons.check_circle,
                             color: ErpColors.successGreen, size: 18),
                         SizedBox(width: 8),
@@ -297,7 +297,7 @@ class _StockMapPageState extends State<StockMapPage> {
                                   Expanded(
                                     child: Text(
                                       name,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                           color: ErpColors.textPrimary,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w800),
@@ -334,7 +334,7 @@ class _StockMapPageState extends State<StockMapPage> {
                                 const SizedBox(height: 4),
                                 Text(
                                   'stock ${_fmtNum(stock)}  ·  ledger ${_fmtNum(sum)}  ·  $moves moves',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       color: ErpColors.textSecondary,
                                       fontSize: 11),
                                 ),
@@ -464,13 +464,13 @@ class _Kpi extends StatelessWidget {
             Icon(icon, size: 18, color: color),
             const SizedBox(height: 6),
             Text(value,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w900)),
             const SizedBox(height: 2),
             Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary,
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -528,7 +528,7 @@ class _FlowMap extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'Packing inwards → finished stock → Delivery Challan outwards. “Out” is a rough difference; cancelled DCs restore stock.',
             style: TextStyle(
                 color: ErpColors.textMuted,
@@ -573,12 +573,12 @@ class _FlowBox extends StatelessWidget {
                     letterSpacing: 0.4)),
             const SizedBox(height: 4),
             Text(value,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w900)),
             Text(unit,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textMuted, fontSize: 9)),
           ],
         ),
@@ -588,7 +588,7 @@ class _FlowBox extends StatelessWidget {
 class _Arrow extends StatelessWidget {
   const _Arrow();
   @override
-  Widget build(BuildContext context) => const Padding(
+  Widget build(BuildContext context) => Padding(
         padding: EdgeInsets.symmetric(horizontal: 4),
         child: Icon(Icons.east_rounded,
             color: ErpColors.textMuted, size: 16),
@@ -645,7 +645,7 @@ class _SummaryRow extends StatelessWidget {
                   Row(children: [
                     Flexible(
                       child: Text(name,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textPrimary,
                               fontSize: 13,
                               fontWeight: FontWeight.w700),
@@ -693,7 +693,7 @@ class _SummaryRow extends StatelessWidget {
                         : (minStock > 0
                             ? 'Min ${_fmtNum(minStock)}  ·  Last $lastLbl'
                             : 'Last $lastLbl'),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textMuted, fontSize: 10),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -710,7 +710,7 @@ class _SummaryRow extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w900)),
             const SizedBox(width: 6),
-            const Icon(Icons.chevron_right,
+            Icon(Icons.chevron_right,
                 size: 18, color: ErpColors.textMuted),
           ],
         ),

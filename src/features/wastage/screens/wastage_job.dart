@@ -64,7 +64,7 @@ class _WastageJobPageState extends State<WastageJobPage> {
         Text(
           '${c.wastages.length} records  ·  '
               '${c.totalQty.toStringAsFixed(1)} m',
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textOnDarkSub, fontSize: 10),
         ),
       ],
@@ -154,7 +154,7 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Obx(() {
     if (c.isLoading.value && c.wastages.isEmpty) {
-      return const Center(
+      return Center(
           child: CircularProgressIndicator(color: ErpColors.accentBlue));
     }
     if (c.errorMsg.value != null) {
@@ -217,7 +217,7 @@ class _WastageCard extends StatelessWidget {
               ),
               child: Center(
                 child: Text('${index + 1}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.errorRed,
                         fontSize: 12,
                         fontWeight: FontWeight.w900)),
@@ -231,7 +231,7 @@ class _WastageCard extends StatelessWidget {
                     Row(children: [
                       Expanded(
                         child: Text(record.elasticName,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
                                 color: ErpColors.textPrimary),
@@ -246,7 +246,7 @@ class _WastageCard extends StatelessWidget {
                         ),
                         child: Text(
                           '${record.quantity.toStringAsFixed(1)} m',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.errorRed,
                               fontSize: 11,
                               fontWeight: FontWeight.w900),
@@ -255,29 +255,29 @@ class _WastageCard extends StatelessWidget {
                     ]),
                     const SizedBox(height: 3),
                     Row(children: [
-                      const Icon(Icons.person_outline,
+                      Icon(Icons.person_outline,
                           size: 11, color: ErpColors.textMuted),
                       const SizedBox(width: 3),
                       Flexible(
                         child: Text(record.employeeName,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary, fontSize: 11),
                             overflow: TextOverflow.ellipsis),
                       ),
                       const SizedBox(width: 10),
-                      const Icon(Icons.calendar_today_outlined,
+                      Icon(Icons.calendar_today_outlined,
                           size: 11, color: ErpColors.textMuted),
                       const SizedBox(width: 3),
                       Text(
                         DateFormat('dd MMM, hh:mm a').format(record.createdAt),
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textMuted, fontSize: 10),
                       ),
                     ]),
                     const SizedBox(height: 2),
                     Text(
                       record.reason,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontSize: 10,
                           fontStyle: FontStyle.italic),
@@ -286,11 +286,11 @@ class _WastageCard extends StatelessWidget {
                     if (record.penalty > 0) ...[
                       const SizedBox(height: 2),
                       Row(children: [
-                        const Icon(Icons.monetization_on_outlined,
+                        Icon(Icons.monetization_on_outlined,
                             size: 11, color: ErpColors.warningAmber),
                         const SizedBox(width: 3),
                         Text('Penalty: ₹${record.penalty.toStringAsFixed(0)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.warningAmber,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700)),
@@ -298,7 +298,7 @@ class _WastageCard extends StatelessWidget {
                     ],
                   ]),
             ),
-            const Icon(Icons.chevron_right_rounded,
+            Icon(Icons.chevron_right_rounded,
                 size: 16, color: ErpColors.textMuted),
           ]),
         ),
@@ -358,7 +358,7 @@ class _WastageDetailSheet extends StatelessWidget {
                     color: ErpColors.errorRed.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.warning_amber_rounded,
+                  child: Icon(Icons.warning_amber_rounded,
                       size: 22, color: ErpColors.errorRed),
                 ),
                 const SizedBox(width: 12),
@@ -366,7 +366,7 @@ class _WastageDetailSheet extends StatelessWidget {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Wastage Detail',
+                        Text('Wastage Detail',
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
@@ -374,19 +374,19 @@ class _WastageDetailSheet extends StatelessWidget {
                         Text(
                           DateFormat('dd MMM yyyy, hh:mm a')
                               .format(record.createdAt),
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textMuted, fontSize: 10),
                         ),
                       ]),
                 ),
                 GestureDetector(
                   onTap: Get.back,
-                  child: const Icon(Icons.close_rounded,
+                  child: Icon(Icons.close_rounded,
                       color: ErpColors.textMuted, size: 20),
                 ),
               ]),
               const SizedBox(height: 20),
-              const Divider(color: ErpColors.borderLight),
+              Divider(color: ErpColors.borderLight),
               const SizedBox(height: 12),
 
               _Row(icon: Icons.grid_on_rounded,
@@ -424,7 +424,7 @@ class _WastageDetailSheet extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('REASON',
+                      Text('REASON',
                           style: TextStyle(
                               color: ErpColors.textMuted,
                               fontSize: 9,
@@ -432,7 +432,7 @@ class _WastageDetailSheet extends StatelessWidget {
                               letterSpacing: 0.6)),
                       const SizedBox(height: 4),
                       Text(record.reason,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textPrimary,
                               fontSize: 13,
                               fontWeight: FontWeight.w600)),
@@ -457,7 +457,7 @@ class _WastageDetailSheet extends StatelessWidget {
                     ),
                   ),
                   icon: c.deleting.value
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 14, height: 14,
                           child: CircularProgressIndicator(
                               color: ErpColors.errorRed,
@@ -472,7 +472,7 @@ class _WastageDetailSheet extends StatelessWidget {
                 ),
               )),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Removes the wastage record and rolls back the per-job counter. Stock is unaffected for new entries.',
                 style: TextStyle(
                     color: ErpColors.textMuted, fontSize: 10),
@@ -494,7 +494,7 @@ class _WastageDetailSheet extends StatelessWidget {
         builder: (dctx, setLocal) => AlertDialog(
           backgroundColor: ErpColors.bgSurface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          title: const Text('Delete wastage?',
+          title: Text('Delete wastage?',
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -502,7 +502,7 @@ class _WastageDetailSheet extends StatelessWidget {
             children: [
               Text(
                 'Removes the ${r.quantity.toStringAsFixed(1)} m wastage entry by ${r.employeeName} and rolls back the per-job counter.',
-                style: const TextStyle(color: ErpColors.textSecondary, fontSize: 12),
+                style: TextStyle(color: ErpColors.textSecondary, fontSize: 12),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -514,7 +514,7 @@ class _WastageDetailSheet extends StatelessWidget {
                 decoration: InputDecoration(
                   labelText: 'Reason *',
                   hintText: 'Why is this being deleted? (recorded in the audit log)',
-                  hintStyle: const TextStyle(fontSize: 11, color: ErpColors.textMuted),
+                  hintStyle: TextStyle(fontSize: 11, color: ErpColors.textMuted),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
@@ -566,7 +566,7 @@ class _Row extends StatelessWidget {
       SizedBox(
         width: 80,
         child: Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary,
                 fontSize: 11,
                 fontWeight: FontWeight.w600)),
@@ -587,7 +587,7 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState();
   @override
   Widget build(BuildContext context) => Center(
-    child: Column(mainAxisSize: MainAxisSize.min, children: const [
+    child: Column(mainAxisSize: MainAxisSize.min, children: [
       Icon(Icons.check_circle_outline_rounded,
           size: 44, color: ErpColors.successGreen),
       SizedBox(height: 12),
@@ -611,17 +611,17 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.error_outline,
+      Icon(Icons.error_outline,
           size: 40, color: ErpColors.textMuted),
       const SizedBox(height: 12),
-      const Text('Failed to load',
+      Text('Failed to load',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

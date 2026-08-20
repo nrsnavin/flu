@@ -154,13 +154,13 @@ class _QuoteListPageState extends State<QuoteListPage> {
           children: [
             TextField(
               onChanged: c.setSearch,
-              style: const TextStyle(color: ErpColors.textOnDark, fontSize: 14),
+              style: TextStyle(color: ErpColors.textOnDark, fontSize: 14),
               decoration: InputDecoration(
                 isDense: true,
                 hintText: 'Customer or quote number…',
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 13),
-                prefixIcon: const Icon(Icons.search,
+                prefixIcon: Icon(Icons.search,
                     size: 19, color: ErpColors.textOnDarkSub),
                 filled: true,
                 fillColor: ErpColors.navyMid,
@@ -206,7 +206,7 @@ class _QuoteListPageState extends State<QuoteListPage> {
                 fontWeight: FontWeight.w800,
               )),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 11)),
         ],
       );
@@ -252,7 +252,7 @@ class _QuoteListPageState extends State<QuoteListPage> {
                     Text(text,
                         textAlign: TextAlign.center,
                         style:
-                            const TextStyle(color: ErpColors.textSecondary)),
+                            TextStyle(color: ErpColors.textSecondary)),
                     if (onRetry != null) ...[
                       const SizedBox(height: 12),
                       OutlinedButton(
@@ -312,7 +312,7 @@ class _QuoteCard extends StatelessWidget {
                         Text(quote.customerName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
                               color: ErpColors.textPrimary,
@@ -321,7 +321,7 @@ class _QuoteCard extends StatelessWidget {
                         Text(
                           '${quote.quoteNo}'
                           '${quote.date == null ? '' : '  ·  ${_day.format(quote.date!)}'}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 11.5, color: ErpColors.textMuted),
                         ),
                       ],
@@ -332,14 +332,14 @@ class _QuoteCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(_inr0.format(quote.grandTotal),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
                             color: ErpColors.textPrimary,
                           )),
                       if (quote.totalQuantityMetres > 0)
                         Text('${_num0.format(quote.totalQuantityMetres)} m',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 11, color: ErpColors.textMuted)),
                     ],
                   ),
@@ -358,7 +358,7 @@ class _QuoteCard extends StatelessWidget {
                   Text(
                     '${quote.lines.length} product'
                     '${quote.lines.length == 1 ? '' : 's'}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11, color: ErpColors.textMuted),
                   ),
                 ],
@@ -400,7 +400,7 @@ class _Pager extends StatelessWidget {
                 icon: const Icon(Icons.chevron_left, size: 20),
               ),
               Text('Page ${c.page.value} of ${c.pages.value}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary, fontSize: 12)),
               IconButton(
                 onPressed: c.page.value < c.pages.value
@@ -469,7 +469,7 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
                         if (err != null) _say(err, error: true);
                       },
                 icon: c.isDownloading.value
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
@@ -491,7 +491,7 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
                 children: [
                   Text(c.errorMsg.value!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: ErpColors.textSecondary)),
+                      style: TextStyle(color: ErpColors.textSecondary)),
                   const SizedBox(height: 12),
                   OutlinedButton(
                       onPressed: c.fetch, child: const Text('Try again')),
@@ -523,7 +523,7 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
                   ],
                   if (q.lines.isEmpty) ...[
                     _card('Products', [
-                      const Text('No products on this quotation.',
+                      Text('No products on this quotation.',
                           style: TextStyle(
                               fontSize: 13, color: ErpColors.textSecondary)),
                     ]),
@@ -534,7 +534,7 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
                     const SizedBox(height: 10),
                     _card('Remarks', [
                       Text(q.remarks,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13,
                               height: 1.4,
                               color: ErpColors.textPrimary)),
@@ -562,7 +562,7 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(q.customerName,
-              style: const TextStyle(
+              style: TextStyle(
                 color: ErpColors.textOnDark,
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -571,12 +571,12 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
           Text(
             '${q.quoteNo}'
             '${q.date == null ? '' : '  ·  ${_day.format(q.date!)}'}',
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textOnDarkSub, fontSize: 12),
           ),
           const SizedBox(height: 14),
           Text(_money(q.grandTotal),
-              style: const TextStyle(
+              style: TextStyle(
                 color: ErpColors.textOnDark,
                 fontSize: 32,
                 fontWeight: FontWeight.w900,
@@ -589,7 +589,7 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
                 // Every line quoted as a rate only. Saying so stops the
                 // grand total being read as an order value.
                 : 'inc. GST · quoted as rates, no quantity given',
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textOnDarkSub, fontSize: 12),
           ),
           const SizedBox(height: 12),
@@ -706,7 +706,7 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('This price has lapsed',
+            Text('This price has lapsed',
                 style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -717,7 +717,7 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
               '${q.validTill == null ? 'an earlier date' : _day.format(q.validTill!)}. '
               'Do not read these rates to a customer as current — the '
               'material costs behind them are from the day it was raised.',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12, color: ErpColors.textSecondary),
             ),
           ],
@@ -746,10 +746,10 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
                       Text(l.productName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13, color: ErpColors.textPrimary)),
                       Text('${_money(l.rateBeforeTax)}/m',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 11, color: ErpColors.textMuted)),
                     ],
                   ),
@@ -773,7 +773,7 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
         const Divider(height: 18, thickness: 1.4),
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text('Grand total',
                   style: TextStyle(
                       fontWeight: FontWeight.w800,
@@ -781,7 +781,7 @@ class _QuoteDetailPageState extends State<QuoteDetailPage> {
                       color: ErpColors.textPrimary)),
             ),
             Text(_money(q.grandTotal),
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 18,
                     color: ErpColors.textPrimary)),
@@ -830,7 +830,7 @@ class _LineCardState extends State<_LineCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('${widget.index}. ${l.productName}',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 14,
                                 color: ErpColors.textPrimary)),
@@ -838,7 +838,7 @@ class _LineCardState extends State<_LineCard> {
                           Padding(
                             padding: const EdgeInsets.only(top: 2),
                             child: Text(l.productSpec,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 11.5,
                                     color: ErpColors.textMuted)),
                           ),
@@ -848,7 +848,7 @@ class _LineCardState extends State<_LineCard> {
                               ? '${_money(l.rateInclTax)}/m inc. GST'
                               : '${_num0.format(l.quantityMetres)} m × '
                                   '${_money(l.rateInclTax)}/m',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 12, color: ErpColors.textSecondary),
                         ),
                       ],
@@ -860,7 +860,7 @@ class _LineCardState extends State<_LineCard> {
                     children: [
                       Text(
                         l.isRateOnly ? '—' : _money(l.valueInclTax),
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 15,
                             color: ErpColors.textPrimary),
@@ -882,7 +882,7 @@ class _LineCardState extends State<_LineCard> {
 
   Widget _costing(QuoteLine l) => Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: ErpColors.bgMuted,
           borderRadius:
               BorderRadius.vertical(bottom: Radius.circular(11)),
@@ -902,7 +902,7 @@ class _LineCardState extends State<_LineCard> {
             if (l.materials.isNotEmpty) ...[
               Text('${l.totalWeightGrams.toStringAsFixed(2)} g of material '
                   'in a metre',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
                       color: ErpColors.textSecondary)),
@@ -918,11 +918,11 @@ class _LineCardState extends State<_LineCard> {
                   dataRowMaxHeight: 34,
                   horizontalMargin: 0,
                   columnSpacing: 18,
-                  headingTextStyle: const TextStyle(
+                  headingTextStyle: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
                       color: ErpColors.textMuted),
-                  dataTextStyle: const TextStyle(
+                  dataTextStyle: TextStyle(
                       fontSize: 12, color: ErpColors.textPrimary),
                   columns: const [
                     DataColumn(label: Text('MATERIAL')),
@@ -960,7 +960,7 @@ class _LineCardState extends State<_LineCard> {
               _kv('Value inc. GST', _money(l.valueInclTax)),
             ] else ...[
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'No quantity given — this product is quoted as a rate only.',
                 style:
                     TextStyle(fontSize: 11.5, color: ErpColors.textMuted),
@@ -1011,7 +1011,7 @@ Widget _card(String title, List<Widget> children) => Container(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontWeight: FontWeight.w700,
                   color: ErpColors.textPrimary)),
           const SizedBox(height: 8),

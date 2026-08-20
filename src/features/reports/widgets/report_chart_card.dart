@@ -60,7 +60,7 @@ class ReportChartCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -70,7 +70,7 @@ class ReportChartCard extends StatelessWidget {
               if (bars.isNotEmpty)
                 Text(
                   _looksMonthly(bars) ? 'by month' : 'by day',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 11),
                 ),
             ],

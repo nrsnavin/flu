@@ -54,7 +54,7 @@ class _ShiftListPageState extends State<ShiftListPage> {
         showBack: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh,
+            icon: Icon(Icons.refresh,
                 color: ErpColors.textOnDark, size: 20),
             onPressed: c.fetchOpenShifts,
           ),
@@ -106,7 +106,7 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Obx(() {
     if (c.isLoading.value) {
-      return const Center(
+      return Center(
           child: CircularProgressIndicator(color: ErpColors.accentBlue));
     }
     if (c.shifts.isEmpty) {
@@ -153,7 +153,7 @@ class _ShiftCard extends StatelessWidget {
         // ── Card header ─────────────────────────────────
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.bgMuted,
             borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
             border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
@@ -167,7 +167,7 @@ class _ShiftCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4)),
               child: Text(
                 shift.machineName.isNotEmpty ? shift.machineName : '—',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textOnDark, fontSize: 11,
                     fontWeight: FontWeight.w700, letterSpacing: 0.2),
               ),
@@ -176,7 +176,7 @@ class _ShiftCard extends StatelessWidget {
             Expanded(
               child: Text(
                 'Job #${shift.jobNo.isNotEmpty ? shift.jobNo : '—'}',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textSecondary, fontSize: 12),
               ),
             ),
@@ -220,28 +220,28 @@ class _ShiftCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(children: [
-            const Icon(Icons.person_outline,
+            Icon(Icons.person_outline,
                 size: 13, color: ErpColors.textSecondary),
             const SizedBox(width: 5),
             Expanded(
               child: Text(
                 shift.operatorName.isNotEmpty ? shift.operatorName : '—',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textPrimary, fontSize: 12,
                     fontWeight: FontWeight.w500),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(Icons.calendar_today_outlined,
+            Icon(Icons.calendar_today_outlined,
                 size: 11, color: ErpColors.textMuted),
             const SizedBox(width: 5),
             Text(
               DateFormat('dd MMM').format(shift.date),
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textSecondary, fontSize: 11),
             ),
             const SizedBox(width: 10),
-            const Icon(Icons.arrow_forward_ios,
+            Icon(Icons.arrow_forward_ios,
                 size: 12, color: ErpColors.textMuted),
           ]),
         ),
@@ -264,7 +264,7 @@ class _BulkSheet extends StatelessWidget {
     maxChildSize:     0.97,
     expand: false,
     builder: (_, scrollCtrl) => Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgBase,
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
@@ -284,7 +284,7 @@ class _BulkSheet extends StatelessWidget {
         // Machine cards
         Expanded(
           child: Obx(() => c.bulkEntries.isEmpty
-              ? const Center(
+              ? Center(
               child: Text('No open shifts to update.',
                   style: TextStyle(color: ErpColors.textSecondary)))
               : ListView.builder(
@@ -311,7 +311,7 @@ class _BulkHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       color: ErpColors.bgBase,
       border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
     ),
@@ -325,10 +325,10 @@ class _BulkHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.bolt_rounded,
+            Icon(Icons.bolt_rounded,
                 size: 13, color: ErpColors.accentBlue),
             const SizedBox(width: 4),
-            const Text('Bulk Entry',
+            Text('Bulk Entry',
                 style: TextStyle(
                     color: ErpColors.accentBlue,
                     fontSize: 11, fontWeight: FontWeight.w800)),
@@ -337,7 +337,7 @@ class _BulkHeader extends StatelessWidget {
         const SizedBox(width: 10),
         Obx(() => Text(
           '${c.bulkEntries.length} open shift${c.bulkEntries.length == 1 ? '' : 's'}',
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary,
               fontSize: 13, fontWeight: FontWeight.w600),
         )),
@@ -353,12 +353,12 @@ class _BulkHeader extends StatelessWidget {
                 color: ErpColors.successGreen.withOpacity(0.3)),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.straighten_rounded,
+            Icon(Icons.straighten_rounded,
                 size: 12, color: ErpColors.successGreen),
             const SizedBox(width: 4),
             Text(
               '${c.bulkTotalMeters.value} m total',
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.successGreen,
                   fontSize: 11, fontWeight: FontWeight.w800),
             ),
@@ -367,7 +367,7 @@ class _BulkHeader extends StatelessWidget {
             : const SizedBox.shrink()),
       ]),
       const SizedBox(height: 6),
-      const Text(
+      Text(
         'Enter production (meters) and run time for each machine. '
             'Scroll the wheels to set the run time.',
         style: TextStyle(color: ErpColors.textSecondary, fontSize: 11),
@@ -446,7 +446,7 @@ class _BulkEntryCardState extends State<_BulkEntryCard> {
                 Text(
                   'Job #${s.jobNo.isNotEmpty ? s.jobNo : '—'}  ·  '
                       '${DateFormat('dd MMM').format(s.date)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textOnDarkSub, fontSize: 10),
                 ),
               ],
@@ -493,12 +493,12 @@ class _BulkEntryCardState extends State<_BulkEntryCard> {
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 28, fontWeight: FontWeight.w900,
                   color: ErpColors.textPrimary),
               decoration: _fieldDeco(
                 hint: '0',
-                suffix: const Text('m',
+                suffix: Text('m',
                     style: TextStyle(
                         color: ErpColors.textSecondary,
                         fontSize: 18, fontWeight: FontWeight.w700)),
@@ -512,7 +512,7 @@ class _BulkEntryCardState extends State<_BulkEntryCard> {
                 padding: const EdgeInsets.only(top: 5),
                 child: Text(
                   '$prod m entered',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.successGreen,
                       fontSize: 10, fontWeight: FontWeight.w700),
                 ),
@@ -536,7 +536,7 @@ class _BulkEntryCardState extends State<_BulkEntryCard> {
                 const SizedBox(width: 4),
                 Text(
                   _showFeedback ? 'Hide notes' : 'Add notes (optional)',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textSecondary,
                       fontSize: 11, fontWeight: FontWeight.w600),
                 ),
@@ -548,7 +548,7 @@ class _BulkEntryCardState extends State<_BulkEntryCard> {
               TextField(
                 controller: e.feedbackCtrl,
                 maxLines: 2,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textPrimary, fontSize: 13),
                 decoration: _fieldDeco(hint: 'Any issues or observations…'),
               ),
@@ -566,21 +566,21 @@ class _BulkEntryCardState extends State<_BulkEntryCard> {
             ? Padding(padding: const EdgeInsets.only(right: 12), child: suffix)
             : null,
         suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        hintStyle: const TextStyle(color: ErpColors.textMuted, fontSize: 14),
+        hintStyle: TextStyle(color: ErpColors.textMuted, fontSize: 14),
         filled: true,
         fillColor: ErpColors.bgBase,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: ErpColors.borderLight),
+          borderSide: BorderSide(color: ErpColors.borderLight),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: ErpColors.borderLight),
+          borderSide: BorderSide(color: ErpColors.borderLight),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: ErpColors.accentBlue, width: 2),
+          borderSide: BorderSide(color: ErpColors.accentBlue, width: 2),
         ),
       );
 }
@@ -590,7 +590,7 @@ class _FieldLabel extends StatelessWidget {
   const _FieldLabel(this.text);
   @override
   Widget build(BuildContext context) => Text(text,
-      style: const TextStyle(
+      style: TextStyle(
           color: ErpColors.textSecondary,
           fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.2));
 }
@@ -606,7 +606,7 @@ class _BulkSubmitBar extends StatelessWidget {
         16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
     decoration: BoxDecoration(
       color: ErpColors.bgSurface,
-      border: const Border(top: BorderSide(color: ErpColors.borderLight)),
+      border: Border(top: BorderSide(color: ErpColors.borderLight)),
       boxShadow: [
         BoxShadow(
             color: Colors.black.withOpacity(0.06),
@@ -618,7 +618,7 @@ class _BulkSubmitBar extends StatelessWidget {
       Expanded(
         child: OutlinedButton(
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: ErpColors.borderLight),
+            side: BorderSide(color: ErpColors.borderLight),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10)),
             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -626,7 +626,7 @@ class _BulkSubmitBar extends StatelessWidget {
           onPressed: c.isBulkSaving.value
               ? null
               : () => Navigator.of(context).pop(),
-          child: const Text('Cancel',
+          child: Text('Cancel',
               style: TextStyle(
                   color: ErpColors.textSecondary,
                   fontSize: 14, fontWeight: FontWeight.w700)),
@@ -684,12 +684,12 @@ class _EmptyState extends StatelessWidget {
       Icon(Icons.check_circle_outline,
           size: 52, color: ErpColors.successGreen),
       const SizedBox(height: 14),
-      const Text('No open shifts',
+      Text('No open shifts',
           style: TextStyle(
               color: ErpColors.textPrimary,
               fontSize: 16, fontWeight: FontWeight.w700)),
       const SizedBox(height: 4),
-      const Text('All shifts have been completed',
+      Text('All shifts have been completed',
           style: TextStyle(
               color: ErpColors.textMuted, fontSize: 13)),
     ],
@@ -817,7 +817,7 @@ class _Drum extends StatelessWidget {
       children: [
         // Column label
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textMuted,
                 fontSize: 8, fontWeight: FontWeight.w700,
                 letterSpacing: 0.6)),
@@ -869,7 +869,7 @@ class _Drum extends StatelessWidget {
                 return Center(
                   child: Text(
                     value.toString().padLeft(2, '0'),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary,
                         fontSize: 20, fontWeight: FontWeight.w900,
                         height: 1),
@@ -887,7 +887,7 @@ class _Drum extends StatelessWidget {
 // ── Colon separator between drums ────────────────────────────
 class _Separator extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => const Padding(
+  Widget build(BuildContext context) => Padding(
     padding: EdgeInsets.only(top: 18, left: 3, right: 3),
     child: Text(':',
         style: TextStyle(

@@ -38,7 +38,7 @@ class _Loading extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: ErpColors.borderLight),
       ),
-      child: const Row(children: [
+      child: Row(children: [
         SizedBox(
           width: 14, height: 14,
           child: CircularProgressIndicator(strokeWidth: 2, color: ErpColors.accentBlue),
@@ -102,7 +102,7 @@ class _Card extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('Estimated completion',
+                      Text('Estimated completion',
                           style: TextStyle(
                             fontSize: 10, fontWeight: FontWeight.w800,
                             color: ErpColors.textSecondary, letterSpacing: 0.6,
@@ -145,7 +145,7 @@ class _Card extends StatelessWidget {
                 children: [
                   Text(
                     'WHY ${r.workingDays} WORKING DAYS',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 9, fontWeight: FontWeight.w800,
                       color: ErpColors.textSecondary, letterSpacing: 0.6,
                     ),
@@ -207,10 +207,10 @@ class _Card extends StatelessWidget {
 
           // ── What-if curve ─────────────────────────────────
           if (r.whatIf.length > 1) ...[
-            const Divider(height: 1, color: ErpColors.borderLight),
+            Divider(height: 1, color: ErpColors.borderLight),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
-              child: const Text(
+              child: Text(
                 'WHAT IF I DEDICATE MORE MACHINES',
                 style: TextStyle(
                   fontSize: 9, fontWeight: FontWeight.w800,
@@ -251,19 +251,19 @@ class _Card extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('${w.machines} machine${w.machines == 1 ? '' : 's'}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10, color: ErpColors.textSecondary,
                                 fontWeight: FontWeight.w700,
                               )),
                           const SizedBox(height: 2),
                           Text(_fmtDate(w.expectedDate),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12, fontWeight: FontWeight.w800,
                                 color: ErpColors.textPrimary,
                               )),
                           const Spacer(),
                           Text('${w.workingDays}d',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10, color: ErpColors.textMuted,
                               )),
                         ],
@@ -286,13 +286,13 @@ class _Card extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(top: 4, right: 6),
                         child: Icon(Icons.circle, size: 4, color: ErpColors.textMuted),
                       ),
                       Expanded(
                         child: Text(a,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10, color: ErpColors.textMuted,
                               height: 1.4,
                             )),
@@ -317,13 +317,13 @@ class _Stat extends StatelessWidget {
       child: Column(
         children: [
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13, fontWeight: FontWeight.w900,
                 color: ErpColors.textPrimary,
               )),
           const SizedBox(height: 2),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 9, color: ErpColors.textSecondary,
                 letterSpacing: 0.4,
               )),
@@ -373,13 +373,13 @@ class _SplitPart extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10, fontWeight: FontWeight.w800,
                 color: ErpColors.textPrimary,
               )),
           const SizedBox(height: 1),
           Text(sub,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 9, color: ErpColors.textMuted, height: 1.3,
               )),
         ],
@@ -397,7 +397,7 @@ class _Glyph extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Text(symbol,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16, fontWeight: FontWeight.w900,
             color: ErpColors.textMuted,
           )),
@@ -434,7 +434,7 @@ class _ChipStat extends StatelessWidget {
                         letterSpacing: 0.4,
                       )),
                   Text(value,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11, color: ErpColors.textPrimary,
                         fontWeight: FontWeight.w700,
                       )),

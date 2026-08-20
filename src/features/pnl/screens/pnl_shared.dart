@@ -170,18 +170,18 @@ class PnlForbidden extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: ErpColors.borderLight),
               ),
-              child: const Icon(Icons.lock_outline_rounded,
+              child: Icon(Icons.lock_outline_rounded,
                   size: 32, color: ErpColors.textMuted),
             ),
             const SizedBox(height: 14),
-            const Text('Margin is not shared with this account',
+            Text('Margin is not shared with this account',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
                     color: ErpColors.textPrimary)),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Seeing an order and seeing the profit on it are separate '
               'permissions. An admin can grant Order P&L under Users.',
               textAlign: TextAlign.center,
@@ -199,13 +199,13 @@ class PnlFigure extends StatelessWidget {
   final String value;
   final Color color;
   final CrossAxisAlignment align;
-  const PnlFigure({
+  PnlFigure({
     super.key,
     required this.label,
     required this.value,
-    this.color = ErpColors.textPrimary,
+    Color? color,
     this.align = CrossAxisAlignment.center,
-  });
+  }) : color = color ?? ErpColors.textPrimary;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -216,7 +216,7 @@ class PnlFigure extends StatelessWidget {
                   fontSize: 14, fontWeight: FontWeight.w900, color: color)),
           const SizedBox(height: 2),
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 9.5,
                   fontWeight: FontWeight.w700,
                   color: ErpColors.textMuted)),

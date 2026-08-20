@@ -52,17 +52,17 @@ class StockMovementsReportScreen extends StatelessWidget {
               onRefresh: c.fetch,
               child: Obx(() {
                 if (c.loading.value && c.summary.value == null) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(color: ErpColors.accentBlue),
                   );
                 }
                 if (c.errorMsg.value != null && c.summary.value == null) {
                   return ListView(children: [
                     const SizedBox(height: 120),
-                    const Icon(Icons.cloud_off_outlined, size: 44, color: ErpColors.textMuted),
+                    Icon(Icons.cloud_off_outlined, size: 44, color: ErpColors.textMuted),
                     const SizedBox(height: 10),
                     Center(child: Text(c.errorMsg.value ?? 'Error',
-                        style: const TextStyle(color: ErpColors.textSecondary))),
+                        style: TextStyle(color: ErpColors.textSecondary))),
                     const SizedBox(height: 12),
                     Center(child: OutlinedButton(onPressed: c.fetch, child: const Text('Retry'))),
                   ]);
@@ -145,7 +145,7 @@ class StockMovementsReportScreen extends StatelessWidget {
 
   List<Widget> _rows(StockMovementsReportController c) {
     if (c.rows.isEmpty) {
-      return const [
+      return [
         Padding(
           padding: EdgeInsets.only(top: 28),
           child: Center(
@@ -169,16 +169,16 @@ class StockMovementsReportScreen extends StatelessWidget {
             child: Text(label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontWeight: FontWeight.w700,
                     fontSize: 13)),
           ),
           Text('▲${_nf.format(inQty)}',
-              style: const TextStyle(color: ErpColors.successGreen, fontSize: 11, fontWeight: FontWeight.w700)),
+              style: TextStyle(color: ErpColors.successGreen, fontSize: 11, fontWeight: FontWeight.w700)),
           const SizedBox(width: 8),
           Text('▼${_nf.format(outQty)}',
-              style: const TextStyle(color: ErpColors.errorRed, fontSize: 11, fontWeight: FontWeight.w700)),
+              style: TextStyle(color: ErpColors.errorRed, fontSize: 11, fontWeight: FontWeight.w700)),
           const SizedBox(width: 8),
           Text('${_signed(net)}',
               style: TextStyle(
@@ -237,7 +237,7 @@ class _Tile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: ErpColors.textMuted, fontSize: 11)),
+          Text(label, style: TextStyle(color: ErpColors.textMuted, fontSize: 11)),
           const SizedBox(height: 4),
           Text(value,
               style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.w800)),

@@ -56,7 +56,7 @@ class _PnlListPageViewState extends State<PnlListPageView> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           titleSpacing: 4,
-          title: const Column(
+          title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -74,7 +74,7 @@ class _PnlListPageViewState extends State<PnlListPageView> {
         body: Obx(() {
           if (c.forbidden.value) return const PnlForbidden();
           if (c.loading.value && c.page.value.rows.isEmpty) {
-            return const Center(
+            return Center(
                 child: CircularProgressIndicator(color: ErpColors.accentBlue));
           }
 
@@ -173,7 +173,7 @@ class _PageTotals extends StatelessWidget {
                 ? 'Across the ${p.rows.length} orders on this page · '
                     '${p.total} in total'
                 : 'Across all ${p.total} orders',
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
                 color: ErpColors.textOnDarkSub),
@@ -200,7 +200,7 @@ class _DarkFigure extends StatelessWidget {
         ),
         const SizedBox(height: 2),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
                 color: ErpColors.textOnDarkSub)),
@@ -277,7 +277,7 @@ class _Row extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(o.label,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
                           color: ErpColors.textPrimary)),
@@ -290,7 +290,7 @@ class _Row extends StatelessWidget {
                         DateFormat('dd MMM yyyy').format(o.date!),
                     ].join('  ·  '),
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 10.5, color: ErpColors.textSecondary),
                   ),
                 ],
@@ -332,24 +332,24 @@ class _Row extends StatelessWidget {
                   '${qty(row.producedMeters)} m made',
                 ].join('  ·  '),
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 10.5, color: ErpColors.textMuted),
               ),
             ),
             // The count only. What each warning says is on the detail
             // page; a truncated one here would be worse than a number.
             if (row.warnings > 0) ...[
-              const Icon(Icons.warning_amber_rounded,
+              Icon(Icons.warning_amber_rounded,
                   size: 13, color: ErpColors.warningAmber),
               const SizedBox(width: 3),
               Text('${row.warnings}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w800,
                       color: ErpColors.warningAmber)),
             ],
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right_rounded,
+            Icon(Icons.chevron_right_rounded,
                 size: 16, color: ErpColors.textMuted),
           ]),
         ]),
@@ -376,7 +376,7 @@ class _Pager extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Text('Page ${p.page} of ${p.pages}',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: ErpColors.textSecondary)),
@@ -424,7 +424,7 @@ class _Empty extends StatelessWidget {
   const _Empty();
 
   @override
-  Widget build(BuildContext context) => const Padding(
+  Widget build(BuildContext context) => Padding(
         padding: EdgeInsets.only(top: 40),
         child: Column(children: [
           Icon(Icons.query_stats_rounded, size: 40, color: ErpColors.textMuted),

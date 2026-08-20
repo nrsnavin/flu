@@ -36,7 +36,7 @@ class _MoreOptionsPageState extends State<MoreOptionsPage> {
         elevation: 0,
         automaticallyImplyLeading: false,
         titleSpacing: 20,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -118,7 +118,7 @@ class _SearchTrigger extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Row(
-            children: const [
+            children: [
               Icon(Icons.search_rounded,
                   color: ErpColors.accentBlue, size: 20),
               SizedBox(width: 10),
@@ -204,7 +204,7 @@ class _CollapsibleSection extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     '(${modules.length})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: ErpColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -250,7 +250,7 @@ class _AccountSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 2, bottom: 8, top: 4),
           child: Text('ACCOUNT', style: ErpTextStyles.sectionHeader),
         ),
@@ -276,11 +276,11 @@ class _AccountSection extends StatelessWidget {
                       color: ErpColors.errorRed.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.logout_rounded,
+                    child: Icon(Icons.logout_rounded,
                         color: ErpColors.errorRed, size: 18),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Logout',
                       style: TextStyle(
@@ -290,7 +290,7 @@ class _AccountSection extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Icon(Icons.chevron_right_rounded,
+                  Icon(Icons.chevron_right_rounded,
                       color: ErpColors.errorRed),
                 ],
               ),
@@ -304,13 +304,13 @@ class _AccountSection extends StatelessWidget {
   void _confirmLogout() {
     Get.defaultDialog(
       title: 'Logout',
-      titleStyle: const TextStyle(
+      titleStyle: TextStyle(
         fontWeight: FontWeight.w800,
         fontSize: 16,
         color: ErpColors.textPrimary,
       ),
       middleText: 'Are you sure you want to sign out?',
-      middleTextStyle: const TextStyle(
+      middleTextStyle: TextStyle(
         color: ErpColors.textSecondary,
         fontSize: 13,
       ),
@@ -334,7 +334,7 @@ class _AccountSection extends StatelessWidget {
       ),
       cancel: TextButton(
         onPressed: Get.back,
-        child: const Text(
+        child: Text(
           'Cancel',
           style: TextStyle(
             color: ErpColors.accentBlue,

@@ -81,7 +81,7 @@ class POAgingPage extends StatelessWidget {
         Expanded(
           child: Obx(() {
             if (c.loading.value && c.rows.isEmpty) {
-              return const Center(
+              return Center(
                 child: CircularProgressIndicator(color: ErpColors.accentBlue),
               );
             }
@@ -204,7 +204,7 @@ class _POCard extends StatelessWidget {
               child: Text('PO #$poNo · $supplier',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w800)),
@@ -230,7 +230,7 @@ class _POCard extends StatelessWidget {
               'Raised $created · $ageDays days ago · '
               '${pending.toStringAsFixed(pending == pending.roundToDouble() ? 0 : 2)} kg pending',
               style:
-                  const TextStyle(color: ErpColors.textMuted, fontSize: 11),
+                  TextStyle(color: ErpColors.textMuted, fontSize: 11),
             ),
           ),
           children: items
@@ -238,7 +238,7 @@ class _POCard extends StatelessWidget {
               .map((i) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3),
                     child: Row(children: [
-                      const Icon(Icons.circle,
+                      Icon(Icons.circle,
                           size: 5, color: ErpColors.textMuted),
                       const SizedBox(width: 8),
                       Expanded(
@@ -246,13 +246,13 @@ class _POCard extends StatelessWidget {
                           i['rawMaterialName']?.toString() ?? '—',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textPrimary, fontSize: 12),
                         ),
                       ),
                       Text(
                         '${i['received'] ?? 0} / ${i['ordered'] ?? 0} kg',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textSecondary,
                             fontSize: 11,
                             fontWeight: FontWeight.w700),
@@ -287,25 +287,25 @@ class _CenterMsg extends StatelessWidget {
           Icon(icon, size: 48, color: ErpColors.textMuted),
           const SizedBox(height: 12),
           Text(title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: ErpColors.textPrimary)),
           const SizedBox(height: 4),
           Text(subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12, color: ErpColors.textSecondary)),
           const SizedBox(height: 14),
           OutlinedButton(
             onPressed: onTap,
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ErpColors.accentBlue),
+              side: BorderSide(color: ErpColors.accentBlue),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6)),
             ),
             child: Text(cta,
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.accentBlue,
                     fontWeight: FontWeight.w700)),
           ),

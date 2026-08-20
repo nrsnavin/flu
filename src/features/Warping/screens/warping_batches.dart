@@ -101,7 +101,7 @@ class _WarpingBatchesTabState extends State<WarpingBatchesTab> {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.isLoading.value && c.batches.isEmpty) {
-        return const Center(
+        return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue));
       }
 
@@ -194,7 +194,7 @@ class _RaiseButton extends StatelessWidget {
               : free.isEmpty
                   ? 'Every beam in the plan is already on a batch.'
                   : 'Beam ${free.join(', ')} still free.',
-          style: const TextStyle(fontSize: 10.5, color: ErpColors.textMuted),
+          style: TextStyle(fontSize: 10.5, color: ErpColors.textMuted),
         ),
       ],
     );
@@ -240,13 +240,13 @@ class _BatchCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(batch.batchNo,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
                           color: ErpColors.textPrimary)),
                   const SizedBox(height: 2),
                   Text(batch.beamLabel,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 11, color: ErpColors.textSecondary)),
                 ],
               ),
@@ -274,7 +274,7 @@ class _BatchCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('LOTS DRAWN',
+              Text('LOTS DRAWN',
                   style: TextStyle(
                       color: ErpColors.textMuted,
                       fontSize: 9,
@@ -295,27 +295,27 @@ class _BatchCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(a.lotLabel.isEmpty ? '—' : a.lotLabel,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: ErpColors.textPrimary)),
                             if (a.materialName.isNotEmpty)
                               Text(a.materialName,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       fontSize: 10,
                                       color: ErpColors.textMuted)),
                           ],
                         ),
                       ),
                       Text('${_qty(a.quantity)} kg',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w900,
                               color: ErpColors.accentBlue)),
                     ]),
                   )),
               if (batch.allocations.isEmpty)
-                const Text('No lots recorded',
+                Text('No lots recorded',
                     style:
                         TextStyle(fontSize: 11, color: ErpColors.textMuted)),
             ],
@@ -343,7 +343,7 @@ class _BatchCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
             child: Text(batch.remarks,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                     color: ErpColors.textSecondary)),
@@ -454,7 +454,7 @@ class _Fact extends StatelessWidget {
         Icon(icon, size: 11, color: ErpColors.textMuted),
         const SizedBox(width: 4),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary,
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600)),
@@ -629,7 +629,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
     return Container(
       constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.9),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgBase,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -637,7 +637,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
         // Grab handle + title
         Container(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.navyDark,
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
@@ -650,7 +650,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
                     borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 10),
             Row(children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -683,7 +683,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (c.planBeamNos.isEmpty)
-                      const Text('The plan defines no beams.',
+                      Text('The plan defines no beams.',
                           style: TextStyle(
                               fontSize: 11, color: ErpColors.textMuted))
                     else
@@ -731,7 +731,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
                       free.isEmpty
                           ? 'Every beam is already on a batch. A batch with no beams is still allowed — it records the draw without claiming any.'
                           : 'Leaving this empty records the draw without claiming a beam.',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 10, color: ErpColors.textMuted),
                     ),
                   ],
@@ -750,7 +750,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
                     // flight — either way there is nothing to pick from,
                     // and saying "could not load" would be a guess.
                     if (c.warpYarns.isEmpty)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(bottom: 8),
                         child: Text(
                           'No warp yarns loaded for this job yet. Close this sheet, pull to refresh, and try again.',
@@ -761,9 +761,9 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
                     ..._rows.asMap().entries.map((e) => _allocRow(e.key)),
                     TextButton.icon(
                       onPressed: () => setState(() => _rows.add(_AllocRow())),
-                      icon: const Icon(Icons.add_circle_outline,
+                      icon: Icon(Icons.add_circle_outline,
                           size: 14, color: ErpColors.accentBlue),
-                      label: const Text('Add another lot',
+                      label: Text('Add another lot',
                           style: TextStyle(
                               color: ErpColors.accentBlue,
                               fontSize: 12,
@@ -783,11 +783,11 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
                   minLines: 2,
                   maxLines: 4,
                   textCapitalization: TextCapitalization.sentences,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 12.5, color: ErpColors.textPrimary),
                   decoration: ErpDecorations.formInput('Optional').copyWith(
                     hintText: 'Anything the next shift should know',
-                    hintStyle: const TextStyle(
+                    hintStyle: TextStyle(
                         color: ErpColors.textMuted, fontSize: 11),
                   ),
                 ),
@@ -799,7 +799,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
         // ── Footer ───────────────────────────────────────
         Container(
           padding: const EdgeInsets.fromLTRB(14, 10, 14, 20),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.bgSurface,
             border: Border(top: BorderSide(color: ErpColors.borderLight)),
           ),
@@ -871,7 +871,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
               child: DropdownButtonFormField<String>(
                 value: row.yarnId,
                 decoration: ErpDecorations.formInput('Yarn *'),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12, color: ErpColors.textPrimary),
                 dropdownColor: ErpColors.bgSurface,
                 isExpanded: true,
@@ -892,7 +892,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
             if (_rows.length > 1) ...[
               const SizedBox(width: 4),
               IconButton(
-                icon: const Icon(Icons.close_rounded,
+                icon: Icon(Icons.close_rounded,
                     size: 16, color: ErpColors.textMuted),
                 padding: EdgeInsets.zero,
                 constraints:
@@ -910,7 +910,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
               child: DropdownButtonFormField<String>(
                 value: lotValue,
                 decoration: ErpDecorations.formInput('Lot *'),
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12, color: ErpColors.textPrimary),
                 dropdownColor: ErpColors.bgSurface,
                 isExpanded: true,
@@ -925,7 +925,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
                             ),
                             const SizedBox(width: 6),
                             Text('${_qty(l.balance)} kg',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.w800,
                                     color: ErpColors.accentBlue)),
@@ -947,11 +947,11 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                 ],
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12, color: ErpColors.textPrimary),
                 decoration: ErpDecorations.formInput('Qty *').copyWith(
                   suffixText: 'kg',
-                  suffixStyle: const TextStyle(
+                  suffixStyle: TextStyle(
                       color: ErpColors.textMuted, fontSize: 11),
                 ),
                 onChanged: (_) => setState(() {}),
@@ -959,7 +959,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
             ),
           ]),
           if (row.yarnId != null && stock.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(top: 6),
               child: Text('No open lots for this yarn',
                   style: TextStyle(
@@ -989,17 +989,17 @@ class _EmptyBatches extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: ErpColors.borderLight),
             ),
-            child: const Icon(Icons.inventory_2_outlined,
+            child: Icon(Icons.inventory_2_outlined,
                 size: 32, color: ErpColors.textMuted),
           ),
           const SizedBox(height: 14),
-          const Text('No batches yet',
+          Text('No batches yet',
               style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                   color: ErpColors.textPrimary)),
           const SizedBox(height: 4),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 30),
             child: Text(
               'Raise one when the cones come off the rack, so the beams can '

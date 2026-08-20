@@ -54,14 +54,14 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
       appBar: const ErpAppBar(title: "Shift Entry"),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: ErpColors.accentBlue),
           );
         }
 
         final shift = controller.shift.value;
         if (shift == null) {
-          return const Center(
+          return Center(
             child: Text("Shift not found",
                 style: TextStyle(color: ErpColors.textSecondary)),
           );
@@ -83,7 +83,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
                     ErpInfoRow("Job Order", "#${shift.jobNo}"),
                     const SizedBox(height: 8),
                     if (shift.runningElastics.isNotEmpty) ...[
-                      const Text("RUNNING ELASTICS",
+                      Text("RUNNING ELASTICS",
                           style: ErpTextStyles.sectionHeader),
                       const SizedBox(height: 8),
                       Wrap(
@@ -100,7 +100,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
                                 color: ErpColors.statusOpenBorder),
                           ),
                           child: Text(e,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: ErpColors.statusOpenText,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -129,7 +129,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [ErpColors.navyMid, ErpColors.navyDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -153,7 +153,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(
               "${shift.shift.toUpperCase()} SHIFT",
-              style: const TextStyle(
+              style: TextStyle(
                 color: ErpColors.textOnDark,
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -166,13 +166,13 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
                 final d = DateTime.tryParse(shift.date);
                 return d != null ? DateFormat.yMMMEd().format(d) : '—';
               })(),
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 12),
             ),
             const SizedBox(height: 2),
             Text(
               shift.employeeName,
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textOnDarkSub,
                   fontSize: 12,
                   fontWeight: FontWeight.w500),
@@ -213,7 +213,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
           decoration: ErpDecorations.formInput(
             "Production (meters)",
             hint: "e.g. 850",
-            prefix: const Icon(Icons.straighten,
+            prefix: Icon(Icons.straighten,
                 size: 18, color: ErpColors.textSecondary),
           ),
         ),
@@ -228,7 +228,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
           decoration: ErpDecorations.formInput(
             "Feedback / Notes",
             hint: "Any issues or observations...",
-            prefix: const Icon(Icons.notes,
+            prefix: Icon(Icons.notes,
                 size: 18, color: ErpColors.textSecondary),
           ),
         ),
@@ -272,14 +272,14 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
         // ── Correct / delete a verified entry (audit-logged) ──
         if (s.status == "closed") ...[
           const SizedBox(height: 12),
-          const Divider(height: 1, color: ErpColors.borderLight),
+          Divider(height: 1, color: ErpColors.borderLight),
           const SizedBox(height: 12),
           Obx(() => Row(children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: ErpColors.accentBlue,
-                      side: const BorderSide(color: ErpColors.accentBlue),
+                      side: BorderSide(color: ErpColors.accentBlue),
                     ),
                     onPressed: controller.isCorrecting.value ? null : () => _correctEntry(s),
                     icon: const Icon(Icons.edit_outlined, size: 15),
@@ -291,7 +291,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: ErpColors.errorRed,
-                      side: const BorderSide(color: ErpColors.errorRed),
+                      side: BorderSide(color: ErpColors.errorRed),
                     ),
                     onPressed: controller.isCorrecting.value ? null : () => _deleteEntry(),
                     icon: const Icon(Icons.delete_outline, size: 15),
@@ -300,7 +300,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
                 ),
               ])),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             "Corrections re-derive the order/job totals and are recorded in the audit log.",
             style: TextStyle(fontSize: 10, color: ErpColors.textMuted),
           ),
@@ -318,7 +318,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
           return AlertDialog(
             backgroundColor: ErpColors.bgSurface,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            title: const Text("Correct production",
+            title: Text("Correct production",
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
             content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
               TextField(
@@ -339,7 +339,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
                 decoration: InputDecoration(
                   labelText: "Reason *",
                   hintText: "Why is this being corrected? (audit log)",
-                  hintStyle: const TextStyle(fontSize: 11, color: ErpColors.textMuted),
+                  hintStyle: TextStyle(fontSize: 11, color: ErpColors.textMuted),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
@@ -391,7 +391,7 @@ class _FieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: const TextStyle(
+    style: TextStyle(
         color: ErpColors.textSecondary,
         fontSize: 13,
         fontWeight: FontWeight.w600),
@@ -515,7 +515,7 @@ class _Drum extends StatelessWidget {
         // Column label (HH / MM / SS)
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 9,
               fontWeight: FontWeight.w700,
@@ -570,7 +570,7 @@ class _Drum extends StatelessWidget {
                     (i) => Center(
                   child: Text(
                     (i % mod).toString().padLeft(2, '0'),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary,
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
@@ -590,7 +590,7 @@ class _Drum extends StatelessWidget {
 class _Sep extends StatelessWidget {
   const _Sep();
   @override
-  Widget build(BuildContext context) => const Padding(
+  Widget build(BuildContext context) => Padding(
     padding: EdgeInsets.only(top: 20, left: 3, right: 3),
     child: Text(
       ':',

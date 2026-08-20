@@ -33,12 +33,12 @@ class EditCustomerPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text("Edit Customer",
+              Text("Edit Customer",
                   style: ErpTextStyles.pageTitle,
                   overflow: TextOverflow.ellipsis),
               Text(
                 customer['name'] ?? 'Customer',
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 10),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -165,7 +165,7 @@ class _SectionCard extends StatelessWidget {
           Container(
             padding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               borderRadius:
               BorderRadius.vertical(top: Radius.circular(8)),
@@ -246,7 +246,7 @@ class _StatusDropdown extends StatelessWidget {
       isExpanded: true,
       style: ErpTextStyles.fieldValue,
       decoration: ErpDecorations.formInput("Status",
-          prefix: const Icon(Icons.toggle_on_outlined,
+          prefix: Icon(Icons.toggle_on_outlined,
               size: 18, color: ErpColors.textMuted)),
       items: const [
         DropdownMenuItem(value: "Active",   child: Text("Active")),
@@ -269,7 +269,7 @@ class _PaymentTermsDropdown extends StatelessWidget {
       isExpanded: true,
       style: ErpTextStyles.fieldValue,
       decoration: ErpDecorations.formInput("Payment Terms",
-          prefix: const Icon(Icons.schedule_outlined,
+          prefix: Icon(Icons.schedule_outlined,
               size: 18, color: ErpColors.textMuted)),
       items: const [
         DropdownMenuItem(value: "Advance", child: Text("Advance")),
@@ -294,7 +294,7 @@ class _FooterBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
-        border: const Border(
+        border: Border(
             top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
@@ -314,11 +314,11 @@ class _FooterBar extends StatelessWidget {
                 onPressed: () => Navigator.of(context).pop(),
                 style: OutlinedButton.styleFrom(
                   side:
-                  const BorderSide(color: ErpColors.borderMid),
+                  BorderSide(color: ErpColors.borderMid),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6)),
                 ),
-                child: const Text("Cancel",
+                child: Text("Cancel",
                     style: TextStyle(
                         color: ErpColors.textSecondary,
                         fontWeight: FontWeight.w600)),

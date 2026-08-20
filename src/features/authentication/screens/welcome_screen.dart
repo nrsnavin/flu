@@ -45,7 +45,7 @@ class WelcomeScreen extends StatelessWidget {
                         border: Border.all(
                             color: ErpColors.accentBlue.withOpacity(0.4), width: 1.5),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.factory_rounded,
                         size: 46,
                         color: ErpColors.accentBlue,
@@ -62,7 +62,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Factory ERP System',
                       style: TextStyle(
                         color: ErpColors.textOnDarkSub,
@@ -131,7 +131,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     'v1.0  ·  Powered by Factory ERP',
                     style: TextStyle(
                         color: ErpColors.textOnDarkSub,
@@ -163,7 +163,7 @@ class _ModulePill extends StatelessWidget {
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 12, color: ErpColors.textOnDarkSub),
       const SizedBox(width: 5),
-      Text(label, style: const TextStyle(
+      Text(label, style: TextStyle(
           color: ErpColors.textOnDarkSub, fontSize: 11, fontWeight: FontWeight.w600)),
     ]),
   );

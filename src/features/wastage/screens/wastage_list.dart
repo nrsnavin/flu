@@ -61,11 +61,11 @@ class _WastageListPageState extends State<WastageListPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Wastage', style: ErpTextStyles.pageTitle),
+        Text('Wastage', style: ErpTextStyles.pageTitle),
         Text(
           '${c.jobs.length} jobs  ·  '
               '${c.totalWastage.toStringAsFixed(1)} m total',
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textOnDarkSub, fontSize: 10),
         ),
       ],
@@ -237,7 +237,7 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Obx(() {
     if (c.isLoading.value && c.jobs.isEmpty) {
-      return const Center(
+      return Center(
           child: CircularProgressIndicator(color: ErpColors.accentBlue));
     }
     if (c.errorMsg.value != null) {
@@ -301,7 +301,7 @@ class _JobCard extends StatelessWidget {
                   color: ErpColors.errorRed.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.warning_amber_rounded,
+                child: Icon(Icons.warning_amber_rounded,
                     size: 18, color: ErpColors.errorRed),
               ),
               const SizedBox(width: 10),
@@ -310,13 +310,13 @@ class _JobCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Job #${job.jobOrderNo}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w900,
                               color: ErpColors.textPrimary)),
                       if (job.customerName?.isNotEmpty ?? false)
                         Text(job.customerName!,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary,
                                 fontSize: 10),
                             overflow: TextOverflow.ellipsis),
@@ -327,7 +327,7 @@ class _JobCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('dd MMM yy').format(job.date),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: ErpColors.textMuted, fontSize: 9),
                 ),
               ]),
@@ -355,7 +355,7 @@ class _JobCard extends StatelessWidget {
           ),
           // Elastic breakdown
           if (job.wastageElastic.isNotEmpty) ...[
-            const Divider(height: 1, color: ErpColors.borderLight),
+            Divider(height: 1, color: ErpColors.borderLight),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
               child: Wrap(
@@ -373,7 +373,7 @@ class _JobCard extends StatelessWidget {
                   ),
                   child: Text(
                     '${e.elasticName}: ${e.quantity.toStringAsFixed(1)}m',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textSecondary,
                         fontSize: 10,
                         fontWeight: FontWeight.w600),
@@ -388,13 +388,13 @@ class _JobCard extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(right: 12, bottom: 8),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
-                const Text('View Details',
+                Text('View Details',
                     style: TextStyle(
                         color: ErpColors.accentBlue,
                         fontSize: 11,
                         fontWeight: FontWeight.w800)),
                 const SizedBox(width: 2),
-                const Icon(Icons.chevron_right_rounded,
+                Icon(Icons.chevron_right_rounded,
                     size: 14, color: ErpColors.accentBlue),
               ]),
             ),
@@ -427,7 +427,7 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) => Expanded(
     child: Column(children: [
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 7,
               fontWeight: FontWeight.w700,
@@ -476,17 +476,17 @@ class _EmptyState extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: ErpColors.borderLight),
         ),
-        child: const Icon(Icons.warning_amber_outlined,
+        child: Icon(Icons.warning_amber_outlined,
             size: 34, color: ErpColors.textMuted),
       ),
       const SizedBox(height: 14),
-      const Text('No wastage recorded',
+      Text('No wastage recorded',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
-      const Text('Tap + to record wastage for a job',
+      Text('Tap + to record wastage for a job',
           style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12)),
     ]),
@@ -500,16 +500,16 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
+      Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
       const SizedBox(height: 12),
-      const Text('Failed to load',
+      Text('Failed to load',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

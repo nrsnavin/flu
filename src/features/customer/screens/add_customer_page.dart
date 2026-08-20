@@ -43,7 +43,7 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         titleSpacing: 4,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -220,7 +220,7 @@ class _SectionCard extends StatelessWidget {
           Container(
             padding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: ErpColors.bgMuted,
               borderRadius:
               BorderRadius.vertical(top: Radius.circular(8)),
@@ -292,7 +292,7 @@ class _CollapsibleSectionState extends State<_CollapsibleSection> {
                     top: Radius.circular(8))
                     : BorderRadius.circular(8),
                 border: _expanded
-                    ? const Border(
+                    ? Border(
                     bottom:
                     BorderSide(color: ErpColors.borderLight))
                     : null,
@@ -427,7 +427,7 @@ class _StatusDropdown extends StatelessWidget {
       isExpanded: true,
       style: ErpTextStyles.fieldValue,
       decoration: ErpDecorations.formInput("Status",
-          prefix: const Icon(Icons.toggle_on_outlined,
+          prefix: Icon(Icons.toggle_on_outlined,
               size: 18, color: ErpColors.textMuted)),
       items: const [
         DropdownMenuItem(value: "Active",   child: Text("Active")),
@@ -450,7 +450,7 @@ class _PaymentTermsDropdown extends StatelessWidget {
       isExpanded: true,
       style: ErpTextStyles.fieldValue,
       decoration: ErpDecorations.formInput("Payment Terms *",
-          prefix: const Icon(Icons.schedule_outlined,
+          prefix: Icon(Icons.schedule_outlined,
               size: 18, color: ErpColors.textMuted)),
       items: const [
         DropdownMenuItem(value: "Advance", child: Text("Advance")),
@@ -478,7 +478,7 @@ class _FooterBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
-        border: const Border(
+        border: Border(
             top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
@@ -498,11 +498,11 @@ class _FooterBar extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () => Navigator.of(context).pop(),
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: ErpColors.borderMid),
+                  side: BorderSide(color: ErpColors.borderMid),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6)),
                 ),
-                child: const Text("Cancel",
+                child: Text("Cancel",
                     style: TextStyle(
                         color: ErpColors.textSecondary,
                         fontWeight: FontWeight.w600)),

@@ -25,10 +25,10 @@ class OptimizeLayoutPage extends StatelessWidget {
       ),
       body: Obx(() {
         if (c.isLoading.value && c.metrics.value == null) {
-          return const Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
+          return Center(child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.errorMsg.value != null && c.metrics.value == null) {
-          return Center(child: Text(c.errorMsg.value!, style: const TextStyle(color: ErpColors.textSecondary)));
+          return Center(child: Text(c.errorMsg.value!, style: TextStyle(color: ErpColors.textSecondary)));
         }
         return ListView(
           padding: const EdgeInsets.all(14),
@@ -42,7 +42,7 @@ class OptimizeLayoutPage extends StatelessWidget {
               const SizedBox(height: 12),
               ...c.beams.map(_beamCard),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Applying creates the warping plan — you can still edit beams before starting.',
                 style: TextStyle(fontSize: 11, color: ErpColors.textMuted),
               ),
@@ -97,7 +97,7 @@ class OptimizeLayoutPage extends StatelessWidget {
   }
 
   Widget _capacitySelector(OptimizeLayoutController c) => Row(children: [
-        const Text('Beam capacity',
+        Text('Beam capacity',
             style: TextStyle(fontSize: 12, color: ErpColors.textSecondary, fontWeight: FontWeight.w600)),
         const SizedBox(width: 10),
         Expanded(
@@ -116,7 +116,7 @@ class OptimizeLayoutPage extends StatelessWidget {
                     backgroundColor: ErpColors.bgSurface,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6),
-                        side: const BorderSide(color: ErpColors.borderLight)),
+                        side: BorderSide(color: ErpColors.borderLight)),
                   );
                 }).toList(),
               )),
@@ -145,7 +145,7 @@ class OptimizeLayoutPage extends StatelessWidget {
             border: Border.all(color: ErpColors.borderLight),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: const TextStyle(fontSize: 10, color: ErpColors.textMuted)),
+            Text(label, style: TextStyle(fontSize: 10, color: ErpColors.textMuted)),
             const SizedBox(height: 4),
             Text(value, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: color)),
           ]),
@@ -163,9 +163,9 @@ class OptimizeLayoutPage extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Text('Beam ${b.beamNo}',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
             Text('${b.totalEnds} ends · ${b.fillPct}% full',
-                style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+                style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
           ]),
           const SizedBox(height: 8),
           ClipRRect(
@@ -174,7 +174,7 @@ class OptimizeLayoutPage extends StatelessWidget {
               value: (b.fillPct / 100).clamp(0.0, 1.0),
               minHeight: 5,
               backgroundColor: ErpColors.bgMuted,
-              valueColor: const AlwaysStoppedAnimation<Color>(ErpColors.accentBlue),
+              valueColor: AlwaysStoppedAnimation<Color>(ErpColors.accentBlue),
             ),
           ),
           const SizedBox(height: 8),
@@ -184,10 +184,10 @@ class OptimizeLayoutPage extends StatelessWidget {
                   Flexible(
                     child: Text(s.warpYarnName,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 13, color: ErpColors.textPrimary)),
+                        style: TextStyle(fontSize: 13, color: ErpColors.textPrimary)),
                   ),
                   Text('${s.ends} ends',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: ErpColors.textSecondary)),
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: ErpColors.textSecondary)),
                 ]),
               )),
         ]),
@@ -202,14 +202,14 @@ class OptimizeLayoutPage extends StatelessWidget {
         ),
         child: Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.grid_off_outlined, size: 40, color: ErpColors.textMuted),
+            Icon(Icons.grid_off_outlined, size: 40, color: ErpColors.textMuted),
             const SizedBox(height: 10),
-            const Text('Nothing to optimise',
+            Text('Nothing to optimise',
                 style: TextStyle(fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
             const SizedBox(height: 4),
             Text(msg,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: ErpColors.textSecondary)),
+                style: TextStyle(fontSize: 12, color: ErpColors.textSecondary)),
           ]),
         ),
       );

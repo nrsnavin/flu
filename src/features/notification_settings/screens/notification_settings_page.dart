@@ -30,7 +30,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       backgroundColor: ErpColors.bgBase,
       appBar: AppBar(
         backgroundColor: ErpColors.navyDark,
-        title: const Text('WhatsApp Notifications',
+        title: Text('WhatsApp Notifications',
             style: ErpTextStyles.pageTitle),
         actions: [
           IconButton(
@@ -119,7 +119,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Country code + number, no spaces or dashes. The phone '
               'must have opted in to your WhatsApp sender on the '
               'provider side.',
@@ -213,7 +213,7 @@ class _ProviderBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: ErpColors.warningAmber),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(Icons.warning_amber_rounded, color: ErpColors.warningAmber),
           SizedBox(width: 10),
@@ -249,7 +249,7 @@ class _SendNowSection extends StatelessWidget {
       icon: Icons.send_rounded,
       child: Column(
         children: [
-          const Text(
+          Text(
             'Manually fires the same job the cron runs. Useful to '
             'verify recipients after a change or to re-send if a '
             'scheduled run was skipped.',
@@ -333,11 +333,11 @@ class _RecipientsSection extends StatelessWidget {
       icon: Icons.contacts_outlined,
       trailing: IconButton(
         tooltip: 'Add',
-        icon: const Icon(Icons.add_circle, color: ErpColors.accentBlue),
+        icon: Icon(Icons.add_circle, color: ErpColors.accentBlue),
         onPressed: saving ? null : onAdd,
       ),
       child: recipients.isEmpty
-          ? const Padding(
+          ? Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Text(
                 'No recipients yet. Add the owner’s WhatsApp number '
@@ -380,7 +380,7 @@ class _RecipientTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
         child: Row(
           children: [
-            const Icon(Icons.phone_iphone,
+            Icon(Icons.phone_iphone,
                 color: ErpColors.accentLight, size: 18),
             const SizedBox(width: 10),
             Expanded(
@@ -388,23 +388,23 @@ class _RecipientTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(number,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textPrimary,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'monospace')),
                   const SizedBox(height: 2),
-                  const Text('Tap to filter events',
+                  Text('Tap to filter events',
                       style: TextStyle(
                           color: ErpColors.textSecondary,
                           fontSize: 11)),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right,
+            Icon(Icons.chevron_right,
                 color: ErpColors.textMuted, size: 18),
             IconButton(
               tooltip: 'Remove',
-              icon: const Icon(Icons.remove_circle_outline,
+              icon: Icon(Icons.remove_circle_outline,
                   color: ErpColors.errorRed),
               onPressed: onRemove,
             ),
@@ -428,11 +428,11 @@ class _ErrorBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: ErpColors.errorRed),
+          Icon(Icons.error_outline, color: ErpColors.errorRed),
           const SizedBox(width: 10),
           Expanded(
             child: Text(message,
-                style: const TextStyle(color: ErpColors.errorRed)),
+                style: TextStyle(color: ErpColors.errorRed)),
           ),
         ],
       ),
@@ -468,7 +468,7 @@ class _Card extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: ErpColors.textPrimary,
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
@@ -478,7 +478,7 @@ class _Card extends StatelessWidget {
               if (trailing != null) trailing!,
             ],
           ),
-          const Divider(color: ErpColors.borderLight),
+          Divider(color: ErpColors.borderLight),
           const SizedBox(height: 4),
           child,
         ],

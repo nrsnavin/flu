@@ -91,14 +91,14 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
           const SizedBox(height: 40),
           Container(
             width: 56, height: 56,
-            decoration: const BoxDecoration(color: ErpColors.statusOpenBg, shape: BoxShape.circle),
-            child: const Icon(Icons.auto_awesome, color: ErpColors.accentBlue),
+            decoration: BoxDecoration(color: ErpColors.statusOpenBg, shape: BoxShape.circle),
+            child: Icon(Icons.auto_awesome, color: ErpColors.accentBlue),
           ),
           const SizedBox(height: 12),
-          const Text('Ask about the floor',
+          Text('Ask about the floor',
               style: TextStyle(fontWeight: FontWeight.w700, color: ErpColors.textPrimary, fontSize: 16)),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Jarvis reads your live data to answer — it can explain and recommend, but never changes anything.',
             textAlign: TextAlign.center,
             style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
@@ -117,7 +117,7 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: ErpColors.borderLight),
                         ),
-                        child: Text(s, style: const TextStyle(fontSize: 13, color: ErpColors.textSecondary)),
+                        child: Text(s, style: TextStyle(fontSize: 13, color: ErpColors.textSecondary)),
                       ),
                     ))
                 .toList(),
@@ -164,10 +164,10 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                                  const Icon(Icons.build_outlined, size: 11, color: ErpColors.textMuted),
+                                  Icon(Icons.build_outlined, size: 11, color: ErpColors.textMuted),
                                   const SizedBox(width: 3),
                                   Text(kToolLabels[t] ?? t,
-                                      style: const TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+                                      style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
                                 ]),
                               ))
                           .toList(),
@@ -202,7 +202,7 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: ErpColors.borderLight),
             ),
-            child: const Row(mainAxisSize: MainAxisSize.min, children: [
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
               SizedBox(
                   width: 14, height: 14,
                   child: CircularProgressIndicator(strokeWidth: 2, color: ErpColors.accentBlue)),
@@ -216,7 +216,7 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
   Widget _composer() {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         border: Border(top: BorderSide(color: ErpColors.borderLight)),
       ),
@@ -245,7 +245,7 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
                   onTap: c.isSending.value ? null : () => _send(_input.text),
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.all(11),
                     child: Icon(Icons.send, color: ErpColors.textOnDark, size: 20),
                   ),

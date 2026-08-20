@@ -83,7 +83,7 @@ class _CustomerListPageState extends State<CustomerListPage> {
           child: Center(
             child: Text(
               "${_c.customers.length} records",
-              style: const TextStyle(
+              style: TextStyle(
                   color: ErpColors.textOnDarkSub, fontSize: 12),
             ),
           ),
@@ -107,7 +107,7 @@ class _SearchBar extends StatelessWidget {
     return Container(
 
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: ErpColors.borderLight)),
       ),
       child: SizedBox(
@@ -117,24 +117,24 @@ class _SearchBar extends StatelessWidget {
           style: const TextStyle(fontSize: 14),
           decoration: InputDecoration(
             hintText: "Search by name, phone or GSTIN…",
-            hintStyle: const TextStyle(
+            hintStyle: TextStyle(
                 color: ErpColors.textMuted, fontSize: 13),
-            prefixIcon: const Icon(Icons.search,
+            prefixIcon: Icon(Icons.search,
                 size: 19, color: ErpColors.textMuted),
             filled: true,
             fillColor: ErpColors.bgMuted,
             contentPadding: const EdgeInsets.symmetric(vertical: 0),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: ErpColors.borderLight),
+              borderSide: BorderSide(color: ErpColors.borderLight),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                   color: ErpColors.accentBlue, width: 1.5),
             ),
           ),
@@ -154,7 +154,7 @@ class _CustomerListBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (c.loading.value && c.customers.isEmpty) {
-        return const Center(
+        return Center(
           child:
           CircularProgressIndicator(color: ErpColors.accentBlue),
         );
@@ -175,7 +175,7 @@ class _CustomerListBody extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (_, i) {
             if (i == c.customers.length) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                   child: CircularProgressIndicator(
@@ -252,7 +252,7 @@ class _CustomerCard extends StatelessWidget {
                               ? (customer['name'] as String).substring(0, 1)
                               : '?')
                           .toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: ErpColors.accentBlue,
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -267,7 +267,7 @@ class _CustomerCard extends StatelessWidget {
                       children: [
                         Text(
                           customer['name'] ?? '—',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: ErpColors.textPrimary,
@@ -279,7 +279,7 @@ class _CustomerCard extends StatelessWidget {
                             true)
                           Text(
                             customer['contactName'],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: ErpColors.textSecondary,
                             ),
@@ -315,7 +315,7 @@ class _CustomerCard extends StatelessWidget {
             // ── Meta row ──────────────────────────────────
             Container(
               padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border: Border(
                     top: BorderSide(color: ErpColors.borderLight)),
                 color: ErpColors.bgMuted,
@@ -334,7 +334,7 @@ class _CustomerCard extends StatelessWidget {
                     label: payLabel,
                   ),
                   const Spacer(),
-                  const Icon(Icons.chevron_right,
+                  Icon(Icons.chevron_right,
                       size: 16, color: ErpColors.textMuted),
                 ],
               ),
@@ -360,7 +360,7 @@ class _MetaChip extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
         ),
       ],
@@ -387,11 +387,11 @@ class _EmptyState extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: ErpColors.borderLight),
             ),
-            child: const Icon(Icons.people_outline,
+            child: Icon(Icons.people_outline,
                 size: 32, color: ErpColors.textMuted),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             "No Customers Found",
             style: TextStyle(
                 fontWeight: FontWeight.w700,
@@ -399,7 +399,7 @@ class _EmptyState extends StatelessWidget {
                 color: ErpColors.textPrimary),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             "Tap + to add your first customer",
             style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 13),
@@ -408,11 +408,11 @@ class _EmptyState extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onRefresh,
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ErpColors.borderMid),
+              side: BorderSide(color: ErpColors.borderMid),
             ),
-            icon: const Icon(Icons.refresh,
+            icon: Icon(Icons.refresh,
                 size: 16, color: ErpColors.textSecondary),
-            label: const Text("Refresh",
+            label: Text("Refresh",
                 style:
                 TextStyle(color: ErpColors.textSecondary)),
           ),

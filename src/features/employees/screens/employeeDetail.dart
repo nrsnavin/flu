@@ -37,7 +37,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
       appBar: _buildAppBar(),
       body: Obx(() {
         if (c.isLoading.value) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.errorMsg.value != null) {
@@ -90,7 +90,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
           children: [
             Text(emp?.name ?? 'Employee Detail',
                 style: ErpTextStyles.pageTitle),
-            const Text('Employees  ›  Detail',
+            Text('Employees  ›  Detail',
                 style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 10)),
           ],
@@ -151,7 +151,7 @@ class _HeroCard extends StatelessWidget {
         // ── Navy header ──────────────────────────────────────
         Container(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 18),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.navyDark,
             borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
           ),
@@ -187,20 +187,20 @@ class _HeroCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 3),
                   Text(emp.role,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textOnDarkSub,
                           fontSize: 12,
                           fontWeight: FontWeight.w500),
                       overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
                   Row(children: [
-                    const Icon(Icons.business_outlined,
+                    Icon(Icons.business_outlined,
                         size: 11, color: ErpColors.textOnDarkSub),
                     const SizedBox(width: 4),
                     Text(
                       emp.department[0].toUpperCase() +
                           emp.department.substring(1),
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textOnDarkSub,
                           fontSize: 11),
                     ),
@@ -264,14 +264,14 @@ class _StatBox extends StatelessWidget {
       Icon(icon, size: 13, color: ErpColors.textMuted),
       const SizedBox(height: 4),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 9,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5)),
       const SizedBox(height: 3),
       Text(value,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textPrimary,
               fontSize: 11,
               fontWeight: FontWeight.w800),
@@ -446,7 +446,7 @@ class _PerformanceStats extends StatelessWidget {
         // ── Efficiency bar ────────────────────────────────────
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Text('Average Efficiency',
+            Text('Average Efficiency',
                 style: TextStyle(
                     color: ErpColors.textSecondary,
                     fontSize: 11,
@@ -512,14 +512,14 @@ class _PerfBox extends StatelessWidget {
                 color: color, fontSize: 13, fontWeight: FontWeight.w900),
             textAlign: TextAlign.center),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textMuted,
                 fontSize: 8,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.2),
             textAlign: TextAlign.center),
         Text(sub,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textMuted, fontSize: 8)),
       ]),
     ),
@@ -540,7 +540,7 @@ class _Legend extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
       const SizedBox(width: 4),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 9,
               fontWeight: FontWeight.w600)),
@@ -561,7 +561,7 @@ class _ShiftHistorySection extends StatelessWidget {
       title: 'LAST ${c.shifts.length} SHIFTS',
       icon: Icons.schedule_outlined,
       child: c.shifts.isEmpty
-          ? const Padding(
+          ? Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Center(
           child: Text('No shift history available',
@@ -627,19 +627,19 @@ class _ShiftRow extends StatelessWidget {
                 children: [
                   Text(
                     '${DateFormat('dd MMM yyyy').format(shift.date)}  •  ${shift.shiftType}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
                         color: ErpColors.textPrimary),
                   ),
                   const SizedBox(height: 2),
                   Row(children: [
-                    const Icon(Icons.precision_manufacturing_outlined,
+                    Icon(Icons.precision_manufacturing_outlined,
                         size: 11, color: ErpColors.textMuted),
                     const SizedBox(width: 3),
                     Expanded(
                       child: Text(shift.machineName,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textSecondary, fontSize: 11),
                           overflow: TextOverflow.ellipsis),
                     ),
@@ -661,7 +661,7 @@ class _ShiftRow extends StatelessWidget {
                     color: effColor,
                     fontWeight: FontWeight.w900,
                     fontSize: 16)),
-            const Text('efficiency',
+            Text('efficiency',
                 style: TextStyle(color: ErpColors.textMuted, fontSize: 9)),
             const SizedBox(height: 4),
             SizedBox(
@@ -678,7 +678,7 @@ class _ShiftRow extends StatelessWidget {
             ),
           ]),
           const SizedBox(width: 6),
-          const Icon(Icons.chevron_right_rounded,
+          Icon(Icons.chevron_right_rounded,
               color: ErpColors.textMuted, size: 16),
         ]),
       ),
@@ -719,18 +719,18 @@ class _ErrorState extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: ErpColors.borderLight),
         ),
-        child: const Icon(Icons.error_outline,
+        child: Icon(Icons.error_outline,
             size: 34, color: ErpColors.textMuted),
       ),
       const SizedBox(height: 14),
-      const Text('Failed to load',
+      Text('Failed to load',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(message,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

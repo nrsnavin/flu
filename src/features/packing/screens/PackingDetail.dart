@@ -45,7 +45,7 @@ class _PackingDetailPageState extends State<PackingDetailPage> {
         builder: (ctx, setLocal) => AlertDialog(
           backgroundColor: ErpColors.bgSurface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          title: const Text('Correct packed meters',
+          title: Text('Correct packed meters',
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
           content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
             TextField(
@@ -66,7 +66,7 @@ class _PackingDetailPageState extends State<PackingDetailPage> {
               decoration: InputDecoration(
                 labelText: 'Reason *',
                 hintText: 'Why is this being corrected? (audit log)',
-                hintStyle: const TextStyle(fontSize: 11, color: ErpColors.textMuted),
+                hintStyle: TextStyle(fontSize: 11, color: ErpColors.textMuted),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               ),
             ),
@@ -112,7 +112,7 @@ class _PackingDetailPageState extends State<PackingDetailPage> {
       appBar: _buildAppBar(),
       body: Obx(() {
         if (c.isLoading.value) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(color: ErpColors.accentBlue));
         }
         if (c.errorMsg.value != null || c.packing.value == null) {
@@ -162,7 +162,7 @@ class _PackingDetailPageState extends State<PackingDetailPage> {
           children: [
             Text(p != null ? 'Job #${p.jobOrderNo}' : 'Packing Detail',
                 style: ErpTextStyles.pageTitle),
-            const Text('Packing  ›  Box Detail',
+            Text('Packing  ›  Box Detail',
                 style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 10)),
           ],
@@ -189,7 +189,7 @@ class _PackingDetailPageState extends State<PackingDetailPage> {
               if (v == 'edit') _editMeter(p);
               if (v == 'delete') _deleteRecord();
             },
-            itemBuilder: (_) => const [
+            itemBuilder: (_) => [
               PopupMenuItem(value: 'edit', child: Row(children: [
                 Icon(Icons.edit_outlined, size: 16, color: ErpColors.textPrimary),
                 SizedBox(width: 8), Text('Correct meters'),
@@ -234,7 +234,7 @@ class _HeroCard extends StatelessWidget {
         // Navy header
         Container(
           padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: ErpColors.navyDark,
             borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
           ),
@@ -247,7 +247,7 @@ class _HeroCard extends StatelessWidget {
                 border: Border.all(
                     color: ErpColors.accentBlue.withOpacity(0.5)),
               ),
-              child: const Icon(Icons.inventory_2_outlined,
+              child: Icon(Icons.inventory_2_outlined,
                   size: 26, color: ErpColors.accentBlue),
             ),
             const SizedBox(width: 14),
@@ -262,12 +262,12 @@ class _HeroCard extends StatelessWidget {
                           fontWeight: FontWeight.w900)),
                   const SizedBox(height: 3),
                   Row(children: [
-                    const Icon(Icons.business_outlined,
+                    Icon(Icons.business_outlined,
                         size: 11, color: ErpColors.textOnDarkSub),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(p.customerName,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: ErpColors.textOnDarkSub,
                               fontSize: 11),
                           overflow: TextOverflow.ellipsis),
@@ -275,11 +275,11 @@ class _HeroCard extends StatelessWidget {
                   ]),
                   const SizedBox(height: 2),
                   Row(children: [
-                    const Icon(Icons.receipt_outlined,
+                    Icon(Icons.receipt_outlined,
                         size: 11, color: ErpColors.textOnDarkSub),
                     const SizedBox(width: 4),
                     Text('PO: ${p.po}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textOnDarkSub, fontSize: 11)),
                   ]),
                 ],
@@ -291,7 +291,7 @@ class _HeroCard extends StatelessWidget {
                   final d = DateTime.tryParse(p.date);
                   return d != null ? DateFormat('dd MMM yyyy').format(d) : '—';
                 })(),
-                style: const TextStyle(
+                style: TextStyle(
                     color: ErpColors.textOnDarkSub, fontSize: 10)),
             ]),
           ]),
@@ -331,14 +331,14 @@ class _StatBox extends StatelessWidget {
       Icon(icon, size: 13, color: ErpColors.textMuted),
       const SizedBox(height: 4),
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 9,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5)),
       const SizedBox(height: 3),
       Text(value,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textPrimary,
               fontSize: 12,
               fontWeight: FontWeight.w800),
@@ -414,7 +414,7 @@ class _WeightCard extends StatelessWidget {
             _WeightBox('Gross', p.grossWeight, ErpColors.warningAmber),
           ]),
         ),
-        const Divider(height: 1, color: ErpColors.borderLight),
+        Divider(height: 1, color: ErpColors.borderLight),
         const SizedBox(height: 8),
         ErpInfoRow('Net Weight',   '${p.netWeight.toStringAsFixed(3)} kg'),
         ErpInfoRow('Tare Weight',  '${p.tareWeight.toStringAsFixed(3)} kg'),
@@ -437,7 +437,7 @@ class _WeightBox extends StatelessWidget {
               color: color, fontSize: 15, fontWeight: FontWeight.w900)),
       const SizedBox(height: 2),
       Text('$label kg',
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textMuted,
               fontSize: 9,
               fontWeight: FontWeight.w700)),
@@ -491,7 +491,7 @@ class _QcRow extends StatelessWidget {
               fontWeight: FontWeight.w700)),
       const Spacer(),
       Text(value,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w800)),
@@ -578,13 +578,13 @@ class _PdfActionsState extends State<_PdfActions> {
         child: OutlinedButton.icon(
           onPressed: _generating ? null : _openPdf, // opens PDF viewer, user can print from there
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: ErpColors.accentBlue),
+            side: BorderSide(color: ErpColors.accentBlue),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8)),
           ),
-          icon: const Icon(Icons.print_outlined,
+          icon: Icon(Icons.print_outlined,
               size: 18, color: ErpColors.accentBlue),
-          label: const Text('Print',
+          label: Text('Print',
               style: TextStyle(
                   color: ErpColors.accentBlue,
                   fontWeight: FontWeight.w700,
@@ -603,16 +603,16 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
+      Icon(Icons.error_outline, size: 40, color: ErpColors.textMuted),
       const SizedBox(height: 12),
-      const Text('Failed to load',
+      Text('Failed to load',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
               color: ErpColors.textPrimary)),
       const SizedBox(height: 4),
       Text(msg,
-          style: const TextStyle(
+          style: TextStyle(
               color: ErpColors.textSecondary, fontSize: 12),
           textAlign: TextAlign.center),
       const SizedBox(height: 14),

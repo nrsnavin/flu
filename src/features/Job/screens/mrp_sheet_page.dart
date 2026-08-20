@@ -26,7 +26,7 @@ class MrpSheetPage extends StatelessWidget {
       backgroundColor: ErpColors.bgBase,
       appBar: AppBar(
         backgroundColor: ErpColors.navyDark,
-        title: const Text('MRP Sheet', style: ErpTextStyles.pageTitle),
+        title: Text('MRP Sheet', style: ErpTextStyles.pageTitle),
         actions: [
           Obx(() => IconButton(
                 tooltip: 'Open PDF',
@@ -125,12 +125,12 @@ class _MetaCard extends StatelessWidget {
                   SizedBox(
                     width: 110,
                     child: Text(r[0],
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textSecondary, fontSize: 12)),
                   ),
                   Expanded(
                     child: Text(r[1],
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: ErpColors.textPrimary,
                             fontWeight: FontWeight.w600)),
                   ),
@@ -185,7 +185,7 @@ class _ModeCard extends StatelessWidget {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  const Icon(Icons.store_mall_directory_outlined,
+                  Icon(Icons.store_mall_directory_outlined,
                       size: 16, color: ErpColors.textSecondary),
                   const SizedBox(width: 6),
                   Expanded(
@@ -193,7 +193,7 @@ class _ModeCard extends StatelessWidget {
                       ctrl.outsourceVendor.isEmpty
                           ? 'No vendor set'
                           : 'Vendor: ${ctrl.outsourceVendor}',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textPrimary,
                           fontWeight: FontWeight.w500),
                     ),
@@ -302,7 +302,7 @@ class _ElasticsCard extends StatelessWidget {
       title: 'Elastics to produce',
       icon: Icons.linear_scale,
       child: elastics.isEmpty
-          ? const Text('No elastic lines on this job.',
+          ? Text('No elastic lines on this job.',
               style: TextStyle(color: ErpColors.textSecondary))
           : Column(
               children: [
@@ -313,12 +313,12 @@ class _ElasticsCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(e['name']?.toString() ?? 'Unknown',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: ErpColors.textPrimary,
                                   fontWeight: FontWeight.w500)),
                         ),
                         Text('${_fmt(e['quantity'])} m',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: ErpColors.textSecondary)),
                       ],
                     ),
@@ -350,9 +350,9 @@ class _MaterialsCard extends StatelessWidget {
               Expanded(flex: 3, child: _Th('Short', right: true)),
             ],
           ),
-          const Divider(color: ErpColors.borderLight),
+          Divider(color: ErpColors.borderLight),
           if (materials.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Text('No BOM materials resolved for this job.',
                   style: TextStyle(color: ErpColors.textSecondary)),
@@ -367,7 +367,7 @@ class _MaterialsCard extends StatelessWidget {
                 color: ErpColors.errorRed.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
                       size: 16, color: ErpColors.errorRed),
@@ -407,12 +407,12 @@ class _MaterialRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary,
                         fontWeight: FontWeight.w500)),
                 if (cat.isNotEmpty)
                   Text(cat,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: ErpColors.textMuted, fontSize: 11)),
               ],
             ),
@@ -463,7 +463,7 @@ class _SignatureSlot extends StatelessWidget {
         const SizedBox(height: 4),
         Text(label,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
                 color: ErpColors.textSecondary, fontSize: 11)),
       ],
     );
@@ -477,7 +477,7 @@ class _Th extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(text,
       textAlign: right ? TextAlign.right : TextAlign.left,
-      style: const TextStyle(
+      style: TextStyle(
           color: ErpColors.textSecondary,
           fontSize: 11,
           fontWeight: FontWeight.w700));
@@ -520,14 +520,14 @@ class _Card extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(title,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: ErpColors.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 15)),
               ),
             ],
           ),
-          const Divider(color: ErpColors.borderLight),
+          Divider(color: ErpColors.borderLight),
           const SizedBox(height: 4),
           child,
         ],
@@ -548,11 +548,11 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: ErpColors.errorRed, size: 40),
+            Icon(Icons.error_outline, color: ErpColors.errorRed, size: 40),
             const SizedBox(height: 12),
             Text(message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: ErpColors.textSecondary)),
+                style: TextStyle(color: ErpColors.textSecondary)),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: onRetry,

@@ -7,6 +7,30 @@ import '../models/user.dart';
 import '../screens/home.dart';
 import 'storage_keys.dart';
 
+/// The outcome of asking for a sign-in code.
+///
+/// Three states rather than a bool, because each sends the person
+/// somewhere different: on to the code screen, over to the password
+/// screen, or back to the email field with a reason.
+class OtpRequest {
+  final bool sent;
+
+  /// The server has no mail configured at all (503
+  /// MAILER_NOT_CONFIGURED). Not a retry — this route is closed until
+  /// somebody sets up SMTP.
+  final bool mailerDown;
+
+  /// Why it failed, in the server's own words where there were any.
+  final String? message;
+
+  const OtpRequest.sent()
+      : sent = true, mailerDown = false, message = null;
+  const OtpRequest.mailerDown()
+      : sent = false, mailerDown = true, message = null;
+  const OtpRequest.failed(this.message)
+      : sent = false, mailerDown = false;
+}
+
 class LoginController extends GetxController {
   // Lazy registration so `buildActorPayload()` (and any other caller)
   // always gets a controller back, even if the user opened a deep
@@ -72,9 +96,18 @@ class LoginController extends GetxController {
     }
   }
 
-  // ── Manual login ──────────────────────────────────────────────────────
+  // ── Password login ────────────────────────────────────────────────────
+  //
+  //  The fallback, and the reason it exists: email OTP is the front door,
+  //  but it has a dependency the person signing in can neither see nor
+  //  fix. When SMTP is down the door does not open for ANYBODY, and this
+  //  endpoint is the way in — the same reasoning, and the same three
+  //  routes to it, as the web login (prod_web LoginPage.tsx).
+  //
+  //  Returns true when the session was established; the caller keeps the
+  //  form up on false.
 
-  void tryLogin(String email, String password) async {
+  Future<bool> tryLogin(String email, String password) async {
     isLoading.value = true;
     try {
       final response = await _dio.post(
@@ -101,10 +134,11 @@ class LoginController extends GetxController {
         user.value       = u;
         isLoggedIn.value = true;
         Get.offAll(() => Home());
-      } else {
-        Get.snackbar('Login Failed', 'Unexpected server response.',
-            snackPosition: SnackPosition.BOTTOM);
+        return true;
       }
+      Get.snackbar('Login Failed', 'Unexpected server response.',
+          snackPosition: SnackPosition.BOTTOM);
+      return false;
     } on DioException catch (e) {
       // Distinguish "the server rejected the credentials" (there IS a
       // response) from "the request never reached the server" (no response
@@ -132,9 +166,11 @@ class LoginController extends GetxController {
         }
       }
       Get.snackbar(title, msg, snackPosition: SnackPosition.BOTTOM);
+      return false;
     } catch (e) {
       Get.snackbar('Login Failed', 'Something went wrong. Please try again.',
           snackPosition: SnackPosition.BOTTOM);
+      return false;
     } finally {
       isLoading.value = false;
     }
@@ -148,27 +184,50 @@ class LoginController extends GetxController {
   final RxBool isRequestingOtp = false.obs;
   final RxBool isVerifyingOtp  = false.obs;
 
-  // Returns true if the request was accepted (backend always replies
-  // generically), false on a network failure.
-  Future<bool> requestOtp(String email) async {
+  /// What asking for a code actually did.
+  ///
+  /// This used to be a bool, and it was wrong twice over:
+  ///
+  ///   * `validateStatus: (s) => s < 500` made a 404 count as success, so
+  ///     an email with no account advanced to the code screen and the
+  ///     person sat typing codes at a door that was never going to open.
+  ///     The server says "No account found for …" and nothing showed it.
+  ///
+  ///   * a server with no SMTP answers 503 MAILER_NOT_CONFIGURED. That is
+  ///     a dead end for this route, not something to retry — and a bool
+  ///     could only report it as "failed", leaving the person on a form
+  ///     whose one button re-runs the thing that just failed.
+  ///
+  /// Three outcomes, because there are three different next steps.
+  Future<OtpRequest> requestOtp(String email) async {
     isRequestingOtp.value = true;
     try {
-      await _dio.post(
-        '/user/request-otp',
-        data: {'email': email.trim()},
-        options: Options(validateStatus: (s) => s != null && s < 500),
-      );
-      return true;
+      await _dio.post('/user/request-otp', data: {'email': email.trim()});
+      return const OtpRequest.sent();
     } on DioException catch (e) {
-      final msg = e.response != null
-          ? 'Something went wrong. Please try again.'
-          : 'Could not reach the server. Check your connection and try again.';
-      Get.snackbar('Could not send code', msg, snackPosition: SnackPosition.BOTTOM);
-      return false;
+      final data = e.response?.data;
+      final code = data is Map ? data['code']?.toString() : null;
+
+      // No mailer on this box. Hand over the other door rather than
+      // describing the locked one.
+      if (code == 'MAILER_NOT_CONFIGURED') {
+        return const OtpRequest.mailerDown();
+      }
+
+      if (e.response != null) {
+        // The server's own words — "No account found for x@y.com. Check
+        // the address, or ask an administrator to create your login." is
+        // worth vastly more than "something went wrong".
+        return OtpRequest.failed(
+          (data is Map ? data['message']?.toString() : null) ??
+              'Something went wrong. Please try again.',
+        );
+      }
+      return const OtpRequest.failed(
+          'Could not reach the server. Check your connection and try again.');
     } catch (_) {
-      Get.snackbar('Could not send code', 'Something went wrong. Please try again.',
-          snackPosition: SnackPosition.BOTTOM);
-      return false;
+      return const OtpRequest.failed(
+          'Something went wrong. Please try again.');
     } finally {
       isRequestingOtp.value = false;
     }

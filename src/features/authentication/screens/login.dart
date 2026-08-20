@@ -6,14 +6,44 @@ import 'package:get/get.dart';
 import 'package:production/src/features/authentication/controllers/login_controller.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
+import 'forgot_password.dart';
 
 // ══════════════════════════════════════════════════════════════
-//  LOGIN — email-OTP (two step)
+//  SIGNING IN WHEN THE CODE CANNOT COME
 //
-//  Step 1: enter email → request a 6-digit code.
-//  Step 2: enter the code → verify → Home.
-//  Password login is retired from the UI (the /login-user endpoint
-//  stays server-side as an emergency fallback).
+//  Email OTP is the front door and stays the front door. But it has a
+//  dependency the person signing in can neither see nor fix — a
+//  working mail server — and when that dependency is down the door
+//  does not open for ANYBODY. /login-user has been sitting on the
+//  backend the whole time for exactly this, and nothing on the phone
+//  linked to it, so an SMTP outage locked the factory floor out of the
+//  app with the fix already deployed and unreachable.
+//
+//  This mirrors the web login (prod_web LoginPage.tsx) deliberately,
+//  down to which words appear where: two sign-in screens that disagree
+//  about how to get in are two things to explain to a new operator.
+//
+//  The password screen is reachable three ways:
+//
+//    1. A link under the primary button. An advertised password route
+//       arguably undoes the reason OTP is primary — but the two
+//       automatic routes below both depend on the server behaving in a
+//       particular way, and a way out that only opens when the system
+//       is well enough to open it is not a way out.
+//
+//    2. The server says outright it cannot send. /request-otp answers
+//       503 MAILER_NOT_CONFIGURED when the box has no SMTP settings —
+//       a definite answer, so go straight there rather than making
+//       somebody read an error and guess.
+//
+//    3. From the code screen, for when SMTP is configured but the send
+//       fails. The server deliberately stays quiet about that (a
+//       failure raised only for addresses that HAVE an account would
+//       name them), so nothing can tell this screen — the link simply
+//       sits there from the moment it opens.
+//
+//  The password FIELD is never on the first screen. Reaching it is a
+//  deliberate second step.
 // ══════════════════════════════════════════════════════════════
 
 class Login extends StatefulWidget {
@@ -22,13 +52,15 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-enum _Step { email, code }
+enum _Step { email, code, password }
 
 class _LoginState extends State<Login> {
   final _emailFormKey = GlobalKey<FormState>();
   final _codeFormKey  = GlobalKey<FormState>();
+  final _pwFormKey    = GlobalKey<FormState>();
   final _emailCtrl    = TextEditingController();
   final _otpCtrl      = TextEditingController();
+  final _pwCtrl       = TextEditingController();
 
   final _c = Get.find<LoginController>();
 
@@ -36,10 +68,21 @@ class _LoginState extends State<Login> {
   int _resendIn = 0;
   Timer? _timer;
 
+  /// Why we are on the password screen. The two routes there want
+  /// different words: "this server cannot send codes" is a fact worth
+  /// stating, and it also tells whoever runs the server where to look.
+  /// "You said the code never came" is not worth stating back.
+  bool _mailerDown = false;
+
+  /// The last thing the server said, shown in place rather than as a
+  /// snackbar that slides away while somebody is still reading it.
+  String? _serverError;
+
   @override
   void dispose() {
     _emailCtrl.dispose();
     _otpCtrl.dispose();
+    _pwCtrl.dispose();
     _timer?.cancel();
     super.dispose();
   }
@@ -57,23 +100,80 @@ class _LoginState extends State<Login> {
   Future<void> _sendCode() async {
     if (!_emailFormKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    final ok = await _c.requestOtp(_emailCtrl.text.trim());
-    if (ok && mounted) {
+    setState(() => _serverError = null);
+
+    final r = await _c.requestOtp(_emailCtrl.text.trim());
+    if (!mounted) return;
+
+    if (r.sent) {
       setState(() => _step = _Step.code);
       _startResendCountdown();
+      return;
     }
+    // A server with no mailer is a dead end for this route. Showing
+    // "no email configured" and leaving somebody on a form whose only
+    // button re-runs what just failed is a wall, not a message.
+    if (r.mailerDown) {
+      _goToPassword(becauseMailerIsDown: true);
+      return;
+    }
+    setState(() => _serverError = r.message);
   }
 
   Future<void> _resend() async {
     if (_resendIn > 0) return;
-    final ok = await _c.requestOtp(_emailCtrl.text.trim());
-    if (ok && mounted) _startResendCountdown();
+    final r = await _c.requestOtp(_emailCtrl.text.trim());
+    if (!mounted) return;
+    if (r.sent) {
+      _startResendCountdown();
+    } else if (r.mailerDown) {
+      _goToPassword(becauseMailerIsDown: true);
+    } else {
+      setState(() => _serverError = r.message);
+    }
+  }
+
+  void _goToPassword({required bool becauseMailerIsDown}) {
+    _timer?.cancel();
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _mailerDown  = becauseMailerIsDown;
+      _serverError = null;
+      _otpCtrl.clear();
+      _step = _Step.password;
+    });
+  }
+
+  /// Route to the password screen through the SAME validation as the
+  /// primary button, so the address is checked once and cannot arrive
+  /// there empty or malformed.
+  void _usePasswordFromEmailStep() {
+    if (!_emailFormKey.currentState!.validate()) return;
+    _goToPassword(becauseMailerIsDown: false);
+  }
+
+  void _backToEmail() {
+    _timer?.cancel();
+    setState(() {
+      _step = _Step.email;
+      _serverError = null;
+      _otpCtrl.clear();
+      _pwCtrl.clear();
+    });
   }
 
   void _verify() {
     if (!_codeFormKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
+    setState(() => _serverError = null);
     _c.verifyOtp(_emailCtrl.text.trim(), _otpCtrl.text.trim());
+  }
+
+  Future<void> _signInWithPassword() async {
+    if (!_pwFormKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
+    setState(() => _serverError = null);
+    await _c.tryLogin(_emailCtrl.text.trim(), _pwCtrl.text);
   }
 
   @override
@@ -130,7 +230,11 @@ class _LoginState extends State<Login> {
               ),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-                child: _step == _Step.email ? _emailStep() : _codeStep(),
+                child: switch (_step) {
+                  _Step.email    => _emailStep(),
+                  _Step.code     => _codeStep(),
+                  _Step.password => _passwordStep(),
+                },
               ),
             ),
           ),
@@ -172,6 +276,10 @@ class _LoginState extends State<Login> {
             onFieldSubmitted: (_) => _sendCode(),
           ),
         ),
+        if (_serverError != null) ...[
+          const SizedBox(height: 14),
+          _errorBox(_serverError!),
+        ],
         const SizedBox(height: 32),
         Obx(() => _primaryButton(
               label: 'SEND CODE',
@@ -179,7 +287,28 @@ class _LoginState extends State<Login> {
               loading: _c.isRequestingOtp.value,
               onPressed: _sendCode,
             )),
-        const SizedBox(height: 28),
+
+        // A text link under the primary button, not a password field:
+        // the default action is still "send me a code".
+        const SizedBox(height: 18),
+        Divider(color: ErpColors.borderLight, height: 1),
+        const SizedBox(height: 10),
+        Center(
+          child: TextButton(
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onPressed: _usePasswordFromEmailStep,
+            child: Text('Sign in with a password instead',
+                style: TextStyle(
+                    color: ErpColors.accentBlue,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700)),
+          ),
+        ),
+        const SizedBox(height: 18),
         Center(
           child: Text('Anu Tapes Factory ERP  ·  v1.0',
               style: TextStyle(color: ErpColors.textMuted, fontSize: 11)),
@@ -187,6 +316,139 @@ class _LoginState extends State<Login> {
       ],
     );
   }
+
+  // ── Step 2b: password ──────────────────────────────────────
+  Widget _passwordStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 48, height: 48,
+          decoration: BoxDecoration(
+            color: ErpColors.accentBlue.withOpacity(0.10),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(Icons.key_rounded, size: 24, color: ErpColors.accentBlue),
+        ),
+        const SizedBox(height: 14),
+        Text('Sign in with your password',
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.w900,
+                color: ErpColors.textPrimary)),
+        const SizedBox(height: 4),
+        if (_mailerDown)
+          // Worth stating plainly: it is not their email that is
+          // broken, and it is not something they can fix by trying
+          // again. It also tells whoever runs the server what to look
+          // at.
+          Text(
+            "This server can't send sign-in codes at the moment — its "
+            "email isn't set up. Use your password instead, and let your "
+            "administrator know.",
+            style: TextStyle(
+                color: ErpColors.textSecondary, fontSize: 13, height: 1.4),
+          )
+        else
+          Text.rich(TextSpan(
+            style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
+            children: [
+              const TextSpan(text: 'Signing in as '),
+              TextSpan(
+                  text: _emailCtrl.text.trim(),
+                  style: TextStyle(
+                      color: ErpColors.textPrimary,
+                      fontWeight: FontWeight.w700)),
+              const TextSpan(text: '.'),
+            ],
+          )),
+        const SizedBox(height: 26),
+        Form(
+          key: _pwFormKey,
+          child: TextFormField(
+            controller: _pwCtrl,
+            obscureText: true,
+            autofocus: true,
+            // So a password manager can match the credential to the
+            // account it belongs to.
+            autofillHints: const [AutofillHints.password],
+            textInputAction: TextInputAction.done,
+            style: ErpTextStyles.fieldValue,
+            decoration: ErpDecorations.formInput(
+              'Password',
+              hint: 'Enter your password',
+              prefix: Icon(Icons.lock_outline_rounded,
+                  size: 18, color: ErpColors.textMuted),
+            ),
+            validator: (v) =>
+                (v == null || v.isEmpty) ? 'Password is required' : null,
+            onFieldSubmitted: (_) => _signInWithPassword(),
+          ),
+        ),
+        if (_serverError != null) ...[
+          const SizedBox(height: 14),
+          _errorBox(_serverError!),
+        ],
+        const SizedBox(height: 24),
+        Obx(() => _primaryButton(
+              label: 'SIGN IN',
+              icon: Icons.login_rounded,
+              loading: _c.isLoading.value,
+              onPressed: _signInWithPassword,
+            )),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton.icon(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: _backToEmail,
+              icon: Icon(Icons.arrow_back_ios_new,
+                  size: 13, color: ErpColors.accentBlue),
+              label: Text('Back to sign-in',
+                  style: TextStyle(
+                      color: ErpColors.accentBlue,
+                      fontSize: 13, fontWeight: FontWeight.w700)),
+            ),
+
+            // Withheld when the server has told us it cannot send
+            // email: a reset link arrives the same way a sign-in code
+            // does. Offering it here would be a second dead end
+            // dressed as a way out.
+            if (!_mailerDown)
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onPressed: () => Get.to(() => const ForgotPasswordScreen()),
+                child: Text('Forgot password?',
+                    style: TextStyle(
+                        color: ErpColors.accentBlue,
+                        fontSize: 13, fontWeight: FontWeight.w700)),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _errorBox(String text) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: ErpColors.errorRed.withOpacity(0.07),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: ErpColors.errorRed.withOpacity(0.25)),
+        ),
+        child: Text(text,
+            style: TextStyle(
+                color: ErpColors.errorRed, fontSize: 12.5, height: 1.4)),
+      );
 
   // ── Step 2: code ───────────────────────────────────────────
   Widget _codeStep() {
@@ -282,6 +544,30 @@ class _LoginState extends State<Login> {
               ),
             ),
           ],
+        ),
+
+        // Route 3. SMTP is configured but the send failed — the server
+        // deliberately says nothing, because a failure raised only for
+        // addresses that HAVE an account would name them. Nothing can
+        // tell this screen, so the link sits here from the moment it
+        // opens rather than appearing after some number of attempts.
+        const SizedBox(height: 18),
+        Divider(color: ErpColors.borderLight, height: 1),
+        const SizedBox(height: 10),
+        Center(
+          child: TextButton(
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onPressed: () => _goToPassword(becauseMailerIsDown: false),
+            child: Text("Code didn't arrive? Sign in with your password",
+                style: TextStyle(
+                    color: ErpColors.accentBlue,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700)),
+          ),
         ),
       ],
     );

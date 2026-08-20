@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../features/Job/screens/job_detail.dart';
 import '../features/packing/screens/PackingDetail.dart';
+import '../features/shift/screens/shift_detail.dart';
 import '../features/PurchaseOrder/services/theme.dart';
 import 'api_client.dart';
 import 'app_config.dart';
@@ -18,8 +19,8 @@ import 'scan.dart';
 //  module list, then a search box, then a row.
 //
 //  ── Two costs, and they are not the same ───────────────────────
-//  A job label and a box label both carry their own id, so those
-//  open with no server call at all — the screen is pushed before the
+//  A job label, a box label and a shift-sheet row all carry their
+//  own id, so those open with no server call at all — the screen is pushed before the
 //  camera sheet has finished closing. The beam labels carry only a
 //  job NUMBER, so those cost one round trip to /job/by-number.
 //
@@ -65,6 +66,12 @@ Future<void> openScannedCode(ScannedCode code) async {
       case ScanTarget.packing:
         Get.to(() => const PackingDetailPage(), arguments: code.id);
         return;
+      case ScanTarget.shift:
+        // The row's id IS the ShiftDetail id — utils/shiftSheetPdf.js
+        // encodes `sdId: d._id` off the plan, and the controller here
+        // fetches /shift/shiftDetail?id= with exactly that.
+        Get.to(() => ShiftDetailPage(shiftId: code.id!));
+        return;
       case ScanTarget.job:
         Get.to(() => JobDetailPage(), arguments: code.id);
         return;
@@ -76,14 +83,12 @@ Future<void> openScannedCode(ScannedCode code) async {
   // ── The beam labels: a job number, and one hop ───────────────
   final jobNo = code.jobNo;
   if (jobNo == null) {
-    _say(
-      'Nothing to open',
-      code.label == null
-          ? 'That code is not one of ours.'
-          : 'That ${code.label} label does not name a job. It was printed '
-              'before the job was linked, and needs reprinting.',
-      bad: true,
-    );
+    // Each recognised-but-unusable label has its own reason, and they
+    // are not interchangeable: a beam label printed too early needs
+    // reprinting, a shift short code needs the operator to aim at the
+    // square code instead. Saying the wrong one sends them to fix
+    // something that is not broken.
+    _say('Nothing to open', scanCodeMessage(code), bad: true);
     return;
   }
 

@@ -4,7 +4,8 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../features/PurchaseOrder/services/theme.dart';
 import 'scan_payload.dart';
 
-export 'scan_payload.dart' show ScannedJob, ScannedCode, ScanTarget;
+export 'scan_payload.dart'
+    show ScannedJob, ScannedCode, ScanTarget, scanCodeMessage;
 
 // ══════════════════════════════════════════════════════════════
 //  SCAN THE JOB LABEL

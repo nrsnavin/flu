@@ -190,4 +190,97 @@ void _checkTargets() {
   check('a corrupt box label says it needs reprinting',
       scanRejectionMessage('BOX||J:').contains('reprinting'),
       'got "${scanRejectionMessage('BOX||J:')}"');
+
+  _checkShiftRows();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  THE SHIFT SHEET ROW
+//
+//  Written by prod utils/shiftSheetPdf.js, not by the web:
+//
+//    SHIFTROW|<shift detail id>|M:<machine ID>|J:<job no>
+//
+//  …with `SD-XXXXXX` printed beside it in the Code column for a
+//  person to read out. The id is ShiftDetail._id, which is what
+//  /shift/shiftDetail?id= takes — so the scan opens the row's own
+//  screen with no lookup.
+// ══════════════════════════════════════════════════════════════
+
+const sdId = '64b1f0c2a9e77d5310cc4482';
+
+void _checkShiftRows() {
+  var c = parseScannedCode('SHIFTROW|$sdId|M:M-14|J:J-1042');
+  check('a shift row targets the shift', c.target == ScanTarget.shift, 'got $c');
+  check('a shift row carries the shift detail id', c.id == sdId, 'got $c');
+  check('a shift row opens without a lookup', c.isDirect, 'got $c');
+
+  // `J:` on THIS label is "J-1042", not "1042" — the printed job
+  // label, because the column is meant to be read.
+  //
+  // Checked by mutation: making SHIFTROW parse `J:` does NOT fail
+  // these, because int.tryParse('J-1042') is null regardless. So the
+  // assertion below pins behaviour that is currently true for a
+  // reason other than the code that expresses it, and the one after
+  // it is the load-bearing one — a shift row opens the SHIFT even if
+  // that column ever starts carrying a bare number.
+  check('a shift row exposes no job number', c.jobNo == null, 'got $c');
+
+  final asIfBare = parseScannedCode('SHIFTROW|$sdId|M:M-14|J:1042');
+  check('a shift row still opens the shift, whatever J: holds',
+      asIfBare.target == ScanTarget.shift && asIfBare.id == sdId,
+      'got $asIfBare');
+
+  // The em-dash again — an unassigned machine or job prints as "—".
+  c = parseScannedCode('SHIFTROW|$sdId|M:—|J:—');
+  check('a shift row with no machine or job still opens',
+      c.target == ScanTarget.shift && c.id == sdId, 'got $c');
+
+  // ── CONTROLS ──────────────────────────────────────────────
+  check('a shift row with a damaged id opens nothing',
+      parseScannedCode('SHIFTROW|xxxx|M:M-14').isEmpty,
+      'got ${parseScannedCode('SHIFTROW|xxxx|M:M-14')}');
+  check('a shift row is not mistaken for a job',
+      parseScannedCode('SHIFTROW|$sdId|M:M-14|J:J-1042').target !=
+          ScanTarget.job);
+  check('a shift row is not offered to the job picker',
+      parseScannedJob('SHIFTROW|$sdId|M:M-14|J:J-1042').isEmpty,
+      'got ${parseScannedJob('SHIFTROW|$sdId|M:M-14|J:J-1042')}');
+
+  // ── The short code is a reading aid, not an identifier ────
+  // Six hex characters against an id space where collisions are
+  // ordinary. Resolving it would eventually open somebody else's
+  // shift, so it is recognised only to say what to do instead.
+  c = parseScannedCode('SD-A3F291');
+  check('the short code opens nothing', c.isEmpty, 'got $c');
+  check('the short code is recognised as one', c.label == 'shift-code',
+      'got $c');
+  check('the short code says to scan the square code instead',
+      scanRejectionMessage('SD-A3F291').contains('square code'),
+      'got "${scanRejectionMessage('SD-A3F291')}"');
+  check('lowercase short code too',
+      parseScannedCode('SD-a3f291').label == 'shift-code');
+
+  check('CONTROL: SD- followed by non-hex is not a short code',
+      parseScannedCode('SD-ZZZZZZ').label == null,
+      'got ${parseScannedCode('SD-ZZZZZZ')}');
+  check('CONTROL: SD- followed by too many chars is not one',
+      parseScannedCode('SD-A3F291B').label == null);
+
+  // ── The two message paths agree ───────────────────────────
+  // scanCodeMessage and scanRejectionMessage used to be one function
+  // that reparsed; the navigator now calls the first directly. If
+  // they ever disagree, one caller is lying to the operator.
+  for (final raw in [
+    'BOX||J:',
+    'WARP|J:—|B:1',
+    'SHIFTROW|xxxx|M:M-14',
+    'SD-A3F291',
+    'PALLET|1|X:2',
+  ]) {
+    check('both message paths agree on "$raw"',
+        scanCodeMessage(parseScannedCode(raw)) == scanRejectionMessage(raw),
+        'code="${scanCodeMessage(parseScannedCode(raw))}" '
+        'raw="${scanRejectionMessage(raw)}"');
+  }
 }

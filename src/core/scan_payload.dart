@@ -1,15 +1,22 @@
 // ══════════════════════════════════════════════════════════════
 //  WHAT CAME OFF THE LABEL
 //
-//  The mill prints four kinds of label, and they do not share a
-//  format. These are the exact strings the web encodes — see
-//  prod_web JobQrPrint.tsx, PackingSlip.tsx, CoveringLabels.tsx and
-//  WarpingPrints.tsx:
+//  The mill prints five kinds of label, and they do not share a
+//  format. These are the exact strings the system encodes — four from
+//  the web (prod_web JobQrPrint.tsx, PackingSlip.tsx,
+//  CoveringLabels.tsx, WarpingPrints.tsx) and one from the server's
+//  own PDF renderer (prod utils/shiftSheetPdf.js):
 //
 //    job       https://<host>/jobs/<mongo id>
 //    box       BOX|<packing id>|J:<job no>
 //    covering  COVB|J:<job no>|C:<covering id>|B:<beam>|E:<entry id>
 //    warping   WARP|J:<job no>|B:<beam>[|T:<tape>]|W:<warping id>
+//    shift     SHIFTROW|<shift detail id>|M:<machine>|J:<job no>
+//
+//  ── `J:` does not mean the same thing twice ────────────────────
+//  On the beam labels it is a bare number, `J:1042`. On the shift
+//  row it is the printed job LABEL, `J:J-1042`, because that column
+//  is meant to be read. Only the beam labels parse it.
 //
 //  …plus, printed under the job code in 13pt, the job NUMBER — put
 //  there on purpose as the thing that survives a smudged code, a flat
@@ -42,6 +49,10 @@ enum ScanTarget {
 
   /// A packing box label.
   packing,
+
+  /// One row of a printed shift sheet — a machine, an operator and a
+  /// job for one shift.
+  shift,
 
   /// Read cleanly, but not one of ours.
   unknown,
@@ -116,6 +127,10 @@ final _jobsPath = RegExp(r'/jobs/([0-9a-fA-F]{24})(?:[/?#]|$)');
 /// A bare job number, with or without a leading hash.
 final _bareNumber = RegExp(r'^#?(\d{1,9})$');
 
+/// The shift sheet's human-readable row code, `SD-A3F291`.
+/// See utils/shiftSheetPdf.js `shortCode`.
+final _shortCode = RegExp(r'^SD-[0-9A-Fa-f]{1,6}$');
+
 /// Pull `K:value` out of a pipe-delimited label.
 ///
 /// Returns null when the key is absent, when its value is empty, or
@@ -176,6 +191,28 @@ ScannedCode parseScannedCode(String? raw) {
           label: 'box',
         );
 
+      case 'SHIFTROW':
+        // One row of the printed shift sheet:
+        //   SHIFTROW|<shift detail id>|M:<machine ID>|J:<job no>
+        // …written by utils/shiftSheetPdf.js, whose own comment says
+        // it encodes the full id "for a future scanner". This is it.
+        //
+        // The id is positional, like BOX. `M:` and `J:` are on the
+        // label so a person can read the row without the system, and
+        // are deliberately NOT parsed: `J:` here carries a PREFIXED
+        // number ("J-1042", not "1042"), unlike the beam labels, so
+        // running it through _fieldNo would quietly yield nothing and
+        // invite somebody to "fix" it later.
+        final sdId = parts.length > 1 && _objectId.hasMatch(parts[1])
+            ? parts[1]
+            : null;
+        if (sdId == null) return const ScannedCode(label: 'shift');
+        return ScannedCode(
+          target: ScanTarget.shift,
+          id: sdId,
+          label: 'shift',
+        );
+
       case 'COVB':
         // A covering beam. It names its job by NUMBER only, so there
         // is nothing to open without a lookup.
@@ -228,6 +265,16 @@ ScannedCode parseScannedCode(String? raw) {
     }
   }
 
+  // The short code printed in the Code column of the shift sheet —
+  // `SD-A3F291`, the last six hex of the row's id, upper-cased. It is
+  // there for a person to read out, NOT to identify a row: six hex
+  // characters is 16 million values against an id space where
+  // collisions are ordinary, so resolving it would eventually open
+  // somebody else's shift. Recognised only so it can say so.
+  if (_shortCode.hasMatch(s)) {
+    return const ScannedCode(label: 'shift-code');
+  }
+
   // A URL that is not a job label, or anything else at all.
   return const ScannedCode();
 }
@@ -250,29 +297,44 @@ ScannedJob parseScannedJob(String? raw) {
   return const ScannedJob();
 }
 
-/// Say why a scan did not select anything, in words an operator can
-/// act on rather than "invalid code".
-String scanRejectionMessage(String? raw) {
-  final s = (raw ?? '').trim();
-  if (s.isEmpty) return 'Nothing was read from that code.';
-
-  final c = parseScannedCode(s);
-
+/// Say why a parsed code leads nowhere, in words an operator can act
+/// on rather than "invalid code".
+///
+/// Takes the PARSED code rather than the raw string, so a caller that
+/// has already parsed does not parse again — and, more to the point,
+/// so the two callers cannot drift into giving different reasons for
+/// the same label. [wasLink] covers the one case the parsed form
+/// throws away: whether the raw text was a URL.
+String scanCodeMessage(ScannedCode c, {bool wasLink = false}) {
   // A label we recognise that carries nothing usable is a different
   // problem from a label we do not recognise, and saying so is the
   // difference between "reprint this" and "you scanned the wrong
   // thing".
-  if (c.label == 'box') {
-    return 'That is a packing label, but it does not name a box or a job. '
-        'It needs reprinting.';
+  switch (c.label) {
+    case 'box':
+      return 'That is a packing label, but it does not name a box or a job. '
+          'It needs reprinting.';
+    case 'shift':
+      return 'That is a shift sheet row, but its code is damaged. Scan '
+          'another row, or open the shift from the list.';
+    case 'shift-code':
+      return 'That is the short code printed for reading aloud, not for '
+          'scanning. Scan the square code in the QR column beside it.';
+    case 'covering':
+    case 'warping':
+      return 'That ${c.label} label was printed before its job was linked, '
+          'so it does not name one. Pick the job from the list.';
   }
-  if (c.label == 'covering' || c.label == 'warping') {
-    return 'That ${c.label} label was printed before its job was linked, '
-        'so it does not name one. Pick the job from the list.';
-  }
-  if (s.startsWith('http')) {
+  if (wasLink) {
     return 'That is a link, but not a job label. Scan the square code on '
         'the job label.';
   }
   return 'That code is not one of ours.';
+}
+
+/// The same, from the raw string the camera read.
+String scanRejectionMessage(String? raw) {
+  final s = (raw ?? '').trim();
+  if (s.isEmpty) return 'Nothing was read from that code.';
+  return scanCodeMessage(parseScannedCode(s), wasLink: s.startsWith('http'));
 }

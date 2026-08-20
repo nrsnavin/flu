@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import 'package:production/src/core/features.dart';
+import 'package:production/src/features/authentication/controllers/login_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:production/src/features/Covering/screens/covering_list.dart';
@@ -59,12 +62,26 @@ class NavModule {
   final List<String> keywords;
   final VoidCallback open;
 
+  /// The permission this module answers to — a key from
+  /// `core/features.dart`, which mirrors the web nav and the server's
+  /// utils/features.js.
+  ///
+  /// Several modules deliberately BORROW a parent's key rather than
+  /// minting their own. Stock Counts uses '/materials' because the
+  /// server gates /api/v2/stock-counts on requireFeature('/materials')
+  /// and never registered '/stock-counts'; the web hit this and
+  /// documented it — an unregistered key is dropped by
+  /// sanitizeFeatures(), so ticking the box on the Users screen saves
+  /// nothing and the module stays hidden with no error to explain it.
+  final String feature;
+
   const NavModule({
     required this.id,
     required this.label,
     required this.icon,
     required this.section,
     required this.open,
+    required this.feature,
     this.keywords = const [],
   });
 }
@@ -90,10 +107,42 @@ class NavRegistry extends GetxController {
   final pinned  = <String>[].obs; // ordered, user-controlled
   final recents = <String>[].obs; // newest first, capped at _recentsCap
 
+  // ══════════════════════════════════════════════════════════════
+  //  WHO IS LOOKING
+  //
+  //  hasFeature() has existed in core/features.dart since the Users
+  //  screen shipped, mirroring the web's canAccess exactly. It had one
+  //  caller: the dashboard quick-links. This registry — the catalogue
+  //  behind More, AND the global search index — knew nothing about the
+  //  user, so a packing account saw Payroll, Order P&L, Purchase
+  //  Orders, Users and Data Import in the menu and in search results.
+  //
+  //  The API refuses them, so nothing leaked. What it cost was trust:
+  //  a menu that lists what you cannot open is a menu you stop
+  //  believing, and a search that returns it is worse.
+  //
+  //  An empty list means "unrestricted" (legacy accounts and the
+  //  owner), which is hasFeature's own rule — so this is invisible to
+  //  everyone it should be invisible to.
+  // ══════════════════════════════════════════════════════════════
+  final features = <String>[].obs;
+
   late final List<NavModule> _modules;
   Map<String, NavModule> _byId = const {};
 
+  /// Every module in the catalogue, ignoring permissions. Use
+  /// [allowed] for anything a user actually sees.
   List<NavModule> get all => _modules;
+
+  /// The catalogue as it exists for the signed-in user.
+  List<NavModule> get allowed =>
+      _modules.where((m) => hasFeature(features, m.feature)).toList(growable: false);
+
+  bool canOpen(String id) {
+    final m = _byId[id];
+    return m != null && hasFeature(features, m.feature);
+  }
+
   NavModule? byId(String id) => _byId[id];
 
   /// Sections in the canonical display order used by the Modules page.
@@ -107,14 +156,16 @@ class NavRegistry extends GetxController {
     'ANALYTICS',
   ];
 
-  List<NavModule> modulesInSection(String section) =>
-      _modules.where((m) => m.section == section).toList(growable: false);
+  List<NavModule> modulesInSection(String section) => _modules
+      .where((m) => m.section == section && hasFeature(features, m.feature))
+      .toList(growable: false);
 
   @override
   void onInit() {
     super.onInit();
     _modules = _buildCatalog();
     _byId = {for (final m in _modules) m.id: m};
+    _loadFeatures();
     unawaited(_load());
   }
 
@@ -170,9 +221,23 @@ class NavRegistry extends GetxController {
   void open(String id) {
     final m = _byId[id];
     if (m == null) return;
+    // Belt and braces: pinned ids and AI suggestions are persisted, so
+    // a module can be pinned and the permission withdrawn afterwards.
+    if (!hasFeature(features, m.feature)) return;
     m.open();
     recordOpen(id);
   }
+
+  /// Read the signed-in user's permissions. Stored at login, so this
+  /// is a local read and the menu is correct on first paint — no
+  /// flash of modules the user cannot open.
+  Future<void> _loadFeatures() async {
+    features.value = await LoginController.currentFeatures();
+  }
+
+  /// Call after a login or a permission change so the menu re-filters
+  /// without a restart.
+  Future<void> refreshFeatures() => _loadFeatures();
 
   /// Substring + keyword fuzzy match used by the global search sheet.
   /// Case-insensitive. Empty query returns `[]`.
@@ -180,6 +245,7 @@ class NavRegistry extends GetxController {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return const [];
     return _modules.where((m) {
+      if (!hasFeature(features, m.feature)) return false;
       if (m.label.toLowerCase().contains(q)) return true;
       for (final k in m.keywords) {
         if (k.toLowerCase().contains(q)) return true;
@@ -195,7 +261,7 @@ class NavRegistry extends GetxController {
   List<NavModule> _buildCatalog() => [
     // PEOPLE
     NavModule(
-      id: 'employees', label: 'Employees',
+      id: 'employees', feature: '/employees', label: 'Employees',
       icon: Icons.people_alt_rounded, section: 'PEOPLE',
       keywords: const ['staff', 'workers', 'hr'],
       open: () => Get.to(() => const EmployeeListPage()),
@@ -203,120 +269,120 @@ class NavRegistry extends GetxController {
 
     // CUSTOMERS & ORDERS
     NavModule(
-      id: 'customers', label: 'Customers',
+      id: 'customers', feature: '/customers', label: 'Customers',
       icon: Icons.people_alt_outlined, section: 'CUSTOMERS & ORDERS',
       keywords: const ['clients', 'buyers'],
       open: () => Get.to(() => CustomerListPage()),
     ),
     NavModule(
-      id: 'suppliers', label: 'Suppliers',
+      id: 'suppliers', feature: '/suppliers', label: 'Suppliers',
       icon: Icons.shopping_bag_outlined, section: 'CUSTOMERS & ORDERS',
       keywords: const ['vendors'],
       open: () => Get.to(() => SupplierListPage()),
     ),
     NavModule(
-      id: 'samples', label: 'Sample Requests',
+      id: 'samples', feature: '/samples', label: 'Sample Requests',
       icon: Icons.science_outlined, section: 'CUSTOMERS & ORDERS',
       keywords: const ['sample', 'trial', 'swatch', 'shade card'],
       open: () => Get.to(() => const SampleListPageView()),
     ),
     NavModule(
-      id: 'orders', label: 'Orders',
+      id: 'orders', feature: '/orders', label: 'Orders',
       icon: Icons.receipt_long_outlined, section: 'CUSTOMERS & ORDERS',
       keywords: const ['sales orders'],
       open: () => Get.to(() => OrderListPage()),
     ),
     NavModule(
-      id: 'jobs', label: 'Jobs',
+      id: 'jobs', feature: '/jobs', label: 'Jobs',
       icon: Icons.military_tech_outlined, section: 'CUSTOMERS & ORDERS',
       keywords: const ['job orders', 'work orders'],
       open: () => Get.to(() => JobListPage()),
     ),
     NavModule(
-      id: 'po_list', label: 'Purchase Orders',
+      id: 'po_list', feature: '/purchase-orders', label: 'Purchase Orders',
       icon: Icons.request_quote_outlined, section: 'CUSTOMERS & ORDERS',
       keywords: const ['po', 'pos'],
       open: () => Get.to(() => POListPage()),
     ),
     NavModule(
-      id: 'po_add', label: 'Add PO',
+      id: 'po_add', feature: '/purchase-orders', label: 'Add PO',
       icon: Icons.add_shopping_cart_rounded, section: 'CUSTOMERS & ORDERS',
       keywords: const ['new po', 'create po'],
       open: () => Get.to(() => AddPOPage(mode: POFormMode.create)),
     ),
     NavModule(
-      id: 'po_aging', label: 'PO Aging',
+      id: 'po_aging', feature: '/purchase-orders', label: 'PO Aging',
       icon: Icons.hourglass_bottom_rounded, section: 'CUSTOMERS & ORDERS',
       keywords: const ['receipt aging', 'overdue po'],
       open: () => Get.to(() => const POAgingPage()),
     ),
     NavModule(
-      id: 'low_stock_draft', label: 'Draft POs',
+      id: 'low_stock_draft', feature: '/purchase-orders', label: 'Draft POs',
       icon: Icons.edit_note_rounded, section: 'CUSTOMERS & ORDERS',
       keywords: const ['low stock', 'auto po', 'reorder'],
       open: () => Get.to(() => const LowStockDraftPage()),
     ),
     NavModule(
-      id: 'advisor_settings', label: 'Advisor preferences',
+      id: 'advisor_settings', feature: '/advisor', label: 'Advisor preferences',
       icon: Icons.tune_rounded, section: 'CUSTOMERS & ORDERS',
       keywords: const ['advisor', 'ai', 'suggestions', 'preferences'],
       open: () => Get.to(() => const AdvisorSettingsPage()),
     ),
     NavModule(
-      id: 'data_import', label: 'Import data',
+      id: 'data_import', feature: '/data-io', label: 'Import data',
       icon: Icons.upload_file_rounded, section: 'PRODUCTION',
       keywords: const ['excel', 'import', 'raw material', 'elastic', 'xlsx', 'bulk'],
       open: () => Get.to(() => const DataImportPage()),
     ),
     // PRODUCTION
     NavModule(
-      id: 'elastics', label: 'Elastics',
+      id: 'elastics', feature: '/elastics', label: 'Elastics',
       icon: Icons.linear_scale_rounded, section: 'PRODUCTION',
       keywords: const ['sku', 'catalog'],
       open: () => Get.to(() => ElasticListPage()),
     ),
     NavModule(
-      id: 'elastic_stock', label: 'Elastic Stock',
+      id: 'elastic_stock', feature: '/elastics', label: 'Elastic Stock',
       icon: Icons.inventory_outlined, section: 'PRODUCTION',
       keywords: const ['stock map', 'inventory'],
       open: () => Get.to(() => const StockMapPage()),
     ),
     NavModule(
-      id: 'raw_materials', label: 'Raw Materials',
+      id: 'raw_materials', feature: '/materials', label: 'Raw Materials',
       icon: Icons.inventory_2_outlined, section: 'PRODUCTION',
       keywords: const ['yarn', 'materials'],
       open: () => Get.to(() => RawMaterialListPage()),
     ),
     NavModule(
-      id: 'stock_counts', label: 'Stock Counts',
+      id: 'stock_counts', feature: '/materials', label: 'Stock Counts',
       icon: Icons.fact_check_outlined, section: 'INVENTORY',
       keywords: const ['physical inventory', 'count', 'variance', 'stocktake'],
       open: () => Get.to(() => const StockCountListPageView()),
     ),
     NavModule(
-      id: 'stock_adjust', label: 'Stock Adjust',
+      id: 'stock_adjust', feature: '/materials', label: 'Stock Adjust',
       icon: Icons.tune_rounded, section: 'PRODUCTION',
       keywords: const ['adjustment'],
       open: () => Get.to(() => const StockAdjustPage()),
     ),
     NavModule(
-      id: 'warping', label: 'Warping',
+      id: 'warping', feature: '/warping', label: 'Warping',
       icon: Icons.layers_outlined, section: 'PRODUCTION',
       open: () => Get.to(() => WarpingListPage()),
     ),
     NavModule(
-      id: 'covering', label: 'Covering',
+      id: 'covering', feature: '/covering', label: 'Covering',
       icon: Icons.auto_awesome_motion_outlined, section: 'PRODUCTION',
       open: () => Get.to(() => CoveringListPage()),
     ),
     NavModule(
-      id: 'wastage', label: 'Wastage',
+      id: 'wastage', feature: '/wastage', label: 'Wastage',
       icon: Icons.warning_amber_outlined, section: 'PRODUCTION',
       keywords: const ['waste', 'scrap'],
       open: () => Get.to(() => WastageListPage()),
     ),
     NavModule(
-      id: 'machines', label: 'Machines',
+      id: 'machines', feature: '/machines', label: 'Machines',
       icon: Icons.precision_manufacturing_outlined, section: 'PRODUCTION',
       keywords: const ['equipment'],
       open: () => Get.to(() => const MachineListPage()),
@@ -324,23 +390,23 @@ class NavRegistry extends GetxController {
 
     // PACKING & SHIPPING
     NavModule(
-      id: 'packing_overview', label: 'Packing Overview',
+      id: 'packing_overview', feature: '/packing', label: 'Packing Overview',
       icon: Icons.inventory_outlined, section: 'PACKING & SHIPPING',
       open: () => Get.to(() => PackingOverviewPage()),
     ),
     NavModule(
-      id: 'packing_add', label: 'Add Packing',
+      id: 'packing_add', feature: '/packing', label: 'Add Packing',
       icon: Icons.add_box_outlined, section: 'PACKING & SHIPPING',
       open: () => Get.to(() => const AddPackingPage()),
     ),
     NavModule(
-      id: 'dc', label: 'Delivery Challan',
+      id: 'dc', feature: '/delivery-challans', label: 'Delivery Challan',
       icon: Icons.local_shipping, section: 'PACKING & SHIPPING',
       keywords: const ['dispatch', 'delivery'],
       open: () => Get.to(() => DCListPage()),
     ),
     NavModule(
-      id: 'material_inward', label: 'Material Inward',
+      id: 'material_inward', feature: '/materials', label: 'Material Inward',
       icon: Icons.local_shipping_outlined, section: 'PACKING & SHIPPING',
       keywords: const ['receive', 'inward', 'goods receipt'],
       open: () => Get.to(() => AddPOPage(mode: POFormMode.create)),
@@ -348,30 +414,30 @@ class NavRegistry extends GetxController {
 
     // SHIFT MANAGEMENT
     NavModule(
-      id: 'shift_plan_create', label: 'Create Shift Plan',
+      id: 'shift_plan_create', feature: '/shift-plans', label: 'Create Shift Plan',
       icon: Icons.calendar_month_outlined, section: 'SHIFT MANAGEMENT',
       keywords: const ['roster', 'planning'],
       open: () => Get.to(() => CreateShiftPlanPage()),
     ),
     NavModule(
-      id: 'shift_list', label: 'Shift Production',
+      id: 'shift_list', feature: '/production', label: 'Shift Production',
       icon: Icons.access_time_outlined, section: 'SHIFT MANAGEMENT',
       open: () => Get.to(() => ShiftListPage()),
     ),
     NavModule(
-      id: 'pending_verification', label: 'Pending Verifications',
+      id: 'pending_verification', feature: '/shift-verification', label: 'Pending Verifications',
       icon: Icons.hourglass_top_rounded, section: 'SHIFT MANAGEMENT',
       keywords: const ['approve shifts', 'verify'],
       open: () => Get.to(() => const PendingVerificationPage()),
     ),
     NavModule(
-      id: 'attendance', label: 'Attendance',
+      id: 'attendance', feature: '/attendance', label: 'Attendance',
       icon: Icons.event_available_outlined, section: 'SHIFT MANAGEMENT',
       keywords: const ['attendence'],
       open: () => Get.to(() => AttendancePage()),
     ),
     NavModule(
-      id: 'payroll', label: 'Payroll',
+      id: 'payroll', feature: '/payroll', label: 'Payroll',
       icon: Icons.payments_outlined, section: 'SHIFT MANAGEMENT',
       keywords: const ['pay', 'salary', 'wages'],
       open: () => Get.to(() => const PayrollPage()),
@@ -379,31 +445,31 @@ class NavRegistry extends GetxController {
 
     // HR & COMMUNICATION
     NavModule(
-      id: 'feedback', label: 'Employee Feedback',
+      id: 'feedback', feature: '/feedback', label: 'Employee Feedback',
       icon: Icons.feedback_outlined, section: 'HR & COMMUNICATION',
       keywords: const ['complaints', 'suggestions'],
       open: () => Get.to(() => const FeedbackAdminListPage()),
     ),
     NavModule(
-      id: 'machine_issues', label: 'Machine Issues',
+      id: 'machine_issues', feature: '/machine-issues', label: 'Machine Issues',
       icon: Icons.build_circle_outlined, section: 'HR & COMMUNICATION',
       keywords: const ['breakdown', 'tickets'],
       open: () => Get.to(() => const MachineIssueAdminListPage()),
     ),
     NavModule(
-      id: 'maintenance_due', label: 'Maintenance Due',
+      id: 'maintenance_due', feature: '/machines', label: 'Maintenance Due',
       icon: Icons.engineering_outlined, section: 'HR & COMMUNICATION',
       keywords: const ['service', 'preventive'],
       open: () => Get.to(() => const MaintenanceDuePage()),
     ),
     NavModule(
-      id: 'notice_board', label: 'Notice Board',
+      id: 'notice_board', feature: '/announcements', label: 'Notice Board',
       icon: Icons.campaign_outlined, section: 'HR & COMMUNICATION',
       keywords: const ['announcement'],
       open: () => Get.to(() => const AnnouncementListPage()),
     ),
     NavModule(
-      id: 'whatsapp_notifications', label: 'WhatsApp Alerts',
+      id: 'whatsapp_notifications', feature: '/notification-settings', label: 'WhatsApp Alerts',
       icon: Icons.notifications_active_outlined,
       section: 'HR & COMMUNICATION',
       keywords: const [
@@ -415,7 +481,7 @@ class NavRegistry extends GetxController {
 
     // ANALYTICS
     NavModule(
-      id: 'analytics', label: 'Analytics',
+      id: 'analytics', feature: '/analytics', label: 'Analytics',
       icon: Icons.insights_rounded, section: 'ANALYTICS',
       keywords: const ['kpis', 'production analytics'],
       open: () => Get.to(() => ProductionAnalyticsPage()),
@@ -425,37 +491,37 @@ class NavRegistry extends GetxController {
     // handles the refusal itself rather than the module being hidden
     // here. That keeps one authority for who sees margin.
     NavModule(
-      id: 'order_pnl', label: 'Order P&L',
+      id: 'order_pnl', feature: '/order-pnl', label: 'Order P&L',
       icon: Icons.query_stats_rounded, section: 'ANALYTICS',
       keywords: const ['pnl', 'p&l', 'profit', 'loss', 'margin', 'costing'],
       open: () => Get.to(() => const PnlListPageView()),
     ),
     NavModule(
-      id: 'reports_production', label: 'Production Report',
+      id: 'reports_production', feature: '/reports', label: 'Production Report',
       icon: Icons.assessment_outlined, section: 'ANALYTICS',
       keywords: const ['report', 'production report', 'meters', 'summary'],
       open: () => Get.to(() => const ProductionReportScreen()),
     ),
     NavModule(
-      id: 'reports_dispatch', label: 'Sales Report',
+      id: 'reports_dispatch', feature: '/reports', label: 'Sales Report',
       icon: Icons.local_shipping_outlined, section: 'ANALYTICS',
       keywords: const ['report', 'dispatch', 'sales', 'delivery', 'revenue', 'value'],
       open: () => Get.to(() => const DispatchReportScreen()),
     ),
     NavModule(
-      id: 'reports_order_book', label: 'Order Book',
+      id: 'reports_order_book', feature: '/reports', label: 'Order Book',
       icon: Icons.inventory_2_outlined, section: 'ANALYTICS',
       keywords: const ['report', 'order book', 'pending', 'fulfillment', 'on time', 'backlog'],
       open: () => Get.to(() => const OrderBookReportScreen()),
     ),
     NavModule(
-      id: 'reports_stock', label: 'Stock & Purchases',
+      id: 'reports_stock', feature: '/reports', label: 'Stock & Purchases',
       icon: Icons.warehouse_outlined, section: 'ANALYTICS',
       keywords: const ['report', 'stock', 'valuation', 'purchases', 'po', 'material', 'inventory'],
       open: () => Get.to(() => const StockPurchasesReportScreen()),
     ),
     NavModule(
-      id: 'reports_movements', label: 'Movement Ledger',
+      id: 'reports_movements', feature: '/reports', label: 'Movement Ledger',
       icon: Icons.swap_vert_rounded, section: 'ANALYTICS',
       keywords: const ['report', 'movement', 'ledger', 'inward', 'outward', 'consumption', 'stock'],
       open: () => Get.to(() => const StockMovementsReportScreen()),

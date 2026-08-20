@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../report_pdf.dart';
+import '../widgets/report_chart_card.dart';
 import '../controllers/production_report_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -65,6 +66,15 @@ class ProductionReportScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
                   children: [
                     _tiles(c),
+                    const SizedBox(height: 12),
+                    ReportChartCard(
+                      title: 'Meters produced',
+                      series: c.series,
+                      metricKey: 'meters',
+                      color: ErpColors.accentBlue,
+                      format: (v) => '${_nf.format(v.round())} m',
+                      emptyLabel: 'No production in this period.',
+                    ),
                     const SizedBox(height: 16),
                     _groupBar(c),
                     const SizedBox(height: 10),

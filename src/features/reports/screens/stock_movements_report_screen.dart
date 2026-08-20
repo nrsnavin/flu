@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../report_pdf.dart';
+import '../widgets/report_chart_card.dart';
 import '../controllers/stock_movements_report_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -70,6 +71,20 @@ class StockMovementsReportScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
                   children: [
                     _tiles(c),
+                    const SizedBox(height: 12),
+                    // Signed: a bar below the line is stock LEAVING.
+                    // Drawn unsigned it would clamp to a hairline and
+                    // read as a day of no movement — the opposite.
+                    ReportChartCard(
+                      title: 'Net movement',
+                      series: c.series,
+                      metricKey: 'net',
+                      color: ErpColors.successGreen,
+                      signed: true,
+                      format: (v) =>
+                          '${v >= 0 ? '+' : ''}${_nf.format(v.round())} kg',
+                      emptyLabel: 'No stock moved in this period.',
+                    ),
                     const SizedBox(height: 16),
                     _groupBar(c),
                     const SizedBox(height: 10),

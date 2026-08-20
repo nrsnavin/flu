@@ -17,6 +17,7 @@ class DispatchReportController extends GetxController {
   final summary    = Rxn<Map<String, dynamic>>();
   final comparison = Rxn<Map<String, dynamic>>();
   final rows       = <Map<String, dynamic>>[].obs;
+  final series     = <Map<String, dynamic>>[].obs;
   final loading    = false.obs;
   final errorMsg   = Rxn<String>();
 
@@ -59,6 +60,14 @@ class DispatchReportController extends GetxController {
           : null;
       final raw = (report['rows'] as List?) ?? const [];
       rows.value = raw
+          .whereType<Map>()
+          .map((m) => Map<String, dynamic>.from(m))
+          .toList();
+      // The daily points behind the chart. The server omits days on
+      // which nothing happened, so buildReportBars() fills the gaps
+      // before anything is drawn.
+      final rawSeries = (report['series'] as List?) ?? const [];
+      series.value = rawSeries
           .whereType<Map>()
           .map((m) => Map<String, dynamic>.from(m))
           .toList();

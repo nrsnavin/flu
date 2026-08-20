@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../report_pdf.dart';
+import '../widgets/report_chart_card.dart';
 import '../controllers/stock_purchases_report_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -72,6 +73,15 @@ class StockPurchasesReportScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
                   children: [
                     _tiles(c),
+                    const SizedBox(height: 12),
+                    ReportChartCard(
+                      title: 'Purchase value ordered',
+                      series: c.series,
+                      metricKey: 'value',
+                      color: ErpColors.warningAmber,
+                      format: (v) => '\u20b9${_nf.format(v.round())}',
+                      emptyLabel: 'Nothing purchased in this period.',
+                    ),
                     const SizedBox(height: 16),
                     _groupBar(c),
                     const SizedBox(height: 10),

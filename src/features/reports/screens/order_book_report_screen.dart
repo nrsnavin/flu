@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../report_pdf.dart';
+import '../widgets/report_chart_card.dart';
 import '../controllers/order_book_report_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -71,6 +72,15 @@ class OrderBookReportScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
                   children: [
                     _tiles(c),
+                    const SizedBox(height: 12),
+                    ReportChartCard(
+                      title: 'Quantity ordered',
+                      series: c.series,
+                      metricKey: 'quantity',
+                      color: ErpColors.accentBlue,
+                      format: (v) => _nf.format(v.round()),
+                      emptyLabel: 'No orders booked in this period.',
+                    ),
                     const SizedBox(height: 16),
                     _groupBar(c),
                     const SizedBox(height: 10),

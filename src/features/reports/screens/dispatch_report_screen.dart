@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../report_pdf.dart';
+import '../widgets/report_chart_card.dart';
 import '../controllers/dispatch_report_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -72,6 +73,15 @@ class DispatchReportScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
                   children: [
                     _tiles(c),
+                    const SizedBox(height: 12),
+                    ReportChartCard(
+                      title: 'Dispatched value',
+                      series: c.series,
+                      metricKey: 'amount',
+                      color: ErpColors.successGreen,
+                      format: (v) => '\u20b9${_nf.format(v.round())}',
+                      emptyLabel: 'Nothing dispatched in this period.',
+                    ),
                     const SizedBox(height: 16),
                     _groupBar(c),
                     const SizedBox(height: 10),

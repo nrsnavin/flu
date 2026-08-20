@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:file_picker/file_picker.dart';
+import '../../../core/capture.dart';
 import 'package:get/get.dart';
 
 import 'qc_controller.dart';
@@ -71,16 +71,28 @@ class NewQcController extends GetxController {
     notes.value = '';
   }
 
-  Future<void> pickImage() async {
-    final picked = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
-    if (picked == null || picked.files.isEmpty) return;
-    final f = picked.files.first;
-    if (f.bytes == null) return;
-    imageBytes = f.bytes;
-    imageName = f.name;
-    final ext = (f.extension ?? 'jpg').toLowerCase();
+  /// A QC image is the defect on the reel in your hand. Photographing
+  /// it is the point of doing this on a phone; the gallery and files
+  /// stay available for an image somebody was sent.
+  ///
+  /// [source] lets a screen pre-choose; when null the sheet is shown.
+  Future<void> pickImage({CaptureSource? source}) async {
+    final ctx = Get.overlayContext ?? Get.context;
+    final chosen = source ??
+        (ctx == null
+            ? CaptureSource.gallery
+            : await askCaptureSource(ctx,
+                allowFiles: false, cameraLabel: 'Photograph the defect'));
+    if (chosen == null) return; // dismissed
+
+    final shot = await capture(chosen);
+    if (shot == null) return; // cancelled
+
+    imageBytes = shot.bytes;
+    imageName = shot.name;
+    final ext = shot.name.split('.').last.toLowerCase();
     final mime = ext == 'png' ? 'image/png' : (ext == 'webp' ? 'image/webp' : 'image/jpeg');
-    imageDataUrl.value = 'data:$mime;base64,${base64Encode(f.bytes!)}';
+    imageDataUrl.value = 'data:$mime;base64,${base64Encode(shot.bytes)}';
   }
 
   Future<String?> analyze() async {

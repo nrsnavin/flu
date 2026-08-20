@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
+
+import '../../../core/capture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -233,28 +234,20 @@ class _ServiceBillsSheetState extends State<_ServiceBillsSheet> {
   // ── Actions ────────────────────────────────────────────────
 
   Future<void> _add(String kind) async {
-    FilePickerResult? picked;
-    try {
-      picked = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'heic'],
-        withData: true,
-      );
-    } catch (_) {
-      _snack('Could not open the file picker', isError: true);
-      return;
-    }
-    if (picked == null || picked.files.isEmpty) return; // cancelled
-    final f = picked.files.first;
-    if (f.bytes == null) {
-      _snack('Could not read that file', isError: true);
-      return;
-    }
+    // A service bill is a piece of paper a technician hands you at the
+    // machine. Photographing it is the whole reason to do this on a
+    // phone, and until now it meant leaving the app, shooting, coming
+    // back and hunting through the gallery. Files stay on the menu
+    // because a bill often arrives as a PDF by email, and a PDF
+    // cannot be photographed.
+    if (!mounted) return;
+    final source = await askCaptureSource(context, cameraLabel: 'Photograph the bill');
+    if (source == null) return; // dismissed
 
-    // The server resolves an unlabelled upload by its extension, so the
-    // filename has to keep one. A picker that hands back a bare name is
-    // rare but not impossible.
-    final name = f.name.contains('.') ? f.name : '${f.name}.pdf';
+    final shot = await capture(source);
+    if (shot == null) return; // cancelled, or the picker would not open
+
+    final name = shot.name;
 
     if (!mounted) return;
     final details = await showModalBottomSheet<_BillDetails>(
@@ -267,7 +260,7 @@ class _ServiceBillsSheetState extends State<_ServiceBillsSheet> {
 
     final err = await c.upload(
       kind: kind,
-      bytes: f.bytes!,
+      bytes: shot.bytes,
       filename: name,
       amount: details.amount,
       vendor: details.vendor,

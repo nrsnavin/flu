@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
+import '../../../core/capture.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
 
 import '../../authentication/controllers/login_controller.dart';
@@ -182,32 +182,33 @@ class SampleDetailController extends GetxController {
     }
   }
 
-  /// Pick a photo and send it. The picker is the only image source this
-  /// app has a dependency for; on Android its sheet offers the camera,
-  /// on iOS it is the photo library.
-  Future<String?> addPhoto(String caption) async {
-    FilePickerResult? picked;
-    try {
-      picked = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        withData: true,
-      );
-    } catch (_) {
-      return 'Could not open the photo picker';
-    }
-    if (picked == null || picked.files.isEmpty) return null; // cancelled
-    final f = picked.files.first;
-    if (f.bytes == null) return 'Could not read that photo';
+  /// Photograph the sample, or choose one already taken.
+  ///
+  /// This used to go through the file picker because it was the only
+  /// image dependency the app had — which on iOS meant the photo
+  /// library and no camera at all. A sample photo is of the sample in
+  /// front of you, so the camera is now the first option.
+  Future<String?> addPhoto(String caption, {CaptureSource? source}) async {
+    final ctx = Get.overlayContext ?? Get.context;
+    final chosen = source ??
+        (ctx == null
+            ? CaptureSource.gallery
+            : await askCaptureSource(ctx,
+                allowFiles: false, cameraLabel: 'Photograph the sample'));
+    if (chosen == null) return null; // dismissed
 
-    // The server resolves an unlabelled part by its extension, so the
-    // filename has to keep one.
-    final name = f.name.contains('.') ? f.name : '${f.name}.jpg';
+    final shot = await capture(chosen);
+    if (shot == null) return null; // cancelled
+
+    // capture() guarantees a usable extension; the server resolves an
+    // unlabelled part by it.
+    final name = shot.name;
 
     busy.value = true;
     try {
       sample.value = await SampleApi.addPhoto(
         sampleId,
-        bytes: f.bytes!,
+        bytes: shot.bytes,
         filename: name,
         caption: caption.trim(),
       );

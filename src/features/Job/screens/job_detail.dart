@@ -13,6 +13,8 @@ import '../../../common_widgets/fingerprint_timeline.dart';
 import '../models/yarn_lot_trail.dart';
 import 'package:production/src/core/api_client.dart';
 import 'mrp_sheet_page.dart';
+import 'job_qr_label.dart';
+import '../../qc/screens/coa_pdf.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  DATA MODELS
@@ -615,6 +617,13 @@ class _JobDetailPageState extends State<JobDetailPage>
                 onPressed: () => Navigator.maybePop(context),
               ),
               actions: [
+                // The 2in job label and the certificate of analysis —
+                // both printed by the web, neither reachable from the
+                // phone until now. Behind an overflow menu rather than
+                // two more buttons: this bar already carries MRP and
+                // the primary action, and a fourth would push the
+                // title off a narrow screen.
+                _JobDocsMenu(job: job, enabled: !isLoading && job != null),
                 // MRP sheet — material requirement + in-house/outsource
                 // + the signed PDF. Backed by the /job/:id/mrp endpoints.
                 Padding(
@@ -4378,3 +4387,128 @@ final _sampleJobDetail = JobDetailModel(
   machineNoOfHead: 6,
   machineHeadPlan: const [],
 );
+
+// ══════════════════════════════════════════════════════════════
+//  THE TWO DOCUMENTS THE PHONE COULD NOT PRODUCE
+//
+//  The web prints a 2in job label and a certificate of analysis. The
+//  phone could record the QC check that the certificate reports and
+//  then not produce the certificate, which is the half of the job the
+//  customer actually receives; and it could not reprint a label for a
+//  trolley that had lost one, which is the situation where somebody
+//  is holding a phone and not sitting at a printer.
+//
+//  In an overflow menu rather than two more buttons: the bar already
+//  carries MRP and the primary action, and a fourth would push the
+//  title off a narrow screen.
+// ══════════════════════════════════════════════════════════════
+class _JobDocsMenu extends StatefulWidget {
+  const _JobDocsMenu({required this.job, required this.enabled});
+
+  final JobDetailModel? job;
+  final bool enabled;
+
+  @override
+  State<_JobDocsMenu> createState() => _JobDocsMenuState();
+}
+
+class _JobDocsMenuState extends State<_JobDocsMenu> {
+  bool _busy = false;
+
+  void _say(String msg, {bool error = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg),
+      backgroundColor: error ? ErpColors.errorRed : ErpColors.successGreen,
+      behavior: SnackBarBehavior.floating,
+    ));
+  }
+
+  Future<void> _label(JobDetailModel job) async {
+    setState(() => _busy = true);
+    try {
+      await JobQrLabelPdf.generate(jobId: job.id, jobNo: job.jobNo);
+    } catch (e) {
+      _say('Could not build the label: $e', error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _coa(JobDetailModel job) async {
+    setState(() => _busy = true);
+    try {
+      await CoaPdf.generate(job.id);
+    } on CoaEmpty catch (e) {
+      // Not an error — a real answer. A job with no passing QC has
+      // nothing to certify, and printing a heading with no results
+      // would produce a document that LOOKS like a certificate and
+      // certifies nothing.
+      _say(e.toString(), error: true);
+    } on DioException catch (e) {
+      final d = e.response?.data;
+      _say(
+        d is Map && d['message'] != null
+            ? d['message'].toString()
+            : 'Could not build the certificate',
+        error: true,
+      );
+    } catch (e) {
+      _say('Could not build the certificate: $e', error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final job = widget.job;
+    if (_busy) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: Center(
+          child: SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+          ),
+        ),
+      );
+    }
+    return PopupMenuButton<String>(
+      enabled: widget.enabled && job != null,
+      tooltip: 'Documents',
+      icon: const Icon(Icons.more_vert, color: Colors.white, size: 20),
+      onSelected: (v) {
+        if (job == null) return;
+        if (v == 'label') _label(job);
+        if (v == 'coa') _coa(job);
+      },
+      itemBuilder: (_) => const [
+        PopupMenuItem(
+          value: 'label',
+          child: ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.qr_code_2_rounded, size: 20),
+            title: Text('Job label (2in)', style: TextStyle(fontSize: 13)),
+            subtitle: Text('QR + job number',
+                style: TextStyle(fontSize: 11)),
+          ),
+        ),
+        PopupMenuItem(
+          value: 'coa',
+          child: ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.verified_outlined, size: 20),
+            title: Text('Certificate of analysis',
+                style: TextStyle(fontSize: 13)),
+            subtitle: Text('Latest passing QC per elastic',
+                style: TextStyle(fontSize: 11)),
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -8,6 +8,7 @@ import '../../Job/models/order_model.dart';
 import '../../Job/screens/add_job_page.dart';
 import '../../Job/screens/job_detail.dart';
 import '../../PurchaseOrder/services/theme.dart';
+import '../../../core/server_pdf.dart';
 import '../controllers/running_order_eta_controller.dart';
 import '../widgets/running_order_eta_card.dart';
 import 'add_order_page.dart' show AddOrderPage;
@@ -54,6 +55,26 @@ class OrderDetailPage extends StatelessWidget {
             ],
           );
         }),
+        actions: [
+          // The order status report — the sheet that gets sent to a
+          // customer asking "where is my order". The web has printed
+          // it since it shipped; the phone had no way to produce it,
+          // which is awkward given the question usually arrives by
+          // phone.
+          //
+          // Rendered by the SERVER (/order/:id/status-report.pdf), not
+          // redrawn here: the same builder feeds the JSON view and the
+          // paper precisely so the screen and the document can never
+          // tell different stories, and a second renderer in Dart
+          // would break that.
+          Obx(() {
+            final order = c.order.value;
+            return _OrderReportButton(
+              orderId: order?['_id']?.toString() ?? '',
+              orderNo: order?['orderNo']?.toString() ?? '',
+            );
+          }),
+        ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, color: Color(0xFF1E3A5F)),
@@ -1492,4 +1513,58 @@ class _DialogActionButton extends StatelessWidget {
       );
     });
   }
+}
+
+/// Download and open the server-rendered order status report.
+class _OrderReportButton extends StatefulWidget {
+  const _OrderReportButton({required this.orderId, required this.orderNo});
+
+  final String orderId;
+  final String orderNo;
+
+  @override
+  State<_OrderReportButton> createState() => _OrderReportButtonState();
+}
+
+class _OrderReportButtonState extends State<_OrderReportButton> {
+  bool _busy = false;
+
+  Future<void> _open() async {
+    if (widget.orderId.isEmpty) return;
+    setState(() => _busy = true);
+    try {
+      await openServerPdf(
+        '/order/${widget.orderId}/status-report.pdf',
+        filename: 'Order Status ${widget.orderNo}',
+      );
+    } on ServerPdfError catch (e) {
+      // openServerPdf, not fetchServerPdf: there is no local status
+      // report to fall back to, so a silent null would be a button
+      // that does nothing at all.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.message),
+          backgroundColor: ErpColors.errorRed,
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+        tooltip: 'Order status report',
+        onPressed: _busy || widget.orderId.isEmpty ? null : _open,
+        icon: _busy
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white),
+              )
+            : const Icon(Icons.picture_as_pdf_outlined,
+                color: Colors.white, size: 20),
+      );
 }

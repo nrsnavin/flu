@@ -43,6 +43,7 @@ import 'package:production/src/features/machines/screens/maintenance_due_page.da
 import 'package:production/src/features/materials/screens/material_list_screenn.dart';
 import 'package:production/src/features/materials/screens/stock_adjust.dart';
 import 'package:production/src/features/stockCounts/screens/stock_count_list_page.dart';
+import 'package:production/src/features/machines/screens/service_analytics_page.dart';
 import 'package:production/src/features/packing/screens/AddPacking.dart';
 import 'package:production/src/features/packing/screens/PackingOverview.dart';
 import 'package:production/src/features/payroll/screens/payroll_page.dart';
@@ -455,6 +456,12 @@ class NavRegistry extends GetxController {
       icon: Icons.build_circle_outlined, section: 'HR & COMMUNICATION',
       keywords: const ['breakdown', 'tickets'],
       open: () => Get.to(() => const MachineIssueAdminListPage()),
+    ),
+    NavModule(
+      id: 'service_spend', feature: '/machines', label: 'Service Spend',
+      icon: Icons.currency_rupee_rounded, section: 'MAINTENANCE',
+      keywords: const ['machine cost', 'analytics', 'spend', 'costliest', 'patterns'],
+      open: () => Get.to(() => const ServiceAnalyticsPage()),
     ),
     NavModule(
       id: 'maintenance_due', feature: '/machines', label: 'Maintenance Due',

@@ -24,6 +24,7 @@ import '../../settings/screens/document_settings_page.dart';
 import '../../materials/screens/forecast_page.dart';
 import '../../authentication/controllers/login_controller.dart';
 import '../../../core/features.dart';
+import '../../../core/scan_navigate.dart';
 import '../controllers/dashboard_controller.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -54,6 +55,18 @@ class DashboardPage extends StatelessWidget {
           ],
         ),
         actions: [
+          // ── Scan anything, from anywhere ──────────────────────
+          // The floor's shortest path into the app: point it at a
+          // trolley tag or a carton and land on that record. It sits
+          // on the dashboard because that is the screen everybody
+          // starts from, and first in the row because it is the one
+          // action somebody reaches for with a phone in one hand.
+          IconButton(
+            tooltip: 'Scan a label',
+            icon: const Icon(Icons.qr_code_scanner,
+                color: Colors.white, size: 21),
+            onPressed: () => scanAndOpen(context),
+          ),
           // One tap to the other theme, on the screen everybody starts
           // from. The full three-way choice, including "match phone",
           // lives in Document Settings.

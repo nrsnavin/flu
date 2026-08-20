@@ -89,5 +89,105 @@ void main() {
   check('nothing read says so',
       scanRejectionMessage('').contains('Nothing'));
 
+  _checkTargets();
+
   print(failed == 0 ? '\nALL PASS' : '\n$failed FAILED');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  THE FOUR LABELS, AND WHERE EACH ONE GOES
+//
+//  These payloads are copied from the web's own encoders — see
+//  prod_web PackingSlip.tsx:63, CoveringLabels.tsx:95 and
+//  WarpingPrints.tsx:213. If those change, these fail, which is the
+//  point: the two ends of a printed label have no other thing
+//  holding them together.
+// ══════════════════════════════════════════════════════════════
+
+const boxId = '70ff2b1a4c9d88e3a1b0c2d4';
+const covId = '5c1d9f3e77a0b4c2d8e6f019';
+
+void _checkTargets() {
+  // ── Job label ─────────────────────────────────────────────
+  var c = parseScannedCode('https://erp.example.com/jobs/$id');
+  check('job URL targets the job', c.target == ScanTarget.job, 'got $c');
+  check('job URL is direct', c.isDirect && c.id == id, 'got $c');
+
+  // ── Box label ─────────────────────────────────────────────
+  c = parseScannedCode('BOX|$boxId|J:1042');
+  check('box targets packing', c.target == ScanTarget.packing, 'got $c');
+  check('box carries the packing id', c.id == boxId, 'got $c');
+  check('box carries the job number too', c.jobNo == 1042, 'got $c');
+  check('box opens without a lookup', c.isDirect);
+
+  // A box whose job was not populated when it printed. Still a box,
+  // and still openable — the job number is the part that is missing.
+  c = parseScannedCode('BOX|$boxId|J:');
+  check('box with no job number still targets packing',
+      c.target == ScanTarget.packing && c.id == boxId, 'got $c');
+  check('box with no job number has none', c.jobNo == null, 'got $c');
+
+  // ── The em-dash ───────────────────────────────────────────
+  // `jobNo` is `job?.jobOrderNo ?? "—"`, so this is a real label.
+  //
+  // These pin the BEHAVIOUR, not the mechanism. Deleting the explicit
+  // `v == '—'` guard in _field does not fail them, because
+  // int.tryParse rejects an em-dash on its own — checked by mutation,
+  // rather than assumed. The guard stays as documentation of what the
+  // web actually prints, but it is belt-and-braces: the thing that
+  // must not regress is that no job number comes out of it.
+  c = parseScannedCode('WARP|J:—|B:1|W:$covId');
+  check('em-dash is not a job number', c.jobNo == null, 'got $c');
+  check('em-dash label yields nothing to open', c.isEmpty, 'got $c');
+  check('a hyphen is treated the same',
+      parseScannedCode('WARP|J:-|B:1|W:$covId').jobNo == null);
+
+  // ── Beam labels resolve to their job, by number ───────────
+  c = parseScannedCode('WARP|J:1042|B:3|T:7|W:$covId');
+  check('warping beam targets the job', c.target == ScanTarget.job, 'got $c');
+  check('warping beam gives the job number', c.jobNo == 1042, 'got $c');
+  check('warping beam needs a lookup', !c.isDirect, 'got $c');
+
+  c = parseScannedCode('COVB|J:1042|C:$covId|B:2|E:$boxId');
+  check('covering beam targets the job', c.target == ScanTarget.job, 'got $c');
+  check('covering beam gives the job number', c.jobNo == 1042, 'got $c');
+
+  // The covering id must NOT be mistaken for a job id. This is the
+  // failure that would open a real screen showing the wrong record,
+  // which is worse than opening nothing.
+  check('covering id is not passed off as a job id', c.id == null, 'got $c');
+
+  // ── CONTROLS ──────────────────────────────────────────────
+  check('an unknown pipe format is rejected',
+      parseScannedCode('PALLET|$boxId|X:1').isEmpty,
+      'got ${parseScannedCode('PALLET|$boxId|X:1')}');
+  check('a BOX with a non-id in the id slot is not openable',
+      parseScannedCode('BOX|not-an-id|J:').isEmpty,
+      'got ${parseScannedCode('BOX|not-an-id|J:')}');
+  check('a BOX with a non-id but a real job number keeps the number',
+      parseScannedCode('BOX|not-an-id|J:1042').jobNo == 1042);
+  check('J: on a warping label must be a number, not an id',
+      parseScannedCode('WARP|J:$covId|B:1').isEmpty,
+      'got ${parseScannedCode('WARP|J:$covId|B:1')}');
+  check('a negative job number is rejected',
+      parseScannedCode('WARP|J:-4|B:1').isEmpty);
+
+  // ── The job-only view still behaves ───────────────────────
+  // These are what packing, QC and the challan already call.
+  check('parseScannedJob still reads a job URL',
+      parseScannedJob('https://h/jobs/$id').id == id);
+  check('a box label offers its job number to the job picker',
+      parseScannedJob('BOX|$boxId|J:1042').jobNo == 1042);
+  check('a box id is NEVER offered as a job id',
+      parseScannedJob('BOX|$boxId|J:1042').id == null,
+      'got ${parseScannedJob('BOX|$boxId|J:1042')}');
+  check('a beam label offers its job number to the job picker',
+      parseScannedJob('WARP|J:1042|B:1|W:$covId').jobNo == 1042);
+
+  // ── Wording ───────────────────────────────────────────────
+  check('an unlinked beam label says it was printed too early',
+      scanRejectionMessage('WARP|J:—|B:1').contains('before its job'));
+  check('a corrupt box label says it needs reprinting',
+      scanRejectionMessage('BOX||J:').contains('reprinting'),
+      'got "${scanRejectionMessage('BOX||J:')}"');
 }

@@ -4,7 +4,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../features/PurchaseOrder/services/theme.dart';
 import 'scan_payload.dart';
 
-export 'scan_payload.dart' show ScannedJob;
+export 'scan_payload.dart' show ScannedJob, ScannedCode, ScanTarget;
 
 // ══════════════════════════════════════════════════════════════
 //  SCAN THE JOB LABEL
@@ -38,17 +38,57 @@ export 'scan_payload.dart' show ScannedJob;
 /// is ignored rather than closing the sheet — sweeping a shed picks up
 /// carton codes constantly, and each one closing the scanner would
 /// make it unusable.
-Future<ScannedJob?> scanJobLabel(BuildContext context) {
-  return showModalBottomSheet<ScannedJob>(
+Future<ScannedJob?> scanJobLabel(BuildContext context) async {
+  final code = await showModalBottomSheet<ScannedCode>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => const _ScanSheet(),
+    builder: (_) => const _ScanSheet(
+      title: 'Scan the job label',
+      hint: 'Hold the square code on the job label inside the frame.',
+      wantJobOnly: true,
+    ),
+  );
+  if (code == null) return null;
+  return ScannedJob(id: code.id, jobNo: code.jobNo);
+}
+
+/// Open the camera and return whatever label it reads — job, box or
+/// beam.
+///
+/// Used by the app-wide scan button, where the operator has not said
+/// in advance what they are holding. The pickers inside packing, QC
+/// and the challan keep using [scanJobLabel], because there a code
+/// that is not a job is a mistake worth naming rather than a screen
+/// to open.
+Future<ScannedCode?> scanAnyLabel(BuildContext context) {
+  return showModalBottomSheet<ScannedCode>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => const _ScanSheet(
+      title: 'Scan a label',
+      hint: 'Job, packing box or beam. Hold the square code in the frame.',
+      wantJobOnly: false,
+    ),
   );
 }
 
 class _ScanSheet extends StatefulWidget {
-  const _ScanSheet();
+  final String title;
+  final String hint;
+
+  /// When true, a code that reads cleanly but names no job is treated
+  /// as a rejection and the camera keeps running. The app-wide
+  /// scanner sets it false, because a box label is a real answer
+  /// there.
+  final bool wantJobOnly;
+
+  const _ScanSheet({
+    required this.title,
+    required this.hint,
+    required this.wantJobOnly,
+  });
 
   @override
   State<_ScanSheet> createState() => _ScanSheetState();
@@ -77,10 +117,30 @@ class _ScanSheetState extends State<_ScanSheet> {
     if (_handled) return;
     for (final barcode in capture.barcodes) {
       final raw = barcode.rawValue;
-      final parsed = parseScannedJob(raw);
-      if (!parsed.isEmpty) {
+      final parsed = parseScannedCode(raw);
+
+      // A job picker cannot do anything with a box's own id, so for
+      // it a box label counts only if it also named a job. The
+      // app-wide scanner takes the box itself.
+      final usable = widget.wantJobOnly
+          ? (parsed.target == ScanTarget.job && !parsed.isEmpty) ||
+              (parsed.target == ScanTarget.packing && parsed.jobNo != null)
+          : !parsed.isEmpty;
+
+      if (usable) {
         _handled = true;
-        Navigator.of(context).pop(parsed);
+        Navigator.of(context).pop(
+          widget.wantJobOnly && parsed.target == ScanTarget.packing
+              // Hand the picker the job, never the box — a box id put
+              // into a job field would look up a job that cannot
+              // exist and report "job not found" for a good label.
+              ? ScannedCode(
+                  target: ScanTarget.job,
+                  jobNo: parsed.jobNo,
+                  label: parsed.label,
+                )
+              : parsed,
+        );
         return;
       }
       // Not a job label. Say what it was and keep the camera running.
@@ -115,7 +175,7 @@ class _ScanSheetState extends State<_ScanSheet> {
             child: Row(
               children: [
                 Expanded(
-                  child: Text('Scan the job label',
+                  child: Text(widget.title,
                       style: TextStyle(
                           color: ErpColors.textOnDark,
                           fontSize: 15,
@@ -181,7 +241,7 @@ class _ScanSheetState extends State<_ScanSheet> {
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 18),
             child: Text(
               _lastRejected == null
-                  ? 'Hold the square code on the job label inside the frame.'
+                  ? widget.hint
                   : scanRejectionMessage(_lastRejected),
               textAlign: TextAlign.center,
               style: TextStyle(

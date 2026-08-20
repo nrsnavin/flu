@@ -190,14 +190,31 @@ class _SearchAndFilters extends StatelessWidget {
           const SizedBox(height: 8),
           SizedBox(
             height: 32,
-            child: Obx(() => ListView.separated(
+            // The observables are read HERE, in the Obx builder itself,
+            // and the row is built from the locals.
+            //
+            // Reading them inside itemBuilder instead threw at runtime:
+            //   "the improper use of a GetX has been detected"
+            // ListView calls itemBuilder lazily, during the LIST's
+            // build — by which time the Obx builder has already
+            // returned having touched no observable at all, so GetX
+            // finds nothing to subscribe to and refuses. The page did
+            // not render. It is worth knowing this is the shape of the
+            // bug and not the widget: any lazy builder (ListView,
+            // GridView, PageView, a Table's row callbacks) has the
+            // same trap, and a rebuild that never fires would be the
+            // quieter version of it.
+            child: Obx(() {
+              final active = c.filter.value;
+              final counts = c.counts.value;
+              return ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: SampleListController.filters.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 6),
                   itemBuilder: (_, i) {
                     final f = SampleListController.filters[i];
-                    final selected = c.filter.value == f;
-                    final n = c.counts.value.forFilter(f);
+                    final selected = active == f;
+                    final n = counts.forFilter(f);
                     final label = f == 'all'
                         ? SampleListController.filterLabel(f)
                         : "${SampleListController.filterLabel(f)} ($n)";
@@ -223,7 +240,8 @@ class _SearchAndFilters extends StatelessWidget {
                       visualDensity: VisualDensity.compact,
                     );
                   },
-                )),
+                );
+            }),
           ),
         ],
       ),

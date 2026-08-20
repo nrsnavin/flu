@@ -14,18 +14,30 @@ import '../../PurchaseOrder/services/theme.dart';
 //  that broke a month ago is indistinguishable from one that works —
 //  and nobody would know until somebody happened to look.
 //
-//  /health/ai answers three things the app could not otherwise say:
-//    configured  — is there an API key at all
-//    models      — which strings are in use, and which are UNPINNED
-//                  aliases that can move under you without a deploy
-//    surfaces    — per-surface accept / edit / reject rates from the
-//                  suggestion ledger
+//  /health/ai answers four things the app could not otherwise say:
+//    configured   — is there an API key at all
+//    models       — which strings are in use, and which are UNPINNED
+//                   aliases that can move under you without a deploy
+//    prompts      — the version of each prompt in this build
+//    surfaces     — per-surface accept / useful rates from the ledger
 //
-//  ── Read defensively, on purpose ───────────────────────────────
-//  This is a diagnostics payload: it grows a field whenever somebody
-//  adds a check, and it is the last screen that should break because
-//  of it. So it renders whatever shape arrives rather than binding to
-//  a model that would need editing in lockstep with the server.
+//  ── This screen crashed, and it was my mistake ─────────────────
+//  The first version read `models` as a List. The route returns an
+//  OBJECT keyed text/vision, and casting a Map to a List throws
+//  immediately — so the page died on open for everyone. The lesson is
+//  not "add a try/catch": it is that the shape has to be read from
+//  the route, and every access here now matches app.js exactly:
+//
+//    models   : { text: {id, pinned}, vision: {id, pinned} }
+//    prompts  : { <name>: <version>, … }
+//    surfaces : [ { surface, total, decided, pending, accepted,
+//                   edited, rejected, failed, acceptRate,
+//                   usefulRate, avgLatencyMs, tokens{…} }, … ]
+//
+//  It is still read defensively — a diagnostics payload grows a field
+//  whenever somebody adds a check, and it is the last screen that
+//  should break because of it — but defensively now means tolerating
+//  a MISSING field, not guessing at the type of a present one.
 //
 //  ── Admin-only, and it says so ─────────────────────────────────
 //  The route is isAdmin('admin') AND gated on the /ai-health feature
@@ -42,9 +54,17 @@ class AiHealthController extends GetxController {
   final errorMsg = RxnString();
   final days = 30.obs;
 
+  static const windows = [7, 30, 90];
+
   @override
   void onInit() {
     super.onInit();
+    fetch();
+  }
+
+  void setDays(int d) {
+    if (d == days.value) return;
+    days.value = d;
     fetch();
   }
 
@@ -68,6 +88,12 @@ class AiHealthController extends GetxController {
     }
   }
 }
+
+/// Read a nested map without asserting anything about what is inside.
+Map<String, dynamic> _map(dynamic v) =>
+    v is Map ? Map<String, dynamic>.from(v) : const {};
+
+List<dynamic> _list(dynamic v) => v is List ? v : const [];
 
 class AiHealthPage extends StatefulWidget {
   const AiHealthPage({super.key});
@@ -106,52 +132,57 @@ class _AiHealthPageState extends State<AiHealthPage> {
           return const Center(child: CircularProgressIndicator());
         }
         if (c.errorMsg.value != null) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(c.errorMsg.value!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: ErpColors.textSecondary)),
-                  const SizedBox(height: 12),
-                  OutlinedButton(
-                      onPressed: c.fetch, child: const Text('Try again')),
-                ],
-              ),
-            ),
-          );
+          return _centred(c.errorMsg.value!, onRetry: c.fetch);
         }
         final d = c.data.value;
         if (d == null) return const SizedBox.shrink();
 
         final configured = d['configured'] == true;
-        final models = (d['models'] as List? ?? const []);
-        final surfaces = (d['surfaces'] as List? ?? const []);
+        final models = _map(d['models']);
+        final prompts = _map(d['prompts']);
+        final surfaces = _list(d['surfaces']);
+        final degraded = d['status'] == 'degraded';
 
         return RefreshIndicator(
           onRefresh: c.fetch,
           child: ListView(
             padding: const EdgeInsets.all(12),
             children: [
+              _windowPicker(),
+              const SizedBox(height: 10),
+
+              if (degraded) ...[
+                _banner(
+                  'The ledger could not be read',
+                  // The route degrades on purpose rather than 500ing —
+                  // telemetry breaking must not take the health check
+                  // with it. Saying so is the whole point: without
+                  // this, "no surfaces" would read as "the AI is idle".
+                  '${d['ledgerError'] ?? 'No reason given'}\n\n'
+                  'The key and model rows below are still accurate. The '
+                  'acceptance rates are not — they are missing, not zero.',
+                ),
+                const SizedBox(height: 10),
+              ],
+
               _card('Configured', [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(
                       configured ? Icons.check_circle : Icons.cancel,
                       size: 18,
                       color: configured
-                          ? ErpColors.statusOpenText
-                          : ErpColors.textMuted,
+                          ? ErpColors.successGreen
+                          : ErpColors.errorRed,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         configured
                             ? 'An API key is present. The AI surfaces can run.'
-                            : 'No API key on this server — every AI surface is '
-                              'silently doing nothing.',
+                            : 'No API key on this server — every AI surface '
+                                'is silently doing nothing.',
                         style: const TextStyle(
                             fontSize: 13, color: ErpColors.textPrimary),
                       ),
@@ -160,27 +191,37 @@ class _AiHealthPageState extends State<AiHealthPage> {
                 ),
               ]),
               const SizedBox(height: 10),
+
               _card('Models', [
                 if (models.isEmpty)
-                  const Text('No models reported.',
-                      style: TextStyle(
-                          fontSize: 13, color: ErpColors.textSecondary))
+                  _quiet('No models reported.')
                 else
-                  for (final m in models) _modelRow(Map<String, dynamic>.from(m as Map)),
+                  for (final e in models.entries)
+                    _modelRow(e.key, _map(e.value)),
               ]),
               const SizedBox(height: 10),
-              _card('Surfaces', [
-                if (surfaces.isEmpty)
-                  const Text(
-                    'No suggestions recorded in this window. That is not the '
-                    'same as the AI working — it means nothing has been asked '
-                    'of it, or nothing was written down.',
-                    style: TextStyle(
-                        fontSize: 13, color: ErpColors.textSecondary),
-                  )
+
+              _card('Prompt versions', [
+                if (prompts.isEmpty)
+                  _quiet('No prompts reported.')
                 else
-                  for (final s in surfaces)
-                    _surfaceRow(Map<String, dynamic>.from(s as Map)),
+                  // Worth having on a phone for one reason: when output
+                  // changes, the first question is whether the prompt
+                  // moved or the model did. These two cards answer it.
+                  for (final e in prompts.entries)
+                    _kv(e.key, e.value?.toString() ?? '—'),
+              ]),
+              const SizedBox(height: 10),
+
+              _card('Surfaces · last ${d['windowDays'] ?? c.days.value} days', [
+                if (surfaces.isEmpty)
+                  _quiet(degraded
+                      ? 'Not available — the ledger query failed above.'
+                      : 'No suggestions recorded in this window. That is not '
+                          'the same as the AI working: it means nothing has '
+                          'been asked of it, or nothing was written down.')
+                else
+                  for (final s in surfaces) _surfaceRow(_map(s)),
               ]),
             ],
           ),
@@ -189,9 +230,31 @@ class _AiHealthPageState extends State<AiHealthPage> {
     );
   }
 
-  Widget _modelRow(Map<String, dynamic> m) {
-    // An unpinned alias can move to a new model without a deploy, which
-    // is how output changes with nothing in the changelog.
+  Widget _windowPicker() => Obx(() => Row(
+        children: [
+          const Text('Window',
+              style: TextStyle(fontSize: 12, color: ErpColors.textMuted)),
+          const SizedBox(width: 10),
+          for (final w in AiHealthController.windows)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: ChoiceChip(
+                label: Text('${w}d', style: const TextStyle(fontSize: 12)),
+                selected: c.days.value == w,
+                onSelected: (_) => c.setDays(w),
+              ),
+            ),
+          const Spacer(),
+          if (c.isLoading.value)
+            const SizedBox(
+                width: 14, height: 14,
+                child: CircularProgressIndicator(strokeWidth: 2)),
+        ],
+      ));
+
+  /// An unpinned alias can move to a new model without a deploy, which
+  /// is how output changes with nothing in the changelog.
+  Widget _modelRow(String use, Map<String, dynamic> m) {
     final pinned = m['pinned'] == true;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
@@ -202,22 +265,22 @@ class _AiHealthPageState extends State<AiHealthPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(m['model']?.toString() ?? m['name']?.toString() ?? '—',
+                Text(m['id']?.toString() ?? '—',
                     style: const TextStyle(
                         fontSize: 13, color: ErpColors.textPrimary)),
-                if (m['use'] != null)
-                  Text(m['use'].toString(),
-                      style: const TextStyle(
-                          fontSize: 11, color: ErpColors.textMuted)),
+                Text(use,
+                    style: const TextStyle(
+                        fontSize: 11, color: ErpColors.textMuted)),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Text(
             pinned ? 'pinned' : 'alias — can move',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: pinned ? ErpColors.textMuted : ErpColors.accentBlue,
+              color: pinned ? ErpColors.textMuted : ErpColors.warningAmber,
             ),
           ),
         ],
@@ -226,29 +289,130 @@ class _AiHealthPageState extends State<AiHealthPage> {
   }
 
   Widget _surfaceRow(Map<String, dynamic> s) {
+    // acceptRate and usefulRate come from the SERVER, over `decided`
+    // — not over `total`. Recomputing them here against total would
+    // count everything still pending as a rejection and report a
+    // healthy surface as failing.
+    final accept = (s['acceptRate'] as num?)?.toInt();
+    final useful = (s['usefulRate'] as num?)?.toInt();
     final total = (s['total'] as num?)?.toInt() ?? 0;
-    final accepted = (s['accepted'] as num?)?.toInt() ?? 0;
-    final rate = total == 0 ? null : (accepted / total * 100).round();
+    final pending = (s['pending'] as num?)?.toInt() ?? 0;
+    final failed = (s['failed'] as num?)?.toInt() ?? 0;
+    final latency = (s['avgLatencyMs'] as num?)?.toInt();
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Text(s['surface']?.toString() ?? '—',
-                style: const TextStyle(
-                    fontSize: 13, color: ErpColors.textPrimary)),
+          Row(
+            children: [
+              Expanded(
+                child: Text(s['surface']?.toString() ?? '—',
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: ErpColors.textPrimary)),
+              ),
+              Text(
+                // A rate from nothing is not 0% — it is unknown, and
+                // printing 0% would read as "the AI is being rejected".
+                accept == null ? 'no verdicts yet' : '$accept% accepted',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: accept == null
+                      ? ErpColors.textMuted
+                      : (accept >= 50
+                          ? ErpColors.successGreen
+                          : ErpColors.warningAmber),
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 2),
           Text(
-            // A rate from nothing is not 0% — it is unknown, and
-            // printing 0% would read as "the AI is being rejected".
-            rate == null ? 'no data' : '$rate% accepted  ($total)',
-            style: const TextStyle(
-                fontSize: 12, color: ErpColors.textSecondary),
+            [
+              '$total suggested',
+              // "Useful" is accepted OR edited — the suggestion was
+              // worth having even if it needed a touch. A surface at
+              // 20% accepted and 90% useful is working; reading only
+              // the first number would get it switched off.
+              if (useful != null) '$useful% useful',
+              if (pending > 0) '$pending awaiting a verdict',
+              if (failed > 0) '$failed failed',
+              if (latency != null) '${latency}ms avg',
+            ].join('  ·  '),
+            style: const TextStyle(fontSize: 11, color: ErpColors.textMuted),
           ),
         ],
       ),
     );
   }
+
+  Widget _kv(String k, String v) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(k,
+                  style: const TextStyle(
+                      fontSize: 12, color: ErpColors.textSecondary)),
+            ),
+            Text(v,
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: ErpColors.textPrimary)),
+          ],
+        ),
+      );
+
+  Widget _quiet(String s) => Text(s,
+      style: const TextStyle(fontSize: 13, color: ErpColors.textSecondary));
+
+  Widget _banner(String title, String body) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: ErpColors.statusPartialBg,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: ErpColors.statusPartialBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: ErpColors.statusPartialText)),
+            const SizedBox(height: 4),
+            Text(body,
+                style: const TextStyle(
+                    fontSize: 12, color: ErpColors.textSecondary)),
+          ],
+        ),
+      );
+
+  Widget _centred(String text, {VoidCallback? onRetry}) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(text,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: ErpColors.textSecondary)),
+              if (onRetry != null) ...[
+                const SizedBox(height: 12),
+                OutlinedButton(
+                    onPressed: onRetry, child: const Text('Try again')),
+              ],
+            ],
+          ),
+        ),
+      );
 
   Widget _card(String title, List<Widget> children) => Container(
         width: double.infinity,

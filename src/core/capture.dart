@@ -112,7 +112,7 @@ Future<CapturedFile?> capture(
         return CapturedFile(bytes: bytes, name: _named(shot.name));
 
       case CaptureSource.files:
-        final picked = await FilePicker.platform.pickFiles(
+        final picked = await FilePicker.pickFiles(
           type: FileType.custom,
           allowedExtensions: fileExtensions,
           withData: true,

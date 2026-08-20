@@ -186,6 +186,15 @@ class OrderInfoForDC {
   final String customerContact;
   final List<OrderElasticOption> elastics;
 
+  /// The order's own status — "Open", "Approved", "InProgress",
+  /// "Completed", "Cancelled".
+  ///
+  /// A challan against a closed order is legal: the goods still leave,
+  /// there is simply no reservation left to discharge (see
+  /// _applyDcItems in api/deliveryChallan.js). The screen warns rather
+  /// than blocks, which it can only do if it knows.
+  final String orderStatus;
+
   const OrderInfoForDC({
     required this.orderNo,
     required this.customerName,
@@ -193,10 +202,17 @@ class OrderInfoForDC {
     required this.customerGstin,
     required this.customerContact,
     required this.elastics,
+    this.orderStatus = "",
   });
+
+  /// True when despatching against this order settles no promise —
+  /// worth saying out loud on a challan screen.
+  bool get isClosed =>
+      orderStatus == "Completed" || orderStatus == "Cancelled";
 
   factory OrderInfoForDC.fromJson(Map<String, dynamic> j) => OrderInfoForDC(
     orderNo:         (j["orderNo"] as num?)?.toInt() ?? 0,
+    orderStatus:     j["orderStatus"]?.toString()          ?? "",
     customerName:    j["customer"]?["name"]?.toString()    ?? "",
     customerPhone:   j["customer"]?["phone"]?.toString()   ?? "",
     customerGstin:   j["customer"]?["gstin"]?.toString()   ?? "",
@@ -204,6 +220,66 @@ class OrderInfoForDC {
     elastics: (j["elastics"] as List? ?? [])
         .map((e) => OrderElasticOption.fromJson(e as Map<String, dynamic>))
         .toList(),
+  );
+}
+
+// ── What a scanned job label resolved to ──────────────────────
+//
+//  The label names a JOB; a challan is raised against an ORDER. The
+//  server does that hop (GET /dc/job-order) and returns both, because
+//  the order alone is only half the answer: the order may span several
+//  jobs and the trolley in front of the person holds one of them.
+class ScannedJobOrder {
+  final String          orderId;
+  final OrderInfoForDC  order;
+
+  final String jobId;
+  final int?   jobOrderNo;
+  final String jobStatus;
+
+  /// The elastics this job covers, and what it PACKED of each.
+  final List<ScannedJobLine> lines;
+
+  const ScannedJobOrder({
+    required this.orderId,
+    required this.order,
+    required this.jobId,
+    required this.jobOrderNo,
+    required this.jobStatus,
+    required this.lines,
+  });
+
+  factory ScannedJobOrder.fromJson(Map<String, dynamic> j) => ScannedJobOrder(
+    orderId:    j["orderId"]?.toString() ?? "",
+    order:      OrderInfoForDC.fromJson(j),
+    jobId:      j["job"]?["id"]?.toString() ?? "",
+    jobOrderNo: (j["job"]?["jobOrderNo"] as num?)?.toInt(),
+    jobStatus:  j["job"]?["status"]?.toString() ?? "",
+    lines: (j["jobLines"] as List? ?? [])
+        .map((e) => ScannedJobLine.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
+
+  /// True when nothing on this job has been packed yet, so there is no
+  /// despatch figure to prefill and the form must not invent one.
+  bool get nothingPacked => lines.every((l) => l.packedQty <= 0);
+}
+
+class ScannedJobLine {
+  final String elasticId;
+  final double plannedQty;
+  final double packedQty;
+
+  const ScannedJobLine({
+    required this.elasticId,
+    required this.plannedQty,
+    required this.packedQty,
+  });
+
+  factory ScannedJobLine.fromJson(Map<String, dynamic> j) => ScannedJobLine(
+    elasticId:  j["elasticId"]?.toString() ?? "",
+    plannedQty: (j["plannedQty"] ?? 0).toDouble(),
+    packedQty:  (j["packedQty"]  ?? 0).toDouble(),
   );
 }
 

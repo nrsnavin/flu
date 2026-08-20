@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/api_client.dart';
 import '../../../core/request_id.dart';
+import '../../../core/scan.dart';
 import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
@@ -110,28 +111,41 @@ class AddDCController extends GetxController {
     }
   }
 
+  /// Put a loaded order onto the form.
+  ///
+  /// Shared by the search box and the label scanner. Two copies of
+  /// "fill the customer in and reset the lines" is how the two paths
+  /// drift into producing different challans from the same order.
+  void _applyOrder(String orderId, OrderInfoForDC info) {
+    orderResults.clear();
+    orderSearchCtrl.clear();
+    selectedOrderId.value = orderId;
+    orderInfo.value = info;
+    scannedJob.value = null;
+
+    // Prefill customer
+    nameCtrl.text    = info.customerName;
+    phoneCtrl.text   = info.customerPhone;
+    gstinCtrl.text   = info.customerGstin;
+    addressCtrl.text = info.customerContact;
+
+    // Clear any previous elastic selections
+    for (final item in elasticItems.values) item.dispose();
+    elasticItems.clear();
+    selectedIds.clear();
+  }
+
   Future<void> selectOrder(String orderId) async {
     try {
       loadingOrder.value = true;
+      // Dismissed on tap, not on arrival: the results list sits over
+      // the spinner otherwise, and the tap looks like it did nothing.
       orderResults.clear();
       orderSearchCtrl.clear();
-      selectedOrderId.value = orderId;
-
       final res = await _dio.get('/dc/order-info',
           queryParameters: {'id': orderId});
-      final info = OrderInfoForDC.fromJson(res.data as Map<String, dynamic>);
-      orderInfo.value = info;
-
-      // Prefill customer
-      nameCtrl.text    = info.customerName;
-      phoneCtrl.text   = info.customerPhone;
-      gstinCtrl.text   = info.customerGstin;
-      addressCtrl.text = info.customerContact;
-
-      // Clear any previous elastic selections
-      for (final item in elasticItems.values) item.dispose();
-      elasticItems.clear();
-      selectedIds.clear();
+      _applyOrder(orderId,
+          OrderInfoForDC.fromJson(res.data as Map<String, dynamic>));
     } on DioException catch (e) {
       Get.snackbar('Error', e.response?.data?['message'] ?? 'Failed to load order',
           backgroundColor: ErpColors.errorRed, colorText: Colors.white,
@@ -144,11 +158,99 @@ class AddDCController extends GetxController {
   void clearOrder() {
     selectedOrderId.value = null;
     orderInfo.value = null;
+    scannedJob.value = null;
     for (final item in elasticItems.values) item.dispose();
     elasticItems.clear();
     selectedIds.clear();
     nameCtrl.clear(); phoneCtrl.clear();
     gstinCtrl.clear(); addressCtrl.clear();
+  }
+
+  // ─────────────────────────────────────────────────────────
+  //  ORDER BY SCANNED JOB LABEL
+  //
+  //  Same destination as selectOrder(), reached from the label taped
+  //  to the trolley instead of from the search box. The person
+  //  raising the challan is standing at the goods; the order number
+  //  is one hop away from what is in front of them.
+  //
+  //  ── The lines are preselected, and it SAYS so ────────────────
+  //  A job's elastics are ticked and prefilled with what that job
+  //  packed — the figure that describes what is actually on the
+  //  trolley, as opposed to what the order asked for. Because that is
+  //  a decision the form made rather than the person, the banner
+  //  above names the job it came from and offers a way out. A form
+  //  that fills itself in silently is a form whose numbers nobody
+  //  checks.
+  // ─────────────────────────────────────────────────────────
+
+  /// The job label this order was reached from, when it was scanned.
+  /// Null when the order was picked from the search box.
+  final scannedJob = Rx<ScannedJobOrder?>(null);
+
+  /// Resolve a scanned label and load its order.
+  ///
+  /// Returns null on success, or a sentence saying what went wrong —
+  /// the caller owns the messaging because it has the BuildContext,
+  /// and because a snackbar fired from a controller cannot be tested.
+  Future<String?> loadOrderFromScan(ScannedJob scanned) async {
+    if (scanned.isEmpty) return 'That code is not a job label.';
+    try {
+      loadingOrder.value = true;
+      final res = await _dio.get('/dc/job-order', queryParameters: {
+        if (scanned.id != null) 'jobId': scanned.id,
+        if (scanned.id == null && scanned.jobNo != null)
+          'jobNo': scanned.jobNo.toString(),
+      });
+      final hit = ScannedJobOrder.fromJson(res.data as Map<String, dynamic>);
+
+      _applyOrder(hit.orderId, hit.order);
+      scannedJob.value = hit;
+      _preselectFromJob(hit);
+      return null;
+    } on DioException catch (e) {
+      // The server's message is the useful one — it distinguishes "no
+      // such job" from "its order was deleted" from "two jobs share
+      // that number", and each sends the person somewhere different.
+      return e.response?.data?['message']?.toString() ??
+          'Could not reach the server to look that job up.';
+    } finally {
+      loadingOrder.value = false;
+    }
+  }
+
+  /// Tick this job's elastics and prefill what it packed.
+  ///
+  /// Lines the job covers but the ORDER does not are skipped rather
+  /// than invented: the challan's elastic picker is built from the
+  /// order, and a row with no option behind it cannot be edited or
+  /// removed by the person looking at it.
+  void _preselectFromJob(ScannedJobOrder hit) {
+    final byId = {for (final o in hit.order.elastics) o.elasticId: o};
+    for (final line in hit.lines) {
+      final opt = byId[line.elasticId];
+      if (opt == null) continue;
+      selectedIds.add(opt.elasticId);
+      elasticItems[opt.elasticId] = EditableDCItem.elastic(
+        elasticId:   opt.elasticId,
+        elasticName: opt.elasticName,
+        // What was packed, falling back to what the order asked for
+        // when the job has not reached packing. A zero would look like
+        // a typed figure; prefilledQty ignores it, leaving the field
+        // empty for a person to fill — which is the honest state.
+        prefilledQty: line.packedQty > 0 ? line.packedQty : opt.orderedQty,
+      );
+    }
+    elasticItems.refresh();
+    errors.remove('elastics');
+  }
+
+  /// Drop the scan's preselection but keep the order.
+  void clearScanPreselect() {
+    scannedJob.value = null;
+    for (final item in elasticItems.values) item.dispose();
+    elasticItems.clear();
+    selectedIds.clear();
   }
 
   // ─────────────────────────────────────────────────────────
@@ -476,7 +578,7 @@ class _OrderCard extends StatelessWidget {
       child: Column(children: [
 
         // ── Selected order badge ──────────────────────────────
-        if (c.orderInfo.value != null)
+        if (c.orderInfo.value != null) ...[
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -517,20 +619,61 @@ class _OrderCard extends StatelessWidget {
                 ),
               ),
             ]),
-          )
-        else ...[
-          // ── Search field ──────────────────────────────────
-          TextField(
-            controller: c.orderSearchCtrl,
-            style: ErpTextStyles.fieldValue,
-            onChanged: c.searchOrders,
-            decoration: ErpDecorations.formInput(
-              'Search order number or customer…',
-              prefix: c.searchingOrders.value
-                  ? SizedBox(width: 18, height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: ErpColors.accentBlue))
-                  : Icon(Icons.search, size: 18, color: ErpColors.textMuted),
+          ),
+
+          // ── Where these lines came from ─────────────────────
+          if (c.scannedJob.value != null) ...[
+            const SizedBox(height: 8),
+            _ScannedJobBanner(c: c, hit: c.scannedJob.value!),
+          ],
+
+          // ── A challan against a closed order ────────────────
+          //  Allowed on purpose — the goods still leave, there is
+          //  just no promise left to settle. Said out loud because
+          //  the usual reason for seeing this is that the wrong
+          //  order got picked.
+          if (c.orderInfo.value!.isClosed) ...[
+            const SizedBox(height: 8),
+            _Notice(
+              icon: Icons.info_outline_rounded,
+              colour: ErpColors.warningAmber,
+              text: 'Order #${c.orderInfo.value!.orderNo} is '
+                  '${c.orderInfo.value!.orderStatus.toLowerCase()}. The '
+                  'despatch will still go through — it just will not '
+                  'settle anything the order was owed.',
             ),
+          ],
+        ]
+        else ...[
+          // ── Search field, with the scanner beside it ──────
+          //
+          //  Beside, never instead of. Labels get wet and torn, mill
+          //  light defeats autofocus, and phones run flat — a flow
+          //  that only works with a working camera is a flow that
+          //  stops the loading bay when the camera stops.
+          Row(children: [
+            Expanded(
+              child: TextField(
+                controller: c.orderSearchCtrl,
+                style: ErpTextStyles.fieldValue,
+                onChanged: c.searchOrders,
+                decoration: ErpDecorations.formInput(
+                  'Search order number or customer…',
+                  prefix: c.searchingOrders.value
+                      ? SizedBox(width: 18, height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: ErpColors.accentBlue))
+                      : Icon(Icons.search, size: 18, color: ErpColors.textMuted),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            _ScanOrderButton(c: c),
+          ]),
+          const SizedBox(height: 6),
+          Text(
+            'Or scan the QR on the job label — it finds the order the '
+            'job belongs to.',
+            style: TextStyle(fontSize: 10.5, color: ErpColors.textMuted),
           ),
 
           // ── Results dropdown ──────────────────────────────
@@ -577,6 +720,165 @@ class _OrderCard extends StatelessWidget {
       ]),
     ));
   }
+}
+
+// ── 2a. "Scan job label" ─────────────────────────────────────
+//
+//  The label carries a job; the challan wants an order. The hop is
+//  the server's (GET /dc/job-order) so a failed second call can never
+//  leave the phone holding an order id it cannot render.
+//
+//  Every outcome is reported. A label that reads perfectly and names
+//  a job whose order was deleted looks, from behind the phone,
+//  identical to a camera that did not focus — unless it is spelled
+//  out, and the server's message is the one that distinguishes them.
+class _ScanOrderButton extends StatelessWidget {
+  final AddDCController c;
+  const _ScanOrderButton({required this.c});
+
+  Future<void> _run(BuildContext context) async {
+    final scanned = await scanJobLabel(context);
+    if (scanned == null || !context.mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final failure = await c.loadOrderFromScan(scanned);
+
+    if (failure != null) {
+      messenger.showSnackBar(SnackBar(
+        duration: const Duration(seconds: 6),
+        backgroundColor: ErpColors.warningAmber,
+        behavior: SnackBarBehavior.floating,
+        content: Text(failure),
+      ));
+      return;
+    }
+
+    final hit = c.scannedJob.value;
+    messenger.showSnackBar(SnackBar(
+      backgroundColor: ErpColors.successGreen,
+      behavior: SnackBarBehavior.floating,
+      content: Text(hit == null
+          ? 'Order loaded'
+          : 'Job #${hit.jobOrderNo ?? '—'} → Order '
+              '#${hit.order.orderNo}, ${hit.order.customerName}'),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        height: 46,
+        child: OutlinedButton(
+          onPressed: () => _run(context),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: ErpColors.accentBlue,
+            side: BorderSide(color: ErpColors.accentBlue),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+          ),
+          child: const Icon(Icons.qr_code_scanner_rounded, size: 20),
+        ),
+      );
+}
+
+// ── 2b. What the scan filled in, and where it came from ──────
+//
+//  The form ticked lines and typed quantities that nobody typed. That
+//  is only acceptable if it is visible and reversible, so this names
+//  the job, says which figure it used, and offers a way out.
+class _ScannedJobBanner extends StatelessWidget {
+  final AddDCController c;
+  final ScannedJobOrder hit;
+  const _ScannedJobBanner({required this.c, required this.hit});
+
+  @override
+  Widget build(BuildContext context) {
+    // Prefilled from packing only when packing has happened. Otherwise
+    // the ordered quantity stands in, and saying which is which is the
+    // difference between a figure to check and a figure to trust.
+    final fromPacking = !hit.nothingPacked;
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: ErpColors.successGreen.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: ErpColors.successGreen.withOpacity(0.28)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(Icons.qr_code_2_rounded, size: 18, color: ErpColors.successGreen),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              'Scanned job #${hit.jobOrderNo ?? '—'}'
+              '${hit.jobStatus.isEmpty ? '' : ' · ${hit.jobStatus}'}',
+              style: TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w700,
+                  color: ErpColors.textPrimary),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              hit.lines.isEmpty
+                  ? 'This job has no elastic lines of its own — nothing was '
+                      'ticked. Choose from the order below.'
+                  : fromPacking
+                      ? '${hit.lines.length} line(s) ticked below, filled in '
+                          'with what this job PACKED. Check them against the '
+                          'trolley before saving.'
+                      : 'This job has not been packed yet, so the lines below '
+                          'are filled in with the ORDERED quantity. Correct '
+                          'them to what is going out.',
+              style: TextStyle(
+                  fontSize: 10.5, height: 1.35, color: ErpColors.textSecondary),
+            ),
+            if (hit.lines.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              GestureDetector(
+                onTap: c.clearScanPreselect,
+                child: Text(
+                  'Clear these and pick by hand',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: ErpColors.accentBlue,
+                    decoration: TextDecoration.underline,
+                    decorationColor: ErpColors.accentBlue,
+                  ),
+                ),
+              ),
+            ],
+          ]),
+        ),
+      ]),
+    );
+  }
+}
+
+// ── A one-line notice, in a colour that means something ──────
+class _Notice extends StatelessWidget {
+  final IconData icon;
+  final Color    colour;
+  final String   text;
+  const _Notice({required this.icon, required this.colour, required this.text});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: colour.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: colour.withOpacity(0.28)),
+        ),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(icon, size: 16, color: colour),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text,
+                style: TextStyle(
+                    fontSize: 10.5, height: 1.35,
+                    color: ErpColors.textSecondary)),
+          ),
+        ]),
+      );
 }
 
 // ── 3a. Elastic picker ───────────────────────────────────────

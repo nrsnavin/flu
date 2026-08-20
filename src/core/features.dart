@@ -23,6 +23,7 @@ const List<FeatureDef> kFeatures = [
   FeatureDef('/audit', 'Audit Trail', 'Overview', ['admin']),
 
   FeatureDef('/orders', 'Orders', 'Sales', ['admin', 'finance']),
+  FeatureDef('/quotes', 'Quotations', 'Sales', ['admin', 'finance']),
   FeatureDef('/jobs', 'Job Orders', 'Sales', ['admin', 'production', 'packing']),
   FeatureDef('/delivery-challans', 'Delivery Challans', 'Sales', ['admin', 'finance']),
   FeatureDef('/samples', 'Sample Requests', 'Sales', ['admin', 'finance', 'production']),
@@ -32,6 +33,7 @@ const List<FeatureDef> kFeatures = [
   FeatureDef('/covering', 'Covering', 'Production', ['admin', 'production']),
   FeatureDef('/packing', 'Packing', 'Production', ['admin', 'packing']),
   FeatureDef('/qc', 'Quality Control', 'Production', ['admin', 'packing']),
+  FeatureDef('/complaints', 'Complaints', 'Production', ['admin', 'packing', 'production']),
   FeatureDef('/shift-plans', 'Shift Plans', 'Production', ['admin', 'production']),
   FeatureDef('/shift-verification', 'Shift Verification', 'Production', ['admin', 'production']),
   FeatureDef('/production', 'Production View', 'Production', ['admin', 'production']),
@@ -60,6 +62,7 @@ const List<FeatureDef> kFeatures = [
   FeatureDef('/assistant', 'Ask Jarvis', 'AI'),
 
   FeatureDef('/users', 'Users', 'Administration', ['admin']),
+  FeatureDef('/ai-health', 'AI Health', 'Administration', ['admin']),
   FeatureDef('/data-io', 'Data Import/Export', 'Administration', ['admin']),
   FeatureDef('/settings', 'Settings', 'Administration'),
 ];

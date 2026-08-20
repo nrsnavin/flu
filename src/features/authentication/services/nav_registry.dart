@@ -44,6 +44,9 @@ import 'package:production/src/features/materials/screens/material_list_screenn.
 import 'package:production/src/features/materials/screens/stock_adjust.dart';
 import 'package:production/src/features/stockCounts/screens/stock_count_list_page.dart';
 import 'package:production/src/features/machines/screens/service_analytics_page.dart';
+import 'package:production/src/features/complaints/screens/complaint_list_page.dart';
+import 'package:production/src/features/quotes/screens/quote_pages.dart';
+import 'package:production/src/features/aiHealth/screens/ai_health_page.dart';
 import 'package:production/src/features/packing/screens/AddPacking.dart';
 import 'package:production/src/features/packing/screens/PackingOverview.dart';
 import 'package:production/src/features/payroll/screens/payroll_page.dart';
@@ -288,6 +291,12 @@ class NavRegistry extends GetxController {
       open: () => Get.to(() => const SampleListPageView()),
     ),
     NavModule(
+      id: 'quotes', feature: '/quotes', label: 'Quotations',
+      icon: Icons.description_outlined, section: 'CUSTOMERS & ORDERS',
+      keywords: const ['quote', 'quotation', 'price', 'estimate'],
+      open: () => Get.to(() => const QuoteListPage()),
+    ),
+    NavModule(
       id: 'orders', feature: '/orders', label: 'Orders',
       icon: Icons.receipt_long_outlined, section: 'CUSTOMERS & ORDERS',
       keywords: const ['sales orders'],
@@ -322,6 +331,12 @@ class NavRegistry extends GetxController {
       icon: Icons.edit_note_rounded, section: 'CUSTOMERS & ORDERS',
       keywords: const ['low stock', 'auto po', 'reorder'],
       open: () => Get.to(() => const LowStockDraftPage()),
+    ),
+    NavModule(
+      id: 'ai_health', feature: '/ai-health', label: 'AI Health',
+      icon: Icons.monitor_heart_outlined, section: 'CUSTOMERS & ORDERS',
+      keywords: const ['ai', 'health', 'model', 'accept rate', 'diagnostics'],
+      open: () => Get.to(() => const AiHealthPage()),
     ),
     NavModule(
       id: 'advisor_settings', feature: '/advisor', label: 'Advisor preferences',
@@ -450,6 +465,12 @@ class NavRegistry extends GetxController {
       icon: Icons.feedback_outlined, section: 'HR & COMMUNICATION',
       keywords: const ['complaints', 'suggestions'],
       open: () => Get.to(() => const FeedbackAdminListPage()),
+    ),
+    NavModule(
+      id: 'complaints', feature: '/complaints', label: 'Complaints',
+      icon: Icons.report_problem_outlined, section: 'PEOPLE & FEEDBACK',
+      keywords: const ['customer complaint', 'defect', 'recall', 'trace', 'blast radius'],
+      open: () => Get.to(() => const ComplaintListPage()),
     ),
     NavModule(
       id: 'machine_issues', feature: '/machine-issues', label: 'Machine Issues',

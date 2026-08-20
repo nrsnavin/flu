@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import 'material_group_controller.dart';
+import 'material_category_store.dart';
 
 import '../models/RawMaterial.dart';
 import '../../../core/app_config.dart';
@@ -20,26 +21,43 @@ class RawMaterialListController extends GetxController {
   final loading       = false.obs;
   final search        = ''.obs;
   final category      = 'All'.obs;
+  final groupId       = Rxn<String>();
   final lowStockOnly  = false.obs;
 
   // Filter sheet temp state
   final tempCategory  = 'All'.obs;
+  final tempGroupId   = Rxn<String>();
   final tempLowStock  = false.obs;
 
   // ── Bulk price update state ────────────────────────────────
   final isBulkSaving  = false.obs;
 
-  // The list used to be five hardcoded strings here — one of six
-  // copies in this app, and the web's copy did not have 'Chemicals'.
-  // It comes from the server now; the store falls back to the old
-  // names if the fetch fails, so this is never empty.
-  final _groups = MaterialGroupStore.ensure();
-  List<String> get categories => _groups.namesWithAll;
+  // Two lists, two questions. This getter used to return group names
+  // and label them categories, so the chip "Trim Tape" went out as
+  // `category=Trim Tape` and matched only the rows written before the
+  // two fields were separated — an under-count that reads exactly like
+  // an empty group.
+  final _groups     = MaterialGroupStore.ensure();
+  final _categories = MaterialCategoryStore.ensure();
+
+  List<String> get categories => _categories.categoriesWithAll;
+  List<MaterialGroup> get groups => _groups.groups;
+
+  /// The name behind the active group filter, for the chip.
+  String? get groupName {
+    final id = groupId.value;
+    if (id == null) return null;
+    for (final g in _groups.groups) {
+      if (g.id == id) return g.name;
+    }
+    return null;
+  }
 
   @override
   void onInit() {
     super.onInit();
     _groups.load();
+    _categories.load();
     fetchMaterials();
     debounce(search, (_) => fetchMaterials(),
         time: const Duration(milliseconds: 400));
@@ -50,8 +68,14 @@ class RawMaterialListController extends GetxController {
     try {
       loading.value = true;
       final query = <String, dynamic>{};
-      if (search.value.trim().isNotEmpty) query['search']   = search.value.trim();
-      if (category.value != 'All')        query['category'] = category.value;
+      if (search.value.trim().isNotEmpty) query['search'] = search.value.trim();
+      // Group filters go out as `group=<id>`, not as a category name.
+      // The server's group filter matches the link AND the legacy name,
+      // so it finds every member; posting the name as `category` found
+      // only the rows written before the split.
+      final gid = groupId.value;
+      if (gid != null && gid.isNotEmpty)  query['group']    = gid;
+      else if (category.value != 'All')   query['category'] = category.value;
       if (lowStockOnly.value)             query['lowStock'] = true;
 
       final res = await _dio.get('/get-raw-materials',
@@ -75,14 +99,17 @@ class RawMaterialListController extends GetxController {
 
   void applyFilters() {
     category.value     = tempCategory.value;
+    groupId.value      = tempGroupId.value;
     lowStockOnly.value = tempLowStock.value;
     fetchMaterials();
   }
 
   void resetFilters() {
     tempCategory.value = 'All';
+    tempGroupId.value  = null;
     tempLowStock.value = false;
     category.value     = 'All';
+    groupId.value      = null;
     lowStockOnly.value = false;
     fetchMaterials();
   }

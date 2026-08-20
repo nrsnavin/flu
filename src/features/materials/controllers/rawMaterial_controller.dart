@@ -6,6 +6,7 @@ import '../models/RawMaterial.dart';
 import '../../../core/app_config.dart';
 import '../../../core/api_client.dart';
 import 'material_group_controller.dart';
+import 'material_category_store.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -29,12 +30,23 @@ class MaterialApiService {
   static Future<List<RawMaterialListItem>> fetchList({
     String search    = '',
     String category  = 'All',
+    String? groupId,
     bool lowStock    = false,
   }) async {
     final Map<String, dynamic> q = {};
     if (search.trim().isNotEmpty) q['search'] = search.trim();
-    if (category != 'All')        q['category'] = category;
-    if (lowStock)                  q['lowStock'] = 'true';
+    // Category and group are separate filters on the server, and
+    // sending one as the other is how this stopped working: a group
+    // name posted as `category` matched only the rows written under the
+    // old scheme, so filtering by a group silently under-reported —
+    // every material properly linked to it was missing, and an empty
+    // result looks identical to "there are none".
+    //
+    // The server's group filter deliberately matches BOTH the link and
+    // the legacy name, so this finds all of them.
+    if (groupId != null && groupId.isNotEmpty) q['group'] = groupId;
+    else if (category != 'All')                q['category'] = category;
+    if (lowStock)                              q['lowStock'] = 'true';
 
     final res = await _dio.get('/get-raw-materials', queryParameters: q);
     return (res.data['materials'] as List? ?? [])
@@ -94,20 +106,29 @@ class MaterialListController extends GetxController {
 
   final search       = ''.obs;
   final category     = 'All'.obs;
+  final groupId      = Rxn<String>();
   final lowStockOnly = false.obs;
 
   // temp values for filter sheet before applying
   final tempCategory  = 'All'.obs;
+  final tempGroupId   = Rxn<String>();
   final tempLowStock  = false.obs;
 
-  // From the server. Was one of six hardcoded copies in this app, and
-  // the web's copy did not carry 'Chemicals' at all.
-  final _groups = MaterialGroupStore.ensure();
-  List<String> get kCategories => _groups.namesWithAll;
+  // Two lists, from two sources, because they are two questions. The
+  // category list used to come from MaterialGroupStore, which meant
+  // filtering by a group posted its NAME as `category` and found only
+  // rows written before the split.
+  final _groups     = MaterialGroupStore.ensure();
+  final _categories = MaterialCategoryStore.ensure();
+
+  List<String> get kCategories => _categories.categoriesWithAll;
+  List<MaterialGroup> get kGroups => _groups.groups;
 
   @override
   void onInit() {
     super.onInit();
+    _groups.load();
+    _categories.load();
     fetch();
     // debounce on search so typing doesn't fire per-keystroke
     debounce(search, (_) => fetch(), time: const Duration(milliseconds: 400));
@@ -121,6 +142,7 @@ class MaterialListController extends GetxController {
       materials.value = await MaterialApiService.fetchList(
         search:   search.value,
         category: category.value,
+        groupId:  groupId.value,
         lowStock: lowStockOnly.value,
       );
     } on DioException catch (e) {
@@ -135,16 +157,30 @@ class MaterialListController extends GetxController {
 
   void applyFilters() {
     category.value     = tempCategory.value;
+    groupId.value      = tempGroupId.value;
     lowStockOnly.value = tempLowStock.value;
     fetch();
   }
 
   void resetFilters() {
     tempCategory.value  = 'All';
+    tempGroupId.value   = null;
     tempLowStock.value  = false;
     category.value      = 'All';
+    groupId.value       = null;
     lowStockOnly.value  = false;
     fetch();
+  }
+
+  /// The name of the group being filtered on, for the active-filter
+  /// chip. Null when no group filter is set.
+  String? get groupName {
+    final id = groupId.value;
+    if (id == null) return null;
+    for (final g in _groups.groups) {
+      if (g.id == id) return g.name;
+    }
+    return null;
   }
 
   // Group materials by category for the list page
@@ -242,40 +278,75 @@ class AddMaterialController extends GetxController {
   final minStockCtrl = TextEditingController(text: '0');
   final priceCtrl    = TextEditingController(text: '0');
 
-  // Starts EMPTY, not 'warp'.
+  // ── Two classifications, and they are independent ──────────────
   //
-  // A DropdownButtonFormField throws if its `value` is not among its
-  // items, and the items now come from the server — so defaulting to a
-  // name the mill may have renamed would crash the add-material screen
-  // rather than show a wrong default. It is filled from the first group
-  // once the list arrives.
+  //  This screen used to ask one question and answer two. The category
+  //  picker was built from MaterialGroupStore.names, and selectCategory
+  //  set BOTH the category string and the group id from the same pick —
+  //  so filing a yarn under a group called "Trim Tape" wrote
+  //  category: "Trim Tape".
+  //
+  //  Two things went wrong with that, one loud and one silent:
+  //
+  //    loud   — the server validates categories now, so the save simply
+  //             400s with "…is not a material category".
+  //    silent — and this is the one that was already costing money: the
+  //             elastic recipe picker, the MRP sheet and the warp/weft/
+  //             covering queries all run `find({ category: "warp" })`.
+  //             A yarn with category "Trim Tape" answered none of them
+  //             and quietly disappeared from the warp picker. Nothing
+  //             errored. It was just not there.
+  //
+  //  So they are asked separately now, the same way the web asks.
+
+  /// One of the fixed five. Required.
+  ///
+  /// Starts EMPTY rather than 'warp': a DropdownButtonFormField throws
+  /// when its `value` is not among its items, and these arrive from the
+  /// server. Left blank until the list lands, and validated on save so
+  /// a blank cannot be submitted.
   final selectedCategory = ''.obs;
+
+  /// The mill's own classification. Optional — a material can exist
+  /// before anybody has filed it, and "None" is a real answer.
   final selectedGroupId = Rxn<String>();
+
   final selectedSupplierId = Rxn<String>();
   final selectedSupplierName = Rxn<String>();
 
-  final _groups = MaterialGroupStore.ensure();
-  List<String> get kCategories => _groups.names;
+  final _groups     = MaterialGroupStore.ensure();
+  final _categories = MaterialCategoryStore.ensure();
 
-  void selectCategory(String name) {
-    selectedCategory.value = name;
-    // The id when the name is a real group; null for a fallback name,
-    // where the server matches on the string instead.
-    selectedGroupId.value = _groups.byName(name)?.id;
-  }
+  /// The fixed five, from GET /materials/categories.
+  List<String> get kCategories => _categories.categories;
+
+  /// The mill's groups. Never the category list — if these two ever
+  /// share a source again, the coupling is back.
+  List<MaterialGroup> get kGroups => _groups.groups;
+
+  void selectCategory(String name) => selectedCategory.value = name;
+
+  /// null clears the group, which is a real choice rather than a
+  /// missing one.
+  void selectGroup(String? groupId) => selectedGroupId.value = groupId;
 
   @override
   void onInit() {
     super.onInit();
     _loadSuppliers();
-    _groups.load().then((_) {
+    _groups.load();
+    _categories.load().then((_) {
+      // Default to the first category only if the person has not
+      // already picked one while the request was in flight.
       if (selectedCategory.value.isEmpty && kCategories.isNotEmpty) {
         selectCategory(kCategories.first);
       }
     });
-    // The store may already be populated from another screen, in which
-    // case the future above resolves with nothing left to do.
-    if (kCategories.isNotEmpty) selectCategory(kCategories.first);
+    // The store carries the built-in list from the moment it exists, so
+    // the picker is never empty even before the fetch lands.
+    if (selectedCategory.value.isEmpty && kCategories.isNotEmpty) {
+      selectCategory(kCategories.first);
+    }
   }
 
   @override
@@ -307,6 +378,16 @@ class AddMaterialController extends GetxController {
   }
 
   Future<bool> save() async {
+    if (nameCtrl.text.trim().isEmpty) {
+      _snack('Validation', 'Please enter a material name', isError: true);
+      return false;
+    }
+    // Caught here rather than left to the server's 400, so the message
+    // names the field instead of quoting an empty string back.
+    if (selectedCategory.value.trim().isEmpty) {
+      _snack('Validation', 'Please choose a category', isError: true);
+      return false;
+    }
     if (selectedSupplierId.value == null) {
       _snack('Validation', 'Please select a supplier', isError: true);
       return false;
@@ -315,11 +396,11 @@ class AddMaterialController extends GetxController {
     try {
       await MaterialApiService.createMaterial({
         'name':     nameCtrl.text.trim(),
-        // Both: the id when the picker holds a real group, and the name
-        // either way. The server settles them against each other and
-        // stores the group's own spelling, which is what stops this app
-        // and the web writing two variants of one category.
-        if (selectedGroupId.value != null) 'group': selectedGroupId.value,
+        // Two independent fields. `group` is sent as null rather than
+        // omitted when nothing is picked — "file this under nothing" is
+        // a choice, and an absent key reads as "leave it alone", which
+        // is a different instruction.
+        'group':    selectedGroupId.value,
         'category': selectedCategory.value,
         'stock':    double.tryParse(stockCtrl.text) ?? 0,
         'minStock': double.tryParse(minStockCtrl.text) ?? 0,

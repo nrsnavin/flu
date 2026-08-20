@@ -71,16 +71,25 @@ class _AddRawMaterialPageState extends State<AddRawMaterialPage> {
                     (v?.trim().isEmpty ?? true) ? 'Required' : null,
                   ),
                   const SizedBox(height: 12),
-                  // Category dropdown
+
+                  // ── Category: what the SYSTEM needs to know ────
+                  //
+                  //  One of the fixed five, and required. This field
+                  //  is the vocabulary the elastic recipe picker, the
+                  //  MRP sheet and the warp/weft/covering queries are
+                  //  written in — they match these strings literally.
+                  //  It used to be filled from the mill's group names,
+                  //  which meant a yarn filed under "Trim Tape"
+                  //  answered none of those queries and vanished from
+                  //  the warp picker without erroring.
                   Obx(() => DropdownButtonFormField<String>(
-                    // Never a value outside `items` — the list comes
-                    // from the server now, and a Dropdown whose value
-                    // is not among its items throws rather than
+                    // Never a value outside `items`: a Dropdown whose
+                    // value is not among its items throws rather than
                     // rendering a wrong default.
                     value: c.kCategories.contains(c.selectedCategory.value)
                         ? c.selectedCategory.value
                         : null,
-                    decoration: ErpDecorations.formInput('Group *'),
+                    decoration: ErpDecorations.formInput('Category *'),
                     style: ErpTextStyles.fieldValue,
                     dropdownColor: ErpColors.bgSurface,
                     items: c.kCategories
@@ -99,11 +108,61 @@ class _AddRawMaterialPageState extends State<AddRawMaterialPage> {
                       ]),
                     ))
                         .toList(),
-                    // Through the controller, so the group ID is
-                    // captured alongside the name — the create call
-                    // sends both.
                     onChanged: (v) => c.selectCategory(v!),
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Category is required' : null,
                   )),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Where this sits in the cloth, or what it is. Fixed '
+                    'list — the recipe and MRP screens read this field.',
+                    style: TextStyle(fontSize: 10.5, color: ErpColors.textMuted),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // ── Group: what the MILL wants to track ────────
+                  //
+                  //  Optional, and "None" is a real answer — a
+                  //  material can exist before anybody has filed it.
+                  //  Nothing in the engine branches on this; it is for
+                  //  filtering, colour and reporting. Its options come
+                  //  from MaterialGroupStore and must never come from
+                  //  the same place as the categories above.
+                  Obx(() {
+                    final groups = c.kGroups;
+                    return DropdownButtonFormField<String?>(
+                      value: groups.any((g) => g.id == c.selectedGroupId.value)
+                          ? c.selectedGroupId.value
+                          : null,
+                      decoration: ErpDecorations.formInput('Group'),
+                      style: ErpTextStyles.fieldValue,
+                      dropdownColor: ErpColors.bgSurface,
+                      items: [
+                        DropdownMenuItem<String?>(
+                          value: null,
+                          child: Text('— None —',
+                              style: TextStyle(color: ErpColors.textMuted)),
+                        ),
+                        ...groups.map((g) => DropdownMenuItem<String?>(
+                              value: g.id,
+                              child: Text(g.name),
+                            )),
+                      ],
+                      onChanged: c.selectGroup,
+                    );
+                  }),
+                  const SizedBox(height: 6),
+                  Obx(() => Text(
+                        c.kGroups.isEmpty
+                            ? 'No material groups yet. Your own '
+                                'classification — optional, and you can '
+                                'add groups from the Material Groups screen.'
+                            : 'Your own classification. Optional, and '
+                                'separate from the category above.',
+                        style: TextStyle(
+                            fontSize: 10.5, color: ErpColors.textMuted),
+                      )),
                 ]),
               ),
               const SizedBox(height: 12),

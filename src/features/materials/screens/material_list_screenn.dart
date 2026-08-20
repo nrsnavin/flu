@@ -165,34 +165,55 @@ class _SearchAndActions extends StatelessWidget {
         ),
       ),
       // Active filter chips
+      //
+      // Category and group get their own chips, prefixed, because
+      // "warp" and "Trim Tape" sitting unlabelled in the same row give
+      // no clue that they filter on different fields — which is the
+      // confusion this whole split exists to end.
       Obx(() {
-        final hasCat  = c.category.value != 'All';
-        final hasLow  = c.lowStockOnly.value;
-        if (!hasCat && !hasLow) return const SizedBox.shrink();
+        final hasCat   = c.category.value != 'All';
+        final grpName  = c.groupName;
+        final hasGroup = grpName != null;
+        final hasLow   = c.lowStockOnly.value;
+        if (!hasCat && !hasGroup && !hasLow) return const SizedBox.shrink();
+
+        final chips = <Widget>[
+          if (hasCat)
+            _FilterChip(
+              label: 'Category: ${c.category.value}',
+              onRemove: () {
+                c.category.value     = 'All';
+                c.tempCategory.value = 'All';
+                c.fetchMaterials();
+              },
+            ),
+          if (hasGroup)
+            _FilterChip(
+              label: 'Group: $grpName',
+              onRemove: () {
+                c.groupId.value     = null;
+                c.tempGroupId.value = null;
+                c.fetchMaterials();
+              },
+            ),
+          if (hasLow)
+            _FilterChip(
+              label: 'Low Stock',
+              color: ErpColors.errorRed,
+              onRemove: () {
+                c.lowStockOnly.value = false;
+                c.tempLowStock.value = false;
+                c.fetchMaterials();
+              },
+            ),
+        ];
+
         return Padding(
           padding: const EdgeInsets.only(top: 8),
-          child: Row(children: [
-            if (hasCat)
-              _FilterChip(
-                label: c.category.value,
-                onRemove: () {
-                  c.category.value     = 'All';
-                  c.tempCategory.value = 'All';
-                  c.fetchMaterials();
-                },
-              ),
-            if (hasCat && hasLow) const SizedBox(width: 6),
-            if (hasLow)
-              _FilterChip(
-                label: 'Low Stock',
-                color: ErpColors.errorRed,
-                onRemove: () {
-                  c.lowStockOnly.value = false;
-                  c.tempLowStock.value = false;
-                  c.fetchMaterials();
-                },
-              ),
-          ]),
+          // Wrap rather than Row: three chips with a long group name
+          // overflow a phone, and an overflowing Row paints a stripe
+          // rather than dropping the chip.
+          child: Wrap(spacing: 6, runSpacing: 6, children: chips),
         );
       }),
     ]),
@@ -446,6 +467,41 @@ class _FilterSheet extends StatelessWidget {
         onChanged: (v) => c.tempCategory.value = v!,
       )),
       const SizedBox(height: 12),
+
+      // Group dropdown — a separate field, so a separate control.
+      //
+      // Hidden entirely when the mill has no groups: an "Any group"
+      // picker with nothing behind it is a control that looks broken.
+      Obx(() {
+        final groups = c.groups;
+        if (groups.isEmpty) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: DropdownButtonFormField<String?>(
+            value: groups.any((g) => g.id == c.tempGroupId.value)
+                ? c.tempGroupId.value
+                : null,
+            dropdownColor: ErpColors.bgSurface,
+            style: ErpTextStyles.fieldValue,
+            decoration: ErpDecorations.formInput('Group',
+                prefix: Icon(Icons.folder_outlined,
+                    size: 16, color: ErpColors.textMuted)),
+            items: [
+              DropdownMenuItem<String?>(
+                value: null,
+                child: Text('Any group',
+                    style: TextStyle(color: ErpColors.textMuted)),
+              ),
+              ...groups.map((g) => DropdownMenuItem<String?>(
+                    value: g.id,
+                    child: Text(g.name),
+                  )),
+            ],
+            onChanged: (v) => c.tempGroupId.value = v,
+          ),
+        );
+      }),
+
       // Low stock toggle
       Obx(() => Container(
         decoration: BoxDecoration(

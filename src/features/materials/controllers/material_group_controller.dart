@@ -297,14 +297,23 @@ class MaterialGroupStore extends GetxService {
   final isLoading = false.obs;
   final loadFailed = false.obs;
 
-  /// Group names for a dropdown. Falls back to the names this app has
-  /// always used rather than returning an empty list.
-  List<String> get names => groups.isNotEmpty
-      ? groups.map((g) => g.name).toList()
-      : List<String>.from(kFallbackCategories);
-
-  /// The same, with the "All" option a filter sheet needs in front.
-  List<String> get namesWithAll => ['All', ...names];
+  // ── `names` / `namesWithAll` are gone, deliberately ─────────────
+  //
+  //  They returned group names, and five screens fed them to controls
+  //  labelled "Category" — so the add-material form wrote a group name
+  //  into RawMaterial.category, and every category filter asked for a
+  //  value that field no longer holds.
+  //
+  //  Falling back to kFallbackCategories when the fetch failed made it
+  //  worse rather than safer: the fallback IS the category list, so a
+  //  failed load made a group picker quietly start offering categories,
+  //  and the two were indistinguishable on screen.
+  //
+  //  Categories come from MaterialCategoryStore. Groups are objects,
+  //  not names — a picker needs the id to file a material under one,
+  //  and names are not unique enough to be a key. Use `groups`.
+  //
+  //  Nothing should reintroduce a `List<String>` of group names here.
 
   MaterialGroup? byName(String name) {
     final lower = name.toLowerCase();

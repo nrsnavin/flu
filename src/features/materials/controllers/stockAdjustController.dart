@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
-import 'material_group_controller.dart';
+import 'material_category_store.dart';
 
 // ── Model ──────────────────────────────────────────────────────
 class StockAdjustItem {
@@ -102,8 +102,13 @@ class StockAdjustController extends GetxController {
   TextEditingController reasCtrl(String id) => _reasCtrls[id]!;
 
   // From the server, not hardcoded — see material_group_controller.dart.
-  final _groups = MaterialGroupStore.ensure();
-  List<String> get categories => _groups.namesWithAll;
+  // The chips here filter on RawMaterial.category, which now holds
+  // one of the fixed five. They used to be built from GROUP names, so
+  // every chip matched nothing the moment the two fields were split —
+  // and a filter that matches nothing looks exactly like a category
+  // with no materials in it.
+  final _categories = MaterialCategoryStore.ensure();
+  List<String> get categories => _categories.categoriesWithAll;
 
   @override
   void onInit() {

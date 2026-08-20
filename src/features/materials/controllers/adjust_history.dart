@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../core/app_config.dart';
-import 'material_group_controller.dart';
+import 'material_category_store.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  MODEL
@@ -73,8 +73,11 @@ class StockAdjustHistoryController extends GetxController {
   // adjust_screen.dart. Now an instance getter backed by the shared
   // store, because a const list cannot follow a group renamed in
   // Settings — which is the whole point of the change.
-  final _groups = MaterialGroupStore.ensure();
-  List<String> get categories => _groups.namesWithAll;
+  // Sent to the server as `category=`, which is matched against the
+  // fixed five. Built from GROUP names until now, so every chip asked
+  // for a category that no longer exists and came back empty.
+  final _categories = MaterialCategoryStore.ensure();
+  List<String> get categories => _categories.categoriesWithAll;
 
   static const List<int> kDayOptions = [7, 30, 90, 180, 365];
 

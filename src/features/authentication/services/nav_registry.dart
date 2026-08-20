@@ -39,6 +39,7 @@ import 'package:production/src/features/machines/screens/machineList.dart';
 import 'package:production/src/features/machines/screens/maintenance_due_page.dart';
 import 'package:production/src/features/materials/screens/material_list_screenn.dart';
 import 'package:production/src/features/materials/screens/stock_adjust.dart';
+import 'package:production/src/features/stockCounts/screens/stock_count_list_page.dart';
 import 'package:production/src/features/packing/screens/AddPacking.dart';
 import 'package:production/src/features/packing/screens/PackingOverview.dart';
 import 'package:production/src/features/payroll/screens/payroll_page.dart';
@@ -285,6 +286,12 @@ class NavRegistry extends GetxController {
       icon: Icons.inventory_2_outlined, section: 'PRODUCTION',
       keywords: const ['yarn', 'materials'],
       open: () => Get.to(() => RawMaterialListPage()),
+    ),
+    NavModule(
+      id: 'stock_counts', label: 'Stock Counts',
+      icon: Icons.fact_check_outlined, section: 'INVENTORY',
+      keywords: const ['physical inventory', 'count', 'variance', 'stocktake'],
+      open: () => Get.to(() => const StockCountListPageView()),
     ),
     NavModule(
       id: 'stock_adjust', label: 'Stock Adjust',

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/qc_controller.dart';
 import '../controllers/new_qc_controller.dart';
+import '../../../core/widgets/scan_job_button.dart';
 
 class NewQcPage extends StatefulWidget {
   const NewQcPage({super.key});
@@ -46,6 +47,8 @@ class _NewQcPageState extends State<NewQcPage> {
         children: [
           _label('Job'),
           Obx(() => _jobDropdown()),
+          const SizedBox(height: 8),
+          Obx(() => _jobScanButton()),
           const SizedBox(height: 14),
           _label('Elastic'),
           Obx(() => _elasticDropdown()),
@@ -157,6 +160,25 @@ class _NewQcPageState extends State<NewQcPage> {
       ),
     );
   }
+
+  /// Beside the dropdown, never instead of it. The QC check happens at
+  /// the trolley with the job label on it, so scanning removes the
+  /// transcription — but a torn label or a flat battery must not stop
+  /// the check being recorded.
+  Widget _jobScanButton() => Align(
+        alignment: Alignment.centerLeft,
+        child: ScanJobButton<QcJob>(
+          candidates: c.jobs.toList(),
+          idOf: (j) => j.id,
+          jobNoOf: (j) => j.jobOrderNo,
+          scopeLabel: 'jobs open for QC',
+          onMatched: (job) {
+            c.selectedJobId.value = job.id;
+            c.selectedElasticId.value = '';
+            c.results.clear();
+          },
+        ),
+      );
 
   Widget _elasticDropdown() {
     final els = c.job?.elastics ?? [];

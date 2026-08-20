@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/packing_controller.dart';
 import '../models/PackingModel.dart';
+import '../../../core/widgets/scan_job_button.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -132,6 +133,23 @@ class _AddPackingPageState extends State<AddPackingPage> {
                     },
                     validator: (v) =>
                     v == null ? 'Please select a job' : null,
+                  ),
+                  const SizedBox(height: 10),
+                  // Beside the dropdown, not instead of it — labels get
+                  // wet and torn, and a flow that needs a working camera
+                  // is a flow that stops when the camera does.
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ScanJobButton<PackingJobModel>(
+                      candidates: c.jobs.toList(),
+                      idOf: (j) => j.id,
+                      jobNoOf: (j) => j.jobNo,
+                      scopeLabel: 'jobs in packing',
+                      onMatched: (job) {
+                        c.selectedJob.value = job;
+                        c.selectedElastic.value = null;
+                      },
+                    ),
                   ),
                   const SizedBox(height: 12),
                   // Elastic dropdown (shown after job selected)

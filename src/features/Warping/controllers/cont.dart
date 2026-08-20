@@ -32,8 +32,21 @@ class WarpingApi {
   static Future<void> start(String id) async =>
       _dio.post('/start', data: {'id': id, 'actor': buildActorPayload()});
 
-  static Future<void> complete(String id) async =>
-      _dio.post('/complete', data: {'id': id, 'actor': buildActorPayload()});
+  /// Complete a warping.
+  ///
+  /// [forceReason] skips the "yarn still on the rack" gate. The route
+  /// enforces a minimum of 5 characters and records the reason on the
+  /// fingerprint, so a completion that skipped the check stays visible
+  /// afterwards instead of looking like one that passed it.
+  static Future<void> complete(String id, {String? forceReason}) async =>
+      _dio.post('/complete', data: {
+        'id': id,
+        'actor': buildActorPayload(),
+        if (forceReason != null) ...{
+          'force': true,
+          'forceReason': forceReason,
+        },
+      });
 
   // FIX: was { _id: id } on backend — now fixed to { warping: id }
   static Future<WarpingPlanDetail?> fetchPlan(String warpingId) async {

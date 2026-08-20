@@ -38,23 +38,118 @@ import '../../../core/api_client.dart';
 class MaterialGroup {
   final String id;
   final String name;
+
+  /// Stable handle that does NOT move when the name is edited.
+  final String code;
   final String kind;
   final String colour;
+  final int sortOrder;
+  final String defaultUnit;
+  final double defaultMinStock;
+  final String notes;
+  final bool archived;
+
+  /// Live members. Only present when the list was asked withCounts.
+  final int? materialCount;
+
+  /// Live PLUS archived members. This — not [materialCount] — is what
+  /// decides archive-vs-delete, because an archived material still
+  /// names its group. Reading the live count alone made the web's
+  /// confirm dialog promise "removed outright" for a group the server
+  /// then archived; the same trap is here.
+  final int? totalMaterialCount;
 
   const MaterialGroup({
     required this.id,
     required this.name,
+    this.code = '',
     this.kind = 'other',
     this.colour = '',
+    this.sortOrder = 0,
+    this.defaultUnit = 'kg',
+    this.defaultMinStock = 0,
+    this.notes = '',
+    this.archived = false,
+    this.materialCount,
+    this.totalMaterialCount,
   });
 
   factory MaterialGroup.fromJson(Map<String, dynamic> j) => MaterialGroup(
         id: (j['_id'] ?? '').toString(),
         name: (j['name'] ?? '').toString(),
+        code: (j['code'] ?? '').toString(),
         kind: (j['kind'] ?? 'other').toString(),
         colour: (j['colour'] ?? '').toString(),
+        sortOrder: (j['sortOrder'] as num?)?.toInt() ?? 0,
+        defaultUnit: (j['defaultUnit'] ?? 'kg').toString(),
+        defaultMinStock: (j['defaultMinStock'] as num?)?.toDouble() ?? 0,
+        notes: (j['notes'] ?? '').toString(),
+        archived: j['archived'] == true,
+        materialCount: (j['materialCount'] as num?)?.toInt(),
+        totalMaterialCount: (j['totalMaterialCount'] as num?)?.toInt(),
+      );
+
+  Map<String, dynamic> toValues() => {
+        'name': name,
+        'kind': kind,
+        'sortOrder': sortOrder,
+        'colour': colour,
+        'defaultUnit': defaultUnit,
+        'defaultMinStock': defaultMinStock,
+        'notes': notes,
+      };
+
+  MaterialGroup copyWith({
+    String? name,
+    String? kind,
+    String? colour,
+    int? sortOrder,
+    String? defaultUnit,
+    double? defaultMinStock,
+    String? notes,
+  }) =>
+      MaterialGroup(
+        id: id,
+        name: name ?? this.name,
+        code: code,
+        kind: kind ?? this.kind,
+        colour: colour ?? this.colour,
+        sortOrder: sortOrder ?? this.sortOrder,
+        defaultUnit: defaultUnit ?? this.defaultUnit,
+        defaultMinStock: defaultMinStock ?? this.defaultMinStock,
+        notes: notes ?? this.notes,
+        archived: archived,
+        materialCount: materialCount,
+        totalMaterialCount: totalMaterialCount,
       );
 }
+
+/// Which question a group answers.
+///
+///   position — where the material sits in the cloth: warp, weft, covering
+///   material — what the material IS: rubber, chemicals, yarn
+///   other    — neither, or not decided yet
+///
+/// The two axes shared one field for years, which is why the original
+/// list read oddly: three positions and one substance.
+const kGroupKinds = <String, ({String label, String hint})>{
+  'position': (label: 'Position in the cloth', hint: 'Warp, weft, covering'),
+  'material': (label: 'What it is', hint: 'Rubber, chemicals, yarn'),
+  'other': (label: 'Other', hint: 'Anything else'),
+};
+
+/// The colours this app has always drawn its category chips in, so a
+/// group created here looks native rather than an arbitrary hex.
+const kGroupSwatches = <String>[
+  '#3B82F6', // warp
+  '#8B5CF6', // weft
+  '#14B8A6', // covering
+  '#F59E0B', // rubber
+  '#EF4444', // chemicals
+  '#10B981',
+  '#EC4899',
+  '#6B7280',
+];
 
 /// What this app shipped with, before the list came from the server.
 /// Used only when the fetch fails — see the note above.
@@ -124,11 +219,57 @@ class MaterialGroupService {
     timeout: const Duration(seconds: 12),
   );
 
-  static Future<List<MaterialGroup>> fetch() async {
-    final res = await _dio.get('/');
+  static Future<List<MaterialGroup>> fetch({
+    bool includeArchived = false,
+    bool withCounts = false,
+  }) async {
+    final res = await _dio.get('/', queryParameters: {
+      if (includeArchived) 'includeArchived': '1',
+      // Costs an extra aggregation on the server, so only the settings
+      // screen asks for it.
+      if (withCounts) 'withCounts': '1',
+    });
     return (res.data['groups'] as List? ?? [])
-        .map((e) => MaterialGroup.fromJson(e as Map<String, dynamic>))
+        .map((e) => MaterialGroup.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
+  }
+
+  static Future<MaterialGroup> create(Map<String, dynamic> values) async {
+    final res = await _dio.post('/create', data: values);
+    return MaterialGroup.fromJson(
+        Map<String, dynamic>.from(res.data['group'] as Map));
+  }
+
+  /// A rename cascades to every member's category, so the response
+  /// says how many materials moved — worth showing, because renaming a
+  /// group silently rewriting eighty rows is a surprise.
+  static Future<({MaterialGroup group, int materialsRenamed})> update(
+    String id,
+    Map<String, dynamic> values,
+  ) async {
+    final res = await _dio.put('/update', data: {'id': id, ...values});
+    return (
+      group: MaterialGroup.fromJson(
+          Map<String, dynamic>.from(res.data['group'] as Map)),
+      materialsRenamed: (res.data['materialsRenamed'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  /// Archives if the group holds materials, deletes if it never did —
+  /// the same rule materials, elastics and customers already follow.
+  /// The response says which happened and why.
+  static Future<({bool archived, String message})> remove(String id) async {
+    final res = await _dio.delete('/$id');
+    return (
+      archived: res.data['archived'] == true,
+      message: (res.data['message'] ?? '').toString(),
+    );
+  }
+
+  static Future<MaterialGroup> restore(String id) async {
+    final res = await _dio.post('/restore', data: {'id': id});
+    return MaterialGroup.fromJson(
+        Map<String, dynamic>.from(res.data['group'] as Map));
   }
 }
 

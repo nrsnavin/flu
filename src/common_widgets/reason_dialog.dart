@@ -10,6 +10,14 @@ Future<String?> showReasonDialog({
   String? message,
   String confirmLabel = 'Confirm',
   bool danger = false,
+  /// Shortest reason the SERVER will accept for this action.
+  ///
+  /// Defaults to the 3 this dialog has always enforced, so no existing
+  /// caller changes. It is a parameter because the routes disagree —
+  /// warping's force-complete wants 5 — and a dialog that accepts a
+  /// reason the server is about to refuse spends somebody's typing and
+  /// then loses it to an error they cannot act on.
+  int minLength = 3,
 }) {
   final ctrl = TextEditingController();
   return Get.dialog<String>(
@@ -46,7 +54,9 @@ Future<String?> showReasonDialog({
           ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: danger ? ErpColors.errorRed : ErpColors.accentBlue, elevation: 0),
-            onPressed: ctrl.text.trim().length < 3 ? null : () => Get.back(result: ctrl.text.trim()),
+            onPressed: ctrl.text.trim().length < minLength
+                ? null
+                : () => Get.back(result: ctrl.text.trim()),
             child: Text(confirmLabel, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
           ),
         ],

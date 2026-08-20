@@ -42,6 +42,7 @@ import 'package:production/src/features/machines/screens/machineList.dart';
 import 'package:production/src/features/machines/screens/maintenance_due_page.dart';
 import 'package:production/src/features/materials/screens/material_list_screenn.dart';
 import 'package:production/src/features/materials/screens/stock_adjust.dart';
+import 'package:production/src/features/materials/screens/material_groups_page.dart';
 import 'package:production/src/features/stockCounts/screens/stock_count_list_page.dart';
 import 'package:production/src/features/machines/screens/service_analytics_page.dart';
 import 'package:production/src/features/complaints/screens/complaint_list_page.dart';
@@ -374,6 +375,16 @@ class NavRegistry extends GetxController {
       icon: Icons.fact_check_outlined, section: 'INVENTORY',
       keywords: const ['physical inventory', 'count', 'variance', 'stocktake'],
       open: () => Get.to(() => const StockCountListPageView()),
+    ),
+    NavModule(
+      // Gated on '/materials', NOT a key of its own — the web has a
+      // test asserting '/materials/groups' is not in ALL_FEATURE_KEYS.
+      // An unregistered key is dropped by sanitizeFeatures(), so
+      // inventing one here would hide the screen with no error.
+      id: 'material_groups', feature: '/materials', label: 'Material Groups',
+      icon: Icons.category_outlined, section: 'INVENTORY',
+      keywords: const ['category', 'categories', 'group', 'warp', 'weft', 'rubber'],
+      open: () => Get.to(() => const MaterialGroupsPage()),
     ),
     NavModule(
       id: 'stock_adjust', feature: '/materials', label: 'Stock Adjust',

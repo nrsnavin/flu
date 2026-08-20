@@ -35,8 +35,21 @@ class WarpingApi {
   static Future<void> start(String id) async =>
       _dio.post('/start', data: {'id': id, 'actor': buildActorPayload()});
 
-  static Future<void> complete(String id) async =>
-      _dio.post('/complete', data: {'id': id, 'actor': buildActorPayload()});
+  /// Complete a warping.
+  ///
+  /// [forceReason] skips the "yarn still on the rack" gate. The route
+  /// enforces a minimum of 5 characters and records the reason on the
+  /// fingerprint, so a completion that skipped the check stays visible
+  /// afterwards instead of looking like one that passed it.
+  static Future<void> complete(String id, {String? forceReason}) async =>
+      _dio.post('/complete', data: {
+        'id': id,
+        'actor': buildActorPayload(),
+        if (forceReason != null) ...{
+          'force': true,
+          'forceReason': forceReason,
+        },
+      });
 
   // FIX: was { _id: id } on backend — now fixed to { warping: id }
   static Future<WarpingPlanDetail?> fetchPlan(String warpingId) async {
@@ -312,15 +325,41 @@ class WarpingDetailController extends GetxController {
     }
   }
 
-  Future<bool> completeWarping() async {
+  /// The one refusal that is not a mistake.
+  ///
+  /// The route rejects completion while the yarn is still on the rack
+  /// (409 WARPING_YARN_NOT_ISSUED). That is a state the operator can
+  /// FIX — issue the batch — so it is held on screen as something to
+  /// act on rather than flashed past in a red snackbar, which is all
+  /// the phone did with it before. The web has held it this way since
+  /// the rule shipped; the phone silently could not get past it.
+  final yarnBlocker = RxnString();
+
+  void dismissYarnBlocker() => yarnBlocker.value = null;
+
+  /// [forceReason] completes anyway, for beams already off the machine
+  /// — warping that ran before the yarn was recorded against a batch.
+  /// The route wants at least 5 characters and keeps it on the audit
+  /// trail.
+  Future<bool> completeWarping({String? forceReason}) async {
     isActing.value = true;
     try {
-      await WarpingApi.complete(warpingId);
+      await WarpingApi.complete(warpingId, forceReason: forceReason);
+      yarnBlocker.value = null;
       await fetchDetail();
       _snack('Warping completed successfully', isError: false);
       return true;
     } on DioException catch (e) {
-      _snack(e.response?.data?['message'] as String? ?? 'Failed to complete', isError: true);
+      final data = e.response?.data;
+      final code = data is Map ? data['code']?.toString() : null;
+      final message =
+          (data is Map ? data['message'] as String? : null) ?? 'Failed to complete';
+      if (code == 'WARPING_YARN_NOT_ISSUED') {
+        // Not a snackbar. It stays until it is dealt with.
+        yarnBlocker.value = message;
+        return false;
+      }
+      _snack(message, isError: true);
       return false;
     } catch (e) {
       _snack(e.toString(), isError: true);

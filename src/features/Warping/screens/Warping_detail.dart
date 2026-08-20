@@ -62,6 +62,7 @@ class _WarpingDetailPageState extends State<WarpingDetailPage>
           onRefresh: c.fetchDetail,
           child: Column(children: [
             _HeroCard(w: w),
+            _YarnBlocker(c: c),
             _StatusActions(c: c, w: w),
             TabBar(
               controller: _tabs,
@@ -267,6 +268,103 @@ class _StatusBadge extends StatelessWidget {
           color: color, fontSize: 11, fontWeight: FontWeight.w900),
     ),
   );
+}
+
+// ══════════════════════════════════════════════════════════════
+//  THE YARN IS STILL ON THE RACK
+//
+//  The server refuses to complete a warping whose batch has not been
+//  issued (409 WARPING_YARN_NOT_ISSUED). The phone used to throw that
+//  into a red snackbar with every other failure, which was wrong in
+//  two ways: it vanished after four seconds, and it left no way past
+//  — so an operator with beams already off the machine, from before
+//  the rule existed, simply could not finish the warping from here.
+//  The web has held it on screen since the rule shipped.
+//
+//  It is held until dismissed, it says WHY the rule exists rather
+//  than only that it fired, and it offers the same override the web
+//  does: a reason of at least five characters, kept on the audit
+//  trail so a completion that skipped the check stays distinguishable
+//  from one that passed it.
+// ══════════════════════════════════════════════════════════════
+class _YarnBlocker extends StatelessWidget {
+  final WarpingDetailController c;
+  const _YarnBlocker({required this.c});
+
+  @override
+  Widget build(BuildContext context) => Obx(() {
+        final msg = c.yarnBlocker.value;
+        if (msg == null) return const SizedBox.shrink();
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: ErpColors.statusPartialBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: ErpColors.statusPartialBorder),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Not completed — the yarn is still on the rack',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                      color: ErpColors.statusPartialText)),
+              const SizedBox(height: 4),
+              Text(msg,
+                  style: const TextStyle(
+                      fontSize: 12, color: ErpColors.textPrimary)),
+              const SizedBox(height: 6),
+              const Text(
+                'Issuing the batch is what moves the lot balances and ties '
+                'these beams to the dye lot inside them. Completing without '
+                'it leaves the lot ledger claiming yarn that has gone.',
+                style: TextStyle(
+                    fontSize: 11, color: ErpColors.textSecondary, height: 1.35),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  OutlinedButton(
+                    onPressed: c.dismissYarnBlocker,
+                    style: OutlinedButton.styleFrom(
+                        visualDensity: VisualDensity.compact),
+                    child: const Text('Dismiss',
+                        style: TextStyle(fontSize: 12)),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () => _forceComplete(),
+                    style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact),
+                    child: const Text('Complete anyway…',
+                        style: TextStyle(fontSize: 12)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      });
+
+  Future<void> _forceComplete() async {
+    final reason = await showReasonDialog(
+      title: 'Complete without issuing the yarn',
+      message:
+          'For beams already off the machine — warping that ran before the '
+          'yarn was recorded against a batch. The reason is kept on the '
+          "job's audit trail, so this is not mistaken for a completion "
+          'that met the rule.',
+      confirmLabel: 'Complete anyway',
+      // The route enforces 5. Matching it here means the dialog does
+      // not accept a reason the server is about to refuse.
+      minLength: 5,
+    );
+    if (reason == null) return;
+    await c.completeWarping(forceReason: reason);
+  }
 }
 
 // ══════════════════════════════════════════════════════════════

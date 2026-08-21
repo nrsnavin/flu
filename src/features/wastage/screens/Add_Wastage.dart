@@ -180,7 +180,7 @@ class _AddWastagePageState extends State<AddWastagePage> {
                 height: 50,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: ErpColors.errorRed,
+                    backgroundColor: ErpColors.solidError,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),

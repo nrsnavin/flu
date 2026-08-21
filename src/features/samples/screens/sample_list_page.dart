@@ -91,7 +91,7 @@ class _SampleListPageViewState extends State<SampleListPageView> {
           if (code == null || code.isEmpty) return;
           c.fetch();
           Get.snackbar('Sample raised', '$code created',
-              backgroundColor: const Color(0xFF16A34A),
+              backgroundColor: ErpColors.solidSuccess,
               colorText: Colors.white,
               snackPosition: SnackPosition.BOTTOM);
         },

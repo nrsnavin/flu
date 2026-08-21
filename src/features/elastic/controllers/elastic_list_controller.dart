@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../../PurchaseOrder/services/theme.dart';
 import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -62,7 +63,7 @@ class ElasticListController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to load elastics";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -96,7 +97,7 @@ class ElasticListController extends GetxController {
       final msg = (res.data is Map ? res.data['message']?.toString() : null) ??
           (archived ? 'Elastic archived' : 'Elastic restored');
       Get.snackbar('Done', msg,
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       await fetchElastics(reset: true);
@@ -106,7 +107,7 @@ class ElasticListController extends GetxController {
               : null) ??
           'Failed to update archive state';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     }
@@ -154,7 +155,7 @@ class ElasticDetailController extends GetxController {
       // FIX: was completely missing — errors silently swallowed
       final msg = e.response?.data?['message'] ?? "Failed to load elastic";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {

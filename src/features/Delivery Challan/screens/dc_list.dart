@@ -63,7 +63,7 @@ class DCListController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Failed to load';
       Get.snackbar('Error', msg,
-          backgroundColor: ErpColors.errorRed,
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {

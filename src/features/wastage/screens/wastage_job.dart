@@ -89,7 +89,7 @@ class _WastageJobPageState extends State<WastageJobPage> {
 
   Widget _fab() => FloatingActionButton.extended(
     heroTag: 'addWastageJob',
-    backgroundColor: ErpColors.errorRed,
+    backgroundColor: ErpColors.solidError,
     elevation: 2,
     icon: const Icon(Icons.add, color: Colors.white, size: 18),
     label: const Text('Add Wastage',
@@ -526,7 +526,7 @@ class _WastageDetailSheet extends StatelessWidget {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: ErpColors.errorRed, elevation: 0),
+              style: ElevatedButton.styleFrom(backgroundColor: ErpColors.solidError, elevation: 0),
               onPressed: reasonCtrl.text.trim().length < 3
                   ? null
                   : () async {

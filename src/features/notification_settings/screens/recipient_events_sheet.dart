@@ -148,7 +148,7 @@ class RecipientEventsSheet extends StatelessWidget {
                                 Get.snackbar(
                                   'Could not update',
                                   ctrl.lastError.value,
-                                  backgroundColor: ErpColors.errorRed,
+                                  backgroundColor: ErpColors.solidError,
                                   colorText: Colors.white,
                                   snackPosition: SnackPosition.BOTTOM,
                                 );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
@@ -66,7 +67,7 @@ class PendingVerificationController extends GetxController {
       Get.snackbar(
         'Verified',
         'Shift production cascaded with the final values',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -76,7 +77,7 @@ class PendingVerificationController extends GetxController {
       final msg = e.response?.data?['message'] ??
           'Failed to verify shift production';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       return false;

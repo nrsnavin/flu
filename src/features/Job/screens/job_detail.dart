@@ -441,7 +441,7 @@ class JobDetailController extends GetxController {
         'actor':     buildActorPayload(),
       });
       Get.snackbar('Machine Assigned', 'Machine & head plan saved for ${j.jobNo}.',
-          backgroundColor: ErpColors.successGreen,
+          backgroundColor: ErpColors.solidSuccess,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 3),
@@ -452,7 +452,7 @@ class JobDetailController extends GetxController {
     } on DioException catch (e) {
       Get.snackbar('Error',
           e.response?.data?['message']?.toString() ?? 'Failed to assign machine.',
-          backgroundColor: ErpColors.errorRed,
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -477,7 +477,7 @@ class JobDetailController extends GetxController {
         'completed': 'Packing complete. Job is now Completed!',
       };
       Get.snackbar('Status Updated', messages[nextStatus] ?? 'Status updated.',
-          backgroundColor: ErpColors.successGreen,
+          backgroundColor: ErpColors.solidSuccess,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 3),
@@ -487,7 +487,7 @@ class JobDetailController extends GetxController {
     } on DioException catch (e) {
       Get.snackbar('Error',
           e.response?.data?['message']?.toString() ?? 'Failed to update status.',
-          backgroundColor: ErpColors.errorRed,
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -545,7 +545,7 @@ class JobDetailController extends GetxController {
       await file.writeAsBytes(bytes);
       await openExternally(file.path);
       Get.snackbar('PDF Ready', 'Job ${j.jobNo} report exported.',
-          backgroundColor: ErpColors.successGreen,
+          backgroundColor: ErpColors.solidSuccess,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
           margin: const EdgeInsets.all(12),
@@ -553,7 +553,7 @@ class JobDetailController extends GetxController {
           icon: const Icon(Icons.check_circle_rounded, color: Colors.white));
     } catch (e) {
       Get.snackbar('Export Failed', e.toString(),
-          backgroundColor: ErpColors.errorRed,
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -860,12 +860,12 @@ class _StatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final map = {
       'preparatory': (Color(0xFF7C3AED), Color(0xFFF5F3FF), 'Preparatory'),
-      'weaving': (ErpColors.accentBlue, Color(0xFFEFF6FF), 'Weaving'),
+      'weaving': (ErpColors.accentBlue, ErpColors.statusOpenBg, 'Weaving'),
       'finishing': (Color(0xFF0891B2), Color(0xFFECFEFF), 'Finishing'),
-      'checking': (ErpColors.warningAmber, Color(0xFFFFFBEB), 'Checking'),
-      'packing': (Color(0xFF059669), Color(0xFFF0FDF4), 'Packing'),
-      'completed': (ErpColors.successGreen, Color(0xFFF0FDF4), 'Completed'),
-      'cancelled': (ErpColors.errorRed, Color(0xFFFEF2F2), 'Cancelled'),
+      'checking': (ErpColors.warningAmber, ErpColors.statusPartialBg, 'Checking'),
+      'packing': (Color(0xFF059669), ErpColors.statusCompletedBg, 'Packing'),
+      'completed': (ErpColors.successGreen, ErpColors.statusCompletedBg, 'Completed'),
+      'cancelled': (ErpColors.errorRed, ErpColors.statusCancelledBg, 'Cancelled'),
     };
     final entry = map[status];
     final fg = entry?.$1 ?? ErpColors.textSecondary;
@@ -1029,13 +1029,13 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final map = {
-      'completed': (ErpColors.successGreen, Color(0xFFF0FDF4)),
-      'closed': (ErpColors.successGreen, Color(0xFFF0FDF4)),
+      'completed': (ErpColors.successGreen, ErpColors.statusCompletedBg),
+      'closed': (ErpColors.successGreen, ErpColors.statusCompletedBg),
       'in_progress': (Color(0xFF7C3AED), Color(0xFFF5F3FF)),
       'running': (Color(0xFF7C3AED), Color(0xFFF5F3FF)),
-      'open': (ErpColors.accentBlue, Color(0xFFEFF6FF)),
-      'partial': (ErpColors.warningAmber, Color(0xFFFFFBEB)),
-      'logged': (ErpColors.errorRed, Color(0xFFFEF2F2)),
+      'open': (ErpColors.accentBlue, ErpColors.statusOpenBg),
+      'partial': (ErpColors.warningAmber, ErpColors.statusPartialBg),
+      'logged': (ErpColors.errorRed, ErpColors.statusCancelledBg),
     };
     final entry = map[status.toLowerCase()];
     final fg = entry?.$1 ?? ErpColors.textSecondary;
@@ -1830,8 +1830,8 @@ class _BeamCard extends StatelessWidget {
       child: Column(children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: const BoxDecoration(
-              color: Color(0xFF1B2B45),
+          decoration: BoxDecoration(
+              color: ErpColors.navyMid,
               borderRadius:
               BorderRadius.vertical(top: Radius.circular(8))),
           child: Row(children: [
@@ -1857,8 +1857,8 @@ class _BeamCard extends StatelessWidget {
                     fontWeight: FontWeight.w800)),
             const Spacer(),
             Text('${beam.totalEnds} ends',
-                style: const TextStyle(
-                    color: Color(0xFF5A9EFF),
+                style: TextStyle(
+                    color: ErpColors.accentLight,
                     fontSize: 12,
                     fontWeight: FontWeight.w700)),
           ]),
@@ -1927,8 +1927,8 @@ class _BeamCard extends StatelessWidget {
         }),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: const BoxDecoration(
-              color: Color(0xFFF0FDF4),
+          decoration: BoxDecoration(
+              color: ErpColors.statusCompletedBg,
               borderRadius:
               BorderRadius.vertical(bottom: Radius.circular(8))),
           child: Row(children: [
@@ -2628,12 +2628,12 @@ class _PackingTable extends StatelessWidget {
         // ── Totals row ─────────────────────────────────────────
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-          decoration: const BoxDecoration(
-              color: Color(0xFFF0FDF4),
+          decoration: BoxDecoration(
+              color: ErpColors.statusCompletedBg,
               borderRadius: BorderRadius.vertical(
                   bottom: Radius.circular(7)),
               border: Border(
-                  top: BorderSide(color: Color(0xFFBBF7D0)))),
+                  top: BorderSide(color: ErpColors.statusCompletedBorder))),
           child: Row(children: [
             Expanded(
                 child: Text('TOTAL',

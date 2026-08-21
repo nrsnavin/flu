@@ -386,7 +386,7 @@ void _showStatusSheet(
                                     'Validation',
                                     'Add a resolution note before closing',
                                     backgroundColor:
-                                        ErpColors.errorRed,
+                                        ErpColors.solidError,
                                     colorText: Colors.white,
                                     snackPosition: SnackPosition.BOTTOM,
                                   );
@@ -404,7 +404,7 @@ void _showStatusSheet(
                                     'Updated',
                                     'Issue marked as $picked',
                                     backgroundColor:
-                                        ErpColors.successGreen,
+                                        ErpColors.solidSuccess,
                                     colorText: Colors.white,
                                     snackPosition: SnackPosition.BOTTOM,
                                   );

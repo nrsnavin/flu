@@ -225,7 +225,7 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
                   label: "MACHINES",
                   value: shift.runningMachines.toString(),
                   icon: Icons.precision_manufacturing_outlined,
-                  color: const Color(0xFFDC2626),
+                  color: ErpColors.errorRed,
                 ),
                 _divider(),
                 _kpiTile(
@@ -240,7 +240,7 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
                   label: "OPERATORS",
                   value: shift.operators.toString(),
                   icon: Icons.people_outline,
-                  color: const Color(0xFFD97706),
+                  color: ErpColors.warningAmber,
                 ),
               ],
             ),

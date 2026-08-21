@@ -122,12 +122,27 @@ class POAgingPage extends StatelessWidget {
   }
 }
 
-const _bucketMeta = {
-  'fresh':    (Color(0xFFDCFCE7), Color(0xFF15803D), 'FRESH'),
-  'watch':    (Color(0xFFEFF6FF), Color(0xFF1D6FEB), 'WATCH'),
-  'late':     (Color(0xFFFEF3C7), Color(0xFFB45309), 'LATE'),
-  'critical': (Color(0xFFFEE2E2), Color(0xFFB91C1C), 'CRITICAL'),
-};
+/// Read fresh on every use rather than held in a `const` — or in a
+/// `final`, which is worse here because it is initialised lazily and
+/// would freeze whichever palette happened to be current the first
+/// time a PO card was built.
+///
+/// Background and foreground are taken as designed pairs, so a bucket
+/// cannot end up with a dark-theme text colour on a light-theme chip.
+Map<String, (Color, Color, String)> get _bucketMeta => {
+      'fresh': (
+        ErpColors.statusCompletedBg,
+        ErpColors.statusCompletedText,
+        'FRESH'
+      ),
+      'watch': (ErpColors.statusOpenBg, ErpColors.statusOpenText, 'WATCH'),
+      'late': (ErpColors.statusPartialBg, ErpColors.statusPartialText, 'LATE'),
+      'critical': (
+        ErpColors.statusCancelledBg,
+        ErpColors.statusCancelledText,
+        'CRITICAL'
+      ),
+    };
 
 class _BucketChips extends StatelessWidget {
   final POAgingController c;

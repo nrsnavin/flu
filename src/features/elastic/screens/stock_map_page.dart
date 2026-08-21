@@ -657,7 +657,7 @@ class _SummaryRow extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: ErpColors.warningAmber,
+                          color: ErpColors.solidWarning,
                           borderRadius: BorderRadius.circular(3),
                         ),
                         child: const Text('LOW',
@@ -674,7 +674,7 @@ class _SummaryRow extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: ErpColors.errorRed,
+                          color: ErpColors.solidError,
                           borderRadius: BorderRadius.circular(3),
                         ),
                         child: const Text('OVER-RESERVED',

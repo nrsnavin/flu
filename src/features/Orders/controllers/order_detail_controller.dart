@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:production/src/core/api_client.dart';
@@ -33,7 +34,7 @@ class OrderDetailController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to load order";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -61,8 +62,8 @@ class OrderDetailController extends GetxController {
             ? "Approval forced despite insufficient raw stock"
             : "Raw materials deducted from stock",
         backgroundColor: force
-            ? const Color(0xFFD97706)
-            : const Color(0xFF16A34A),
+            ? ErpColors.warningAmber
+            : ErpColors.successGreen,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 3),
@@ -119,7 +120,7 @@ class OrderDetailController extends GetxController {
       Get.snackbar(
         "Error",
         msg.isNotEmpty ? msg : "Approval failed",
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -138,7 +139,7 @@ class OrderDetailController extends GetxController {
       });
       Get.snackbar(
         "Production Started", "Order is now In Progress",
-        backgroundColor: const Color(0xFFD97706),
+        backgroundColor: ErpColors.solidWarning,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -146,7 +147,7 @@ class OrderDetailController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to start production";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -165,7 +166,7 @@ class OrderDetailController extends GetxController {
       });
       Get.snackbar(
         'Order Cancelled', 'The order has been moved to Cancelled.',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -173,7 +174,7 @@ class OrderDetailController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Cancel failed';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -193,7 +194,7 @@ class OrderDetailController extends GetxController {
       });
       Get.snackbar(
         'Order Deleted', 'The order has been removed.',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -201,7 +202,7 @@ class OrderDetailController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Delete failed';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return false;

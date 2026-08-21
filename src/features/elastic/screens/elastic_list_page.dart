@@ -243,10 +243,10 @@ class _ElasticCard extends StatelessWidget {
     final stockColor = hasStock ? ErpColors.successGreen : ErpColors.errorRed;
     final stockBg    = hasStock
         ? ErpColors.statusCompletedBg
-        : const Color(0xFFFEF2F2);
+        : ErpColors.statusCancelledBg;
     final stockBorder = hasStock
         ? ErpColors.statusCompletedBorder
-        : const Color(0xFFFECACA);
+        : ErpColors.statusCancelledBorder;
 
     return GestureDetector(
       onTap: () => Get.to(() => ElasticDetailPage(elasticId: e.id)),

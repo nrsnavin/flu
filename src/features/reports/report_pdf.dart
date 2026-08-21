@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -24,7 +25,7 @@ Future<void> downloadReportPdf({
   Get.snackbar(
     'Generating PDF…',
     'Preparing your report',
-    backgroundColor: const Color(0xFF1D6FEB),
+    backgroundColor: ErpColors.accentBlue,
     colorText: Colors.white,
     snackPosition: SnackPosition.BOTTOM,
     duration: const Duration(seconds: 2),
@@ -46,7 +47,7 @@ Future<void> downloadReportPdf({
       Get.snackbar(
         'Saved',
         'PDF saved to ${file.path}',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -55,7 +56,7 @@ Future<void> downloadReportPdf({
     Get.snackbar(
       'Error',
       'Could not generate the PDF',
-      backgroundColor: const Color(0xFFDC2626),
+      backgroundColor: ErpColors.solidError,
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
     );

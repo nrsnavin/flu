@@ -531,7 +531,7 @@ class _PdfActionsState extends State<_PdfActions> {
       );
     } catch (e) {
       Get.snackbar('PDF Error', e.toString(),
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {

@@ -83,7 +83,7 @@ class _PnlDetailPageViewState extends State<PnlDetailPageView> {
         isError ? 'Error' : 'Done',
         msg,
         backgroundColor:
-            isError ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+            isError ? ErpColors.errorRed : ErpColors.successGreen,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 4),

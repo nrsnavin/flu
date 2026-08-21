@@ -58,7 +58,7 @@ class _AppLockSettingState extends State<AppLockSetting> {
       Get.snackbar(
         want ? 'App lock not turned on' : 'App lock not turned off',
         why,
-        backgroundColor: ErpColors.warningAmber,
+        backgroundColor: ErpColors.solidWarning,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 5),

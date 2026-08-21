@@ -486,38 +486,44 @@ class _EmployeeLeaderboard extends StatelessWidget {
 
 class _ElasticBreakdown extends StatelessWidget {
   final List<ElasticWastageStat> elastics;
-  const _ElasticBreakdown({required this.elastics});
+  _ElasticBreakdown({required this.elastics});
 
-  static const _colors = [
-    Color(0xFF1D6FEB),
-    Color(0xFF7C3AED),
-    Color(0xFF0891B2),
-    Color(0xFFD97706),
-    Color(0xFFDC2626),
-    Color(0xFF16A34A),
-    Color(0xFF0D9488),
-    Color(0xFFDB2777),
-  ];
+  // A categorical series, so the four literals stay literals — there
+  // is no "chart colour 6" in the palette, and these mid-tones read on
+  // either background. The four that DO have names are read live, via
+  // a getter rather than a `const` list they can no longer sit in.
+  static List<Color> get _colors => [
+        ErpColors.accentBlue,
+        const Color(0xFF7C3AED),
+        const Color(0xFF0891B2),
+        ErpColors.warningAmber,
+        ErpColors.errorRed,
+        ErpColors.successGreen,
+        const Color(0xFF0D9488),
+        const Color(0xFFDB2777),
+      ];
 
   @override
   Widget build(BuildContext context) {
     if (elastics.isEmpty) return _EmptyCard('No elastic data');
 
     final total = elastics.fold(0.0, (s, e) => s + e.total);
+    // Read once per build, not once per row: `_colors` is a getter.
+    final colors = _colors;
 
     return ErpSectionCard(
       title: 'WASTAGE BY ELASTIC TYPE',
       icon: Icons.grid_on_rounded,
       child: Column(children: [
         // Segmented bar
-        _SegmentedBar(elastics: elastics, colors: _colors, total: total),
+        _SegmentedBar(elastics: elastics, colors: colors, total: total),
         const SizedBox(height: 14),
         // Legend
         Wrap(
           spacing: 10,
           runSpacing: 8,
           children: elastics.asMap().entries.map((e) {
-            final color = _colors[e.key % _colors.length];
+            final color = colors[e.key % colors.length];
             final pct = total > 0
                 ? (e.value.total / total * 100).toStringAsFixed(1)
                 : '0';
@@ -544,7 +550,7 @@ class _ElasticBreakdown extends StatelessWidget {
         const SizedBox(height: 12),
         // Horizontal bars
         ...elastics.asMap().entries.map((e) {
-          final color = _colors[e.key % _colors.length];
+          final color = colors[e.key % colors.length];
           final pct = total > 0 ? e.value.total / total : 0.0;
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),

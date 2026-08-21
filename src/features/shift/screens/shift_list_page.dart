@@ -186,12 +186,12 @@ class _ShiftCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _isNight
                     ? ErpColors.statusOpenBg
-                    : const Color(0xFFFFFBEB),
+                    : ErpColors.statusPartialBg,
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: _isNight
                       ? ErpColors.statusOpenBorder
-                      : const Color(0xFFFDE68A),
+                      : ErpColors.statusPartialBorder,
                 ),
               ),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -200,7 +200,7 @@ class _ShiftCard extends StatelessWidget {
                   size: 10,
                   color: _isNight
                       ? ErpColors.statusOpenText
-                      : const Color(0xFFD97706),
+                      : ErpColors.warningAmber,
                 ),
                 const SizedBox(width: 4),
                 Text(
@@ -208,7 +208,7 @@ class _ShiftCard extends StatelessWidget {
                   style: TextStyle(
                     color: _isNight
                         ? ErpColors.statusOpenText
-                        : const Color(0xFFD97706),
+                        : ErpColors.warningAmber,
                     fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 0.5,
                   ),
                 ),

@@ -3,6 +3,7 @@
 //  File: lib/src/features/materials/controllers/rawMaterial_list_controller.dart
 // ══════════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
@@ -89,7 +90,7 @@ class RawMaterialListController extends GetxController {
     } on DioException catch (e) {
       Get.snackbar('Error',
           e.response?.data?['message'] as String? ?? 'Failed to load materials',
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -152,7 +153,7 @@ class RawMaterialListController extends GetxController {
       Get.snackbar(
         '✅ Prices Updated',
         '$updatedCount material${updatedCount == 1 ? '' : 's'} updated',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 3),
@@ -162,7 +163,7 @@ class RawMaterialListController extends GetxController {
       Get.snackbar(
         'Update Failed',
         e.response?.data?['message'] as String? ?? 'Failed to update prices',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );

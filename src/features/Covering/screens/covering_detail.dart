@@ -657,7 +657,7 @@ class _ActionSection extends StatelessWidget {
             height: 50,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: ErpColors.successGreen,
+                backgroundColor: ErpColors.solidSuccess,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
@@ -704,7 +704,7 @@ class _PdfButton extends StatelessWidget {
           await CoveringProgramPdf.generate(data);
         } catch (e) {
           Get.snackbar('PDF Error', e.toString(),
-              backgroundColor: const Color(0xFFDC2626),
+              backgroundColor: ErpColors.solidError,
               colorText: Colors.white,
               snackPosition: SnackPosition.BOTTOM);
         }
@@ -1043,7 +1043,7 @@ class _BeamEntryForm extends StatelessWidget {
           height: 44,
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
-              backgroundColor: ErpColors.successGreen,
+              backgroundColor: ErpColors.solidSuccess,
               disabledBackgroundColor:
               ErpColors.successGreen.withValues(alpha: 0.4),
               elevation: 0,
@@ -1100,7 +1100,7 @@ class _BeamEntryRow extends StatelessWidget {
       );
     } catch (e) {
       Get.snackbar('Label Error', e.toString(),
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     }

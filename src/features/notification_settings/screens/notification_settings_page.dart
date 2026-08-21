@@ -149,14 +149,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     if (added == true && mounted) {
       Get.snackbar(
         'Recipient added', controller.text.trim(),
-        backgroundColor: ErpColors.successGreen,
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
     } else if (_ctrl.lastError.value.isNotEmpty && mounted) {
       Get.snackbar(
         'Could not add', _ctrl.lastError.value,
-        backgroundColor: ErpColors.errorRed,
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );

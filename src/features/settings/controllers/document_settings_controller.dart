@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
@@ -90,13 +91,13 @@ class DocumentSettingsController extends GetxController {
       };
       await _dio.put('/document', data: payload);
       Get.snackbar('Saved', 'Document settings updated',
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Failed to save settings';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {

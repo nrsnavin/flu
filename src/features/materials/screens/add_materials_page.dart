@@ -360,7 +360,7 @@ class _AddRawMaterialPageState extends State<AddRawMaterialPage> {
     if (!_formKey.currentState!.validate()) return;
     if (c.selectedSupplierId.value == null) {
       Get.snackbar('Validation', 'Please select a supplier',
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return;

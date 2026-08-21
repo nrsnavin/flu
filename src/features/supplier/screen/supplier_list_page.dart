@@ -202,10 +202,10 @@ class _SupplierCard extends StatelessWidget {
     final statusColor =
     active ? ErpColors.successGreen : ErpColors.errorRed;
     final statusBg =
-    active ? ErpColors.statusCompletedBg : const Color(0xFFFEF2F2);
+    active ? ErpColors.statusCompletedBg : ErpColors.statusCancelledBg;
     final statusBorder = active
         ? ErpColors.statusCompletedBorder
-        : const Color(0xFFFECACA);
+        : ErpColors.statusCancelledBorder;
 
     return GestureDetector(
       onTap: () async {

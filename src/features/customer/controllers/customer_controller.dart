@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -81,7 +82,7 @@ class CustomerController extends GetxController {
       if (response.statusCode == 201) {
         Get.snackbar(
           "Success", "Customer created successfully",
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM,
         );
@@ -92,7 +93,7 @@ class CustomerController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to create customer";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -177,7 +178,7 @@ class CustomerListController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to load customers";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -229,7 +230,7 @@ class CustomerDetailController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to load customer";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -249,7 +250,7 @@ class CustomerDetailController extends GetxController {
       return true;
     } catch (_) {
       Get.snackbar("Error", "Failed to deactivate customer",
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       return false;
@@ -314,7 +315,7 @@ class EditCustomerController extends GetxController {
 
       Get.snackbar(
         "Updated", "Customer updated successfully",
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -326,7 +327,7 @@ class EditCustomerController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to update customer";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {

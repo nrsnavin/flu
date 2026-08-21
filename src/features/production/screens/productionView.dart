@@ -175,7 +175,7 @@ class _DateRangeBar extends StatelessWidget {
           data: Theme.of(ctx).copyWith(
             colorScheme: ColorScheme.dark(
               primary: ErpColors.accentBlue,
-              surface: Color(0xFF1B2B45),
+              surface: ErpColors.navyMid,
               onSurface: Colors.white,
             ),
           ),
@@ -301,7 +301,7 @@ class _RangeKpiStrip extends StatelessWidget {
     if (c.isLoading.value || c.dailyList.isEmpty)
       return const SizedBox.shrink();
     return Container(
-      color: const Color(0xFF1B2B45),
+      color: ErpColors.navyMid,
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
@@ -325,7 +325,7 @@ class _RangeKpiStrip extends StatelessWidget {
     width: 1,
     height: 28,
     margin: const EdgeInsets.symmetric(horizontal: 4),
-    color: const Color(0xFF2D4A6E),
+    color: ErpColors.navyLight,
   );
 }
 
@@ -856,10 +856,10 @@ class _EfficiencyBadge extends StatelessWidget {
         ? ErpColors.warningAmber
         : ErpColors.errorRed;
     final bg = eff >= 100
-        ? const Color(0xFFF0FDF4)
+        ? ErpColors.statusCompletedBg
         : eff >= 85
-        ? const Color(0xFFFFFBEB)
-        : const Color(0xFFFEF2F2);
+        ? ErpColors.statusPartialBg
+        : ErpColors.statusCancelledBg;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
@@ -924,9 +924,9 @@ class _StatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final map = {
-      'completed': (ErpColors.successGreen, const Color(0xFFF0FDF4)),
+      'completed': (ErpColors.successGreen, ErpColors.statusCompletedBg),
       'in_progress': (const Color(0xFF7C3AED), const Color(0xFFF5F3FF)),
-      'open': (ErpColors.accentBlue, const Color(0xFFEFF6FF)),
+      'open': (ErpColors.accentBlue, ErpColors.statusOpenBg),
       'none': (ErpColors.textMuted, ErpColors.bgMuted),
     };
     final (fg, bg) = map[status] ?? (ErpColors.textSecondary, ErpColors.bgBase);

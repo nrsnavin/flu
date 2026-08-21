@@ -139,7 +139,7 @@ Future<String?> showForceApprovalDialog({
             ),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: ErpColors.errorRed,
+                backgroundColor: ErpColors.solidError,
                 foregroundColor: Colors.white,
               ),
               onPressed: () {

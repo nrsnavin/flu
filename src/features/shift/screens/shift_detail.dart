@@ -245,7 +245,7 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
                 Get.snackbar(
                   "Validation Error",
                   "Please enter a valid production amount",
-                  backgroundColor: ErpColors.warningAmber,
+                  backgroundColor: ErpColors.solidWarning,
                   colorText: Colors.white,
                 );
                 return;

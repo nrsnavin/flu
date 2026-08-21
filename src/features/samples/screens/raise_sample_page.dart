@@ -78,7 +78,7 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
     } catch (e) {
       if (!mounted) return;
       Get.snackbar('Error', apiMessage(e, 'Could not raise the sample'),
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {

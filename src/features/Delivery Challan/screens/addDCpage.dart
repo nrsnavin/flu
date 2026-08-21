@@ -148,7 +148,7 @@ class AddDCController extends GetxController {
           OrderInfoForDC.fromJson(res.data as Map<String, dynamic>));
     } on DioException catch (e) {
       Get.snackbar('Error', e.response?.data?['message'] ?? 'Failed to load order',
-          backgroundColor: ErpColors.errorRed, colorText: Colors.white,
+          backgroundColor: ErpColors.solidError, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
       loadingOrder.value = false;
@@ -327,7 +327,7 @@ class AddDCController extends GetxController {
   Future<void> submit() async {
     if (!_validate()) {
       Get.snackbar('Validation Failed', 'Please fix the errors below.',
-          backgroundColor: ErpColors.warningAmber, colorText: Colors.white,
+          backgroundColor: ErpColors.solidWarning, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
@@ -373,12 +373,12 @@ class AddDCController extends GetxController {
       });
       _requestId = null; // next challan is a new business event
       Get.snackbar('Created', 'Delivery Challan created successfully',
-          backgroundColor: ErpColors.successGreen, colorText: Colors.white,
+          backgroundColor: ErpColors.solidSuccess, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       onSuccess?.call();
     } on DioException catch (ex) {
       Get.snackbar('Error', ex.response?.data?['message'] ?? 'Failed to create DC',
-          backgroundColor: ErpColors.errorRed, colorText: Colors.white,
+          backgroundColor: ErpColors.solidError, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
       loading.value = false;
@@ -746,7 +746,7 @@ class _ScanOrderButton extends StatelessWidget {
     if (failure != null) {
       messenger.showSnackBar(SnackBar(
         duration: const Duration(seconds: 6),
-        backgroundColor: ErpColors.warningAmber,
+        backgroundColor: ErpColors.solidWarning,
         behavior: SnackBarBehavior.floating,
         content: Text(failure),
       ));
@@ -755,7 +755,7 @@ class _ScanOrderButton extends StatelessWidget {
 
     final hit = c.scannedJob.value;
     messenger.showSnackBar(SnackBar(
-      backgroundColor: ErpColors.successGreen,
+      backgroundColor: ErpColors.solidSuccess,
       behavior: SnackBarBehavior.floating,
       content: Text(hit == null
           ? 'Order loaded'

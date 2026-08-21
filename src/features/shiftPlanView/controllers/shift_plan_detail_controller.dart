@@ -6,6 +6,7 @@
 //         isConfirming state so the button shows a spinner
 // ══════════════════════════════════════════════════════════════
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -43,7 +44,7 @@ class ShiftPlanDetailController extends GetxController {
           ?? 'Failed to load shift detail';
       Get.snackbar(
         'Error', errorMsg.value!,
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -69,7 +70,7 @@ class ShiftPlanDetailController extends GetxController {
       Get.snackbar(
         'Confirmed',
         'Shift plan is now active',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         icon: const Icon(Icons.check_circle_outline, color: Colors.white),
@@ -79,7 +80,7 @@ class ShiftPlanDetailController extends GetxController {
       Get.snackbar(
         'Confirm Failed',
         e.response?.data?['message'] as String? ?? 'Failed to confirm shift plan',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -87,7 +88,7 @@ class ShiftPlanDetailController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Error', e.toString(),
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );

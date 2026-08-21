@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
@@ -47,14 +48,14 @@ class AnnouncementListController extends GetxController {
     try {
       await _dio.delete("/$id");
       Get.snackbar('Removed', 'Announcement deactivated',
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       await fetch();
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Failed to deactivate';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     }
@@ -116,7 +117,7 @@ class AnnouncementFormController extends GetxController {
     if (!formKey.currentState!.validate()) return;
     if (audience.value == 'department' && departmentCtrl.text.trim().isEmpty) {
       Get.snackbar('Validation', 'Department is required for department audience',
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       return;
@@ -146,7 +147,7 @@ class AnnouncementFormController extends GetxController {
       Get.snackbar(
         'Saved',
         isEdit ? 'Announcement updated' : 'Announcement posted',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -154,7 +155,7 @@ class AnnouncementFormController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Failed to save announcement';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {

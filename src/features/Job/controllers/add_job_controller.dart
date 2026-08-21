@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:production/src/core/api_client.dart';
@@ -183,7 +184,7 @@ class AddJobOrderController extends GetxController {
         totalExcess > 0
             ? 'Preparatory programs generated · ${_fmt(totalExcess)} m over the order, yarn drawn from stock'
             : 'Preparatory (Warping & Covering) programs generated',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -210,7 +211,7 @@ class AddJobOrderController extends GetxController {
         // Only reachable if this screen's arithmetic and the server's
         // ever disagree — say so plainly rather than silently.
         Get.snackbar('Reason needed', message,
-            backgroundColor: const Color(0xFFD97706),
+            backgroundColor: ErpColors.solidWarning,
             colorText: Colors.white,
             duration: const Duration(seconds: 6),
             snackPosition: SnackPosition.BOTTOM);
@@ -230,7 +231,7 @@ class AddJobOrderController extends GetxController {
                 .join('\n')
             : message;
         Get.snackbar('Not enough yarn for the excess', named,
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: ErpColors.solidError,
             colorText: Colors.white,
             duration: const Duration(seconds: 8),
             snackPosition: SnackPosition.BOTTOM);
@@ -238,7 +239,7 @@ class AddJobOrderController extends GetxController {
 
       default:
         Get.snackbar('Error', message,
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: ErpColors.solidError,
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM);
     }
@@ -248,7 +249,7 @@ class AddJobOrderController extends GetxController {
     Get.snackbar(
       'Validation Error',
       message,
-      backgroundColor: const Color(0xFFD97706),
+      backgroundColor: ErpColors.solidWarning,
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
     );

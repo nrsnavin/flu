@@ -88,7 +88,7 @@ class MrpController extends GetxController {
       Get.snackbar(
         'Updated',
         mode == 'outsource' ? 'Job set to outsourced.' : 'Job set to in-house.',
-        backgroundColor: ErpColors.successGreen,
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(12),
@@ -99,7 +99,7 @@ class MrpController extends GetxController {
         e.response?.data is Map
             ? (e.response?.data['message']?.toString() ?? 'Failed to update mode.')
             : (e.message ?? 'Failed to update mode.'),
-        backgroundColor: ErpColors.errorRed,
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -133,13 +133,13 @@ class MrpController extends GetxController {
         e.response?.data is Map
             ? (e.response?.data['message']?.toString() ?? 'Failed to open PDF.')
             : (e.message ?? 'Failed to open PDF.'),
-        backgroundColor: ErpColors.errorRed,
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
       Get.snackbar('Error', 'Could not open the MRP PDF: $e',
-          backgroundColor: ErpColors.errorRed,
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {

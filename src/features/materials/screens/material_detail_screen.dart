@@ -1316,12 +1316,12 @@ class _OpenLotButton extends StatelessWidget {
                         if (err == null) {
                           if (ctx.mounted) Navigator.of(ctx).pop();
                           Get.snackbar('Lot opened', lotNo.text.trim(),
-                              backgroundColor: const Color(0xFF16A34A),
+                              backgroundColor: ErpColors.solidSuccess,
                               colorText: Colors.white,
                               snackPosition: SnackPosition.BOTTOM);
                         } else {
                           Get.snackbar('Could not open the lot', err,
-                              backgroundColor: const Color(0xFFDC2626),
+                              backgroundColor: ErpColors.solidError,
                               colorText: Colors.white,
                               duration: const Duration(seconds: 6),
                               snackPosition: SnackPosition.BOTTOM);

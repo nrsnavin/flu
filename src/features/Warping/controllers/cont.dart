@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -322,7 +323,7 @@ class WarpingDetailController extends GetxController {
 
   void _snack(String msg, {required bool isError}) => Get.snackbar(
     isError ? 'Error' : 'Success', msg,
-    backgroundColor: isError ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+    backgroundColor: isError ? ErpColors.errorRed : ErpColors.successGreen,
     colorText: Colors.white, snackPosition: SnackPosition.BOTTOM,
     duration: const Duration(seconds: 4),
   );
@@ -889,7 +890,7 @@ class WarpingPlanController extends GetxController {
 
   void _snack(String msg, {required bool isError}) => Get.snackbar(
     isError ? 'Error' : 'Success', msg,
-    backgroundColor: isError ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+    backgroundColor: isError ? ErpColors.errorRed : ErpColors.successGreen,
     colorText: Colors.white, snackPosition: SnackPosition.BOTTOM,
     duration: const Duration(seconds: 4),
   );

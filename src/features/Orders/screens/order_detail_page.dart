@@ -797,7 +797,7 @@ class _ActionBar extends StatelessWidget {
                     ? ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                ErpColors.errorRed.withValues(alpha: 0.4),
+                                ErpColors.solidError.withValues(alpha: 0.4),
                             elevation: 0),
                         onPressed: null,
                         child: const Text("Delete",
@@ -807,7 +807,7 @@ class _ActionBar extends StatelessWidget {
                         final busy = c.isActioning.value;
                         return ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: ErpColors.errorRed,
+                            backgroundColor: ErpColors.solidError,
                             disabledBackgroundColor:
                                 ErpColors.errorRed.withValues(alpha: 0.6),
                             elevation: 0,
@@ -1544,7 +1544,7 @@ class _OrderReportButtonState extends State<_OrderReportButton> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(e.message),
-          backgroundColor: ErpColors.errorRed,
+          backgroundColor: ErpColors.solidError,
           behavior: SnackBarBehavior.floating,
         ));
       }

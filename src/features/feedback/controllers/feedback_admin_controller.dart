@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
@@ -101,7 +102,7 @@ class FeedbackRespondController extends GetxController {
       });
       Get.snackbar(
         "Updated", "Response saved",
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -109,7 +110,7 @@ class FeedbackRespondController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to save response";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {

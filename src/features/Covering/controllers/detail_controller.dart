@@ -1,6 +1,7 @@
 // lib/src/features/Covering/controllers/covering_detail.dart
 
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -234,8 +235,8 @@ class CoveringDetailController extends GetxController {
     Get.snackbar(
       title, msg,
       backgroundColor: isError
-          ? const Color(0xFFDC2626)
-          : const Color(0xFF16A34A),
+          ? ErpColors.errorRed
+          : ErpColors.successGreen,
       colorText:     Colors.white,
       snackPosition: SnackPosition.BOTTOM,
       duration:      const Duration(seconds: 4),

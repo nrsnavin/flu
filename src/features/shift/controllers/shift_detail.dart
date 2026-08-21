@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:production/src/features/shift/models/shift_detail_view_model.dart';
@@ -50,7 +51,7 @@ class ShiftDetailController extends GetxController {
       Get.snackbar(
         "Error",
         "Failed to load shift details",
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: const Color(0xFFFFFFFF),
       );
     } finally {
@@ -72,11 +73,11 @@ class ShiftDetailController extends GetxController {
       );
       await fetchDetail();
       Get.snackbar("Corrected", "Production entry updated",
-          backgroundColor: const Color(0xFF16A34A), colorText: const Color(0xFFFFFFFF));
+          backgroundColor: ErpColors.solidSuccess, colorText: const Color(0xFFFFFFFF));
       return true;
     } catch (e) {
       Get.snackbar("Error", _msg(e, "Failed to correct entry"),
-          backgroundColor: const Color(0xFFDC2626), colorText: const Color(0xFFFFFFFF));
+          backgroundColor: ErpColors.solidError, colorText: const Color(0xFFFFFFFF));
       return false;
     } finally {
       isCorrecting.value = false;
@@ -94,11 +95,11 @@ class ShiftDetailController extends GetxController {
       );
       await fetchDetail();
       Get.snackbar("Deleted", "Production entry reversed and un-verified",
-          backgroundColor: const Color(0xFF16A34A), colorText: const Color(0xFFFFFFFF));
+          backgroundColor: ErpColors.solidSuccess, colorText: const Color(0xFFFFFFFF));
       return true;
     } catch (e) {
       Get.snackbar("Error", _msg(e, "Failed to delete entry"),
-          backgroundColor: const Color(0xFFDC2626), colorText: const Color(0xFFFFFFFF));
+          backgroundColor: ErpColors.solidError, colorText: const Color(0xFFFFFFFF));
       return false;
     } finally {
       isCorrecting.value = false;
@@ -137,7 +138,7 @@ class ShiftDetailController extends GetxController {
       Get.snackbar(
         "Success",
         "Shift production saved",
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: const Color(0xFFFFFFFF),
       );
       // FIX: signal the screen to pop — no context needed in controller
@@ -146,7 +147,7 @@ class ShiftDetailController extends GetxController {
       Get.snackbar(
         "Error",
         "Failed to update shift",
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: const Color(0xFFFFFFFF),
       );
     } finally {

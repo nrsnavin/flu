@@ -1126,7 +1126,7 @@ class _MachineCardState extends State<_MachineCard> {
                   margin: const EdgeInsets.only(bottom: 4),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFFBEB),
+                    color: ErpColors.statusPartialBg,
                     borderRadius: BorderRadius.circular(7),
                     border: Border.all(color: ErpColors.warningAmber.withValues(alpha: 0.3)),
                   ),
@@ -1535,9 +1535,9 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final map = {
-      'completed':   (ErpColors.successGreen,  const Color(0xFFF0FDF4)),
+      'completed':   (ErpColors.successGreen,  ErpColors.statusCompletedBg),
       'in_progress': (const Color(0xFF7C3AED), const Color(0xFFF5F3FF)),
-      'open':        (ErpColors.accentBlue,    const Color(0xFFEFF6FF)),
+      'open':        (ErpColors.accentBlue,    ErpColors.statusOpenBg),
     };
     final (fg, bg) = map[status] ?? (ErpColors.textMuted, ErpColors.bgMuted);
     final lbl = {'completed': 'Completed', 'in_progress': 'In Progress', 'open': 'Open'}[status] ?? status;

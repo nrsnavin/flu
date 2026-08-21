@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -191,7 +192,7 @@ class WastageJobController extends GetxController {
       Get.snackbar(
         'Deleted',
         'Wastage entry removed',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -200,7 +201,7 @@ class WastageJobController extends GetxController {
       Get.snackbar(
         'Error',
         e.response?.data?['message'] as String? ?? 'Delete failed',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -208,7 +209,7 @@ class WastageJobController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Error', e.toString(),
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -354,7 +355,7 @@ class AddWastageController extends GetxController {
       isError ? 'Error' : 'Success',
       msg,
       backgroundColor:
-      isError ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+      isError ? ErpColors.errorRed : ErpColors.successGreen,
       colorText:     Colors.white,
       snackPosition: SnackPosition.BOTTOM,
       duration:      const Duration(seconds: 4),

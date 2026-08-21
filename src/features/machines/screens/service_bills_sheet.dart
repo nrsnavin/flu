@@ -34,7 +34,7 @@ void _snack(String msg, {required bool isError}) => Get.snackbar(
       isError ? 'Error' : 'Done',
       msg,
       backgroundColor:
-          isError ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+          isError ? ErpColors.errorRed : ErpColors.successGreen,
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 4),
@@ -318,7 +318,7 @@ class _ServiceBillsSheetState extends State<_ServiceBillsSheet> {
               child: const Text('Back')),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: ErpColors.errorRed,
+              backgroundColor: ErpColors.solidError,
               foregroundColor: Colors.white,
             ),
             onPressed: () => Get.back<bool>(result: true),

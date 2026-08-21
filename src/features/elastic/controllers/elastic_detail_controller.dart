@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -60,14 +61,14 @@ class ElasticDetailController extends GetxController {
       loading.value = true;
       await dio.delete("/delete-elastic", queryParameters: {"id": elasticId});
       Get.snackbar("Deleted", "${elastic["name"]} has been deleted",
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       onDeleted();
     } on DioException catch (e) {
       final msg = e.response?.data?["message"] ?? "Failed to delete elastic";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -122,7 +123,7 @@ class ElasticDetailController extends GetxController {
         template != null
             ? "Warping plan template saved successfully"
             : "Warping plan template cleared",
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -130,7 +131,7 @@ class ElasticDetailController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?["message"] ?? "Failed to save plan template";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       return false;
@@ -171,7 +172,7 @@ class ElasticDetailController extends GetxController {
       Get.snackbar(
         "Costing Updated",
         "Recalculated using latest raw material prices",
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
         icon: const Icon(Icons.check_circle_outline, color: Colors.white),
@@ -180,7 +181,7 @@ class ElasticDetailController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?["message"] ?? "Recalculation failed";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       return false;

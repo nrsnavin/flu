@@ -49,7 +49,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
     if (message == null) return;
     Get.snackbar(ok ? 'Done' : 'Error', message,
         backgroundColor:
-            ok ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+            ok ? ErpColors.successGreen : ErpColors.errorRed,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM);
   }
@@ -205,7 +205,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
       buttons.add(_action("Mark completed", Icons.check_circle,
           ErpColors.successGreen, () => _askStatus(s, 'completed')));
       buttons.add(_action("Close", Icons.cancel_outlined,
-          const Color(0xFFDC2626), () => _askStatus(s, 'closed')));
+          ErpColors.errorRed, () => _askStatus(s, 'closed')));
     } else {
       buttons.add(_action("Reopen", Icons.restart_alt, ErpColors.warningAmber,
           () => _askStatus(s, 'in_progress')));
@@ -574,7 +574,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
                   ? () => Navigator.of(ctx).pop(true)
                   : null,
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFDC2626)),
+                  backgroundColor: ErpColors.solidError),
               child: const Text("Remove",
                   style: TextStyle(color: Colors.white)),
             ),

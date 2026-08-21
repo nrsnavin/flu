@@ -84,9 +84,27 @@ class ErpPalette {
   final Color statusCancelledBorder;
   final Color statusCancelledText;
 
+  /// Red, green and amber as INK — a warning icon, a negative figure,
+  /// a border. Both sets lift these for the dark ground, which is
+  /// right for something drawn on the page and wrong for something
+  /// the page is drawn on. See solidError below.
   final Color errorRed;
   final Color successGreen;
   final Color warningAmber;
+
+  // ── Solid feedback fills ───────────────────────────────────
+  /// The same three meanings as FILLS, with white text on top — a
+  /// snackbar, a filled badge, a destructive button.
+  ///
+  /// These deliberately do NOT change between the themes. errorRed is
+  /// lifted to #FF6B6B in dark so it carries as ink against the
+  /// ground; used as a fill under white text that same lift drops the
+  /// contrast to roughly 2.9:1, which is a snackbar nobody can read.
+  /// A fill that always carries white keeps the saturated value in
+  /// both, exactly as navyDark does.
+  final Color solidError;
+  final Color solidSuccess;
+  final Color solidWarning;
 
   /// True for the dark set. Screens that need to make a real
   /// either/or decision — an image overlay, a chart grid — ask this
@@ -131,6 +149,9 @@ class ErpPalette {
     required this.errorRed,
     required this.successGreen,
     required this.warningAmber,
+    required this.solidError,
+    required this.solidSuccess,
+    required this.solidWarning,
     required this.isDark,
   });
 
@@ -183,6 +204,10 @@ class ErpPalette {
     errorRed:     Color(0xFFDC2626),
     successGreen: Color(0xFF16A34A),
     warningAmber: Color(0xFFD97706),
+
+    solidError:   Color(0xFFDC2626),
+    solidSuccess: Color(0xFF16A34A),
+    solidWarning: Color(0xFFD97706),
 
     isDark: false,
   );
@@ -241,6 +266,11 @@ class ErpPalette {
     errorRed:     Color(0xFFFF6B6B),
     successGreen: Color(0xFF4ADE80),
     warningAmber: Color(0xFFFBBF24),
+
+    // Unchanged from light on purpose — see the field docs.
+    solidError:   Color(0xFFDC2626),
+    solidSuccess: Color(0xFF16A34A),
+    solidWarning: Color(0xFFD97706),
 
     isDark: true,
   );

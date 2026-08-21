@@ -3,6 +3,7 @@
 //  File: lib/src/features/rawMaterial/controllers/raw_material_detail_controller.dart
 // ══════════════════════════════════════════════════════════════
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import '../../../core/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -120,7 +121,7 @@ class RawMaterialDetailController extends GetxController {
       errorMsg.value =
           e.response?.data?['message'] as String? ?? 'Failed to load material';
       Get.snackbar('Error', errorMsg.value!,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
@@ -137,7 +138,7 @@ class RawMaterialDetailController extends GetxController {
         queryParameters: {'id': materialId},
       );
       Get.snackbar('Deleted', 'Material removed',
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       onDeleted();
@@ -145,7 +146,7 @@ class RawMaterialDetailController extends GetxController {
       Get.snackbar(
         'Error',
         e.response?.data?['message'] as String? ?? 'Failed to delete',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );

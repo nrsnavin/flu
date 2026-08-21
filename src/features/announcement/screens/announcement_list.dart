@@ -112,7 +112,7 @@ class AnnouncementListPage extends StatelessWidget {
           TextStyle(color: ErpColors.textSecondary, fontSize: 12),
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: ErpColors.errorRed,
+          backgroundColor: ErpColors.solidError,
           elevation: 0,
         ),
         onPressed: () {

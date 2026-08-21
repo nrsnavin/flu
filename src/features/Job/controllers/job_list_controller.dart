@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:production/src/features/Job/models/JobListModel.dart';
@@ -63,7 +64,7 @@ class JobListController extends GetxController {
       // FIX: was missing catch — isLoading stuck true forever on error
       final msg = e.response?.data?['message'] ?? "Failed to load jobs";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {

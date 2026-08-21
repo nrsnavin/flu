@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
@@ -51,14 +52,14 @@ class UsersController extends GetxController {
     try {
       await _dio.delete('/manage/$id');
       Get.snackbar('Removed', 'User deleted',
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       await fetch();
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Failed to delete user';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     }
@@ -154,14 +155,14 @@ class UserFormController extends GetxController {
         });
       }
       Get.snackbar('Saved', isEdit ? 'User updated' : 'User created',
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       onSuccess?.call();
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Failed to save user';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {

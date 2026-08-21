@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
@@ -132,7 +133,7 @@ class ElasticStockController extends GetxController {
         delta >= 0
             ? 'Added ${delta.abs()} to stock'
             : 'Removed ${delta.abs()} from stock',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -147,7 +148,7 @@ class ElasticStockController extends GetxController {
       final isCap = msg.startsWith('Magnitude ');
       if (!isCap) {
         Get.snackbar('Error', msg,
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: ErpColors.solidError,
             colorText: const Color(0xFFFFFFFF),
             snackPosition: SnackPosition.BOTTOM);
       }
@@ -170,7 +171,7 @@ class ElasticStockController extends GetxController {
       Get.snackbar(
         'Min Stock Updated',
         'Threshold set to ${minStock.value.toStringAsFixed(0)}',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -178,7 +179,7 @@ class ElasticStockController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Failed to update min stock';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       return false;

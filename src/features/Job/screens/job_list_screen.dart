@@ -195,11 +195,11 @@ class _StatusTabs extends StatelessWidget {
   Color _stageColor(String status) {
     switch (status) {
       case "preparatory": return const Color(0xFF475569);
-      case "weaving":     return const Color(0xFF1D6FEB);
-      case "finishing":   return const Color(0xFFD97706);
+      case "weaving":     return ErpColors.accentBlue;
+      case "finishing":   return ErpColors.warningAmber;
       case "checking":    return const Color(0xFF7C3AED);
       case "packing":     return const Color(0xFF0891B2);
-      case "completed":   return const Color(0xFF16A34A);
+      case "completed":   return ErpColors.successGreen;
       default:            return const Color(0xFF64748B);
     }
   }
@@ -365,11 +365,11 @@ class _JobCard extends StatelessWidget {
 
   Color _stageColor(String s) {
     switch (s) {
-      case "weaving":     return const Color(0xFF1D6FEB);
-      case "finishing":   return const Color(0xFFD97706);
+      case "weaving":     return ErpColors.accentBlue;
+      case "finishing":   return ErpColors.warningAmber;
       case "checking":    return const Color(0xFF7C3AED);
       case "packing":     return const Color(0xFF0891B2);
-      case "completed":   return const Color(0xFF16A34A);
+      case "completed":   return ErpColors.successGreen;
       default:            return const Color(0xFF475569);
     }
   }

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -244,8 +245,8 @@ void _snack(String title, String message, {required bool isError}) {
   Get.snackbar(
     title, message,
     backgroundColor: isError
-        ? const Color(0xFFDC2626)
-        : const Color(0xFF16A34A),
+        ? ErpColors.errorRed
+        : ErpColors.successGreen,
     colorText:     Colors.white,
     snackPosition: SnackPosition.BOTTOM,
     duration:      const Duration(seconds: 4),

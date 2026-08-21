@@ -97,7 +97,7 @@ class UsersListPage extends StatelessWidget {
           TextStyle(color: ErpColors.textSecondary, fontSize: 12),
       confirm: ElevatedButton(
         style: ElevatedButton.styleFrom(
-            backgroundColor: ErpColors.errorRed, elevation: 0),
+            backgroundColor: ErpColors.solidError, elevation: 0),
         onPressed: () {
           Get.back();
           ctrl.remove(u['_id'] as String);

@@ -261,7 +261,7 @@ class _PdfButtonState extends State<_PdfButton> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Failed to generate PDF: $e"),
-            backgroundColor: ErpColors.errorRed,
+            backgroundColor: ErpColors.solidError,
           ),
         );
       }

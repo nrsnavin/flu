@@ -115,9 +115,9 @@ class _NewQcPageState extends State<NewQcPage> {
       if (Get.isRegistered<QcController>()) Get.find<QcController>().fetchRecent();
       Get.back();
       Get.snackbar('Saved', 'QC check recorded',
-          backgroundColor: ErpColors.successGreen, colorText: Colors.white);
+          backgroundColor: ErpColors.solidSuccess, colorText: Colors.white);
     } else {
-      Get.snackbar('Error', err, backgroundColor: ErpColors.errorRed, colorText: Colors.white);
+      Get.snackbar('Error', err, backgroundColor: ErpColors.solidError, colorText: Colors.white);
     }
   }
 
@@ -131,7 +131,7 @@ class _NewQcPageState extends State<NewQcPage> {
       _rejected.text = c.rejectedMeters.value;
       _notes.text = c.notes.value;
       Get.snackbar('AI draft ready', 'Review and adjust',
-          backgroundColor: ErpColors.successGreen, colorText: Colors.white);
+          backgroundColor: ErpColors.solidSuccess, colorText: Colors.white);
     }
   }
 

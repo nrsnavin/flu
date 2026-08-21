@@ -139,7 +139,7 @@ class _DetailView extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(child: ElevatedButton.icon(
               onPressed: () => Navigator.of(ctx).pop(true),
-              style: ElevatedButton.styleFrom(backgroundColor: ErpColors.errorRed,
+              style: ElevatedButton.styleFrom(backgroundColor: ErpColors.solidError,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                   padding: const EdgeInsets.symmetric(vertical: 12)),
@@ -185,7 +185,7 @@ class _DetailView extends StatelessWidget {
                   c.fetchDetail();
                 },
                 style: TextButton.styleFrom(
-                  backgroundColor: ErpColors.warningAmber.withValues(alpha: 0.15),
+                  backgroundColor: ErpColors.solidWarning.withValues(alpha: 0.15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 ),
@@ -1181,7 +1181,7 @@ class _CostingSection extends StatelessWidget {
             : TextButton.icon(
           onPressed: () => _showRecalcDialog(context),
           style: TextButton.styleFrom(
-            backgroundColor: ErpColors.successGreen.withValues(alpha: 0.12),
+            backgroundColor: ErpColors.solidSuccess.withValues(alpha: 0.12),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6)),
             padding: const EdgeInsets.symmetric(
@@ -1444,7 +1444,7 @@ class _CostingSection extends StatelessWidget {
                   c.recalculateCosting(conversionCost: conv);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: ErpColors.successGreen,
+                  backgroundColor: ErpColors.solidSuccess,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6)),

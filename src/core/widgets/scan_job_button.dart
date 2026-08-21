@@ -84,7 +84,7 @@ class ScanJobButton<T> extends StatelessWidget {
       onMatched(hit as T);
       messenger.showSnackBar(SnackBar(
         content: Text('Job #${jobNoOf(hit)} selected'),
-        backgroundColor: ErpColors.successGreen,
+        backgroundColor: ErpColors.solidSuccess,
         behavior: SnackBarBehavior.floating,
       ));
       return;
@@ -92,7 +92,7 @@ class ScanJobButton<T> extends StatelessWidget {
 
     messenger.showSnackBar(SnackBar(
       duration: const Duration(seconds: 6),
-      backgroundColor: ErpColors.warningAmber,
+      backgroundColor: ErpColors.solidWarning,
       behavior: SnackBarBehavior.floating,
       content: Text(
         scanned.jobNo != null

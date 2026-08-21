@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
@@ -81,7 +82,7 @@ class MachineIssueAdminController extends GetxController {
                 ? e.response?.data['message']?.toString()
                 : null) ??
             'Failed to load issue',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -123,7 +124,7 @@ class MachineIssueAdminController extends GetxController {
                 ? e.response?.data['message']?.toString()
                 : null) ??
             'Failed to report issue',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -164,7 +165,7 @@ class MachineIssueAdminController extends GetxController {
                 ? e.response?.data['message']?.toString()
                 : null) ??
             'Failed to update status',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: const Color(0xFFFFFFFF),
         snackPosition: SnackPosition.BOTTOM,
       );

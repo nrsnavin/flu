@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -230,11 +231,11 @@ class PackingDetailController extends GetxController {
       await PackingApiService.updatePacking(packingId, meter, auditReason);
       await fetchDetail();
       Get.snackbar('Updated', 'Packing record corrected',
-          backgroundColor: const Color(0xFF16A34A), colorText: const Color(0xFFFFFFFF));
+          backgroundColor: ErpColors.solidSuccess, colorText: const Color(0xFFFFFFFF));
       return true;
     } catch (e) {
       Get.snackbar('Error', _msg(e, 'Failed to update packing'),
-          backgroundColor: const Color(0xFFDC2626), colorText: const Color(0xFFFFFFFF));
+          backgroundColor: ErpColors.solidError, colorText: const Color(0xFFFFFFFF));
       return false;
     } finally {
       isActing.value = false;
@@ -246,11 +247,11 @@ class PackingDetailController extends GetxController {
     try {
       await PackingApiService.deletePacking(packingId, auditReason);
       Get.snackbar('Deleted', 'Packing record reversed',
-          backgroundColor: const Color(0xFF16A34A), colorText: const Color(0xFFFFFFFF));
+          backgroundColor: ErpColors.solidSuccess, colorText: const Color(0xFFFFFFFF));
       return true;
     } catch (e) {
       Get.snackbar('Error', _msg(e, 'Failed to delete packing'),
-          backgroundColor: const Color(0xFFDC2626), colorText: const Color(0xFFFFFFFF));
+          backgroundColor: ErpColors.solidError, colorText: const Color(0xFFFFFFFF));
       return false;
     } finally {
       isActing.value = false;
@@ -426,8 +427,8 @@ void _snack(String title, String message, {required bool isError}) {
   Get.snackbar(
     title, message,
     backgroundColor: isError
-        ? const Color(0xFFDC2626)
-        : const Color(0xFF16A34A),
+        ? ErpColors.errorRed
+        : ErpColors.successGreen,
     colorText:       Colors.white,
     snackPosition:   SnackPosition.BOTTOM,
     duration:        const Duration(seconds: 4),

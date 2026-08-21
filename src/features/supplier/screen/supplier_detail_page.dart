@@ -535,18 +535,21 @@ class _PurchaseOrdersSection extends StatelessWidget {
 // ── PO card ────────────────────────────────────────────────────
 class _PoCard extends StatelessWidget {
   final Map<String, dynamic> po;
-  const _PoCard({required this.po});
+  _PoCard({required this.po});
 
-  static const _statusFg = {
-    'Open':      Color(0xFF1D6AE5),
-    'Partial':   Color(0xFFF59E0B),
-    'Completed': Color(0xFF16A34A),
-  };
-  static const _statusBg = {
-    'Open':      Color(0xFFEFF6FF),
-    'Partial':   Color(0xFFFFFBEB),
-    'Completed': Color(0xFFF0FDF4),
-  };
+  // Getters, not `const` or `final`: the palette can change under a
+  // running app, and a table built once would keep the colours of
+  // whichever theme was current the first time a card was drawn.
+  static Map<String, Color> get _statusFg => {
+        'Open': ErpColors.statusOpenText,
+        'Partial': ErpColors.statusPartialText,
+        'Completed': ErpColors.statusCompletedText,
+      };
+  static Map<String, Color> get _statusBg => {
+        'Open': ErpColors.statusOpenBg,
+        'Partial': ErpColors.statusPartialBg,
+        'Completed': ErpColors.statusCompletedBg,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -721,7 +724,7 @@ class _DeactivateButton extends StatelessWidget {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: ErpColors.errorRed,
+              backgroundColor: ErpColors.solidError,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6)),
             ),

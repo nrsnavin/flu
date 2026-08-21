@@ -201,7 +201,7 @@ class PendingVerificationPage extends StatelessWidget {
                     if (prod == null || prod < 0) {
                       Get.snackbar('Validation',
                           'Enter a valid production value',
-                          backgroundColor: ErpColors.errorRed,
+                          backgroundColor: ErpColors.solidError,
                           colorText: Colors.white,
                           snackPosition: SnackPosition.BOTTOM);
                       return;

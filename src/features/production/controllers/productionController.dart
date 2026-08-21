@@ -3,6 +3,7 @@
 //  File: lib/src/features/production/controllers/production_controller.dart
 // ══════════════════════════════════════════════════════════════
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import '../../../core/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -243,7 +244,7 @@ class ShiftDetailController extends GetxController {
       final err = e.validate();
       if (err != null) {
         Get.snackbar('Validation', err,
-            backgroundColor: const Color(0xFFD97706),
+            backgroundColor: ErpColors.solidWarning,
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM);
         return false;
@@ -259,7 +260,7 @@ class ShiftDetailController extends GetxController {
       Get.snackbar(
         'Production Saved',
         '${bulkEntries.length} machines updated',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -270,14 +271,14 @@ class ShiftDetailController extends GetxController {
       Get.snackbar(
         'Save Failed',
         e.response?.data?['message']?.toString() ?? 'Failed to save production',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
       return false;
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return false;

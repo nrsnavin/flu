@@ -70,7 +70,7 @@ class _OfferSheetState extends State<_OfferSheet> {
         'App lock on',
         'The app will ask for your fingerprint, face or phone PIN '
             'when it opens.',
-        backgroundColor: ErpColors.successGreen,
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(12),

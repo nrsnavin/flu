@@ -382,7 +382,7 @@ class _FingerprintRow extends StatelessWidget {
       case 'DC_CREATED':
         return ErpColors.accentBlue;
       case 'DC_DISPATCHED':
-        return const Color(0xFFD97706);
+        return ErpColors.warningAmber;
       case 'DC_DELIVERED':
         return ErpColors.successGreen;
       case 'DC_CANCELLED':

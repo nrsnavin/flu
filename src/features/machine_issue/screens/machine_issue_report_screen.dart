@@ -83,7 +83,7 @@ class _MachineIssueReportScreenState extends State<MachineIssueReportScreen> {
       Get.snackbar(
         'Pick a machine',
         'Choose which machine has the issue.',
-        backgroundColor: ErpColors.warningAmber,
+        backgroundColor: ErpColors.solidWarning,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -100,7 +100,7 @@ class _MachineIssueReportScreenState extends State<MachineIssueReportScreen> {
       Get.snackbar(
         'Issue reported',
         'The machine issue has been logged.',
-        backgroundColor: ErpColors.successGreen,
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );

@@ -821,7 +821,7 @@ class _NoPlanView extends StatelessWidget {
               Get.snackbar(
                 'Success',
                 'Warping plan saved',
-                backgroundColor: const Color(0xFF16A34A),
+                backgroundColor: ErpColors.solidSuccess,
                 colorText: Colors.white,
                 snackPosition: SnackPosition.BOTTOM,
                 duration: const Duration(seconds: 4),
@@ -1090,7 +1090,7 @@ class _BeamCard extends StatelessWidget {
         children: [
           TableRow(
             decoration:
-            const BoxDecoration(color: Color(0xFFF8FAFD)),
+            BoxDecoration(color: ErpColors.bgMuted),
             children: [
               _TH('Sec'),
               _TH('Warp Yarn'),

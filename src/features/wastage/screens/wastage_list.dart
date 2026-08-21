@@ -97,7 +97,7 @@ class _WastageListPageState extends State<WastageListPage> {
 
   Widget _fab() => FloatingActionButton.extended(
     heroTag: 'addWastage',
-    backgroundColor: ErpColors.errorRed,
+    backgroundColor: ErpColors.solidError,
     elevation: 2,
     icon: const Icon(Icons.warning_amber_rounded,
         color: Colors.white, size: 18),

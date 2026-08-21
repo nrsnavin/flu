@@ -53,7 +53,7 @@ class ShiftPlanSummaryPdf extends StatelessWidget {
       'Printed without codes',
       'Could not reach the server, so this sheet was drawn on the '
           'phone. It has no QR codes — rows on it cannot be scanned.',
-      backgroundColor: ErpColors.warningAmber,
+      backgroundColor: ErpColors.solidWarning,
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 6),

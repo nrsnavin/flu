@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -68,7 +69,7 @@ class CreateShiftPlanController extends GetxController {
       errorMsg.value = msg;
       Get.snackbar(
         'Load Error', msg,
-        backgroundColor:  const Color(0xFFDC2626),
+        backgroundColor:  ErpColors.solidError,
         colorText:        Colors.white,
         snackPosition:    SnackPosition.BOTTOM,
         duration:         const Duration(seconds: 4),
@@ -112,7 +113,7 @@ class CreateShiftPlanController extends GetxController {
     if (err != null) {
       Get.snackbar(
         'Incomplete', err,
-        backgroundColor: const Color(0xFFD97706),
+        backgroundColor: ErpColors.solidWarning,
         colorText:       Colors.white,
         snackPosition:   SnackPosition.BOTTOM,
         duration:        const Duration(seconds: 4),
@@ -170,7 +171,7 @@ class CreateShiftPlanController extends GetxController {
         Get.snackbar(
           'Duplicate Shift',
           'A ${shiftType.value} shift plan already exists for $formattedDate',
-          backgroundColor: const Color(0xFFD97706),
+          backgroundColor: ErpColors.solidWarning,
           colorText:       Colors.white,
           snackPosition:   SnackPosition.BOTTOM,
           duration:        const Duration(seconds: 5),
@@ -179,7 +180,7 @@ class CreateShiftPlanController extends GetxController {
       } else {
         Get.snackbar(
           'Save Failed', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText:       Colors.white,
           snackPosition:   SnackPosition.BOTTOM,
           icon: const Icon(Icons.error_outline, color: Colors.white),
@@ -188,7 +189,7 @@ class CreateShiftPlanController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Error', e.toString(),
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText:       Colors.white,
         snackPosition:   SnackPosition.BOTTOM,
       );

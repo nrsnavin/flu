@@ -7,6 +7,7 @@
 //  ZERO Obx — all reactive widgets are StatefulWidgets + ever()
 // ══════════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:production/src/features/payroll/screens/pdf.dart';
@@ -3585,7 +3586,7 @@ class _PdfButtonState extends State<_PdfButton> {
       if (mounted) {
         Get.snackbar(
           'PDF Error', e.toString(),
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );

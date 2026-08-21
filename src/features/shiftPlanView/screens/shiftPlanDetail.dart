@@ -361,7 +361,7 @@ class _DraftBanner extends StatelessWidget {
     decoration: BoxDecoration(
       color: const Color(0xFFFFF7ED),
       borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: const Color(0xFFFDE68A)),
+      border: Border.all(color: ErpColors.statusPartialBorder),
     ),
     child: Row(children: [
       Container(
@@ -683,7 +683,7 @@ class _ConfirmBar extends StatelessWidget {
       height: 52,
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
-          backgroundColor: ErpColors.successGreen,
+          backgroundColor: ErpColors.solidSuccess,
           disabledBackgroundColor: ErpColors.successGreen.withValues(alpha: 0.5),
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -840,7 +840,7 @@ class _ConfirmDialog extends StatelessWidget {
               flex: 2,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: ErpColors.successGreen,
+                  backgroundColor: ErpColors.solidSuccess,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),

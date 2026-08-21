@@ -379,7 +379,7 @@ class _AccountSection extends StatelessWidget {
         height: 38,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: ErpColors.errorRed,
+            backgroundColor: ErpColors.solidError,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),

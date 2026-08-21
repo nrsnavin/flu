@@ -291,7 +291,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
     Get.snackbar(
       'CSV Copied',
       '${filtered.length} row(s) copied to clipboard — paste into a spreadsheet',
-      backgroundColor: const Color(0xFF16A34A),
+      backgroundColor: ErpColors.solidSuccess,
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 4),
@@ -357,7 +357,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
               final v = double.tryParse(ctrl.text.trim());
               if (v == null || v < 0) {
                 Get.snackbar('Validation', 'Enter a non-negative number',
-                    backgroundColor: ErpColors.errorRed,
+                    backgroundColor: ErpColors.solidError,
                     colorText: Colors.white,
                     snackPosition: SnackPosition.BOTTOM);
                 return;
@@ -600,7 +600,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
               onPressed: () async {
                 if (qtyNum <= 0) {
                   Get.snackbar('Validation', 'Enter a valid quantity',
-                      backgroundColor: ErpColors.errorRed,
+                      backgroundColor: ErpColors.solidError,
                       colorText: Colors.white,
                       snackPosition: SnackPosition.BOTTOM);
                   return;
@@ -608,7 +608,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                 if (!reasonValid) {
                   Get.snackbar('Validation',
                       'Reason must be at least 8 characters',
-                      backgroundColor: ErpColors.errorRed,
+                      backgroundColor: ErpColors.solidError,
                       colorText: Colors.white,
                       snackPosition: SnackPosition.BOTTOM);
                   return;
@@ -689,7 +689,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: ErpColors.errorRed,
+              backgroundColor: ErpColors.solidError,
               elevation: 0,
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -743,7 +743,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: ErpColors.errorRed,
+                backgroundColor: ErpColors.solidError,
                 elevation: 0,
               ),
               onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -995,7 +995,7 @@ class _OnHandHero extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: ErpColors.warningAmber,
+                      color: ErpColors.solidWarning,
                       borderRadius: BorderRadius.circular(3),
                     ),
                     child: const Text('LOW',
@@ -1012,7 +1012,7 @@ class _OnHandHero extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: ErpColors.errorRed,
+                      color: ErpColors.solidError,
                       borderRadius: BorderRadius.circular(3),
                     ),
                     child: const Text('OVER-RESERVED',

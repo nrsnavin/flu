@@ -181,10 +181,10 @@ class _HeroCard extends StatelessWidget {
     final statusColor =
         active ? ErpColors.successGreen : ErpColors.errorRed;
     final statusBg =
-        active ? ErpColors.statusCompletedBg : const Color(0xFFFEF2F2);
+        active ? ErpColors.statusCompletedBg : ErpColors.statusCancelledBg;
     final statusBorder = active
         ? ErpColors.statusCompletedBorder
-        : const Color(0xFFFECACA);
+        : ErpColors.statusCancelledBorder;
 
     String? dateStr;
     try {
@@ -501,7 +501,7 @@ class _DeactivateButton extends StatelessWidget {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: ErpColors.errorRed,
+              backgroundColor: ErpColors.solidError,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6)),
             ),

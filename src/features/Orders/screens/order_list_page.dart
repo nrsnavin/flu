@@ -819,7 +819,7 @@ class _OrderCardMenu extends StatelessWidget {
             Get.snackbar(
               'Error',
               e.response?.data?['message'] ?? 'Failed to load order',
-              backgroundColor: ErpColors.errorRed,
+              backgroundColor: ErpColors.solidError,
               colorText: Colors.white,
               snackPosition: SnackPosition.BOTTOM,
             );

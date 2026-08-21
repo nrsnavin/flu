@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
@@ -109,7 +110,7 @@ class AddElasticController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to load materials";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -351,7 +352,7 @@ class AddElasticController extends GetxController {
     if (!_validate()) {
       Get.snackbar("Validation Failed",
           "Please fix the highlighted errors before saving.",
-          backgroundColor: const Color(0xFFD97706),
+          backgroundColor: ErpColors.solidWarning,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 3));
@@ -364,13 +365,13 @@ class AddElasticController extends GetxController {
       await _dio.post("/elastic/create-elastic", data: _buildPayload());
       success = true;
       Get.snackbar("Success", "Elastic created successfully",
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to create elastic";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -387,7 +388,7 @@ class AddElasticController extends GetxController {
     if (!_validate()) {
       Get.snackbar("Validation Failed",
           "Please fix the highlighted errors before saving.",
-          backgroundColor: const Color(0xFFD97706),
+          backgroundColor: ErpColors.solidWarning,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 3));
@@ -402,13 +403,13 @@ class AddElasticController extends GetxController {
       await _dio.put("/elastic/update-elastic", data: payload);
       success = true;
       Get.snackbar("Updated", "Elastic updated successfully",
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? "Failed to update elastic";
       Get.snackbar("Error", msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {

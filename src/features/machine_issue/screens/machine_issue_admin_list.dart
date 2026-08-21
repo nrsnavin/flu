@@ -244,9 +244,9 @@ class _StatusPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, fg, label) = switch (status) {
       'open'         => (ErpColors.statusOpenBg, ErpColors.statusOpenText, 'OPEN'),
-      'acknowledged' => (Color(0xFFFEF3C7), Color(0xFFB45309), 'ACK'),
+      'acknowledged' => (Color(0xFFFEF3C7), ErpColors.statusPartialText, 'ACK'),
       'in_progress'  => (Color(0xFFFCE7F3), Color(0xFFBE185D), 'IN PROGRESS'),
-      'resolved'     => (Color(0xFFDCFCE7), Color(0xFF15803D), 'RESOLVED'),
+      'resolved'     => (Color(0xFFDCFCE7), ErpColors.statusCompletedText, 'RESOLVED'),
       'rejected'     => (Color(0xFFFEE2E2), Color(0xFFB91C1C), 'REJECTED'),
       _              => (ErpColors.bgMuted, ErpColors.textMuted, status.toUpperCase()),
     };

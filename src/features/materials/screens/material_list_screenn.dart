@@ -65,7 +65,7 @@ class _RawMaterialListPageState extends State<RawMaterialListPage> {
         child: TextButton.icon(
           onPressed: () => _openBulkPriceSheet(context),
           style: TextButton.styleFrom(
-            backgroundColor: ErpColors.warningAmber.withValues(alpha: 0.18),
+            backgroundColor: ErpColors.solidWarning.withValues(alpha: 0.18),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6)),
             padding: const EdgeInsets.symmetric(
@@ -834,7 +834,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
                       ? null
                       : _onSave,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: ErpColors.warningAmber,
+                    backgroundColor: ErpColors.solidWarning,
                     disabledBackgroundColor:
                     ErpColors.warningAmber.withValues(alpha: 0.5),
                     elevation: 0,
@@ -1116,7 +1116,7 @@ class _ConfirmBulkDialog extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
-                backgroundColor: ErpColors.warningAmber,
+                backgroundColor: ErpColors.solidWarning,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),

@@ -44,7 +44,7 @@ void _snack(String msg, {required bool isError}) => Get.snackbar(
       isError ? 'Error' : 'Success',
       msg,
       backgroundColor:
-          isError ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+          isError ? ErpColors.errorRed : ErpColors.successGreen,
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 4),

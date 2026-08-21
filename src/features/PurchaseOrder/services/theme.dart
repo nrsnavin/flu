@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme.dart';
 
 import '../../../core/theme/erp_palette.dart';
 
@@ -104,9 +105,19 @@ class ErpColors {
   static Color get statusCancelledBorder => _palette.statusCancelledBorder;
   static Color get statusCancelledText   => _palette.statusCancelledText;
 
+  /// Red, green and amber as INK — an icon, a figure, a border. These
+  /// lighten in dark so they carry against the ground.
   static Color get errorRed     => _palette.errorRed;
   static Color get successGreen => _palette.successGreen;
   static Color get warningAmber => _palette.warningAmber;
+
+  /// The same three as FILLS, under white text — a snackbar, a filled
+  /// badge, a destructive button. Fixed across both themes, because
+  /// the lift that makes errorRed readable AS ink makes it unreadable
+  /// UNDER white. Reach for these whenever the colour is a background.
+  static Color get solidError   => _palette.solidError;
+  static Color get solidSuccess => _palette.solidSuccess;
+  static Color get solidWarning => _palette.solidWarning;
 }
 
 class ErpTextStyles {
@@ -206,7 +217,7 @@ class ErpDecorations {
     borderRadius: BorderRadius.circular(6),
     boxShadow: [
       BoxShadow(
-        color: const Color(0xFF1B2B45).withValues(alpha: 0.05),
+        color: ErpColors.navyMid.withValues(alpha: 0.05),
         blurRadius: 8,
         offset: const Offset(0, 2),
       ),

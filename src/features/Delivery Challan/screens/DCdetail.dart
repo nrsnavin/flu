@@ -60,12 +60,12 @@ class DCDetailController extends GetxController {
       });
       await fetchDetail();
       Get.snackbar('Updated', 'Status changed to ${status.capitalizeFirst}',
-          backgroundColor: ErpColors.successGreen, colorText: Colors.white,
+          backgroundColor: ErpColors.solidSuccess, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       onDone();
     } on DioException catch (e) {
       Get.snackbar('Error', e.response?.data?['message'] ?? 'Update failed',
-          backgroundColor: ErpColors.errorRed, colorText: Colors.white,
+          backgroundColor: ErpColors.solidError, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
       updating.value = false;
@@ -82,12 +82,12 @@ class DCDetailController extends GetxController {
         data: {'actor': buildActorPayload()},
       );
       Get.snackbar('Deleted', 'Delivery Challan deleted',
-          backgroundColor: const Color(0xFF16A34A), colorText: Colors.white,
+          backgroundColor: ErpColors.solidSuccess, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       onDeleted();
     } on DioException catch (e) {
       Get.snackbar('Error', e.response?.data?['message'] ?? 'Delete failed',
-          backgroundColor: ErpColors.errorRed, colorText: Colors.white,
+          backgroundColor: ErpColors.solidError, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
       updating.value = false;
@@ -254,7 +254,7 @@ class _DCDetailPageState extends State<DCDetailPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('PDF generation failed: $e'),
-            backgroundColor: ErpColors.errorRed,
+            backgroundColor: ErpColors.solidError,
           ),
         );
       }
@@ -311,7 +311,7 @@ class _DCDetailPageState extends State<DCDetailPage> {
           Expanded(child: ElevatedButton.icon(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: ErpColors.errorRed, elevation: 0,
+              backgroundColor: ErpColors.solidError, elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),

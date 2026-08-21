@@ -6,6 +6,7 @@
 //  SupplierDetailController — fetches fresh supplier + recent POs
 // ══════════════════════════════════════════════════════════════
 import 'dart:async';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -70,7 +71,7 @@ class SupplierListController extends GetxController {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] as String? ?? 'Failed to load suppliers';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -85,14 +86,14 @@ class SupplierListController extends GetxController {
           .delete('/delete-supplier', queryParameters: {'id': id});
       suppliers.removeWhere((s) => s['_id']?.toString() == id);
       Get.snackbar('Deleted', 'Supplier deactivated',
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } on DioException catch (e) {
       Get.snackbar(
           'Error',
           e.response?.data?['message'] as String? ?? 'Failed to delete',
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     }
@@ -208,14 +209,14 @@ class SupplierDetailController extends GetxController {
       // ignore: invalid_use_of_protected_member
       supplier.refresh();
       Get.snackbar('Deactivated', 'Supplier marked as inactive',
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return true;
     } on DioException catch (e) {
       Get.snackbar('Error',
           e.response?.data?['message'] as String? ?? 'Failed to deactivate',
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return false;

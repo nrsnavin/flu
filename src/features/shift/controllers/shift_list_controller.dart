@@ -7,6 +7,7 @@
 //              and a reactive meter count for the live running total.
 // ══════════════════════════════════════════════════════════════
 import 'package:dio/dio.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -91,7 +92,7 @@ class ShiftControllerView extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Error', 'Failed to load shifts',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -146,7 +147,7 @@ class ShiftControllerView extends GetxController {
       if (err != null) {
         Get.snackbar(
           'Validation', err,
-          backgroundColor: const Color(0xFFD97706),
+          backgroundColor: ErpColors.solidWarning,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );
@@ -166,7 +167,7 @@ class ShiftControllerView extends GetxController {
       Get.snackbar(
         'Saved',
         '${bulkEntries.length} shift${bulkEntries.length == 1 ? '' : 's'} updated',
-        backgroundColor: const Color(0xFF16A34A),
+        backgroundColor: ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -178,7 +179,7 @@ class ShiftControllerView extends GetxController {
       Get.snackbar(
         'Save Failed',
         e.response?.data?['message'] as String? ?? 'Failed to save',
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -186,7 +187,7 @@ class ShiftControllerView extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Error', e.toString(),
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: ErpColors.solidError,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );

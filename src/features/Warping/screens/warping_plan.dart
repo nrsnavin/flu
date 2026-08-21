@@ -177,10 +177,10 @@ class _AiGenerateButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         decoration: BoxDecoration(
           gradient: generating
-              ? const LinearGradient(
-              colors: [Color(0xFF1B2B45), Color(0xFF1B2B45)])
-              : const LinearGradient(
-            colors: [Color(0xFF0D1B2A), Color(0xFF1B2B45)],
+              ? LinearGradient(
+              colors: [ErpColors.navyMid, ErpColors.navyMid])
+              : LinearGradient(
+            colors: [Color(0xFF0D1B2A), ErpColors.navyMid],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -188,13 +188,13 @@ class _AiGenerateButton extends StatelessWidget {
           border: Border.all(
             color: generating
                 ? const Color(0xFF2A3F5F)
-                : const Color(0xFF1D6FEB).withValues(alpha: 0.5),
+                : ErpColors.accentBlue.withValues(alpha: 0.5),
           ),
           boxShadow: generating
               ? []
               : [
             BoxShadow(
-                color: const Color(0xFF1D6FEB).withValues(alpha: 0.15),
+                color: ErpColors.accentBlue.withValues(alpha: 0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 3)),
           ],
@@ -203,17 +203,17 @@ class _AiGenerateButton extends StatelessWidget {
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: generating
-                ? const SizedBox(
+                ? SizedBox(
               key: ValueKey('spin'),
               width: 22,
               height: 22,
               child: CircularProgressIndicator(
-                  color: Color(0xFF1D6FEB), strokeWidth: 2.5),
+                  color: ErpColors.accentBlue, strokeWidth: 2.5),
             )
-                : const Icon(Icons.auto_awesome_rounded,
+                : Icon(Icons.auto_awesome_rounded,
                 key: ValueKey('icon'),
                 size: 22,
-                color: Color(0xFF1D6FEB)),
+                color: ErpColors.accentBlue),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -248,7 +248,7 @@ class _AiGenerateButton extends StatelessWidget {
               padding:
               const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: const Color(0xFF1D6FEB),
+                color: ErpColors.accentBlue,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: const Text('Generate',
@@ -277,31 +277,31 @@ class _AiBadge extends StatelessWidget {
     margin: const EdgeInsets.only(bottom: 12),
     padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
     decoration: BoxDecoration(
-      color: const Color(0xFF16A34A).withValues(alpha: 0.07),
+      color: ErpColors.successGreen.withValues(alpha: 0.07),
       border:
-      Border.all(color: const Color(0xFF16A34A).withValues(alpha: 0.3)),
+      Border.all(color: ErpColors.successGreen.withValues(alpha: 0.3)),
       borderRadius: BorderRadius.circular(8),
     ),
     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Icon(Icons.check_circle_rounded,
-          size: 16, color: Color(0xFF16A34A)),
+      Icon(Icons.check_circle_rounded,
+          size: 16, color: ErpColors.successGreen),
       const SizedBox(width: 8),
       Expanded(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
                 'AI plan loaded — review and edit before submitting',
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF16A34A))),
+                    color: ErpColors.successGreen)),
             if (remarks.isNotEmpty) ...[
               const SizedBox(height: 3),
               Text(remarks,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 10.5,
-                      color: Color(0xFF5A6A85),
+                      color: ErpColors.textSecondary,
                       height: 1.4)),
             ],
           ],
@@ -309,10 +309,10 @@ class _AiBadge extends StatelessWidget {
       ),
       GestureDetector(
         onTap: onDismiss,
-        child: const Padding(
+        child: Padding(
           padding: EdgeInsets.all(2),
           child:
-          Icon(Icons.close, size: 14, color: Color(0xFF94A3B8)),
+          Icon(Icons.close, size: 14, color: ErpColors.textMuted),
         ),
       ),
     ]),
@@ -371,10 +371,10 @@ class _CombineBanner extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 10, color: Color(0xFF92400E))),
               const SizedBox(height: 3),
-              const Text(
+              Text(
                 'Sections from both beams are merged. Ends are halved — '
                     'odd ends get 1 extra in the first beam.',
-                style: TextStyle(fontSize: 9, color: Color(0xFFB45309)),
+                style: TextStyle(fontSize: 9, color: ErpColors.statusPartialText),
               ),
             ],
           ),
@@ -1373,7 +1373,7 @@ class _SubmitButton extends StatelessWidget {
   }
 
   void _snackErr(String msg) => Get.snackbar('Validation Error', msg,
-      backgroundColor: ErpColors.errorRed,
+      backgroundColor: ErpColors.solidError,
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 4));

@@ -82,14 +82,14 @@ class OptimizeLayoutPage extends StatelessWidget {
       Get.back(result: true);
       Get.snackbar('Applied', 'Optimised plan saved',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: ErpColors.successGreen,
+          backgroundColor: ErpColors.solidSuccess,
           colorText: Colors.white,
           margin: const EdgeInsets.all(12),
           duration: const Duration(seconds: 3));
     } else {
       Get.snackbar('Failed', 'Could not apply the plan',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: ErpColors.errorRed,
+          backgroundColor: ErpColors.solidError,
           colorText: Colors.white,
           margin: const EdgeInsets.all(12),
           duration: const Duration(seconds: 2));

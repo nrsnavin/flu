@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 
@@ -46,14 +47,14 @@ class ElasticGroupListController extends GetxController {
     try {
       await _dio.delete('/$id');
       Get.snackbar('Removed', 'Elastic group deleted',
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       await fetch();
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Failed to delete';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     }
@@ -172,7 +173,7 @@ class ElasticGroupFormController extends GetxController {
     if (!formKey.currentState!.validate()) return;
     if (items.isEmpty) {
       Get.snackbar('Validation', 'Add at least one elastic',
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       return;
@@ -195,14 +196,14 @@ class ElasticGroupFormController extends GetxController {
         await _groupDio.post('/', data: payload);
       }
       Get.snackbar('Saved', isEdit ? 'Group updated' : 'Group created',
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: ErpColors.solidSuccess,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
       onSuccess?.call();
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ?? 'Failed to save group';
       Get.snackbar('Error', msg,
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: ErpColors.solidError,
           colorText: const Color(0xFFFFFFFF),
           snackPosition: SnackPosition.BOTTOM);
     } finally {

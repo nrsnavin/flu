@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../models/po_models.dart';
+import '../services/theme.dart';
 import '../services/api.dart';
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -26,22 +27,6 @@ import '../services/api.dart';
 // ──────────────────────────────────────────────────────────────────────────
 //  COLOURS  (matches ERP theme — replicate from theme.dart if needed)
 // ──────────────────────────────────────────────────────────────────────────
-class _C {
-  static const navyDark      = Color(0xFF0D1B2A);
-  static const navyMid       = Color(0xFF1B2B45);
-  static const accentBlue    = Color(0xFF1D6FEB);
-  static const successGreen  = Color(0xFF16A34A);
-  static const warningAmber  = Color(0xFFD97706);
-  static const errorRed      = Color(0xFFDC2626);
-  static const bgBase        = Color(0xFFF1F3F8);
-  static const bgSurface     = Color(0xFFFFFFFF);
-  static const bgMuted       = Color(0xFFF7F8FC);
-  static const borderLight   = Color(0xFFE2E6F0);
-  static const borderMid     = Color(0xFFCBD5E1);
-  static const textPrimary   = Color(0xFF0F172A);
-  static const textSecondary = Color(0xFF64748B);
-  static const textMuted     = Color(0xFF94A3B8);
-}
 
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -188,11 +173,11 @@ class MaterialInwardController extends GetxController {
       lastDate:     DateTime.now(),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(
-            primary: _C.accentBlue,
+          colorScheme: ColorScheme.light(
+            primary: ErpColors.accentBlue,
             onPrimary: Colors.white,
-            surface: _C.bgSurface,
-            onSurface: _C.textPrimary,
+            surface: ErpColors.bgSurface,
+            onSurface: ErpColors.textPrimary,
           ),
         ),
         child: child!,
@@ -278,7 +263,7 @@ class MaterialInwardController extends GetxController {
   void _snack(String title, String msg, {bool isError = false}) {
     Get.snackbar(
       title, msg,
-      backgroundColor: isError ? _C.errorRed : _C.successGreen,
+      backgroundColor: isError ? ErpColors.errorRed : ErpColors.successGreen,
       colorText:       Colors.white,
       snackPosition:   SnackPosition.BOTTOM,
       duration:        Duration(seconds: isError ? 4 : 3),
@@ -342,10 +327,10 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
     // Argument guard failed in initState — render a blank scaffold
     // for the single frame before the scheduled Get.back() fires.
     if (_ctrl == null) {
-      return const Scaffold(backgroundColor: _C.bgBase);
+      return Scaffold(backgroundColor: ErpColors.bgBase);
     }
     return Scaffold(
-      backgroundColor: _C.bgBase,
+      backgroundColor: ErpColors.bgBase,
       body: NestedScrollView(
         headerSliverBuilder: (_, __) => [_appBar()],
         body: _ctrl!.rows.isEmpty ? _emptyState() : _body(),
@@ -358,7 +343,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
   Widget _appBar() => SliverAppBar(
     pinned:           true,
     expandedHeight:   140,
-    backgroundColor:  _C.navyDark,
+    backgroundColor:  ErpColors.navyDark,
     leading: IconButton(
       icon: const Icon(Icons.arrow_back_ios_new,
           size: 16, color: Colors.white),
@@ -392,23 +377,23 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
         margin: const EdgeInsets.only(top: 4),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: _C.warningAmber.withValues(alpha: 0.07),
+          color: ErpColors.warningAmber.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _C.warningAmber.withValues(alpha: 0.4)),
+          border: Border.all(color: ErpColors.warningAmber.withValues(alpha: 0.4)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              const Icon(Icons.warning_amber_rounded,
-                  size: 16, color: _C.warningAmber),
+              Icon(Icons.warning_amber_rounded,
+                  size: 16, color: ErpColors.warningAmber),
               const SizedBox(width: 6),
               Text(
                 'Why more than ${(kOverReceiptTolerance * 100).round()}% over?',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: _C.warningAmber),
+                    color: ErpColors.warningAmber),
               ),
             ]),
             const SizedBox(height: 8),
@@ -418,26 +403,26 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
               maxLines: 4,
               textCapitalization: TextCapitalization.sentences,
               onChanged: (_) => setState(() {}),
-              style: const TextStyle(fontSize: 13, color: _C.textPrimary),
+              style: TextStyle(fontSize: 13, color: ErpColors.textPrimary),
               decoration: InputDecoration(
                 hintText:
                     'e.g. supplier sent full bags; the extra is against the next order',
                 hintStyle:
-                    const TextStyle(fontSize: 12.5, color: _C.textMuted),
+                    TextStyle(fontSize: 12.5, color: ErpColors.textMuted),
                 filled: true,
-                fillColor: _C.bgSurface,
+                fillColor: ErpColors.bgSurface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: _C.borderLight),
+                  borderSide: BorderSide(color: ErpColors.borderLight),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: _C.borderLight),
+                  borderSide: BorderSide(color: ErpColors.borderLight),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide:
-                      const BorderSide(color: _C.warningAmber, width: 1.5),
+                      BorderSide(color: ErpColors.warningAmber, width: 1.5),
                 ),
                 contentPadding: const EdgeInsets.all(12),
               ),
@@ -446,7 +431,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
             Text(
               'Kept on the inward row, against the PO it came in on. '
               'At least $kMinOverReceiptReason characters.',
-              style: const TextStyle(fontSize: 11, color: _C.textMuted),
+              style: TextStyle(fontSize: 11, color: ErpColors.textMuted),
             ),
           ],
         ),
@@ -458,19 +443,19 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
       Container(
         width: 72, height: 72,
         decoration: BoxDecoration(
-          color: _C.successGreen.withValues(alpha: 0.1),
+          color: ErpColors.successGreen.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.inventory_2_outlined,
-            size: 34, color: _C.successGreen),
+        child: Icon(Icons.inventory_2_outlined,
+            size: 34, color: ErpColors.successGreen),
       ),
       const SizedBox(height: 16),
-      const Text('All items fully received',
+      Text('All items fully received',
           style: TextStyle(fontSize: 16,
-              fontWeight: FontWeight.w800, color: _C.textPrimary)),
+              fontWeight: FontWeight.w800, color: ErpColors.textPrimary)),
       const SizedBox(height: 6),
-      const Text('No pending quantity left on this PO.',
-          style: TextStyle(fontSize: 13, color: _C.textSecondary)),
+      Text('No pending quantity left on this PO.',
+          style: TextStyle(fontSize: 13, color: ErpColors.textSecondary)),
     ]),
   );
 
@@ -479,8 +464,8 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
     padding: EdgeInsets.fromLTRB(
         16, 12, 16, 16 + MediaQuery.of(context).padding.bottom),
     decoration: BoxDecoration(
-      color: _C.bgSurface,
-      border: const Border(top: BorderSide(color: _C.borderLight)),
+      color: ErpColors.bgSurface,
+      border: Border(top: BorderSide(color: ErpColors.borderLight)),
       boxShadow: [BoxShadow(
         color: Colors.black.withValues(alpha: 0.06),
         blurRadius: 8, offset: const Offset(0, -2),
@@ -505,8 +490,8 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
               ? _ctrl!.submit
               : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: _C.accentBlue,
-            disabledBackgroundColor: _C.accentBlue.withValues(alpha: 0.35),
+            backgroundColor: ErpColors.accentBlue,
+            disabledBackgroundColor: ErpColors.accentBlue.withValues(alpha: 0.35),
             foregroundColor: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -537,21 +522,21 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: _C.accentBlue.withValues(alpha: 0.07),
+        color: ErpColors.accentBlue.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _C.accentBlue.withValues(alpha: 0.25)),
+        border: Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.25)),
       ),
       child: Row(children: [
-        const Icon(Icons.check_circle_outline_rounded,
-            size: 16, color: _C.accentBlue),
+        Icon(Icons.check_circle_outline_rounded,
+            size: 16, color: ErpColors.accentBlue),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             '${activeRows.length} item${activeRows.length == 1 ? '' : 's'} '
                 'will be received into stock',
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 12, fontWeight: FontWeight.w600,
-                color: _C.accentBlue),
+                color: ErpColors.accentBlue),
           ),
         ),
       ]),
@@ -572,13 +557,13 @@ class _POSummaryHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = po.status == 'Completed'
-        ? _C.successGreen
+        ? ErpColors.successGreen
         : po.status == 'Partial'
-        ? _C.warningAmber
-        : _C.accentBlue;
+        ? ErpColors.warningAmber
+        : ErpColors.accentBlue;
 
     return Container(
-      color: _C.navyDark,
+      color: ErpColors.navyDark,
       padding: const EdgeInsets.fromLTRB(16, 56, 16, 16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -642,26 +627,26 @@ class _DatePickerRow extends StatelessWidget {
               padding:
               const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
               decoration: BoxDecoration(
-                color: _C.bgSurface,
+                color: ErpColors.bgSurface,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: _C.borderLight),
+                border: Border.all(color: ErpColors.borderLight),
               ),
               child: Row(children: [
-                const Icon(Icons.calendar_today_rounded,
-                    size: 16, color: _C.accentBlue),
+                Icon(Icons.calendar_today_rounded,
+                    size: 16, color: ErpColors.accentBlue),
                 const SizedBox(width: 10),
                 Text(
                   DateFormat('dd MMM yyyy').format(date),
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: _C.textPrimary),
+                      color: ErpColors.textPrimary),
                 ),
                 const Spacer(),
-                const Text('Change',
+                Text('Change',
                     style: TextStyle(
                         fontSize: 12,
-                        color: _C.accentBlue,
+                        color: ErpColors.accentBlue,
                         fontWeight: FontWeight.w600)),
               ]),
             ),
@@ -683,11 +668,11 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) => Row(children: [
     Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w800,
           letterSpacing: 1.0,
-          color: _C.textSecondary),
+          color: ErpColors.textSecondary),
     ),
     if (count != null) ...[
       const SizedBox(width: 8),
@@ -695,15 +680,15 @@ class _SectionLabel extends StatelessWidget {
         padding:
         const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         decoration: BoxDecoration(
-          color: _C.accentBlue.withValues(alpha: 0.1),
+          color: ErpColors.accentBlue.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
           '$count',
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w800,
-              color: _C.accentBlue),
+              color: ErpColors.accentBlue),
         ),
       ),
     ],
@@ -727,15 +712,15 @@ class _ItemCard extends StatelessWidget {
       duration: const Duration(milliseconds: 160),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: _C.bgSurface,
+        color: ErpColors.bgSurface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           // Amber, not red: an over-receipt is accepted, not rejected.
           color: isOver
-              ? _C.warningAmber
+              ? ErpColors.warningAmber
               : hasQty
-              ? _C.accentBlue.withValues(alpha: 0.4)
-              : _C.borderLight,
+              ? ErpColors.accentBlue.withValues(alpha: 0.4)
+              : ErpColors.borderLight,
           width: (isOver || hasQty) ? 1.5 : 1,
         ),
         boxShadow: [
@@ -755,10 +740,10 @@ class _ItemCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   row.poItem.rawMaterial?.name ?? '-',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: _C.textPrimary),
+                      color: ErpColors.textPrimary),
                 ),
               ),
               if (hasQty && !isOver)
@@ -766,15 +751,15 @@ class _ItemCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: _C.successGreen.withValues(alpha: 0.1),
+                    color: ErpColors.successGreen.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     '+${row.receivingQty.toStringAsFixed(row.receivingQty % 1 == 0 ? 0 : 2)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: _C.successGreen),
+                        color: ErpColors.successGreen),
                   ),
                 ),
               if (isOver)
@@ -782,15 +767,15 @@ class _ItemCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: _C.errorRed.withValues(alpha: 0.1),
+                    color: ErpColors.errorRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Text(
+                  child: Text(
                     'OVER LIMIT',
                     style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: _C.errorRed),
+                        color: ErpColors.errorRed),
                   ),
                 ),
             ]),
@@ -802,21 +787,21 @@ class _ItemCard extends StatelessWidget {
               _StatChip(
                   label: 'Ordered',
                   value: _fmt(row.poItem.quantity),
-                  color: _C.textSecondary),
+                  color: ErpColors.textSecondary),
               const SizedBox(width: 8),
               _StatChip(
                   label: 'Received',
                   value: _fmt(row.poItem.receivedQuantity),
-                  color: _C.warningAmber),
+                  color: ErpColors.warningAmber),
               const SizedBox(width: 8),
               _StatChip(
                   label: 'Pending',
                   value: _fmt(row.poItem.pendingQuantity),
-                  color: _C.accentBlue),
+                  color: ErpColors.accentBlue),
             ]),
 
             const SizedBox(height: 12),
-            const Divider(height: 1, color: _C.borderLight),
+            Divider(height: 1, color: ErpColors.borderLight),
             const SizedBox(height: 12),
 
             // ── Quantity input ────────────────────────────────────
@@ -826,11 +811,11 @@ class _ItemCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Receiving Now',
+                    Text('Receiving Now',
                         style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: _C.textSecondary)),
+                            color: ErpColors.textSecondary)),
                     const SizedBox(height: 6),
                     TextFormField(
                       controller:  row.quantityCtrl,
@@ -845,33 +830,33 @@ class _ItemCard extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
-                          color: isOver ? _C.errorRed : _C.textPrimary),
+                          color: isOver ? ErpColors.errorRed : ErpColors.textPrimary),
                       decoration: InputDecoration(
                         filled:      true,
                         fillColor:   isOver
-                            ? _C.errorRed.withValues(alpha: 0.05)
-                            : _C.bgMuted,
+                            ? ErpColors.errorRed.withValues(alpha: 0.05)
+                            : ErpColors.bgMuted,
                         hintText:    '0',
-                        hintStyle:   const TextStyle(
-                            color: _C.textMuted, fontSize: 18),
+                        hintStyle:   TextStyle(
+                            color: ErpColors.textMuted, fontSize: 18),
                         suffixText:  row.poItem.rawMaterial?.unit ?? '',
-                        suffixStyle: const TextStyle(
-                            color: _C.textSecondary, fontSize: 13),
+                        suffixStyle: TextStyle(
+                            color: ErpColors.textSecondary, fontSize: 13),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide:
-                          const BorderSide(color: _C.borderLight),
+                          BorderSide(color: ErpColors.borderLight),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
-                            color: isOver ? _C.errorRed : _C.borderLight,
+                            color: isOver ? ErpColors.errorRed : ErpColors.borderLight,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
-                            color: isOver ? _C.errorRed : _C.accentBlue,
+                            color: isOver ? ErpColors.errorRed : ErpColors.accentBlue,
                             width: 1.5,
                           ),
                         ),
@@ -880,8 +865,8 @@ class _ItemCard extends StatelessWidget {
                         errorText: isOver
                             ? 'Max: ${_fmt(row.poItem.pendingQuantity)}'
                             : null,
-                        errorStyle: const TextStyle(
-                            fontSize: 11, color: _C.errorRed),
+                        errorStyle: TextStyle(
+                            fontSize: 11, color: ErpColors.errorRed),
                       ),
                     ),
                   ],
@@ -907,8 +892,8 @@ class _ItemCard extends StatelessWidget {
                           onChanged();
                         },
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: _C.accentBlue,
-                          side: const BorderSide(color: _C.accentBlue),
+                          foregroundColor: ErpColors.accentBlue,
+                          side: BorderSide(color: ErpColors.accentBlue),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
                           padding:
@@ -937,7 +922,7 @@ class _ItemCard extends StatelessWidget {
                         ? Icons.warning_amber_rounded
                         : Icons.trending_up_rounded,
                     size: 14,
-                    color: _C.warningAmber,
+                    color: ErpColors.warningAmber,
                   ),
                   const SizedBox(width: 5),
                   Expanded(
@@ -948,7 +933,7 @@ class _ItemCard extends StatelessWidget {
                               '${(kOverReceiptTolerance * 100).round()}% tolerance',
                       style: TextStyle(
                         fontSize: 11.5,
-                        color: _C.warningAmber,
+                        color: ErpColors.warningAmber,
                         fontWeight:
                             needsReason ? FontWeight.w700 : FontWeight.w500,
                       ),
@@ -975,8 +960,8 @@ class _ItemCard extends StatelessWidget {
                             controller: row.lotNoCtrl,
                             textCapitalization:
                                 TextCapitalization.characters,
-                            style: const TextStyle(
-                                fontSize: 13, color: _C.textPrimary),
+                            style: TextStyle(
+                                fontSize: 13, color: ErpColors.textPrimary),
                             onChanged: (_) => onChanged(),
                             decoration: _lotDecoration(
                               hint: 'Lot no.',
@@ -989,8 +974,8 @@ class _ItemCard extends StatelessWidget {
                           flex: 2,
                           child: TextFormField(
                             controller: row.shadeCtrl,
-                            style: const TextStyle(
-                                fontSize: 13, color: _C.textPrimary),
+                            style: TextStyle(
+                                fontSize: 13, color: ErpColors.textPrimary),
                             decoration: _lotDecoration(
                               hint: 'Shade',
                               icon: Icons.palette_outlined,
@@ -1011,32 +996,32 @@ class _ItemCard extends StatelessWidget {
                 child: TextFormField(
                   controller: row.remarksCtrl,
                   maxLines: 2,
-                  style: const TextStyle(
-                      fontSize: 13, color: _C.textPrimary),
+                  style: TextStyle(
+                      fontSize: 13, color: ErpColors.textPrimary),
                   decoration: InputDecoration(
                     hintText:  'Remarks (optional)',
-                    hintStyle: const TextStyle(
-                        fontSize: 13, color: _C.textMuted),
+                    hintStyle: TextStyle(
+                        fontSize: 13, color: ErpColors.textMuted),
                     filled:    true,
-                    fillColor: _C.bgMuted,
+                    fillColor: ErpColors.bgMuted,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide:
-                      const BorderSide(color: _C.borderLight),
+                      BorderSide(color: ErpColors.borderLight),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide:
-                      const BorderSide(color: _C.borderLight),
+                      BorderSide(color: ErpColors.borderLight),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(
-                          color: _C.accentBlue, width: 1.5),
+                      borderSide: BorderSide(
+                          color: ErpColors.accentBlue, width: 1.5),
                     ),
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                         Icons.notes_rounded,
-                        size: 16, color: _C.textMuted),
+                        size: 16, color: ErpColors.textMuted),
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),
                   ),
@@ -1056,23 +1041,23 @@ class _ItemCard extends StatelessWidget {
   InputDecoration _lotDecoration({required String hint, required IconData icon}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(fontSize: 13, color: _C.textMuted),
+      hintStyle: TextStyle(fontSize: 13, color: ErpColors.textMuted),
       filled: true,
-      fillColor: _C.bgMuted,
+      fillColor: ErpColors.bgMuted,
       isDense: true,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: _C.borderLight),
+        borderSide: BorderSide(color: ErpColors.borderLight),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: _C.borderLight),
+        borderSide: BorderSide(color: ErpColors.borderLight),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: _C.accentBlue, width: 1.5),
+        borderSide: BorderSide(color: ErpColors.accentBlue, width: 1.5),
       ),
-      prefixIcon: Icon(icon, size: 16, color: _C.textMuted),
+      prefixIcon: Icon(icon, size: 16, color: ErpColors.textMuted),
       contentPadding:
           const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
     );
@@ -1100,8 +1085,8 @@ class _StatChip extends StatelessWidget {
               fontSize: 13, fontWeight: FontWeight.w900, color: color)),
       const SizedBox(height: 2),
       Text(label,
-          style: const TextStyle(fontSize: 9,
-              fontWeight: FontWeight.w600, color: _C.textSecondary)),
+          style: TextStyle(fontSize: 9,
+              fontWeight: FontWeight.w600, color: ErpColors.textSecondary)),
     ]),
   );
 }

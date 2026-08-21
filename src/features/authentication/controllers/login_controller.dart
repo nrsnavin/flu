@@ -74,25 +74,58 @@ class LoginController extends GetxController {
                                             ?? prefs.getString(StorageKeys.name) ?? '',
           role: u['role']?.toString()       ?? prefs.getString(StorageKeys.role) ?? '',
         );
+
+        // ── Take the renewed token ────────────────────────────────
+        // The route hands one back to this app on every cold start,
+        // so the session's clock restarts each time it is opened.
+        // That is what makes "stay signed in" mean until logout
+        // rather than until the token happens to run out.
+        final fresh = response.data['token']?.toString() ?? '';
+        if (fresh.isNotEmpty) {
+          await prefs.setString(StorageKeys.token, fresh);
+        }
+
         isLoggedIn.value = true;
-      } else {
+      } else if (response.statusCode == 401) {
+        // ── Only a genuine rejection ends the session ─────────────
+        // This used to clear on ANY non-200. The status filter below
+        // lets everything under 500 through, so a 403, a 404 from a
+        // mistyped base URL, or a 429 on a cold start all signed the
+        // operator out and lost their stored login — none of which
+        // means the credential is bad.
+        //
+        // 401 is the one that does: the token was rejected. Anything
+        // else falls through to the cached restore below, which is
+        // the same thing that happens when the server is unreachable.
         await _clearSession(prefs);
+      } else {
+        _restoreFromCache(prefs);
       }
     } catch (_) {
       // Network unavailable — restore from cache so the user isn't locked
       // out when the factory has no connectivity.
-      final prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool(StorageKeys.isLoggedIn) == true &&
-          (prefs.getString(StorageKeys.token) ?? '').isNotEmpty) {
-        user.value = User(
-          id:   prefs.getString(StorageKeys.id)   ?? '',
-          name: prefs.getString(StorageKeys.name) ?? '',
-          role: prefs.getString(StorageKeys.role) ?? '',
-        );
-        isLoggedIn.value = true;
-      }
+      _restoreFromCache(await SharedPreferences.getInstance());
     } finally {
       isCheckingAuth.value = false;
+    }
+  }
+
+  /// Sign in from what was stored last time.
+  ///
+  /// Used both when the server cannot be reached and when it answers
+  /// with something that is not a flat rejection. In neither case is
+  /// there any evidence the credential is bad, and signing somebody
+  /// out on no evidence is the thing this whole change exists to
+  /// stop.
+  void _restoreFromCache(SharedPreferences prefs) {
+    if (prefs.getBool(StorageKeys.isLoggedIn) == true &&
+        (prefs.getString(StorageKeys.token) ?? '').isNotEmpty) {
+      user.value = User(
+        id:   prefs.getString(StorageKeys.id)   ?? '',
+        name: prefs.getString(StorageKeys.name) ?? '',
+        role: prefs.getString(StorageKeys.role) ?? '',
+      );
+      isLoggedIn.value = true;
     }
   }
 

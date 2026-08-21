@@ -40,6 +40,17 @@ class ApiClient {
           if (token.isNotEmpty) {
             options.headers['Cookie'] = 'token=$token';
           }
+          // ── Who is calling ──────────────────────────────────────
+          // The server reads this to decide how long a session it
+          // hands out: the browser gets 24 hours, the app gets a long
+          // one, because a daily re-login on the factory floor means
+          // an operator with gloves on typing an email address before
+          // they can scan a job.
+          //
+          // Sent on EVERY request, not just the login, because the
+          // cold-start check re-mints the token and needs to be
+          // recognised too. See api/user.js `wantsLongSession`.
+          options.headers['X-Client'] = 'mobile';
           handler.next(options);
         },
       ),

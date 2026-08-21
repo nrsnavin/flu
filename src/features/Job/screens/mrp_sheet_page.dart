@@ -388,6 +388,86 @@ class _MaterialsCard extends StatelessWidget {
   }
 }
 
+/// The dye lots standing behind one material on the sheet.
+///
+/// Two facts share the list and they are not interchangeable. A
+/// PROGRAMMED lot is one this job's warping plan has already chosen
+/// for a beam section — the decision is made, and it was made because
+/// two lots meeting inside one beam show as a shade band. An available
+/// lot is just yarn on the rack that could be used.
+///
+/// So the programmed ones come first and are named as such. Printing
+/// them alike would put an operator on the wrong bag, which is the
+/// whole thing this column exists to prevent.
+///
+/// Only warp materials have any — nothing in the system chooses a lot
+/// for weft or covering.
+class _MrpLots extends StatelessWidget {
+  const _MrpLots({required this.lots});
+  final dynamic lots;
+
+  @override
+  Widget build(BuildContext context) {
+    final list = (lots is List) ? lots as List : const [];
+    if (list.isEmpty) return const SizedBox.shrink();
+
+    final committed = <String>[];
+    final available = <String>[];
+    var committedGone = false;
+
+    for (final raw in list) {
+      if (raw is! Map) continue;
+      final lotNo = raw['lotNo']?.toString() ?? '';
+      if (lotNo.isEmpty) continue;
+      if (raw['committed'] == true) {
+        committed.add(lotNo);
+        // A programmed lot the rack no longer holds. The single most
+        // actionable thing this line can report, so it is not folded
+        // in silently.
+        if (raw['balance'] == null) committedGone = true;
+      } else {
+        available.add(lotNo);
+      }
+    }
+    if (committed.isEmpty && available.isEmpty) return const SizedBox.shrink();
+
+    final parts = <String>[];
+    if (committed.isNotEmpty) {
+      parts.add('${committed.join(" · ")} (programmed)');
+    }
+    if (available.isNotEmpty) {
+      final shown = available.take(2).join(' · ');
+      final more = available.length > 2 ? ' +${available.length - 2}' : '';
+      parts.add('${committed.isEmpty ? "" : "also "}open $shown$more');
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Row(children: [
+        Icon(Icons.label_outline_rounded,
+            size: 11,
+            color: committedGone ? ErpColors.warningAmber : ErpColors.textMuted),
+        const SizedBox(width: 3),
+        Expanded(
+          child: Text(
+            committedGone
+                ? '${parts.join("  ·  ")} — not on the rack'
+                : parts.join('  ·  '),
+            style: TextStyle(
+                color: committedGone
+                    ? ErpColors.warningAmber
+                    : ErpColors.textMuted,
+                fontSize: 10,
+                fontWeight:
+                    committed.isEmpty ? FontWeight.w400 : FontWeight.w600),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
 class _MaterialRow extends StatelessWidget {
   const _MaterialRow({required this.m});
   final Map<String, dynamic> m;
@@ -414,6 +494,7 @@ class _MaterialRow extends StatelessWidget {
                   Text(cat,
                       style: TextStyle(
                           color: ErpColors.textMuted, fontSize: 11)),
+                _MrpLots(lots: m['lots']),
               ],
             ),
           ),

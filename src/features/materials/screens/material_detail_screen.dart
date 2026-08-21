@@ -692,6 +692,66 @@ class _LedgerTab extends StatelessWidget {
   }
 }
 
+/// The dye lot behind one ledger row.
+///
+/// Three kinds of answer reach here and they are not equal:
+///
+///   • a lot RECORDED on the receipt or adjustment that caused it;
+///   • a lot a warping batch drew, which is exact;
+///   • a lot INFERRED for an order approval that named none, taken as
+///     the earliest lot that had arrived by then.
+///
+/// The third says so. The point of the whole column is that a reading
+/// never reads as a record — somebody on the floor acts on this.
+class _LedgerLotLine extends StatelessWidget {
+  final StockMovementModel movement;
+  const _LedgerLotLine({required this.movement});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!movement.hasLot) {
+      // A batch row that lost its lot. Says so rather than showing
+      // nothing, because a blank here looks like an ordinary row.
+      return Text('Lot not recorded',
+          style: TextStyle(
+              color: ErpColors.textMuted,
+              fontSize: 10,
+              fontStyle: FontStyle.italic));
+    }
+
+    return Row(children: [
+      Icon(Icons.label_outline_rounded,
+          size: 11, color: ErpColors.textMuted),
+      const SizedBox(width: 4),
+      Flexible(
+        child: Text(
+          movement.lotNo,
+          style: TextStyle(
+              color: movement.lotDerived
+                  ? ErpColors.textMuted
+                  : ErpColors.textSecondary,
+              fontSize: 10,
+              fontStyle:
+                  movement.lotDerived ? FontStyle.italic : FontStyle.normal,
+              fontWeight:
+                  movement.lotDerived ? FontWeight.w500 : FontWeight.w700),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+      if (movement.lotDerived) ...[
+        const SizedBox(width: 4),
+        Text('inferred',
+            style: TextStyle(color: ErpColors.textMuted, fontSize: 9)),
+      ],
+      if (movement.lotOnly) ...[
+        const SizedBox(width: 6),
+        Text('off the rack',
+            style: TextStyle(color: ErpColors.textMuted, fontSize: 9)),
+      ],
+    ]);
+  }
+}
+
 class _LedgerRow extends StatelessWidget {
   final StockMovementModel movement;
   final bool isEven;
@@ -702,14 +762,25 @@ class _LedgerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _isIn ? ErpColors.successGreen : ErpColors.errorRed;
-    final sign  = _isIn ? '+' : '';
+    // A batch row reports the RACK, so it is neither an inward nor an
+    // outward on this material's balance and is coloured neutrally.
+    // Painting it green or red would be a second thing on the row
+    // claiming the balance moved.
+    final qty = movement.displayQuantity;
+    final color = movement.lotOnly
+        ? ErpColors.textSecondary
+        : (_isIn ? ErpColors.successGreen : ErpColors.errorRed);
+    final sign = movement.lotOnly
+        ? (qty > 0 ? '+' : '')
+        : (_isIn ? '+' : '');
     final typeShort = switch (movement.type) {
       'PO_INWARD'      => 'PO Inward',
       'ORDER_APPROVAL' => movement.orderNo != null
           ? 'Order #${movement.orderNo}'
           : 'Order Approval',
       'STOCK_ADJUST'   => 'Adjustment',
+      'BATCH_ISSUE'    => 'Warped',
+      'BATCH_RETURN'   => 'Returned',
       _                => movement.type,
     };
 
@@ -719,45 +790,63 @@ class _LedgerRow extends StatelessWidget {
           : ErpColors.bgMuted.withValues(alpha: 0.5),
       padding: const EdgeInsets.symmetric(
           horizontal: 16, vertical: 10),
-      child: Row(children: [
-        Expanded(flex: 2,
-          child: Text(
-            DateFormat('dd MMM yy').format(movement.date),
-            style: TextStyle(
-                color: ErpColors.textSecondary,
-                fontSize: 11),
-          ),
-        ),
-        Expanded(flex: 2,
-          child: Text(typeShort,
-              style: TextStyle(
-                  color: ErpColors.textPrimary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600),
-              overflow: TextOverflow.ellipsis),
-        ),
-        SizedBox(width: 56,
-          child: Text(
-            '$sign${movement.quantity.abs().toStringAsFixed(2)}',
-            textAlign: TextAlign.right,
-            style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: FontWeight.w800),
-          ),
-        ),
-        const SizedBox(width: 8),
-        SizedBox(width: 60,
-          child: Text(
-            movement.balance.toStringAsFixed(2),
-            textAlign: TextAlign.right,
-            style: TextStyle(
-                color: ErpColors.textPrimary,
-                fontSize: 11,
-                fontWeight: FontWeight.w700),
-          ),
-        ),
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Expanded(flex: 2,
+              child: Text(
+                DateFormat('dd MMM yy').format(movement.date),
+                style: TextStyle(
+                    color: ErpColors.textSecondary,
+                    fontSize: 11),
+              ),
+            ),
+            Expanded(flex: 2,
+              child: Text(typeShort,
+                  style: TextStyle(
+                      color: ErpColors.textPrimary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis),
+            ),
+            SizedBox(width: 56,
+              child: Text(
+                '$sign${qty.abs().toStringAsFixed(2)}',
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                    color: color,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800),
+              ),
+            ),
+            const SizedBox(width: 8),
+            SizedBox(width: 60,
+              // Blank on a rack movement. The balance did not change,
+              // and repeating it would read as though this row had
+              // held it there.
+              child: Text(
+                movement.lotOnly ? '—' : movement.balance.toStringAsFixed(2),
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                    color: movement.lotOnly
+                        ? ErpColors.textMuted
+                        : ErpColors.textPrimary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700),
+              ),
+            ),
+          ]),
+          // ── The dye lot, on its own line ──────────────────────
+          // A fifth column on a phone would crush the four that are
+          // already there, and the lot is a caption on the movement
+          // rather than a figure to scan down.
+          if (movement.hasLot || movement.lotOnly) ...[
+            const SizedBox(height: 3),
+            _LedgerLotLine(movement: movement),
+          ],
+        ],
+      ),
     );
   }
 }

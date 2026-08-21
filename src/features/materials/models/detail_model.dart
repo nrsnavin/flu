@@ -149,6 +149,33 @@ class StockMovementModel {
   final String?  orderId;
   final String?  orderNo;
 
+  // ── Which dye lot (services/lotAttribution.js on the server) ──
+  /// The lot's number, or empty when no honest answer exists.
+  final String lotNo;
+
+  /// True when the lot was WORKED OUT rather than recorded — an order
+  /// approval or a job consumption on a warp yarn, attributed to the
+  /// earliest lot that had arrived by then.
+  ///
+  /// Shown differently for that reason. A row that presents a reading
+  /// as a record is worse than one showing nothing, because somebody
+  /// warps off it.
+  final bool lotDerived;
+
+  /// Kilos that came off the RACK, on the rows where that is not the
+  /// same as what came out of stock.
+  ///
+  /// A warping batch draws yarn against a lot and deliberately does
+  /// not move stock — that was debited earlier, when the order was
+  /// approved. Those rows carry `quantity: 0` and put the draw here,
+  /// so the balance column stays true. Null on every ordinary
+  /// movement.
+  final double? lotQuantity;
+
+  /// True for the two batch types. The row reports the rack, not the
+  /// balance, and both cells have to know.
+  final bool lotOnly;
+
   const StockMovementModel({
     required this.date,
     required this.type,
@@ -156,6 +183,10 @@ class StockMovementModel {
     required this.balance,
     this.orderId,
     this.orderNo,
+    this.lotNo = '',
+    this.lotDerived = false,
+    this.lotQuantity,
+    this.lotOnly = false,
   });
 
   factory StockMovementModel.fromJson(Map<String, dynamic> j) {
@@ -168,11 +199,23 @@ class StockMovementModel {
       balance:  (j['balance']  as num?)?.toDouble() ?? 0,
       orderId:  order is Map ? order['_id']?.toString() : order?.toString(),
       orderNo:  order is Map ? order['orderNo']?.toString() : null,
+      // Defaulted rather than required: an older server sends none of
+      // these, and the ledger has to keep rendering against it.
+      lotNo:       j['lotNo']?.toString() ?? '',
+      lotDerived:  j['lotDerived'] == true,
+      lotQuantity: (j['lotQuantity'] as num?)?.toDouble(),
+      lotOnly:     j['lotOnly'] == true,
     );
   }
 
   bool get isInward => type == 'PO_INWARD' ||
       (type == 'STOCK_ADJUST' && quantity > 0);
+
+  /// What the Qty cell should report: the rack for a batch row, stock
+  /// for everything else.
+  double get displayQuantity => lotOnly ? (lotQuantity ?? 0) : quantity;
+
+  bool get hasLot => lotNo.isNotEmpty;
 }
 
 // ── Full Material Detail ──────────────────────────────────────

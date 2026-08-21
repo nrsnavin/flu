@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../Orders/models/elasticLite.dart' show CustomerLite;
+import '../../Orders/screens/searchable_picker.dart';
 import '../../PurchaseOrder/services/theme.dart';
+import '../../customer/customer_search.dart';
 import '../controllers/sample_api.dart';
 import '../controllers/sample_controllers.dart' show apiMessage;
 
@@ -27,6 +30,11 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
   final _customer = TextEditingController();
   final _quantity = TextEditingController();
 
+  /// Set only when the customer was PICKED from the master. A typed
+  /// name leaves this null and travels as `customerName` alone, which
+  /// the route accepts — see the field's own comment below.
+  String? _customerId;
+
   String _priority = 'normal';
   DateTime? _targetDate;
   bool _saving = false;
@@ -50,6 +58,10 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
       final sample = await SampleApi.create(
         title: _title.text.trim(),
         details: _details.text.trim(),
+        // Both, when there is a link: the route prefers the id and
+        // snapshots the master's name off it, so the typed text is a
+        // fallback rather than a competing answer.
+        customerId: _customerId,
         customerName: _customer.text,
         quantity: double.tryParse(_quantity.text.trim()),
         targetDate: _targetDate == null
@@ -130,13 +142,30 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
                     icon: Icons.business_outlined,
                     child: Column(
                       children: [
-                        // A free-text name rather than a picker: a sample
-                        // is usually for somebody who is not in the
-                        // customer master yet.
-                        _Field(
-                          label: "Customer",
-                          controller: _customer,
-                          hint: "e.g. Harlow Garments (enquiry)",
+                        // ── Picked, or typed ────────────────────
+                        // A picker AND a free-text field, not one or
+                        // the other. A sample is often for somebody
+                        // who is not in the customer master yet — a
+                        // trade-fair enquiry, a prospect — which is
+                        // why this was free text to begin with. But
+                        // when they ARE in the master, typing the
+                        // name again leaves the sample unlinked, and
+                        // an unlinked sample never appears on their
+                        // page however carefully it was spelled.
+                        //
+                        // So: pick when you can, type when you must.
+                        // The route takes either.
+                        _CustomerField(
+                          name: _customer,
+                          pickedId: _customerId,
+                          onPicked: (id, name) => setState(() {
+                            _customerId = id;
+                            _customer.text = name;
+                          }),
+                          onCleared: () => setState(() {
+                            _customerId = null;
+                            _customer.clear();
+                          }),
                         ),
                         const SizedBox(height: 10),
                         Row(children: [
@@ -319,6 +348,7 @@ class _Field extends StatelessWidget {
   final int maxLines;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
+  final bool enabled;
 
   const _Field({
     required this.label,
@@ -328,6 +358,7 @@ class _Field extends StatelessWidget {
     this.maxLines = 1,
     this.keyboardType,
     this.onChanged,
+    this.enabled = true,
   });
 
   @override
@@ -339,6 +370,7 @@ class _Field extends StatelessWidget {
         const SizedBox(height: 4),
         TextField(
           controller: controller,
+          enabled: enabled,
           minLines: minLines,
           maxLines: maxLines,
           keyboardType: keyboardType,
@@ -363,8 +395,120 @@ class _Field extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
                 borderSide:
                     BorderSide(color: ErpColors.accentBlue, width: 1.5)),
+            // Set explicitly: a disabled TextField uses disabledBorder,
+            // and leaving it to the theme makes a filled-in field look
+            // like a broken one.
+            disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(4),
+                borderSide: BorderSide(color: ErpColors.borderLight)),
           ),
         ),
+      ],
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  WHO THE SAMPLE IS FOR
+//
+//  Two ways to answer, because there are genuinely two cases and
+//  forcing either one alone loses something:
+//
+//    picked  the customer is in the master, so the sample LINKS to
+//            them and shows up on their page
+//    typed   a trade-fair enquiry, a prospect, somebody who does
+//            not exist in the system yet — still worth recording
+//
+//  The picked state is shown as a chip with the link spelled out,
+//  because "Harlow Garments" typed and "Harlow Garments" picked look
+//  identical in a text field and behave completely differently. The
+//  one that matters — whether this sample will ever appear on that
+//  customer's page — is invisible otherwise.
+// ══════════════════════════════════════════════════════════════
+class _CustomerField extends StatelessWidget {
+  final TextEditingController name;
+  final String? pickedId;
+  final void Function(String id, String name) onPicked;
+  final VoidCallback onCleared;
+
+  const _CustomerField({
+    required this.name,
+    required this.pickedId,
+    required this.onPicked,
+    required this.onCleared,
+  });
+
+  Future<void> _pick(BuildContext context) async {
+    final sel = await showSearchablePicker<CustomerLite>(
+      context: context,
+      title: 'Select customer',
+      label: (c) => c.name,
+      onSearch: searchCustomerMaster,
+      itemIcon: Icons.business_outlined,
+    );
+    if (sel != null) onPicked(sel.id, sel.name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final linked = pickedId != null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(children: [
+          Expanded(
+            child: _Field(
+              label: 'Customer',
+              controller: name,
+              hint: 'e.g. Harlow Garments (enquiry)',
+              // While linked the name belongs to the master record;
+              // editing it here would produce a sample whose snapshot
+              // disagreed with the customer it points at.
+              enabled: !linked,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.only(top: 18),
+            child: IconButton(
+              tooltip: linked ? 'Choose a different customer' : 'Pick from customers',
+              onPressed: () => _pick(context),
+              icon: Icon(Icons.person_search_outlined,
+                  color: ErpColors.accentBlue),
+            ),
+          ),
+        ]),
+        const SizedBox(height: 6),
+        if (linked)
+          Row(children: [
+            Icon(Icons.link_rounded, size: 14, color: ErpColors.successGreen),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                'Linked — this will show on their customer page.',
+                style: TextStyle(
+                    fontSize: 11, color: ErpColors.successGreen),
+              ),
+            ),
+            TextButton(
+              onPressed: onCleared,
+              style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              child: const Text('Unlink', style: TextStyle(fontSize: 11)),
+            ),
+          ])
+        else
+          Text(
+            name.text.trim().isEmpty
+                ? 'Pick a customer to link this sample to them, or type a '
+                    'name for an enquiry.'
+                : 'Typed, not linked — it will not appear on any customer '
+                    'page. Use the picker to link it.',
+            style: TextStyle(fontSize: 11, color: ErpColors.textSecondary),
+          ),
       ],
     );
   }

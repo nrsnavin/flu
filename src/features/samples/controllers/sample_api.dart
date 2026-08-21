@@ -22,15 +22,24 @@ class SampleApi {
     timeout: const Duration(seconds: 60),
   );
 
+  /// [customerId] narrows to samples LINKED to that customer.
+  ///
+  /// Not to ones that merely name them: a sample typed for a prospect
+  /// who was later added to the master keeps its typed name and has no
+  /// link, and claiming those would put one company's enquiries on
+  /// another's page. The server matches on the link for that reason,
+  /// and scopes the tab counts to the customer too — see api/sample.js.
   static Future<SampleListPage> list({
     String status = 'active',
     String query = '',
+    String? customerId,
     int page = 1,
     int limit = 25,
   }) async {
     final res = await _dio.get('/', queryParameters: {
       if (status.isNotEmpty && status != 'all') 'status': status,
       if (query.trim().isNotEmpty) 'q': query.trim(),
+      if (customerId != null && customerId.isNotEmpty) 'customerId': customerId,
       'page': page,
       'limit': limit,
     });

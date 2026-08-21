@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'customer_samples_panel.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../PurchaseOrder/services/theme.dart';
@@ -82,6 +84,13 @@ class _CustomerDetailView extends StatelessWidget {
                   _ContactSection(
                       title: "MERCHANDISER", data: data['merchandiser']),
                 ],
+                // ── What they have asked us for ──────────────
+                // Above the destructive action, below the contacts:
+                // it is reference material, and somebody deactivating
+                // a customer should see an open sample first.
+                const SizedBox(height: 10),
+                CustomerSamplesPanel(customerId: c.customerId),
+
                 const SizedBox(height: 20),
                 _DeactivateButton(c: c),
               ],

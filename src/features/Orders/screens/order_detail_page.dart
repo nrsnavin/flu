@@ -1313,6 +1313,7 @@ class _RawMaterialSection extends StatelessWidget {
                           color: ErpColors.errorRed, fontSize: 11, fontStyle: FontStyle.italic),
                     ),
                   ],
+                  _LotEarmarks(lots: m["lots"], required: required),
                 ],
               ),
             );
@@ -1323,6 +1324,86 @@ class _RawMaterialSection extends StatelessWidget {
   }
 }
 
+
+/// Which dye lots this order has set aside for a material.
+///
+/// An earmark, not a consumption. Approving the order debited the
+/// commercial stock; this says which bags that debit is expected to
+/// come out of. The yarn is still on the rack and leaves when a
+/// warping batch draws it — the earmark exists so a SECOND order
+/// cannot plan against the same bag, and so the batch picker has
+/// something to be measured against.
+///
+/// Read-only here. Assigning is a multi-row form with a live free
+/// balance per lot, which belongs on a screen wider than a phone; the
+/// web order page owns it.
+class _LotEarmarks extends StatelessWidget {
+  const _LotEarmarks({required this.lots, required this.required});
+  final dynamic lots;
+  final double required;
+
+  @override
+  Widget build(BuildContext context) {
+    final list = (lots is List) ? lots as List : const [];
+    if (list.isEmpty) return const SizedBox.shrink();
+
+    var assigned = 0.0;
+    final labels = <String>[];
+    for (final raw in list) {
+      if (raw is! Map) continue;
+      final qty = (raw['quantity'] as num?)?.toDouble() ?? 0;
+      if (qty <= 0) continue;
+      assigned += qty;
+      final lotNo = raw['lotNo']?.toString() ?? '';
+      if (lotNo.isNotEmpty) labels.add('$lotNo ${qty.toStringAsFixed(2)} kg');
+    }
+    if (labels.isEmpty) return const SizedBox.shrink();
+
+    // Rounded before comparing. A raw float comparison reports a
+    // fully-covered requirement as short by a quantity no scale on the
+    // floor can weigh.
+    final full = (assigned * 1000).round() >= (required * 1000).round();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(Icons.label_outline_rounded,
+                size: 12, color: ErpColors.accentBlue),
+            const SizedBox(width: 4),
+            Text('SET ASIDE',
+                style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.6,
+                    color: ErpColors.accentBlue)),
+            const SizedBox(width: 8),
+            Text(
+              full
+                  ? 'covers the requirement'
+                  // Partial is an ordinary state for a long-lead yarn,
+                  // not an error, so it is reported as a figure rather
+                  // than coloured as a problem.
+                  : '${assigned.toStringAsFixed(2)} of ${required.toStringAsFixed(2)} kg',
+              style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: full ? ErpColors.successGreen : ErpColors.textSecondary),
+            ),
+          ]),
+          const SizedBox(height: 3),
+          Text(labels.join('  ·  '),
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: ErpColors.textPrimary)),
+        ],
+      ),
+    );
+  }
+}
 
 class _StockBadge extends StatelessWidget {
   final String label;

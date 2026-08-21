@@ -411,35 +411,54 @@ class _MrpLots extends StatelessWidget {
     final list = (lots is List) ? lots as List : const [];
     if (list.isEmpty) return const SizedBox.shrink();
 
-    final committed = <String>[];
+    // Three different claims arrive in one list and the sheet has to
+    // tell them apart. "The order set this bag aside" is a promise made
+    // at approval, before any beam existed, and it is what the warping
+    // batch picker is measured against. "The programme runs beam 3 off
+    // it" is a decision about where in the cloth it goes. "Open" is
+    // neither. Flattening them would put somebody on the wrong bag.
+    final setAside = <String>[];
+    final programmed = <String>[];
     final available = <String>[];
-    var committedGone = false;
+    var claimedGone = false;
 
     for (final raw in list) {
       if (raw is! Map) continue;
       final lotNo = raw['lotNo']?.toString() ?? '';
       if (lotNo.isEmpty) continue;
-      if (raw['committed'] == true) {
-        committed.add(lotNo);
-        // A programmed lot the rack no longer holds. The single most
-        // actionable thing this line can report, so it is not folded
-        // in silently.
-        if (raw['balance'] == null) committedGone = true;
+      final source = raw['source']?.toString();
+      final claimed = raw['committed'] == true;
+
+      if (claimed && source == 'order') {
+        final qty = (raw['quantity'] as num?)?.toDouble();
+        setAside.add(qty != null && qty > 0
+            ? '$lotNo (${qty.toStringAsFixed(qty == qty.roundToDouble() ? 0 : 2)} kg)'
+            : lotNo);
+      } else if (claimed) {
+        programmed.add(lotNo);
       } else {
         available.add(lotNo);
+        continue;
       }
+      // A claimed lot the rack no longer holds. The single most
+      // actionable thing this line can report, so it is not folded in
+      // silently.
+      if (raw['balance'] == null) claimedGone = true;
     }
-    if (committed.isEmpty && available.isEmpty) return const SizedBox.shrink();
+    if (setAside.isEmpty && programmed.isEmpty && available.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     final parts = <String>[];
-    if (committed.isNotEmpty) {
-      parts.add('${committed.join(" · ")} (programmed)');
-    }
+    if (setAside.isNotEmpty) parts.add('${setAside.join(" · ")} set aside');
+    if (programmed.isNotEmpty) parts.add('${programmed.join(" · ")} programmed');
     if (available.isNotEmpty) {
       final shown = available.take(2).join(' · ');
       final more = available.length > 2 ? ' +${available.length - 2}' : '';
-      parts.add('${committed.isEmpty ? "" : "also "}open $shown$more');
+      parts.add('${parts.isEmpty ? "" : "also "}open $shown$more');
     }
+    final committed = [...setAside, ...programmed];
+    final committedGone = claimedGone;
 
     return Padding(
       padding: const EdgeInsets.only(top: 2),

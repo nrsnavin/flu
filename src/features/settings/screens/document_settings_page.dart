@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/lock/app_lock_setting.dart';
 import '../../../core/theme/theme_toggle.dart';
 import 'package:get/get.dart';
 
@@ -59,6 +60,10 @@ class DocumentSettingsPage extends StatelessWidget {
               // than waiting for this form's Save button. Putting it
               // behind Save would be a control that looks broken.
               const ThemeModePicker(),
+              const SizedBox(height: 14),
+              // Same rule as the theme above: a device preference,
+              // saved on tap, not behind this form's Save button.
+              const AppLockSetting(),
               const SizedBox(height: 20),
               TextFormField(
                 controller: ctrl.companyCtrl,

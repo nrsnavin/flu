@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:open_file/open_file.dart';
+import '../../../core/lock/open_externally.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../core/app_config.dart';
@@ -43,7 +44,7 @@ class JobQrLabelPdf {
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/JobLabel_${_safe(jobNo)}.pdf');
     await file.writeAsBytes(await doc.save());
-    await OpenFile.open(file.path);
+    await openExternally(file.path);
   }
 
   static String _safe(String s) =>

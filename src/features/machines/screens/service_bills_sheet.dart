@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
+import '../../../core/lock/open_externally.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
@@ -290,7 +291,7 @@ class _ServiceBillsSheetState extends State<_ServiceBillsSheet> {
       final safe = b.id.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
       final file = File('${dir.path}/bill_$safe.$ext');
       await file.writeAsBytes(bytes);
-      final res = await OpenFile.open(file.path);
+      final res = await openExternally(file.path);
       if (res.type != ResultType.done) {
         _snack(res.message.isNotEmpty
             ? res.message

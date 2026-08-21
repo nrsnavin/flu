@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
+import '../../../core/lock/open_externally.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -141,7 +142,7 @@ class CoaPdf {
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/COA_J${coa['jobOrderNo'] ?? 'job'}.pdf');
     await file.writeAsBytes(await doc.save());
-    await OpenFile.open(file.path);
+    await openExternally(file.path);
   }
 
   static pw.Widget _resultsTable(Map<String, dynamic> item, pw.TextStyle bold) {

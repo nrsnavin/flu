@@ -29,6 +29,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:open_file/open_file.dart';
+import 'lock/open_externally.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'api_client.dart';
@@ -111,7 +112,7 @@ Future<void> openServerPdf(String path, {required String filename}) async {
   final file = File('${dir.path}/${_safeName(filename)}');
   await file.writeAsBytes(bytes, flush: true);
 
-  final res = await OpenFile.open(file.path);
+  final res = await openExternally(file.path);
   if (res.type != ResultType.done) {
     // Plenty of Android builds ship with no PDF viewer at all, and
     // OpenFile reports that rather than throwing.

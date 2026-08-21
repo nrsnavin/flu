@@ -31,6 +31,7 @@
 import 'dart:io';
 
 import 'package:open_file/open_file.dart';
+import '../../../core/lock/open_externally.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -90,7 +91,7 @@ class BeamLabelPdf {
     final dir  = await getTemporaryDirectory();
     final file = File('${dir.path}/beam_labels_job$jobOrderNo.pdf');
     await file.writeAsBytes(await pdf.save());
-    await OpenFile.open(file.path);
+    await openExternally(file.path);
   }
 
   // ══════════════════════════════════════════════════════════

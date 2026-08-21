@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../../core/lock/app_lock_controller.dart';
+import '../../../core/lock/app_lock_gate.dart';
 import 'package:production/src/features/authentication/controllers/login_controller.dart';
 import 'package:production/src/features/authentication/screens/home.dart';
 import 'package:production/src/features/authentication/screens/welcome_screen.dart';
@@ -13,10 +16,30 @@ class AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.find<LoginController>();
+
+    // The lock needs to know whether there is a session to protect,
+    // and this is the one place that knows. Wired here rather than
+    // having the lock import LoginController, so neither depends on
+    // the other.
+    final lock = AppLockController.to;
+    lock.isSignedIn = () => ctrl.isLoggedIn.value;
+
     return Obx(() {
       if (ctrl.isCheckingAuth.value) return const _SplashLoader();
-      if (ctrl.isLoggedIn.value)     return Home();
-      return const WelcomeScreen();
+      if (!ctrl.isLoggedIn.value) return const WelcomeScreen();
+
+      // Arm on the first frame after the session is confirmed. Doing
+      // it during build would set an observable mid-build, and doing
+      // it before the check finishes would lock in front of a session
+      // that turned out not to exist.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        lock.lockIfEnabledAtStart();
+      });
+
+      return AppLockGate(
+        onSignOut: ctrl.logout,
+        child: Home(),
+      );
     });
   }
 }

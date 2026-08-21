@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
+import '../../core/lock/open_externally.dart';
 
 import '../../core/api_client.dart';
 import '../../core/app_config.dart';
@@ -40,7 +41,7 @@ Future<void> downloadReportPdf({
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/$filename.pdf');
     await file.writeAsBytes(res.data as List<int>);
-    final result = await OpenFile.open(file.path);
+    final result = await openExternally(file.path);
     if (result.type != ResultType.done) {
       Get.snackbar(
         'Saved',

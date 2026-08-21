@@ -6,6 +6,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
+import '../../../core/lock/open_externally.dart';
 
 
 import '../../../core/server_pdf.dart';
@@ -75,7 +76,7 @@ class ShiftPlanSummaryPdf extends StatelessWidget {
 
     final path = '${directory.path}/$filename';
     await File(path).writeAsBytes(bytes);
-    await OpenFile.open(path);
+    await openExternally(path);
   }
 
   Future<void> _generateLocalPdf(ShiftPlanDetailModel shift) async {

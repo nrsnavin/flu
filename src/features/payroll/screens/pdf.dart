@@ -25,6 +25,7 @@
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
+import '../../../core/lock/open_externally.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -132,7 +133,7 @@ class PayslipPdfService {
         '_${ps.monthLabel}_${ps.year}.pdf';
     final file = File('${dir.path}/$name');
     await file.writeAsBytes(bytes);
-    await OpenFile.open(file.path);
+    await openExternally(file.path);
   }
 
   // ════════════════════════════════════════════════════════════

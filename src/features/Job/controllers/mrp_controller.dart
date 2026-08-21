@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:open_file/open_file.dart';
+import '../../../core/lock/open_externally.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:production/src/core/api_client.dart';
@@ -126,7 +127,7 @@ class MrpController extends GetxController {
       final safe = jobNo.replaceAll(RegExp(r'[^A-Za-z0-9_\-]'), '_');
       final file = File('${dir.path}/MRP_$safe.pdf');
       await file.writeAsBytes(bytes, flush: true);
-      await OpenFile.open(file.path);
+      await openExternally(file.path);
     } on DioException catch (e) {
       Get.snackbar(
         'Error',

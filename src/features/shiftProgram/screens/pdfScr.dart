@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import '../controllers/shift_controller.dart';
 import '../models/ProductionDataModel.dart';
 import 'package:open_file/open_file.dart';
+import '../../../core/lock/open_externally.dart';
 import 'package:path_provider/path_provider.dart';
 
 
@@ -272,7 +273,7 @@ class _AnuTapesProductionPdf extends State<AnuTapesProductionPdf> {
       String myFile = '${path}/Tingsapp-statement.pdf';
       final file = File(myFile);
       await file.writeAsBytes(await pdf.save());
-      OpenFile.open(myFile);
+      openExternally(myFile);
     } catch (e) {
       debugPrint("$e");
     }

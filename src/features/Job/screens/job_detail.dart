@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
+import '../../../core/lock/open_externally.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -543,7 +544,7 @@ class JobDetailController extends GetxController {
       final safe = j.jobNo.replaceAll(RegExp(r'[^A-Za-z0-9_\-]'), '_');
       final file = File('${dir.path}/Job_$safe.pdf');
       await file.writeAsBytes(bytes);
-      await OpenFile.open(file.path);
+      await openExternally(file.path);
       Get.snackbar('PDF Ready', 'Job ${j.jobNo} report exported.',
           backgroundColor: ErpColors.successGreen,
           colorText: Colors.white,

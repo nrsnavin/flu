@@ -513,7 +513,11 @@ class _MaterialRow extends StatelessWidget {
                   Text(cat,
                       style: TextStyle(
                           color: ErpColors.textMuted, fontSize: 11)),
-                _MrpLots(lots: m['lots']),
+                // `lotOptions`, not `lots`: the order's own
+                // rawMaterialRequired[].lots are its earmarks, a
+                // different shape under the same name. See
+                // utils/materialRequirement.js on the server.
+                _MrpLots(lots: m['lotOptions']),
               ],
             ),
           ),

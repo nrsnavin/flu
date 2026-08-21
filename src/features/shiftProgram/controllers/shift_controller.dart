@@ -216,6 +216,16 @@ class ShiftController extends GetxController {
   // interceptor. Route everything through the `_dio` declared at
   // the top of the class (built via ApiClient.buildClient).
 
+  /// The server's own message when it sent one, so a failure says
+  /// "shift already closed" rather than a house-brand "Failed to
+  /// load". Every catch below used to discard the response entirely.
+  String _reason(DioException e, String fallback) {
+    final data = e.response?.data;
+    final msg = data is Map ? data['message']?.toString() : null;
+    if (msg != null && msg.trim().isNotEmpty) return msg;
+    return e.message?.trim().isNotEmpty == true ? e.message! : fallback;
+  }
+
   void getWeavingEmployees() async {
     try {
       final res = await _dio.get('/employee/get-employee-weave');
@@ -225,8 +235,8 @@ class ShiftController extends GetxController {
           .whereType<Map>()
           .map((e) => Employee.fromJson(Map<String, dynamic>.from(e)))
           .toList();
-    } on DioException catch (_) {
-      Get.snackbar('Error', 'Failed to load weaving employees');
+    } on DioException catch (e) {
+      Get.snackbar('Error', _reason(e, 'Failed to load weaving employees'));
     }
   }
 
@@ -255,8 +265,8 @@ class ShiftController extends GetxController {
           .whereType<Map>()
           .map((e) => ProductionRow.fromJson(Map<String, dynamic>.from(e)))
           .toList();
-    } on DioException catch (_) {
-      Get.snackbar('Error', 'Failed to load shift plan');
+    } on DioException catch (e) {
+      Get.snackbar('Error', _reason(e, 'Failed to load shift plan'));
     }
   }
 
@@ -269,8 +279,8 @@ class ShiftController extends GetxController {
           .whereType<Map>()
           .map((e) => ShiftOpenListModel.fromJson(Map<String, dynamic>.from(e)))
           .toList();
-    } on DioException catch (_) {
-      Get.snackbar('Error', 'Failed to load open shifts');
+    } on DioException catch (e) {
+      Get.snackbar('Error', _reason(e, 'Failed to load open shifts'));
     }
   }
 
@@ -282,8 +292,9 @@ class ShiftController extends GetxController {
       } else {
         Get.snackbar('Failed', 'Not Deleted');
       }
-    } catch (_) {
-      Get.snackbar('Failed', 'Not Deleted');
+    } catch (e) {
+      Get.snackbar('Failed',
+          e is DioException ? _reason(e, 'Not Deleted') : 'Not Deleted: $e');
     }
   }
 

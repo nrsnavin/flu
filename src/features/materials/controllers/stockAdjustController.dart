@@ -8,6 +8,7 @@ import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
 import 'material_category_store.dart';
+import 'list.dart';
 
 // ── Model ──────────────────────────────────────────────────────
 class StockAdjustItem {
@@ -282,11 +283,18 @@ class StockAdjustController extends GetxController {
       // Refresh the list with new stock values from server
       await fetchMaterials();
 
-      // Also refresh the main material list if it's in memory
-      try {
-        // ignore: invalid_use_of_protected_member
-        Get.find<dynamic>(tag: 'RawMaterialListController')?.fetchMaterials?.call();
-      } catch (_) {}
+      // Also refresh the main material list if it is in memory.
+      //
+      // This used to look the controller up as `Get.find<dynamic>(tag:
+      // 'RawMaterialListController')`, which could never match: the
+      // list registers itself as Get.put(RawMaterialListController())
+      // with no tag at all. Every adjustment threw here and the
+      // swallowing catch hid it, so the list behind this screen has
+      // been showing pre-adjustment stock the whole time — and the
+      // screen's own header comment claimed otherwise.
+      if (Get.isRegistered<RawMaterialListController>()) {
+        await Get.find<RawMaterialListController>().fetchMaterials();
+      }
 
     } on DioException catch (e) {
       submitError.value = e.response?.data?['message']?.toString() ?? 'Submit failed';

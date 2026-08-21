@@ -301,10 +301,29 @@ class WarpingDetailController extends GetxController {
     }
   }
 
+  /// Why the plan could not be fetched, when the warping says it has
+  /// one. Kept apart from errorMsg because the warping ITSELF loaded:
+  /// blanking the whole screen over a missing plan would also hide
+  /// the header, the status and the actions that still work.
+  final planError = Rxn<String>();
+
   Future<void> _fetchPlan() async {
+    planError.value = null;
     try {
       plan.value = await WarpingApi.fetchPlan(warpingId);
-    } catch (_) {}
+    } on DioException catch (e) {
+      // This was `catch (_) {}`, and the plan tab renders a spinner
+      // whenever hasPlan is true and plan is null — so a failure here
+      // did not merely go unreported, it left the tab spinning for
+      // good with no message and no way to retry.
+      planError.value = (e.response?.data is Map
+              ? (e.response!.data as Map)['message'] as String?
+              : null) ??
+          e.message ??
+          'Could not load the warping plan';
+    } catch (e) {
+      planError.value = e.toString();
+    }
   }
 
   Future<bool> startWarping() async {

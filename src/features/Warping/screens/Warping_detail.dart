@@ -753,6 +753,10 @@ class _PlanTab extends StatelessWidget {
       return _NoPlanView(w: w, warpingId: warpingId, c: c);
     }
     if (plan == null) {
+      final err = c.planError.value;
+      // A failed plan fetch used to land here as a spinner that never
+      // stopped. Say what happened, and offer the way out.
+      if (err != null) return _ErrorState(msg: err, retry: c.fetchDetail);
       return Center(
           child:
           CircularProgressIndicator(color: ErpColors.accentBlue));

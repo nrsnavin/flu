@@ -20,9 +20,50 @@ import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import '../models/payroll_models.dart';
 import '../../../core/app_config.dart';
+import '../../PurchaseOrder/services/theme.dart';
 
 class PayrollController extends GetxController {
   final _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
+
+  // ════════════════════════════════════════════════════════════
+  //  WHEN AN ACTION FAILS
+  //
+  //  The reads on this screen each have their own error field, and
+  //  the page renders them. The WRITES had none: finalise, mark paid,
+  //  approve a leave, approve an advance, pay a bonus all ended in a
+  //  bare `catch (_) {}`. The spinner cleared, the list did not
+  //  change, and nothing said why — so the operator's reading is that
+  //  the tap did not register, and they tap again. On "mark as paid"
+  //  that is somebody's wages.
+  //
+  //  Every one of them now says what failed and what the server said
+  //  about it. The message goes through a snackbar rather than a new
+  //  Rxn field per action, because these are momentary outcomes of a
+  //  button press, not the state of a panel.
+  // ════════════════════════════════════════════════════════════
+
+  /// The last write failure, kept for anyone who wants to render it
+  /// inline rather than wait for the snackbar to pass.
+  final lastActionError = Rxn<String>();
+
+  void _actionFailed(String what, Object e) {
+    final msg = e is DioException
+        ? (e.response?.data is Map
+                ? (e.response!.data as Map)['message'] as String?
+                : null) ??
+            e.message ??
+            'Request failed'
+        : e.toString();
+    lastActionError.value = '$what: $msg';
+    Get.snackbar(
+      '$what failed',
+      msg,
+      backgroundColor: ErpColors.solidError,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 5),
+    );
+  }
 
   // ════════════════════════════════════════════════════════════
   //  1. NAVIGATION & MONTH PICKER
@@ -104,7 +145,7 @@ class PayrollController extends GetxController {
       if (payslip.value?.id == id && selectedEmployee.value != null) {
         await openPayslip(selectedEmployee.value!);
       }
-    } on DioException catch (_) {}
+    } catch (e) { _actionFailed('Finalise payroll', e); }
   }
 
   // FIX #1 — view calls markAsPaid(id, note) with 2 args
@@ -116,7 +157,7 @@ class PayrollController extends GetxController {
       if (payslip.value?.id == id && selectedEmployee.value != null) {
         await openPayslip(selectedEmployee.value!);
       }
-    } on DioException catch (_) {}
+    } catch (e) { _actionFailed('Mark as paid', e); }
   }
 
   // ════════════════════════════════════════════════════════════
@@ -149,7 +190,13 @@ class PayrollController extends GetxController {
         'employeeId': employeeId, 'year': year, 'month': month,
       });
       return DailyAttendance.fromJson((res.data is Map ? Map<String, dynamic>.from(res.data) : const <String, dynamic>{}));
-    } catch (_) { return null; }
+    } catch (e) {
+      // Supplementary detail behind a row tap, so the caller still
+      // gets null and the row simply does not expand — but the reason
+      // is no longer thrown away.
+      lastActionError.value = 'Daily attendance: $e';
+      return null;
+    }
   }
 
   // ════════════════════════════════════════════════════════════
@@ -182,8 +229,11 @@ class PayrollController extends GetxController {
       await _dio.post('/payroll/employees/$id/rate', data: {'hourlyRate': rate});
       rateSaveMsg.value = '✅ Rate saved';
       await fetchRates();
-    } on DioException catch (_) {
-      rateSaveMsg.value = 'Save failed';
+    } on DioException catch (e) {
+      rateSaveMsg.value = (e.response?.data is Map
+              ? (e.response!.data as Map)['message'] as String?
+              : null) ??
+          'Save failed';
     } finally { isSavingRate.value = null; }
   }
 
@@ -282,7 +332,7 @@ class PayrollController extends GetxController {
 
   Future<void> approveLeave(String id) async {
     try { await _dio.put('/leave/$id/approve'); await fetchLeaveRequests(); }
-    on DioException catch (_) {}
+    catch (e) { _actionFailed('Approve leave', e); }
   }
 
   // FIX #2 — view calls rejectLeave(id, rem)
@@ -291,7 +341,7 @@ class PayrollController extends GetxController {
       await _dio.put('/leave/$id/reject',
           data: notes.isNotEmpty ? {'adminRemarks': notes} : null);
       await fetchLeaveRequests();
-    } on DioException catch (_) {}
+    } catch (e) { _actionFailed('Reject leave', e); }
   }
 
   void openLeaveFormFor(String employeeId) {
@@ -364,7 +414,8 @@ class PayrollController extends GetxController {
         if (notes.isNotEmpty) 'adminNotes': notes,
       });
       await fetchAdvances();
-    } on DioException catch (_) {
+    } catch (e) {
+      _actionFailed('Approve advance', e);
     } finally { advApproving.value = false; }
   }
 
@@ -374,7 +425,7 @@ class PayrollController extends GetxController {
       await _dio.put('/payroll/advance/$id/reject',
           data: notes.isNotEmpty ? {'adminNotes': notes} : null);
       await fetchAdvances();
-    } on DioException catch (_) {}
+    } catch (e) { _actionFailed('Reject advance', e); }
   }
 
   void openAdvanceFormFor(String employeeId) {
@@ -449,7 +500,8 @@ class PayrollController extends GetxController {
       await _dio.post('/payroll/yearly-bonus/compute',
           queryParameters: {'year': selectedYear.value});
       await fetchYearlyBonuses();
-    } on DioException catch (_) {
+    } catch (e) {
+      _actionFailed('Compute yearly bonus', e);
     } finally { isComputingYB.value = false; }
   }
 
@@ -459,7 +511,7 @@ class PayrollController extends GetxController {
       await _dio.put('/payroll/yearly-bonus/$id/pay',
           data: {'paidBy': 'admin', if (note.isNotEmpty) 'paymentNote': note});
       await fetchYearlyBonuses();
-    } on DioException catch (_) {}
+    } catch (e) { _actionFailed('Pay yearly bonus', e); }
   }
 
   // ════════════════════════════════════════════════════════════

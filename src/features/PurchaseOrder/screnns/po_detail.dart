@@ -67,7 +67,10 @@ class _PODetailViewState extends State<_PODetailView>
             child: CircularProgressIndicator(
                 color: ErpColors.accentBlue))
             : po == null
-            ? const Center(child: Text("Purchase Order not found"))
+            // Not "Purchase Order not found" — that was a claim about
+            // the data made by code that had no idea why it had
+            // nothing. The controller now knows, so it says.
+            ? _LoadFailure(c: c)
             : Column(
           children: [
             _SummaryHeader(po: po),
@@ -898,6 +901,68 @@ class _InwardRecordCard extends StatelessWidget {
                   textAlign: TextAlign.end,
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  WHY THE PO DID NOT OPEN
+//
+//  Every failure on this screen used to end as a three-second
+//  snackbar reading "Failed to load PO details", after which the
+//  page sat empty saying "Purchase Order not found". Those are two
+//  different lies: the second states the PO does not exist, which is
+//  usually untrue — the session had expired, or the request never
+//  left the building.
+//
+//  The distinction is not academic. "Sign in again", "check the
+//  connection" and "this PO was deleted" are three different things
+//  for the person holding the phone to do next.
+// ══════════════════════════════════════════════════════════════
+class _LoadFailure extends StatelessWidget {
+  final PODetailController c;
+  const _LoadFailure({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    final msg = c.errorMsg.value;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              msg == null ? Icons.inbox_outlined : Icons.cloud_off_rounded,
+              size: 40,
+              color: msg == null ? ErpColors.textMuted : ErpColors.errorRed,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              // A genuinely absent PO is still possible, and reads as
+              // itself rather than borrowing the error wording.
+              msg ?? 'That purchase order no longer exists.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 13,
+                  color: msg == null
+                      ? ErpColors.textSecondary
+                      : ErpColors.errorRed),
+            ),
+            if (msg != null) ...[
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: c.fetchDetail,
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('Try again'),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: ErpColors.accentBlue,
+                    foregroundColor: Colors.white),
+              ),
+            ],
           ],
         ),
       ),

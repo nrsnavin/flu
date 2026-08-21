@@ -64,6 +64,23 @@ Future<Uint8List?> fetchServerPdf(String path) async {
   }
 }
 
+/// The printable production sheet for a shift plan.
+///
+/// ── Why this is worth a round trip ─────────────────────────────
+/// The phone can draw a shift plan itself, and did. What it cannot
+/// draw is the QR code the server puts on every row — utils/
+/// shiftSheetPdf.js encodes `SHIFTROW|<shift detail id>|…` per line,
+/// which is what the app's scanner reads to open a row. A locally
+/// drawn sheet looks nearly identical and is unscannable, so the
+/// supervisor carrying it finds the scan feature simply does not
+/// work on their copy.
+///
+/// Null on failure, like the PO and the challan: there IS a local
+/// generator behind this one, and a sheet without codes beats no
+/// sheet at all on a bad connection.
+Future<Uint8List?> fetchShiftSheetPdf(String shiftPlanId) =>
+    fetchServerPdf('/shift/\$shiftPlanId/production-sheet.pdf');
+
 /// Purchase order — rendered from the "purchase-order" template.
 Future<Uint8List?> fetchPoPdf(String poId) => fetchServerPdf('/supplier/po/$poId/pdf');
 

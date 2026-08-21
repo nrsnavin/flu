@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -112,6 +113,28 @@ class InwardItemRow {
 // ──────────────────────────────────────────────────────────────────────────
 //  CONTROLLER
 // ──────────────────────────────────────────────────────────────────────────
+/// The server's own message where it sent one.
+String _serverMessage(DioException e) {
+  final data = e.response?.data;
+  if (data is Map) {
+    final m = data['message']?.toString();
+    if (m != null && m.trim().isNotEmpty) return m;
+  }
+  if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+    return 'Your session has expired. Sign in again, then re-enter this '
+        'receipt — nothing has been recorded.';
+  }
+  if (e.response != null) {
+    return 'The server refused that (${e.response!.statusCode}). Nothing '
+        'has been recorded.';
+  }
+  // No response: the request may or may not have arrived. The
+  // idempotency key above means retrying is safe either way, and
+  // saying so is the difference between a retry and a phone call.
+  return 'Could not reach the server. Nothing was recorded here — it is '
+      'safe to submit again.';
+}
+
 class MaterialInwardController extends GetxController {
   final POModel po;
   MaterialInwardController(this.po);
@@ -237,9 +260,16 @@ class MaterialInwardController extends GetxController {
         res.data['message'] ?? 'Inward recorded successfully.',
       );
       Get.back(result: true); // pop and signal parent to refresh
+    } on DioException catch (e) {
+      // The server's words, not Dio's. A receipt is refused for real
+      // business reasons — over the tolerance, PO already closed, a
+      // material not on this PO — and each names what to do next.
+      // `e.toString()` on a DioException prints the request dump,
+      // which told the operator nothing and hid all of them.
+      _snack('Could not record inward', _serverMessage(e), isError: true);
     } catch (e) {
-      final msg = (e is Exception) ? e.toString() : 'Failed to record inward.';
-      _snack('Error', msg, isError: true);
+      _snack('Could not record inward',
+          'Something went wrong recording that: $e', isError: true);
     } finally {
       isSubmitting.value = false;
     }

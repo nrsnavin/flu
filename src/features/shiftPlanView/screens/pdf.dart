@@ -8,19 +8,78 @@ import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 
 
+import '../../../core/server_pdf.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/shift_plan_detail_controller.dart';
+import '../models/shiftPlanDetail.dart';
 
 class ShiftPlanSummaryPdf extends StatelessWidget {
   final controller = Get.find<ShiftPlanDetailController>();
 
   ShiftPlanSummaryPdf({super.key});
 
+  /// The sheet, preferring the server's.
+  ///
+  /// ── Why the server's, when this file can draw one ──────────────
+  /// The server's production sheet carries a QR code on every row —
+  /// `SHIFTROW|<shift detail id>|…`, written by utils/shiftSheetPdf.js
+  /// — and that code is what the app's scanner reads to open a row.
+  /// The sheet drawn below has no codes. Both look like a shift plan;
+  /// only one works with the scanner, and a supervisor holding the
+  /// wrong one has no way to tell why scanning does nothing.
+  ///
+  /// So the server's is fetched first and the local one is the
+  /// fallback, which is the same order the PO and the delivery challan
+  /// already use. On a bad connection an unscannable sheet still beats
+  /// no sheet, and the caller is told which one it got.
   Future<void> generatePdf() async {
-    final pdf = pw.Document();
     final shift = controller.shiftDetail.value;
-
     if (shift == null) return;
+
+    final serverBytes =
+        await fetchShiftSheetPdf(controller.shiftPlanId);
+    if (serverBytes != null) {
+      await _openBytes(
+        serverBytes,
+        'ProductionSheet-${shift.shift}-'
+            '${DateFormat('yyyyMMdd').format(shift.date)}.pdf',
+      );
+      return;
+    }
+
+    // Fell back. Said out loud, because the difference is invisible on
+    // paper and matters at the moment somebody tries to scan it.
+    Get.snackbar(
+      'Printed without codes',
+      'Could not reach the server, so this sheet was drawn on the '
+          'phone. It has no QR codes — rows on it cannot be scanned.',
+      backgroundColor: ErpColors.warningAmber,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 6),
+      margin: const EdgeInsets.all(12),
+    );
+    await _generateLocalPdf(shift);
+  }
+
+  /// Write bytes somewhere the OS viewer can open, and open them.
+  ///
+  /// Shared by both paths so a server sheet and a locally drawn one
+  /// land in the same place under the same naming — two ways of saving
+  /// the same document is how one of them ends up unfindable.
+  Future<void> _openBytes(List<int> bytes, String filename) async {
+    final Directory? directory = Platform.isIOS
+        ? await getApplicationDocumentsDirectory()
+        : await getDownloadsDirectory();
+    if (directory == null) return;
+
+    final path = '${directory.path}/$filename';
+    await File(path).writeAsBytes(bytes);
+    await OpenFile.open(path);
+  }
+
+  Future<void> _generateLocalPdf(ShiftPlanDetailModel shift) async {
+    final pdf = pw.Document();
 
     pdf.addPage(
       pw.MultiPage(
@@ -156,20 +215,11 @@ class ShiftPlanSummaryPdf extends StatelessWidget {
       ),
     );
 
-    // BUG FIX: Declare directory inside the method properly (was declared before pdf init before)
-    final Directory? directory;
-    if (Platform.isIOS) {
-      directory = await getApplicationDocumentsDirectory();
-    } else {
-      directory = await getDownloadsDirectory();
-    }
-
-    if (directory == null) return;
-
-    final String myFile = '${directory.path}/ShiftPlan-${shift.shift}-${DateFormat('yyyyMMdd').format(shift.date)}.pdf';
-    final file = File(myFile);
-    await file.writeAsBytes(await pdf.save());
-    OpenFile.open(myFile);
+    await _openBytes(
+      await pdf.save(),
+      'ShiftPlan-${shift.shift}-'
+          '${DateFormat('yyyyMMdd').format(shift.date)}.pdf',
+    );
   }
 
   pw.Widget _header(String text) => pw.Padding(

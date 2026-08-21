@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../profile/screens/user_details_page.dart';
+
 import 'package:production/src/features/authentication/screens/login.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../services/nav_registry.dart';
@@ -254,6 +256,65 @@ class _AccountSection extends StatelessWidget {
           padding: EdgeInsets.only(left: 2, bottom: 8, top: 4),
           child: Text('ACCOUNT', style: ErpTextStyles.sectionHeader),
         ),
+        // ── My account ────────────────────────────────────────
+        // Above logout on purpose: the common reason to come to this
+        // section is to look at the account or set the app lock, and
+        // the destructive action should not be the first thing under
+        // the finger.
+        Material(
+          color: ErpColors.bgSurface,
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: () => Get.to(() => const UserDetailsPage()),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: ErpColors.borderLight),
+              ),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 14, vertical: 14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                      color: ErpColors.accentBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.account_circle_outlined,
+                        color: ErpColors.accentBlue, size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'My account',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: ErpColors.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          'Your details, app lock and appearance',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: ErpColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right_rounded,
+                      color: ErpColors.textMuted),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
         Material(
           color: ErpColors.bgSurface,
           borderRadius: BorderRadius.circular(10),

@@ -826,7 +826,9 @@ class _BillDetailsSheetState extends State<_BillDetailsSheet> {
                 firstDate: DateTime(now.year - 5),
                 lastDate: now,
               );
-              if (picked != null) setState(() => _billDate = picked);
+              if (picked != null && mounted) {
+                setState(() => _billDate = picked);
+              }
             },
             child: Container(
               height: 46,

@@ -211,7 +211,9 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
               firstDate: now.subtract(const Duration(days: 1)),
               lastDate: now.add(const Duration(days: 365)),
             );
-            if (picked != null) setState(() => _targetDate = picked);
+            if (picked != null && mounted) {
+              setState(() => _targetDate = picked);
+            }
           },
           child: Container(
             height: 42,

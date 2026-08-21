@@ -61,11 +61,15 @@ class _MachineIssueReportScreenState extends State<MachineIssueReportScreen> {
     try {
       final list = await MachineApiService.fetchAll();
       list.sort((a, b) => a.machineCode.compareTo(b.machineCode));
+      // The screen can be popped while this is in flight — a report
+      // raised and dismissed quickly is the ordinary case on a floor.
+      if (!mounted) return;
       setState(() {
         _machines = list;
         _loadingMachines = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _machineError = 'Could not load machines';
         _loadingMachines = false;

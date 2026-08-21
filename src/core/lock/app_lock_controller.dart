@@ -169,7 +169,13 @@ class AppLockController extends GetxController with WidgetsBindingObserver {
   /// nowhere to catch, and an unhandled exception there is an app
   /// nobody can get into.
   Future<bool> _ask(String prompt) async {
-    if (_authenticating) return false;
+    if (_authenticating) {
+      // A second prompt while one is already up. Says so rather than
+      // returning a bare false, which reached the settings switch as
+      // "Not confirmed." and read like a refusal.
+      lastError.value = 'A lock prompt is already open.';
+      return false;
+    }
     _authenticating = true;
     lastError.value = null;
     try {
@@ -196,8 +202,13 @@ class AppLockController extends GetxController with WidgetsBindingObserver {
       }
       lastError.value = lockFailureMessage(code);
       return false;
-    } catch (_) {
-      lastError.value = 'Could not unlock.';
+    } catch (e) {
+      // NOT swallowed. This branch is anything the plugin did not
+      // classify — a missing registration, a channel error — and the
+      // text is the only thing anybody has to go on. Discarding it
+      // and printing "Could not unlock." is the same fault this app
+      // already fixed on the PO inward screen.
+      lastError.value = 'Could not unlock: $e';
       return false;
     } finally {
       _authenticating = false;

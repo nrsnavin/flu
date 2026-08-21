@@ -220,6 +220,21 @@ String lockFailureMessage(String code) {
     case 'biometricLockout':
       return 'Too many attempts. Unlock the phone with its PIN to '
           're-enable fingerprint.';
+    case 'uiUnavailable':
+      // The first-run failure, and the one that used to fall through
+      // to "Could not unlock." — which named nothing and sent the
+      // person looking at their fingerprint settings for a problem
+      // that is in the Android project.
+      //
+      // local_auth needs a FragmentActivity. Flutter's default
+      // MainActivity extends FlutterActivity, which is not one, so
+      // the plugin refuses before any prompt is shown. See
+      // local_auth_android: AuthResultCode.notFragmentActivity maps
+      // to this code with the description "The current Activity must
+      // be a FragmentActivity."
+      return 'The app is not set up for the phone’s lock screen yet. '
+          'MainActivity must extend FlutterFragmentActivity — this is '
+          'a build setting, not something on your phone.';
     case 'userCanceled':
       return 'Unlock cancelled.';
     case 'timeout':

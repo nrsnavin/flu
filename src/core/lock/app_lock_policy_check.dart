@@ -159,6 +159,18 @@ void main() {
       lockFailureMessage('noCredentialsSet').contains('screen lock'));
   check('a biometric lockout says to use the PIN',
       lockFailureMessage('biometricLockout').contains('PIN'));
+
+  // The first-run failure. notFragmentActivity maps to uiUnavailable
+  // (local_auth_android), and this used to fall through to the
+  // generic message — sending somebody to their phone's fingerprint
+  // settings for a problem that is in the Android project.
+  check('a wrong activity names FlutterFragmentActivity',
+      lockFailureMessage('uiUnavailable').contains('FlutterFragmentActivity'),
+      'got "${lockFailureMessage('uiUnavailable')}"');
+  check('and says it is a build setting, not the phone',
+      lockFailureMessage('uiUnavailable').contains('build setting'));
+  check('CONTROL: uiUnavailable is no longer the generic message',
+      lockFailureMessage('uiUnavailable') != 'Could not unlock.');
   check('an unknown code still says something',
       lockFailureMessage('something_new').isNotEmpty);
   check('CONTROL: an unknown code is not given a specific message',

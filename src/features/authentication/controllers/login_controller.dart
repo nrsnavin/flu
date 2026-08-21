@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/api_client.dart';
 import '../models/user.dart';
+import '../screens/auth_gate.dart';
 import '../screens/home.dart';
 import 'storage_keys.dart';
 
@@ -42,6 +43,14 @@ class LoginController extends GetxController {
   Rx<User>  user            = User(id: '', name: '', role: '').obs;
   RxBool    isLoading        = false.obs;
   RxBool    isLoggedIn       = false.obs;
+
+  /// True for one moment after somebody actually signed in.
+  ///
+  /// NOT set by the cold-start restore: that is the app remembering a
+  /// session, not a person choosing to sign in, and reminding them
+  /// about the app lock every time they open the app would be a nag
+  /// rather than a prompt. Consumed by AuthGate and cleared.
+  RxBool    justSignedIn     = false.obs;
   RxBool    isCheckingAuth   = true.obs;
 
   Dio get _dio => ApiClient.instance.dio;
@@ -166,7 +175,12 @@ class LoginController extends GetxController {
         );
         user.value       = u;
         isLoggedIn.value = true;
-        Get.offAll(() => Home());
+        justSignedIn.value = true;
+        // AuthGate, not Home directly. Home on its own leaves the app
+        // lock's overlay out of the tree entirely — the lock would
+        // then do nothing until the next cold start, which is the
+        // worst kind of security feature: one that looks armed.
+        Get.offAll(() => const AuthGate());
         return true;
       }
       Get.snackbar('Login Failed', 'Unexpected server response.',
@@ -291,7 +305,12 @@ class LoginController extends GetxController {
         );
         user.value       = u;
         isLoggedIn.value = true;
-        Get.offAll(() => Home());
+        justSignedIn.value = true;
+        // AuthGate, not Home directly. Home on its own leaves the app
+        // lock's overlay out of the tree entirely — the lock would
+        // then do nothing until the next cold start, which is the
+        // worst kind of security feature: one that looks armed.
+        Get.offAll(() => const AuthGate());
         return true;
       }
       Get.snackbar('Sign-in failed', 'Unexpected server response.',

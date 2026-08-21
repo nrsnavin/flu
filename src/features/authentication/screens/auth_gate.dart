@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../core/lock/app_lock_controller.dart';
 import '../../../core/lock/app_lock_gate.dart';
+import '../../../core/lock/app_lock_reminder.dart';
 import 'package:production/src/features/authentication/controllers/login_controller.dart';
 import 'package:production/src/features/authentication/screens/home.dart';
 import 'package:production/src/features/authentication/screens/welcome_screen.dart';
@@ -34,6 +35,15 @@ class AuthGate extends StatelessWidget {
       // that turned out not to exist.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         lock.lockIfEnabledAtStart();
+
+        // Offer the lock to somebody who just signed in and does not
+        // have it on. Consumed here so it fires once per sign-in, not
+        // on every rebuild of this Obx — an offer that reappears each
+        // time the tree repaints is not an offer, it is a loop.
+        if (ctrl.justSignedIn.value) {
+          ctrl.justSignedIn.value = false;
+          maybeOfferAppLock(context);
+        }
       });
 
       return AppLockGate(

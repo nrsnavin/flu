@@ -171,17 +171,7 @@ class MaterialInwardController extends GetxController {
       initialDate:  inwardDate.value,
       firstDate:    DateTime(2020),
       lastDate:     DateTime.now(),
-      builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(
-          colorScheme: ColorScheme.light(
-            primary: ErpColors.accentBlue,
-            onPrimary: Colors.white,
-            surface: ErpColors.bgSurface,
-            onSurface: ErpColors.textPrimary,
-          ),
-        ),
-        child: child!,
-      ),
+      builder: erpPickerBuilder,
     );
     if (picked != null) inwardDate.value = picked;
   }

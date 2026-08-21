@@ -296,15 +296,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(
-          colorScheme: ColorScheme.light(
-            primary: ErpColors.accentBlue,
-            onPrimary: Colors.white,
-          ),
-        ),
-        child: child!,
-      ),
+      builder: erpPickerBuilder,
     );
     if (picked != null) {
       _dateCtrl.text =

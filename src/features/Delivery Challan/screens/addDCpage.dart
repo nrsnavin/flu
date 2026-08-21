@@ -1223,16 +1223,7 @@ class _DispatchCard extends StatelessWidget {
               initialDate: DateTime.now(),
               firstDate: DateTime(2020),
               lastDate: DateTime(2099),
-              builder: (c, child) => Theme(
-                data: Theme.of(c).copyWith(
-                  colorScheme: ColorScheme.dark(
-                    primary: ErpColors.accentBlue,
-                    surface: ErpColors.bgSurface,
-                    onSurface: ErpColors.textPrimary,
-                  ),
-                ),
-                child: child!,
-              ),
+              builder: erpPickerBuilder,
             );
             if (picked != null) {
               c.dispatchDateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);

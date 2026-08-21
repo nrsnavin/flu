@@ -535,7 +535,11 @@ class _PdfActionsState extends State<_PdfActions> {
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
-      setState(() => _generating = false);
+      // Generating the label is slow enough that the person can leave
+      // the screen while it runs, and setState on a disposed State
+      // throws. The flag is about to be discarded with the State
+      // anyway, so there is nothing to preserve.
+      if (mounted) setState(() => _generating = false);
     }
   }
 

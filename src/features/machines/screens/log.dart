@@ -131,18 +131,9 @@ class _AddServiceLogPageState extends State<AddServiceLogPage> {
                       initialDate: DateTime.now().add(const Duration(days: 90)),
                       firstDate: DateTime.now(),
                       lastDate: DateTime(2035),
-                      builder: (ctx, child) => Theme(
-                        data: Theme.of(ctx).copyWith(
-                          colorScheme: ColorScheme.dark(
-                            primary: ErpColors.accentBlue,
-                            onSurface: ErpColors.textPrimary,
-                            surface: ErpColors.bgSurface,
-                          ),
-                          dialogBackgroundColor: ErpColors.bgSurface,
-                        ),
-                        child: child!,
-                      ),
+                      builder: erpPickerBuilder,
                     );
+                    if (!mounted) return;
                     if (d != null) { c.setNextDate(d); setState(() {}); }
                   },
                   child: AbsorbPointer(

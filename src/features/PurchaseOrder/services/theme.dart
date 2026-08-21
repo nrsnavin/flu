@@ -974,3 +974,41 @@ class ErpPage extends StatelessWidget {
     );
   }
 }
+
+// ══════════════════════════════════════════════════════════════
+//  DATE AND TIME PICKERS
+//
+//  Nine screens dressed their own picker, and each one hard-coded a
+//  brightness: four said ColorScheme.dark, five said light, and all
+//  nine then handed it ErpColors values. That works in exactly one
+//  theme. In the other, the colours given are right and everything
+//  the scheme DERIVES from brightness — the disabled dates, the year
+//  grid, the divider, the header subtitle — comes out from the wrong
+//  half, so a month of dates goes pale grey on white or charcoal on
+//  charcoal.
+//
+//  The brightness is not a per-screen decision. It follows the
+//  palette, so it is made here, once.
+//
+//  Usage:  showDatePicker(..., builder: erpPickerBuilder)
+// ══════════════════════════════════════════════════════════════
+
+/// The theme every date and time picker in this app is shown with.
+ThemeData erpPickerTheme(BuildContext context) {
+  final base = ErpColors.palette.isDark
+      ? const ColorScheme.dark()
+      : const ColorScheme.light();
+  return Theme.of(context).copyWith(
+    colorScheme: base.copyWith(
+      primary: ErpColors.accentBlue,
+      onPrimary: ErpColors.textOnDark,
+      surface: ErpColors.bgSurface,
+      onSurface: ErpColors.textPrimary,
+    ),
+    dialogTheme: DialogThemeData(backgroundColor: ErpColors.bgSurface),
+  );
+}
+
+/// Drop-in for the `builder:` of showDatePicker / showTimePicker.
+Widget erpPickerBuilder(BuildContext context, Widget? child) =>
+    Theme(data: erpPickerTheme(context), child: child ?? const SizedBox.shrink());

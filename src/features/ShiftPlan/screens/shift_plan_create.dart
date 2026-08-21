@@ -281,16 +281,7 @@ class _ShiftHeaderCard extends StatelessWidget {
       initialDate: c.selectedDate.value,
       firstDate: DateTime(2024),
       lastDate:  DateTime(2030),
-      builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(
-          colorScheme: ColorScheme.light(
-            primary: ErpColors.accentBlue,
-            onPrimary: Colors.white,
-            surface: ErpColors.bgSurface,
-          ),
-        ),
-        child: child!,
-      ),
+      builder: erpPickerBuilder,
     );
     if (picked != null) c.selectedDate.value = picked;
   }

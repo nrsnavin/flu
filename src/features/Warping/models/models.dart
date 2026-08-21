@@ -382,13 +382,43 @@ class EditableBeam {
   final int beamNo;
   final List<EditableBeamSection> sections;
   int? pairedBeamNo; // set after combine — beamNo of the partner beam
-  EditableBeam({required this.beamNo, List<EditableBeamSection>? sections, this.pairedBeamNo})
-      : sections = sections ?? [EditableBeamSection()];
+
+  /// Which tape of the programme this beam belongs to, when the plan
+  /// repeats one build. Null for a plan assembled beam by beam.
+  ///
+  /// models/WarpingPlan.js has carried `tapeNo` since the web gained
+  /// its tapes field, and api/warping.js reads it off every submitted
+  /// beam. The phone had no such field, so every plan it sent stored
+  /// null — and the operator opening that plan on the web saw a flat
+  /// list with no tape boundaries.
+  int? tapeNo;
+
+  /// Which elastic this beam warps.
+  ///
+  /// The server validates it against the job's own elastics and
+  /// silently nulls anything else, so sending it is safe; NOT sending
+  /// it was the bug. A job's merged template spans several elastics
+  /// and each beam belongs to exactly one.
+  String? elasticId;
+  String elasticName;
+
+  EditableBeam({
+    required this.beamNo,
+    List<EditableBeamSection>? sections,
+    this.pairedBeamNo,
+    this.tapeNo,
+    this.elasticId,
+    this.elasticName = '',
+  }) : sections = sections ?? [EditableBeamSection()];
+
   int get totalEnds => sections.fold(0, (s, sec) => s + sec.ends);
+
   Map<String, dynamic> toJson() => {
     'beamNo': beamNo, 'totalEnds': totalEnds,
     'sections': sections.map((s) => s.toJson()).toList(),
     if (pairedBeamNo != null) 'pairedBeamNo': pairedBeamNo,
+    if (tapeNo != null) 'tapeNo': tapeNo,
+    if (elasticId != null) 'elastic': elasticId,
   };
 }
 // ═════════════════════════════════════════════════════════════

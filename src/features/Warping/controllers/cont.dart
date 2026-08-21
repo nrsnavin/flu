@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/models.dart';
+import '../tape_repeat.dart';
 import '../screens/pdf.dart';
 import 'package:production/src/features/Orders/controllers/add_order_controller.dart'
     show buildActorPayload;
@@ -57,20 +58,36 @@ class WarpingApi {
     return null;
   }
 
-  /// Returns { warpYarns, prefillTemplate, lotStock }
+  /// Returns { warpYarns, templateBeams, lotStock }
+  ///
+  /// ── templateBeams, not prefillTemplate ─────────────────────────
+  /// The route sends both, and they are not the same thing. This app
+  /// read `prefillTemplate`, which api/warping.js documents as "the
+  /// first elastic only" — with a warning attached:
+  ///
+  ///   "a form filled from that would disagree with the plan the same
+  ///    job gets when the warping raises one by itself, which is the
+  ///    sort of difference nobody notices until the floor does."
+  ///
+  /// `templateBeams` is the merge across EVERY elastic on the job,
+  /// built by the same function auto-creation uses, and carries the
+  /// elastic id per beam. It is what the web has always read.
   static Future<Map<String, dynamic>> fetchPlanContext(String jobId) async {
     final res = await _dio.get('/plan-context/$jobId');
     final yarns = (res.data['warpYarns'] as List? ?? [])
         .map((e) => WarpYarnOption.fromJson(e as Map<String, dynamic>))
         .toList();
-    final template = res.data['prefillTemplate'] as Map<String, dynamic>?;
+    final template = (res.data['templateBeams'] as List? ?? [])
+        .whereType<Map>()
+        .map((b) => TemplateBeamSpec.fromJson(Map<String, dynamic>.from(b)))
+        .toList();
     final lotStock = (res.data['lotStock'] as List? ?? [])
         .whereType<Map>()
         .map((e) => YarnLotStock.fromJson(Map<String, dynamic>.from(e)))
         .toList();
     return {
       'warpYarns': yarns,
-      'prefillTemplate': template,
+      'templateBeams': template,
       'lotStock': lotStock,
     };
   }
@@ -562,11 +579,11 @@ class WarpingPlanController extends GetxController {
       lotStock.value = {
         for (final s in ctx['lotStock'] as List<YarnLotStock>) s.warpYarnId: s,
       };
-      // Auto-prefill from first elastic template
-      final tpl = ctx['prefillTemplate'] as Map<String, dynamic>?;
-      if (tpl != null) {
-        _prefillFromTemplate(tpl, announce: true);
-      }
+      // The template for ONE tape, merged across the job's elastics.
+      // Kept so the tapes field can rebuild from it without another
+      // round trip.
+      template.assignAll(ctx['templateBeams'] as List<TemplateBeamSpec>);
+      if (template.isNotEmpty) _applyTemplate(announce: true);
     } on DioException catch (e) {
       errorMsg.value = e.response?.data?['message'] as String? ?? 'Failed to load warp yarns';
     } catch (e) {
@@ -576,21 +593,106 @@ class WarpingPlanController extends GetxController {
     }
   }
 
-  void _prefillFromTemplate(Map<String, dynamic> tpl, {bool announce = false}) {
-    final rawBeams = tpl['beams'] as List? ?? [];
-    if (rawBeams.isEmpty) return;
-    final filled = _beamsFromRaw(rawBeams, startBeamNo: 1);
-    beams.assignAll(filled);
-    beamCount.value = filled.length;
+  // ─────────────────────────────────────────────────────────────
+  //  TAPES
+  //
+  //  The template describes ONE tape. A programme usually runs it
+  //  several times over, so this repeats it — the arithmetic lives
+  //  in tape_repeat.dart, where it can be tested without a Flutter
+  //  engine.
+  // ─────────────────────────────────────────────────────────────
+
+  /// One tape's build, as it came off the server. Empty when the
+  /// job's elastics carry no warping template.
+  final template = <TemplateBeamSpec>[].obs;
+
+  /// How many times that build is repeated.
+  final tapes = 1.obs;
+
+  /// Whether the beams on screen are still the template's, untouched.
+  ///
+  /// Changing the tape count REBUILDS the beam list, which throws
+  /// away anything typed into it. That is fine while the beams are
+  /// still just the template repeated; it is not fine once somebody
+  /// has set a lot or corrected an ends count. So the tapes field
+  /// stops rebuilding the moment the plan stops being the template,
+  /// exactly as the web's `filledFromTemplate` does.
+  final beamsAreTemplate = false.obs;
+
+  bool get hasTemplate => template.isNotEmpty;
+
+  /// How many beams the current tape count comes to, for the form.
+  int get plannedBeamCount => beamsForTapes(template.length, tapes.value);
+
+  void _applyTemplate({bool announce = false}) {
+    final planned = repeatTemplatePerTape(template, tapes.value);
+    if (planned.isEmpty) return;
+
+    beams.assignAll(planned
+        .map((p) => EditableBeam(
+              beamNo: p.beamNo,
+              tapeNo: p.tapeNo,
+              elasticId: p.elasticId,
+              elasticName: p.elasticName,
+              sections: p.sections
+                  .map((s) => EditableBeamSection(
+                        warpYarnId: s.warpYarnId,
+                        warpYarnName: s.warpYarnName,
+                        ends: s.ends,
+                        maxMeters: s.maxMeters,
+                        // No lot: a template says how the elastic is
+                        // built, not which dye lot this run comes off.
+                        // That is chosen against stock, per section.
+                      ))
+                  .toList(),
+            ))
+        .toList());
+
+    beamCount.value = beams.length;
+    beamsAreTemplate.value = true;
     _syncControllers();
+
     if (announce) {
-      aiRemarks.value = '✦ Pre-filled from elastic warping plan template — review and adjust.';
+      aiRemarks.value =
+          '✦ Pre-filled from the elastics'' warping template — review and adjust.';
     }
   }
+
+  /// Set the number of tapes, rebuilding the beams from the template.
+  ///
+  /// Silently does nothing once the beams have been edited: see
+  /// [beamsAreTemplate]. The form disables the field in that case, so
+  /// this guard is the second line rather than the only one.
+  void setTapes(int n) {
+    final next = clampTapes(n);
+    if (next == tapes.value) return;
+    tapes.value = next;
+    if (hasTemplate && beamsAreTemplate.value) _applyTemplate();
+  }
+
+  /// Fill from the template again, at the current tape count.
+  ///
+  /// The way back after editing: the form offers it once
+  /// [beamsAreTemplate] has gone false, and it is destructive, so the
+  /// screen confirms before calling.
+  void refillFromTemplate() {
+    if (!hasTemplate) return;
+    _applyTemplate();
+    _snack('Filled ${beams.length} beams from the template', isError: false);
+  }
+
+
+  /// The beams are no longer just the template repeated.
+  ///
+  /// Called from every path that edits a beam. Once this has run, the
+  /// tapes field stops rebuilding — see [beamsAreTemplate] — because
+  /// rebuilding would throw away whatever was typed.
+  void _touchBeams() => beamsAreTemplate.value = false;
 
   /// Duplicates the beam at [beamIndex], appended as the next beam.
   void repeatBeam(int beamIndex) {
     if (beamIndex < 0 || beamIndex >= beams.length) return;
+    _touchBeams();
     final src    = beams[beamIndex];
     final newNo  = beams.length + 1;
     final copy   = EditableBeam(
@@ -630,12 +732,14 @@ class WarpingPlanController extends GetxController {
 
   void updateBeamCount(int n) {
     if (n <= 0) return;
+    _touchBeams();
     beamCount.value = n;
     beams.assignAll(List.generate(n, (i) => EditableBeam(beamNo: i + 1)));
     _syncControllers();
   }
 
   void addSection(int beamIndex) {
+    _touchBeams();
     // When uniform-meters mode is on, seed the new section with the
     // current shared value so the user doesn't see a stray 0.
     final seed = uniformMaxMeters.value
@@ -647,6 +751,7 @@ class WarpingPlanController extends GetxController {
   }
 
   void removeSection(int beamIndex, int sectionIndex) {
+    _touchBeams();
     if (beams[beamIndex].sections.length > 1) {
       beams[beamIndex].sections.removeAt(sectionIndex);
       beams.refresh();
@@ -655,6 +760,7 @@ class WarpingPlanController extends GetxController {
   }
 
   void updateYarn(int beamIndex, int sectionIndex, WarpYarnOption yarn) {
+    _touchBeams();
     final sec = beams[beamIndex].sections[sectionIndex];
     final changed = sec.warpYarnId != yarn.id;
     sec.warpYarnId   = yarn.id;
@@ -680,6 +786,7 @@ class WarpingPlanController extends GetxController {
   /// Choose the dye lot a section runs off. Passing null means "not
   /// decided" — a legitimate answer, and the one an undyed yarn gives.
   void updateLot(int beamIndex, int sectionIndex, LotOption? lot) {
+    _touchBeams();
     final sec = beams[beamIndex].sections[sectionIndex];
     sec.yarnLotId = lot?.id;
     sec.lotLabel  = lot?.label;
@@ -690,6 +797,7 @@ class WarpingPlanController extends GetxController {
   /// A programme commonly runs one lot right across the warp, and doing
   /// that a section at a time is where mistakes get made.
   void applyLotToAll(String warpYarnId, LotOption? lot) {
+    _touchBeams();
     var touched = 0;
     for (final b in beams) {
       for (final s in b.sections) {
@@ -720,11 +828,13 @@ class WarpingPlanController extends GetxController {
           s + b.sections.where((x) => (x.yarnLotId ?? '').isNotEmpty).length);
 
   void updateEnds(int beamIndex, int sectionIndex, int ends) {
+    _touchBeams();
     beams[beamIndex].sections[sectionIndex].ends = ends;
     beams.refresh();
   }
 
   void updateMaxMeters(int beamIndex, int sectionIndex, double maxMeters) {
+    _touchBeams();
     beams[beamIndex].sections[sectionIndex].maxMeters = maxMeters;
     beams.refresh();
   }
@@ -743,6 +853,11 @@ class WarpingPlanController extends GetxController {
       final generated = _beamsFromRaw(rawBeams, startBeamNo: 1);
       beams.assignAll(generated);
       beamCount.value = generated.length;
+      // An AI plan is NOT the template repeated — it is its own
+      // proposal. Without this the tapes stepper would still be live
+      // and the next tap on it would silently replace the whole
+      // generated plan with the template.
+      _touchBeams();
       _syncControllers();
       aiRemarks.value = plan['remarks']?.toString() ?? '';
       _snack('AI plan generated — review and edit below', isError: false);

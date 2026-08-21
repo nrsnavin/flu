@@ -79,6 +79,14 @@ class _WarpingPlanPageState extends State<WarpingPlanPage> {
             if (c.isCombineMode.value)
               _CombineBanner(c: c),
 
+            // ── Tapes ──────────────────────────────────────
+            // Above the beam count on purpose: the tape count is what
+            // DRIVES the beam count when a template is in play, and a
+            // control that sets a number belongs above the number it
+            // sets. Renders nothing when there is no template.
+            _TapeRepeatCard(c: c),
+            if (c.hasTemplate) const SizedBox(height: 12),
+
             // ── Beam count ─────────────────────────────────
             _BeamCountCard(c: c),
             const SizedBox(height: 12),
@@ -387,6 +395,116 @@ class _CombineBanner extends StatelessWidget {
                     color: _amber)),
           ),
         ),
+      ]),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  TAPE REPEAT CARD
+//
+//  The template describes how ONE tape is built. A run is usually
+//  that same build several times over, so this says how many — and
+//  the beams rebuild to match, numbered straight through with the
+//  tape stamped on each.
+//
+//  ── Why it disables itself ─────────────────────────────────
+//  Changing the count REBUILDS the beam list, throwing away
+//  anything typed into it. That is harmless while the beams are
+//  still the template; it is not harmless once a lot has been
+//  chosen or an ends count corrected. So the stepper goes away the
+//  moment the plan stops being the template, and a "fill again"
+//  button takes its place — destructive, and therefore asked about
+//  rather than done.
+//
+//  Shown only when there IS a template. A job whose elastics carry
+//  none has nothing to repeat, and a stepper that silently does
+//  nothing is worse than no stepper.
+// ════════════════════════════════════════════════════════════
+class _TapeRepeatCard extends StatelessWidget {
+  final WarpingPlanController c;
+  const _TapeRepeatCard({required this.c});
+
+  Future<void> _confirmRefill(BuildContext context) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ErpColors.bgSurface,
+        title: Text('Fill from the template again?',
+            style: TextStyle(color: ErpColors.textPrimary)),
+        content: Text(
+          'This replaces all ${c.beams.length} beams with '
+          '${c.plannedBeamCount} from the template. Lots and any '
+          'edits are lost.',
+          style: TextStyle(color: ErpColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Keep what I have')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text('Replace',
+                style: TextStyle(color: ErpColors.errorRed)),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) c.refillFromTemplate();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!c.hasTemplate) return const SizedBox.shrink();
+
+    final perTape = c.template.length;
+    final edited = !c.beamsAreTemplate.value;
+
+    return ErpSectionCard(
+      title: 'TAPES',
+      icon: Icons.repeat_rounded,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(
+            child: Text(
+              edited
+                  ? 'The beams have been edited, so the tape count no '
+                      'longer rebuilds them.'
+                  : 'The template builds $perTape '
+                      'beam${perTape == 1 ? '' : 's'} per tape. '
+                      'Repeat it for the whole run.',
+              style: TextStyle(
+                  color: ErpColors.textSecondary, fontSize: 12),
+            ),
+          ),
+          const SizedBox(width: 12),
+          if (!edited)
+            _StepperField(value: c.tapes.value, onChanged: c.setTapes),
+        ]),
+        if (!edited) ...[
+          const SizedBox(height: 10),
+          // The size of what is about to be built, before it is built.
+          Text(
+            '${c.tapes.value} tape${c.tapes.value == 1 ? '' : 's'} '
+            '× $perTape = ${c.plannedBeamCount} beams',
+            style: TextStyle(
+              color: ErpColors.accentBlue,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+        if (edited) ...[
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => _confirmRefill(context),
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Fill from the template again'),
+            ),
+          ),
+        ],
       ]),
     );
   }

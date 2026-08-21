@@ -226,7 +226,7 @@ class _SampleDetailPageState extends State<SampleDetailPage> {
           style: TextStyle(
               color: color, fontSize: 12, fontWeight: FontWeight.w700)),
       style: OutlinedButton.styleFrom(
-        side: BorderSide(color: color.withOpacity(0.4)),
+        side: BorderSide(color: color.withValues(alpha: 0.4)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
@@ -655,7 +655,7 @@ class _PhotoTile extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.45),
+                  color: Colors.black.withValues(alpha: 0.45),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.close, size: 12, color: Colors.white),

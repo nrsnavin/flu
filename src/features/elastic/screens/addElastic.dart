@@ -224,8 +224,8 @@ class _AddElasticPageState extends State<AddElasticPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           margin: const EdgeInsets.only(bottom: 14),
           decoration: BoxDecoration(
-            color: const Color(0xFF7C3AED).withOpacity(0.06),
-            border: Border.all(color: const Color(0xFF7C3AED).withOpacity(0.2)),
+            color: const Color(0xFF7C3AED).withValues(alpha: 0.06),
+            border: Border.all(color: const Color(0xFF7C3AED).withValues(alpha: 0.2)),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Row(children: [
@@ -317,16 +317,16 @@ class _AddElasticPageState extends State<AddElasticPage> {
     return Obx(() => Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [
-          ErpColors.accentBlue.withOpacity(0.06),
-          ErpColors.successGreen.withOpacity(0.06),
+          ErpColors.accentBlue.withValues(alpha: 0.06),
+          ErpColors.successGreen.withValues(alpha: 0.06),
         ]),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: ErpColors.accentBlue.withOpacity(0.2)),
+        border: Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.2)),
       ),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Row(children: [
         Container(width: 40, height: 40,
-            decoration: BoxDecoration(color: ErpColors.successGreen.withOpacity(0.1),
+            decoration: BoxDecoration(color: ErpColors.successGreen.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8)),
             child: Icon(Icons.calculate_outlined, color: ErpColors.successGreen, size: 20)),
         const SizedBox(width: 12),
@@ -357,7 +357,7 @@ class _AddElasticPageState extends State<AddElasticPage> {
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         border: Border(top: BorderSide(color: ErpColors.borderLight)),
-        boxShadow: [BoxShadow(color: ErpColors.navyDark.withOpacity(0.06),
+        boxShadow: [BoxShadow(color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 8, offset: const Offset(0, -3))],
       ),
       child: Row(children: [
@@ -378,7 +378,7 @@ class _AddElasticPageState extends State<AddElasticPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isEdit ? ErpColors.warningAmber : ErpColors.accentBlue,
                 disabledBackgroundColor: (_isEdit ? ErpColors.warningAmber : ErpColors.accentBlue)
-                    .withOpacity(0.5),
+                    .withValues(alpha: 0.5),
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
               ),
@@ -416,7 +416,7 @@ class _PlanBeamCard extends StatelessWidget {
         color: ErpColors.bgSurface,
         border: Border.all(color: ErpColors.borderLight),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [BoxShadow(color: ErpColors.navyDark.withOpacity(0.03),
+        boxShadow: [BoxShadow(color: ErpColors.navyDark.withValues(alpha: 0.03),
             blurRadius: 4, offset: const Offset(0, 2))],
       ),
       child: Column(children: [
@@ -432,7 +432,7 @@ class _PlanBeamCard extends StatelessWidget {
             Container(
               width: 28, height: 28, alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: const Color(0xFF7C3AED).withOpacity(0.12),
+                color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text('${beam.beamNo}',
@@ -451,8 +451,8 @@ class _PlanBeamCard extends StatelessWidget {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED).withOpacity(0.08),
-                  border: Border.all(color: const Color(0xFF7C3AED).withOpacity(0.25)),
+                  color: const Color(0xFF7C3AED).withValues(alpha: 0.08),
+                  border: Border.all(color: const Color(0xFF7C3AED).withValues(alpha: 0.25)),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text('$total ends total',
@@ -533,7 +533,7 @@ class _PlanSectionRow extends StatelessWidget {
           Container(
             width: 22, height: 22, alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFF7C3AED).withOpacity(0.09),
+              color: const Color(0xFF7C3AED).withValues(alpha: 0.09),
               shape: BoxShape.circle,
             ),
             child: Text('${secIdx + 1}',
@@ -689,7 +689,7 @@ class _WarpYarnRowCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: ErpColors.bgMuted, borderRadius: BorderRadius.circular(6),
         border: Border.all(color: errorText != null
-            ? ErpColors.errorRed.withOpacity(0.5) : ErpColors.borderLight),
+            ? ErpColors.errorRed.withValues(alpha: 0.5) : ErpColors.borderLight),
       ),
       child: Column(children: [
         Container(
@@ -700,7 +700,7 @@ class _WarpYarnRowCard extends StatelessWidget {
           child: Row(children: [
             Container(width: 22, height: 22, alignment: Alignment.center,
                 decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.1), shape: BoxShape.circle),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.1), shape: BoxShape.circle),
                 child: Text("${index + 1}", style: TextStyle(
                     color: ErpColors.accentBlue, fontSize: 11, fontWeight: FontWeight.w800))),
             const SizedBox(width: 8),
@@ -709,7 +709,7 @@ class _WarpYarnRowCard extends StatelessWidget {
                     color: ErpColors.textPrimary))),
             GestureDetector(onTap: onRemove,
                 child: Container(padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(color: ErpColors.errorRed.withOpacity(0.08),
+                    decoration: BoxDecoration(color: ErpColors.errorRed.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(4)),
                     child: Icon(Icons.delete_outline, color: ErpColors.errorRed, size: 16))),
           ]),
@@ -741,7 +741,7 @@ class _WarpYarnRowCard extends StatelessWidget {
                   errorText: errorText,
                   enabledBorder: errorText != null ? OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
-                      borderSide: BorderSide(color: ErpColors.errorRed.withOpacity(0.6))) : null,
+                      borderSide: BorderSide(color: ErpColors.errorRed.withValues(alpha: 0.6))) : null,
                 ),
                 onChanged: (_) => onChanged()),
           ]),
@@ -840,7 +840,7 @@ class _SectionCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(color: ErpColors.bgSurface, borderRadius: BorderRadius.circular(8),
           border: Border.all(color: ErpColors.borderLight),
-          boxShadow: [BoxShadow(color: ErpColors.navyDark.withOpacity(0.04),
+          boxShadow: [BoxShadow(color: ErpColors.navyDark.withValues(alpha: 0.04),
               blurRadius: 6, offset: const Offset(0, 2))]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Container(
@@ -884,7 +884,7 @@ class _ErpField extends StatelessWidget {
         errorText: errorText,
         enabledBorder: errorText != null ? OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
-            borderSide: BorderSide(color: ErpColors.errorRed.withOpacity(0.6))) : null,
+            borderSide: BorderSide(color: ErpColors.errorRed.withValues(alpha: 0.6))) : null,
         focusedBorder: errorText != null ? OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
             borderSide: BorderSide(color: ErpColors.errorRed)) : null,
@@ -910,8 +910,8 @@ class _MaterialPickerField extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(color: ErpColors.bgSurface,
                 border: Border.all(color: errorText != null
-                    ? ErpColors.errorRed.withOpacity(0.6)
-                    : value != null ? ErpColors.accentBlue.withOpacity(0.4)
+                    ? ErpColors.errorRed.withValues(alpha: 0.6)
+                    : value != null ? ErpColors.accentBlue.withValues(alpha: 0.4)
                     : ErpColors.borderLight),
                 borderRadius: BorderRadius.circular(4)),
             child: Row(children: [

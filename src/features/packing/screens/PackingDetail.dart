@@ -224,7 +224,7 @@ class _HeroCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.06),
+            color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -242,10 +242,10 @@ class _HeroCard extends StatelessWidget {
             Container(
               width: 50, height: 50,
               decoration: BoxDecoration(
-                color: ErpColors.accentBlue.withOpacity(0.2),
+                color: ErpColors.accentBlue.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: ErpColors.accentBlue.withOpacity(0.5)),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.5)),
               ),
               child: Icon(Icons.inventory_2_outlined,
                   size: 26, color: ErpColors.accentBlue),
@@ -477,9 +477,9 @@ class _QcRow extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.06),
+      color: color.withValues(alpha: 0.06),
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: color.withOpacity(0.2)),
+      border: Border.all(color: color.withValues(alpha: 0.2)),
     ),
     child: Row(children: [
       Icon(icon, size: 15, color: color),
@@ -550,7 +550,7 @@ class _PdfActionsState extends State<_PdfActions> {
             style: ElevatedButton.styleFrom(
               backgroundColor: ErpColors.accentBlue,
               disabledBackgroundColor:
-              ErpColors.accentBlue.withOpacity(0.5),
+              ErpColors.accentBlue.withValues(alpha: 0.5),
               elevation: 0,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),

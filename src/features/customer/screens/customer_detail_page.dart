@@ -201,7 +201,7 @@ class _HeroCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.05),
+            color: ErpColors.navyDark.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -224,10 +224,10 @@ class _HeroCard extends StatelessWidget {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.2),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                     border: Border.all(
-                        color: ErpColors.accentBlue.withOpacity(0.4)),
+                        color: ErpColors.accentBlue.withValues(alpha: 0.4)),
                   ),
                   alignment: Alignment.center,
                   child: Text(

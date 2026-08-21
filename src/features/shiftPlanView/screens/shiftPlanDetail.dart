@@ -188,7 +188,7 @@ class _HeroCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: (_isDay ? ErpColors.warningAmber : ErpColors.accentBlue)
-                  .withOpacity(0.25),
+                  .withValues(alpha: 0.25),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -244,7 +244,7 @@ class _HeroCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.07),
+              color: Colors.white.withValues(alpha: 0.07),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Row(children: [
@@ -291,9 +291,9 @@ class _HeroChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.07),
+      color: Colors.white.withValues(alpha: 0.07),
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: Colors.white.withOpacity(0.15)),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 12, color: ErpColors.textOnDarkSub),
@@ -323,13 +323,13 @@ class _StatusBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
         color: isDraft
-            ? const Color(0xFF1D6AE5).withOpacity(0.2)
-            : ErpColors.successGreen.withOpacity(0.2),
+            ? const Color(0xFF1D6AE5).withValues(alpha: 0.2)
+            : ErpColors.successGreen.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
           color: isDraft
-              ? const Color(0xFF1D6AE5).withOpacity(0.5)
-              : ErpColors.successGreen.withOpacity(0.5),
+              ? const Color(0xFF1D6AE5).withValues(alpha: 0.5)
+              : ErpColors.successGreen.withValues(alpha: 0.5),
         ),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -367,7 +367,7 @@ class _DraftBanner extends StatelessWidget {
       Container(
         width: 34, height: 34,
         decoration: BoxDecoration(
-          color: ErpColors.warningAmber.withOpacity(0.15),
+          color: ErpColors.warningAmber.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Icon(Icons.drafts_outlined,
@@ -467,7 +467,7 @@ class _MachineRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: _hasProduction
-                ? ErpColors.successGreen.withOpacity(0.35)
+                ? ErpColors.successGreen.withValues(alpha: 0.35)
                 : ErpColors.borderLight,
           ),
         ),
@@ -479,7 +479,7 @@ class _MachineRow extends StatelessWidget {
               Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(
-                  color: ErpColors.accentBlue.withOpacity(0.1),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(7),
                 ),
                 child: Icon(Icons.precision_manufacturing_outlined,
@@ -516,9 +516,9 @@ class _MachineRow extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: _statusColor.withOpacity(0.1),
+                  color: _statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(5),
-                  border: Border.all(color: _statusColor.withOpacity(0.35)),
+                  border: Border.all(color: _statusColor.withValues(alpha: 0.35)),
                 ),
                 child: Text(
                   machine.status.toUpperCase(),
@@ -540,12 +540,12 @@ class _MachineRow extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   decoration: BoxDecoration(
                     color: _hasProduction
-                        ? ErpColors.successGreen.withOpacity(0.07)
+                        ? ErpColors.successGreen.withValues(alpha: 0.07)
                         : ErpColors.bgSurface,
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color: _hasProduction
-                          ? ErpColors.successGreen.withOpacity(0.3)
+                          ? ErpColors.successGreen.withValues(alpha: 0.3)
                           : ErpColors.borderLight,
                     ),
                   ),
@@ -599,7 +599,7 @@ class _MachineRow extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 5),
               decoration: BoxDecoration(
-                color: ErpColors.accentBlue.withOpacity(0.04),
+                color: ErpColors.accentBlue.withValues(alpha: 0.04),
                 borderRadius: const BorderRadius.vertical(
                     bottom: Radius.circular(8)),
                 border: Border(
@@ -674,7 +674,7 @@ class _ConfirmBar extends StatelessWidget {
       border: Border(top: BorderSide(color: ErpColors.borderLight)),
       boxShadow: [
         BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12, offset: const Offset(0, -3)),
       ],
     ),
@@ -684,7 +684,7 @@ class _ConfirmBar extends StatelessWidget {
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: ErpColors.successGreen,
-          disabledBackgroundColor: ErpColors.successGreen.withOpacity(0.5),
+          disabledBackgroundColor: ErpColors.successGreen.withValues(alpha: 0.5),
           elevation: 0,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12)),
@@ -749,10 +749,10 @@ class _ConfirmDialog extends StatelessWidget {
           Container(
             width: 64, height: 64,
             decoration: BoxDecoration(
-              color: ErpColors.successGreen.withOpacity(0.1),
+              color: ErpColors.successGreen.withValues(alpha: 0.1),
               shape: BoxShape.circle,
               border: Border.all(
-                  color: ErpColors.successGreen.withOpacity(0.3), width: 2),
+                  color: ErpColors.successGreen.withValues(alpha: 0.3), width: 2),
             ),
             child: Icon(Icons.check_circle_outline_rounded,
                 color: ErpColors.successGreen, size: 32),

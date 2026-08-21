@@ -28,9 +28,9 @@ class OrderEtaChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: tone.withOpacity(0.08),
+        color: tone.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: tone.withOpacity(0.30)),
+        border: Border.all(color: tone.withValues(alpha: 0.30)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

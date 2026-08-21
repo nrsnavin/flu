@@ -289,7 +289,7 @@ class _SearchablePickerSheetState<T>
       return Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.manage_search_rounded,
-              size: 40, color: ErpColors.textMuted.withOpacity(0.5)),
+              size: 40, color: ErpColors.textMuted.withValues(alpha: 0.5)),
           const SizedBox(height: 10),
           Text(
             'Search for ${widget.title.toLowerCase()}',
@@ -349,7 +349,7 @@ class _SearchablePickerSheetState<T>
               border: Border.all(color: ErpColors.borderLight),
               boxShadow: [
                 BoxShadow(
-                  color: ErpColors.navyDark.withOpacity(0.03),
+                  color: ErpColors.navyDark.withValues(alpha: 0.03),
                   blurRadius: 4,
                   offset: const Offset(0, 1),
                 ),
@@ -359,7 +359,7 @@ class _SearchablePickerSheetState<T>
               Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(
-                  color: ErpColors.accentBlue.withOpacity(0.1),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Icon(widget.itemIcon,

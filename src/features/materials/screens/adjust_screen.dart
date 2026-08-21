@@ -235,9 +235,9 @@ class _FilterRowState extends State<_FilterRow> {
                   margin: const EdgeInsets.only(right: 6),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                      color: active ? color.withOpacity(0.15) : _s2,
+                      color: active ? color.withValues(alpha: 0.15) : _s2,
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: active ? color.withOpacity(0.5) : _bdr)),
+                      border: Border.all(color: active ? color.withValues(alpha: 0.5) : _bdr)),
                   child: Text(cat, style: TextStyle(
                       color: active ? color : _ts,
                       fontSize: 11, fontWeight: FontWeight.w700))),
@@ -314,9 +314,9 @@ class _StatPill extends StatelessWidget {
   Widget build(BuildContext context) => Expanded(child: Container(
     padding: const EdgeInsets.symmetric(vertical: 7),
     decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.25))),
+        border: Border.all(color: color.withValues(alpha: 0.25))),
     child: Column(children: [
       Text(value, style: TextStyle(
           color: color, fontSize: 13, fontWeight: FontWeight.w900)),
@@ -341,9 +341,9 @@ class _DateGroup extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-                color: _amber.withOpacity(0.12),
+                color: _amber.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: _amber.withOpacity(0.3))),
+                border: Border.all(color: _amber.withValues(alpha: 0.3))),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               const Icon(Icons.calendar_today_rounded, size: 11, color: _amberLt),
               const SizedBox(width: 5),
@@ -404,9 +404,9 @@ class _EntryCard extends StatelessWidget {
           Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                  color: adjColor.withOpacity(0.12),
+                  color: adjColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: adjColor.withOpacity(0.35))),
+                  border: Border.all(color: adjColor.withValues(alpha: 0.35))),
               child: Text(
                   '${isPos ? '+' : ''}${_qty(entry.adjustment)} kg',
                   style: TextStyle(
@@ -434,7 +434,7 @@ class _EntryCard extends StatelessWidget {
                   ? Icons.arrow_forward_rounded
                   : Icons.arrow_back_rounded,
                   size: 14,
-                  color: adjColor.withOpacity(0.6)),
+                  color: adjColor.withValues(alpha: 0.6)),
               const SizedBox(width: 8),
             ],
             // New stock (balance)
@@ -509,9 +509,9 @@ class _ErrorState extends StatelessWidget {
             child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                    color: _blue.withOpacity(0.15),
+                    color: _blue.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: _blue.withOpacity(0.4))),
+                    border: Border.all(color: _blue.withValues(alpha: 0.4))),
                 child: const Text('Retry',
                     style: TextStyle(color: _blueLt, fontSize: 13,
                         fontWeight: FontWeight.w700)))),

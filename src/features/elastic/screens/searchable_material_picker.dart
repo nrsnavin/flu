@@ -191,7 +191,7 @@ class _MaterialPickerSheet extends StatelessWidget {
                         Border.all(color: ErpColors.borderLight),
                         boxShadow: [
                           BoxShadow(
-                            color: ErpColors.navyDark.withOpacity(0.03),
+                            color: ErpColors.navyDark.withValues(alpha: 0.03),
                             blurRadius: 4,
                             offset: const Offset(0, 1),
                           ),
@@ -204,7 +204,7 @@ class _MaterialPickerSheet extends StatelessWidget {
                             height: 36,
                             decoration: BoxDecoration(
                               color:
-                              ErpColors.accentBlue.withOpacity(0.1),
+                              ErpColors.accentBlue.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Icon(Icons.line_axis,

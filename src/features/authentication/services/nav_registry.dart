@@ -10,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:production/src/features/Covering/screens/covering_list.dart';
 import 'package:production/src/features/Delivery%20Challan/screens/dc_list.dart';
 import 'package:production/src/features/Job/screens/job_list_screen.dart';
-import 'package:production/src/features/Orders/screens/add_order_page.dart';
 import 'package:production/src/features/Orders/screens/order_list_page.dart';
 import 'package:production/src/features/PurchaseOrder/controllers/add_po.dart';
 import 'package:production/src/features/PurchaseOrder/screnns/add_po.dart';

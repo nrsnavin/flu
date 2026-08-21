@@ -230,7 +230,7 @@ class _SearchAndFilters extends StatelessWidget {
                       selected: selected,
                       onSelected: (_) => c.filter.value = f,
                       backgroundColor: ErpColors.bgMuted,
-                      selectedColor: ErpColors.accentBlue.withOpacity(0.12),
+                      selectedColor: ErpColors.accentBlue.withValues(alpha: 0.12),
                       side: BorderSide(
                           color: selected
                               ? ErpColors.accentBlue
@@ -373,7 +373,7 @@ class SampleStatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: fg.withOpacity(0.12),
+        color: fg.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(

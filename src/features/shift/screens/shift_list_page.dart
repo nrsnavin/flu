@@ -145,7 +145,7 @@ class _ShiftCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.05),
+              color: ErpColors.navyDark.withValues(alpha: 0.05),
               blurRadius: 6, offset: const Offset(0, 2)),
         ],
       ),
@@ -321,7 +321,7 @@ class _BulkHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
           decoration: BoxDecoration(
-            color: ErpColors.accentBlue.withOpacity(0.1),
+            color: ErpColors.accentBlue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -347,10 +347,10 @@ class _BulkHeader extends StatelessWidget {
             ? Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: ErpColors.successGreen.withOpacity(0.1),
+            color: ErpColors.successGreen.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-                color: ErpColors.successGreen.withOpacity(0.3)),
+                color: ErpColors.successGreen.withValues(alpha: 0.3)),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.straighten_rounded,
@@ -403,7 +403,7 @@ class _BulkEntryCardState extends State<_BulkEntryCard> {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 6, offset: const Offset(0, 2)),
         ],
       ),
@@ -421,7 +421,7 @@ class _BulkEntryCardState extends State<_BulkEntryCard> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: ErpColors.accentBlue.withOpacity(0.2),
+                color: ErpColors.accentBlue.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -455,7 +455,7 @@ class _BulkEntryCardState extends State<_BulkEntryCard> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -609,7 +609,7 @@ class _BulkSubmitBar extends StatelessWidget {
       border: Border(top: BorderSide(color: ErpColors.borderLight)),
       boxShadow: [
         BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12, offset: const Offset(0, -3)),
       ],
     ),
@@ -640,7 +640,7 @@ class _BulkSubmitBar extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: ErpColors.accentBlue,
             disabledBackgroundColor:
-            ErpColors.accentBlue.withOpacity(0.5),
+            ErpColors.accentBlue.withValues(alpha: 0.5),
             elevation: 0,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10)),
@@ -830,10 +830,10 @@ class _Drum extends StatelessWidget {
               child: Container(
                 height: _itemH,
                 decoration: BoxDecoration(
-                  color: ErpColors.accentBlue.withOpacity(0.10),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                      color: ErpColors.accentBlue.withOpacity(0.30)),
+                      color: ErpColors.accentBlue.withValues(alpha: 0.30)),
                 ),
               ),
             ),

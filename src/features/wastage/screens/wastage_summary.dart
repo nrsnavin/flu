@@ -203,10 +203,10 @@ class _KPI extends StatelessWidget {
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.25)),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
         boxShadow: [
           BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color: ErpColors.navyDark.withValues(alpha: 0.04),
               blurRadius: 5,
               offset: const Offset(0, 2)),
         ],
@@ -215,7 +215,7 @@ class _KPI extends StatelessWidget {
         Container(
           width: 36, height: 36,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, size: 16, color: color),
@@ -339,7 +339,7 @@ class _BarChart extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: isToday
                               ? ErpColors.errorRed
-                              : ErpColors.accentBlue.withOpacity(0.75),
+                              : ErpColors.accentBlue.withValues(alpha: 0.75),
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(3)),
                         ),

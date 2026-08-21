@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../../dashboard/screens/dashboard_page.dart';
@@ -193,7 +192,7 @@ class _Item extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
               color: active
-                  ? ErpColors.accentBlue.withOpacity(0.12)
+                  ? ErpColors.accentBlue.withValues(alpha: 0.12)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(16),
             ),
@@ -295,7 +294,7 @@ class _RailItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             color: active
-                ? ErpColors.accentBlue.withOpacity(0.12)
+                ? ErpColors.accentBlue.withValues(alpha: 0.12)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),

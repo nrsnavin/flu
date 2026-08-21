@@ -72,7 +72,7 @@ Future<String?> showForceApprovalDialog({
                         color: const Color(0xFFFEF3C7),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                            color: ErpColors.warningAmber.withOpacity(0.5)),
+                            color: ErpColors.warningAmber.withValues(alpha: 0.5)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

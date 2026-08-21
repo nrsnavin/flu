@@ -52,7 +52,7 @@ class FingerprintTimeline extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
             decoration: BoxDecoration(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color: ErpColors.navyDark.withValues(alpha: 0.04),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
               border: Border(
                 bottom: BorderSide(color: ErpColors.borderLight),
@@ -78,7 +78,7 @@ class FingerprintTimeline extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.12),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -165,7 +165,7 @@ class _FingerprintRow extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: accent.withOpacity(0.35),
+                        color: accent.withValues(alpha: 0.35),
                         blurRadius: 6,
                         spreadRadius: 1,
                       ),
@@ -232,10 +232,10 @@ class _FingerprintRow extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 3),
                             decoration: BoxDecoration(
-                              color: accent.withOpacity(0.12),
+                              color: accent.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                  color: accent.withOpacity(0.35)),
+                                  color: accent.withValues(alpha: 0.35)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -554,7 +554,7 @@ class _ActorRow extends StatelessWidget {
     final viaWhatsApp = (meta['via']?.toString().toLowerCase() == 'whatsapp');
     final waFrom      = meta['whatsappFrom']?.toString();
 
-    final avatarBg   = viaWhatsApp ? _wa.withOpacity(0.14) : ErpColors.accentBlue.withOpacity(0.12);
+    final avatarBg   = viaWhatsApp ? _wa.withValues(alpha: 0.14) : ErpColors.accentBlue.withValues(alpha: 0.12);
     final avatarIco  = viaWhatsApp ? Icons.chat_rounded   : Icons.person_outline;
     final avatarTint = viaWhatsApp ? _wa                   : ErpColors.accentBlue;
 

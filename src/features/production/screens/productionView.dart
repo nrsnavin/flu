@@ -4,7 +4,6 @@
 // ══════════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:production/src/features/production/screens/shiftViewPage.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../../shiftPlanView/screens/shiftPlanDetail.dart';
 import '../controllers/productionController.dart';
@@ -73,7 +72,7 @@ class _ProductionRangePageState extends State<ProductionRangePage> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: Colors.white.withOpacity(0.08)),
+          child: Container(height: 1, color: Colors.white.withValues(alpha: 0.08)),
         ),
       ),
       body: Column(
@@ -203,9 +202,9 @@ class _DateButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white.withOpacity(0.15)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
@@ -273,9 +272,9 @@ class _PresetChip extends StatelessWidget {
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
-          color: ErpColors.accentBlue.withOpacity(0.18),
+          color: ErpColors.accentBlue.withValues(alpha: 0.18),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: ErpColors.accentBlue.withOpacity(0.4)),
+          border: Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.4)),
         ),
         child: Text(
           label,
@@ -476,12 +475,12 @@ class _DayRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: expanded
-              ? ErpColors.accentBlue.withOpacity(0.4)
+              ? ErpColors.accentBlue.withValues(alpha: 0.4)
               : ErpColors.borderLight,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -505,7 +504,7 @@ class _DayRow extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     decoration: BoxDecoration(
                       color: day.hasData
-                          ? ErpColors.accentBlue.withOpacity(0.1)
+                          ? ErpColors.accentBlue.withValues(alpha: 0.1)
                           : ErpColors.bgMuted,
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -651,8 +650,8 @@ class _ShiftCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = isDay ? ErpColors.accentBlue : const Color(0xFF7C3AED);
     final bgLight = isDay
-        ? ErpColors.accentBlue.withOpacity(0.06)
-        : const Color(0xFF7C3AED).withOpacity(0.06);
+        ? ErpColors.accentBlue.withValues(alpha: 0.06)
+        : const Color(0xFF7C3AED).withValues(alpha: 0.06);
 
     return GestureDetector(
       onTap: () {
@@ -664,7 +663,7 @@ class _ShiftCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: bgLight,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: accent.withOpacity(0.25)),
+          border: Border.all(color: accent.withValues(alpha: 0.25)),
         ),
         child: Column(
           children: [

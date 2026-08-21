@@ -282,7 +282,7 @@ class _ShiftCard extends StatelessWidget {
             padding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: ErpColors.warningAmber.withOpacity(0.10),
+              color: ErpColors.warningAmber.withValues(alpha: 0.10),
               border: Border(
                   bottom: BorderSide(color: ErpColors.borderLight)),
               borderRadius: const BorderRadius.vertical(

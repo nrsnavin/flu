@@ -325,7 +325,7 @@ class _AccountSection extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: ErpColors.errorRed.withOpacity(0.35)),
+                    color: ErpColors.errorRed.withValues(alpha: 0.35)),
               ),
               padding: const EdgeInsets.symmetric(
                   horizontal: 14, vertical: 14),
@@ -334,7 +334,7 @@ class _AccountSection extends StatelessWidget {
                   Container(
                     width: 36, height: 36,
                     decoration: BoxDecoration(
-                      color: ErpColors.errorRed.withOpacity(0.1),
+                      color: ErpColors.errorRed.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(Icons.logout_rounded,

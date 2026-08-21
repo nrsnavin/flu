@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../../shift/screens/shift_detail.dart';
-import '../../shiftProgram/screens/shiftDetailScreen.dart';
 import '../controllers/employee_controller.dart';
 import '../models/employee.dart';
 
@@ -141,7 +140,7 @@ class _HeroCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.06),
+            color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -160,10 +159,10 @@ class _HeroCard extends StatelessWidget {
             Container(
               width: 56, height: 56,
               decoration: BoxDecoration(
-                color: ErpColors.accentBlue.withOpacity(0.22),
+                color: ErpColors.accentBlue.withValues(alpha: 0.22),
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: ErpColors.accentBlue.withOpacity(0.6), width: 2),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.6), width: 2),
               ),
               child: Center(
                 child: Text(emp.initial,
@@ -214,8 +213,8 @@ class _HeroCard extends StatelessWidget {
                 padding:
                 const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                 decoration: BoxDecoration(
-                  color: perfColor.withOpacity(0.22),
-                  border: Border.all(color: perfColor.withOpacity(0.5)),
+                  color: perfColor.withValues(alpha: 0.22),
+                  border: Border.all(color: perfColor.withValues(alpha: 0.5)),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -226,7 +225,7 @@ class _HeroCard extends StatelessWidget {
                           fontWeight: FontWeight.w900)),
                   Text('rating',
                       style: TextStyle(
-                          color: perfColor.withOpacity(0.8),
+                          color: perfColor.withValues(alpha: 0.8),
                           fontSize: 9,
                           fontWeight: FontWeight.w700)),
                 ]),
@@ -361,9 +360,9 @@ class _SkillProfileCard extends StatelessWidget {
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.10),
+                color: color.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: color.withOpacity(0.4)),
+                border: Border.all(color: color.withValues(alpha: 0.4)),
               ),
               child: Text('${e.value}: ${_levelLabels[lvl] ?? lvl}',
                   style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
@@ -501,7 +500,7 @@ class _PerfBox extends StatelessWidget {
         Container(
           width: 32, height: 32,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, size: 16, color: color),
@@ -612,7 +611,7 @@ class _ShiftRow extends StatelessWidget {
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: shiftColor.withOpacity(0.1),
+              color: shiftColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(

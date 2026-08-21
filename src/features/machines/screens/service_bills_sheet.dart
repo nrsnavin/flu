@@ -448,7 +448,7 @@ class _BillCard extends StatelessWidget {
             height: 34,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(
@@ -521,7 +521,7 @@ class _BillCard extends StatelessWidget {
             height: 32,
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: ErpColors.errorRed.withOpacity(0.5)),
+                side: BorderSide(color: ErpColors.errorRed.withValues(alpha: 0.5)),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -557,7 +557,7 @@ class _AddButton extends StatelessWidget {
         child: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
             backgroundColor: color,
-            disabledBackgroundColor: color.withOpacity(0.4),
+            disabledBackgroundColor: color.withValues(alpha: 0.4),
             elevation: 0,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -589,9 +589,9 @@ class _Note extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.07),
+          color: color.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, color: color, size: 16),

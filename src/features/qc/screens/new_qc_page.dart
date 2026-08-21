@@ -324,7 +324,7 @@ class _NewQcPageState extends State<NewQcPage> {
 
   Widget _chip(String t, Color color) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
         child: Text(t, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600)),
       );
 

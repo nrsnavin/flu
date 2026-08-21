@@ -1,7 +1,5 @@
-import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/painting.dart';
 import 'package:get/get.dart';
 import 'package:production/src/core/api_client.dart';
 // import 'package:production/src/features/job/controllers/new_job_controller.dart';
@@ -11,8 +9,6 @@ import 'package:production/src/features/shiftProgram/models/shiftDetailModel.dar
 import 'package:production/src/features/shiftProgram/models/shiftOpenListModel.dart';
 import 'package:production/src/features/shiftProgram/models/shiftPlanlModel.dart';
 import 'package:production/src/features/shiftProgram/screens/shiftPlanScreen.dart';
-import 'package:production/src/splash_screen.dart';
-import 'package:restart_app/restart_app.dart';
 
 import '../models/ProductionDataModel.dart';
 import '../../../core/app_config.dart';

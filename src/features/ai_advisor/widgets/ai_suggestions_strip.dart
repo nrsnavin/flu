@@ -289,7 +289,7 @@ class _DiagRow extends StatelessWidget {
           Container(
             width: 28, height: 28,
             decoration: BoxDecoration(
-              color: tone.withOpacity(0.12),
+              color: tone.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(7),
             ),
             child: Icon(icon, color: tone, size: 16),
@@ -318,7 +318,7 @@ class _DiagRow extends StatelessWidget {
             padding: const EdgeInsets.symmetric(
                 horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: tone.withOpacity(0.12),
+              color: tone.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -394,7 +394,7 @@ class _StripMessage extends StatelessWidget {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: tone.withOpacity(0.12),
+                  color: tone.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: tone, size: 18),
@@ -463,7 +463,7 @@ class _SuggestionCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               gradient: LinearGradient(
                 colors: [
-                  _accent.withOpacity(0.05),
+                  _accent.withValues(alpha: 0.05),
                   ErpColors.bgSurface,
                 ],
                 begin: Alignment.topLeft,
@@ -478,7 +478,7 @@ class _SuggestionCard extends StatelessWidget {
                     Container(
                       width: 28, height: 28,
                       decoration: BoxDecoration(
-                        color: _accent.withOpacity(0.12),
+                        color: _accent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(7),
                       ),
                       child: Icon(s.icon, color: _accent, size: 16),
@@ -488,7 +488,7 @@ class _SuggestionCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: _accent.withOpacity(0.12),
+                        color: _accent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(3),
                       ),
                       child: Text(
@@ -586,7 +586,7 @@ class _InlineActionBarState extends State<_InlineActionBar> {
     return Align(
       alignment: Alignment.centerRight,
       child: Material(
-        color: tone.withOpacity(0.12),
+        color: tone.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
         child: InkWell(
           borderRadius: BorderRadius.circular(6),

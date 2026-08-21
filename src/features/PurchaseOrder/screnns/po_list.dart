@@ -155,8 +155,8 @@ class _StatPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: color.withValues(alpha: 0.12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
@@ -166,7 +166,7 @@ class _StatPill extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: color.withOpacity(0.8),
+              color: color.withValues(alpha: 0.8),
               fontSize: 9,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -389,7 +389,7 @@ class _POCard extends StatelessWidget {
           border: Border.all(color: ErpColors.borderLight),
           boxShadow: [
             BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color: ErpColors.navyDark.withValues(alpha: 0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),

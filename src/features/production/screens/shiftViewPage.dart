@@ -169,7 +169,7 @@ class _BulkSheetHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: ErpColors.accentBlue.withOpacity(0.12),
+            color: ErpColors.accentBlue.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -194,9 +194,9 @@ class _BulkSheetHeader extends StatelessWidget {
             ? Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: ErpColors.successGreen.withOpacity(0.1),
+            color: ErpColors.successGreen.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: ErpColors.successGreen.withOpacity(0.3)),
+            border: Border.all(color: ErpColors.successGreen.withValues(alpha: 0.3)),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.straighten_rounded,
@@ -249,7 +249,7 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 6,
               offset: const Offset(0, 2)),
         ],
@@ -267,7 +267,7 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
             Container(
               width: 38, height: 38,
               decoration: BoxDecoration(
-                color: ErpColors.accentBlue.withOpacity(0.2),
+                color: ErpColors.accentBlue.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -308,7 +308,7 @@ class _BulkMachineCardState extends State<_BulkMachineCard> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Column(
@@ -519,7 +519,7 @@ class _BulkSubmitBar extends StatelessWidget {
       border: Border(top: BorderSide(color: ErpColors.borderLight)),
       boxShadow: [
         BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -3)),
       ],
@@ -550,7 +550,7 @@ class _BulkSubmitBar extends StatelessWidget {
         child: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
             backgroundColor: ErpColors.accentBlue,
-            disabledBackgroundColor: ErpColors.accentBlue.withOpacity(0.5),
+            disabledBackgroundColor: ErpColors.accentBlue.withValues(alpha: 0.5),
             elevation: 0,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10)),
@@ -741,9 +741,9 @@ class _HeroChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.07),
+      color: Colors.white.withValues(alpha: 0.07),
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: color.withOpacity(0.3)),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 12, color: color),
@@ -925,12 +925,12 @@ class _MachineCardState extends State<_MachineCard> {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: _expanded
-              ? widget.accent.withOpacity(0.4)
+              ? widget.accent.withValues(alpha: 0.4)
               : ErpColors.borderLight,
         ),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 6, offset: const Offset(0, 2)),
         ],
       ),
@@ -945,7 +945,7 @@ class _MachineCardState extends State<_MachineCard> {
                 Container(
                   width: 42, height: 42,
                   decoration: BoxDecoration(
-                    color: widget.accent.withOpacity(0.1),
+                    color: widget.accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -981,10 +981,10 @@ class _MachineCardState extends State<_MachineCard> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: ErpColors.warningAmber.withOpacity(0.12),
+                            color: ErpColors.warningAmber.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(
-                                color: ErpColors.warningAmber.withOpacity(0.4)),
+                                color: ErpColors.warningAmber.withValues(alpha: 0.4)),
                           ),
                           child: Text('OPEN',
                               style: TextStyle(
@@ -1013,7 +1013,7 @@ class _MachineCardState extends State<_MachineCard> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
-                      color: _effColor.withOpacity(0.1),
+                      color: _effColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text('${m.efficiency.toStringAsFixed(1)}%',
@@ -1095,9 +1095,9 @@ class _MachineCardState extends State<_MachineCard> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: widget.accent.withOpacity(0.05),
+                  color: widget.accent.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: widget.accent.withOpacity(0.2)),
+                  border: Border.all(color: widget.accent.withValues(alpha: 0.2)),
                 ),
                 child: Column(children: [
                   _TimerRow('Start Time', m.timerStart ?? '—',
@@ -1128,7 +1128,7 @@ class _MachineCardState extends State<_MachineCard> {
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFFBEB),
                     borderRadius: BorderRadius.circular(7),
-                    border: Border.all(color: ErpColors.warningAmber.withOpacity(0.3)),
+                    border: Border.all(color: ErpColors.warningAmber.withValues(alpha: 0.3)),
                   ),
                   child: Row(children: [
                     Icon(Icons.warning_amber_rounded,
@@ -1194,7 +1194,7 @@ class _QuickStat extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
-          color: color.withOpacity(0.07), borderRadius: BorderRadius.circular(6)),
+          color: color.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(6)),
       child: Column(children: [
         Icon(icon, size: 12, color: color),
         const SizedBox(height: 2),
@@ -1409,16 +1409,16 @@ class _SummaryCard extends StatelessWidget {
       color: ErpColors.bgSurface, borderRadius: BorderRadius.circular(10),
       border: Border.all(color: ErpColors.borderLight),
       boxShadow: [BoxShadow(
-          color: Colors.black.withOpacity(0.03), blurRadius: 6,
+          color: Colors.black.withValues(alpha: 0.03), blurRadius: 6,
           offset: const Offset(0, 2))],
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: accent.withOpacity(0.08),
+          color: accent.withValues(alpha: 0.08),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-          border: Border(bottom: BorderSide(color: accent.withOpacity(0.2))),
+          border: Border(bottom: BorderSide(color: accent.withValues(alpha: 0.2))),
         ),
         child: Row(children: [
           Icon(icon, size: 15, color: accent),

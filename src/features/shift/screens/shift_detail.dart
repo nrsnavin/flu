@@ -458,7 +458,7 @@ class _ScrollTimerFieldState extends State<_ScrollTimerField> {
       border: Border.all(color: ErpColors.borderLight),
       boxShadow: [
         BoxShadow(
-          color: ErpColors.navyDark.withOpacity(0.04),
+          color: ErpColors.navyDark.withValues(alpha: 0.04),
           blurRadius: 6,
           offset: const Offset(0, 2),
         ),
@@ -531,10 +531,10 @@ class _Drum extends StatelessWidget {
               child: Container(
                 height: _itemH,
                 decoration: BoxDecoration(
-                  color: ErpColors.accentBlue.withOpacity(0.10),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                      color: ErpColors.accentBlue.withOpacity(0.30)),
+                      color: ErpColors.accentBlue.withValues(alpha: 0.30)),
                 ),
               ),
             ),

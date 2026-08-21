@@ -112,10 +112,10 @@ class _JobHeader extends StatelessWidget {
         Container(
           width: 42, height: 42,
           decoration: BoxDecoration(
-            color: ErpColors.accentBlue.withOpacity(0.1),
+            color: ErpColors.accentBlue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-                color: ErpColors.accentBlue.withOpacity(0.3)),
+                color: ErpColors.accentBlue.withValues(alpha: 0.3)),
           ),
           child: Icon(Icons.inventory_2_outlined,
               size: 20, color: ErpColors.accentBlue),
@@ -261,7 +261,7 @@ class _PackingCard extends StatelessWidget {
           border: Border.all(color: ErpColors.borderLight),
           boxShadow: [
             BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color: ErpColors.navyDark.withValues(alpha: 0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),

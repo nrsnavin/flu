@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:production/src/features/elastic/controllers/elastic_detail_controller.dart';
-import 'package:production/src/features/elastic/models/raw_material.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import 'addElastic.dart';
@@ -107,7 +106,7 @@ class _DetailView extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         title: Row(children: [
           Container(width: 36, height: 36,
-              decoration: BoxDecoration(color: ErpColors.errorRed.withOpacity(0.1),
+              decoration: BoxDecoration(color: ErpColors.errorRed.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8)),
               child: Icon(Icons.delete_outline, color: ErpColors.errorRed, size: 20)),
           const SizedBox(width: 12),
@@ -186,7 +185,7 @@ class _DetailView extends StatelessWidget {
                   c.fetchDetail();
                 },
                 style: TextButton.styleFrom(
-                  backgroundColor: ErpColors.warningAmber.withOpacity(0.15),
+                  backgroundColor: ErpColors.warningAmber.withValues(alpha: 0.15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 ),
@@ -242,8 +241,8 @@ class _WarpingPlanSection extends StatelessWidget {
         onPressed: () => _openPlanSheet(context),
         style: TextButton.styleFrom(
           backgroundColor: hasPlan
-              ? ErpColors.warningAmber.withOpacity(0.15)
-              : const Color(0xFF7C3AED).withOpacity(0.15),
+              ? ErpColors.warningAmber.withValues(alpha: 0.15)
+              : const Color(0xFF7C3AED).withValues(alpha: 0.15),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         ),
@@ -266,7 +265,7 @@ class _WarpingPlanSection extends StatelessWidget {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Container(width: 48, height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFF7C3AED).withOpacity(0.08),
+              color: const Color(0xFF7C3AED).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.table_rows_outlined, size: 24, color: Color(0xFF7C3AED))),
@@ -320,8 +319,8 @@ class _PlanChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: const Color(0xFF7C3AED).withOpacity(0.08),
-        border: Border.all(color: const Color(0xFF7C3AED).withOpacity(0.22)),
+        color: const Color(0xFF7C3AED).withValues(alpha: 0.08),
+        border: Border.all(color: const Color(0xFF7C3AED).withValues(alpha: 0.22)),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -361,7 +360,7 @@ class _PlanBeamReadCard extends StatelessWidget {
           child: Row(children: [
             Container(width: 26, height: 26, alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED).withOpacity(0.12),
+                  color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(5),
                 ),
                 child: Text('${beam["beamNo"] ?? index + 1}',
@@ -389,7 +388,7 @@ class _PlanBeamReadCard extends StatelessWidget {
               child: Row(children: [
                 Container(width: 18, height: 18, alignment: Alignment.center,
                     decoration: BoxDecoration(
-                        color: ErpColors.accentBlue.withOpacity(0.09), shape: BoxShape.circle),
+                        color: ErpColors.accentBlue.withValues(alpha: 0.09), shape: BoxShape.circle),
                     child: Text('${se.key + 1}', style: TextStyle(
                         fontSize: 9, fontWeight: FontWeight.w800, color: ErpColors.accentBlue))),
                 const SizedBox(width: 8),
@@ -557,7 +556,7 @@ class _WarpingPlanSheetState extends State<_WarpingPlanSheet> {
               Row(children: [
                 Container(width: 32, height: 32,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF7C3AED).withOpacity(0.12),
+                      color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(Icons.table_rows_outlined, size: 16, color: Color(0xFF7C3AED))),
@@ -583,8 +582,8 @@ class _WarpingPlanSheetState extends State<_WarpingPlanSheet> {
                 padding: const EdgeInsets.all(10),
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED).withOpacity(0.06),
-                  border: Border.all(color: const Color(0xFF7C3AED).withOpacity(0.18)),
+                  color: const Color(0xFF7C3AED).withValues(alpha: 0.06),
+                  border: Border.all(color: const Color(0xFF7C3AED).withValues(alpha: 0.18)),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(children: [
@@ -629,7 +628,7 @@ class _WarpingPlanSheetState extends State<_WarpingPlanSheet> {
             decoration: BoxDecoration(
               color: ErpColors.bgSurface,
               border: Border(top: BorderSide(color: ErpColors.borderLight)),
-              boxShadow: [BoxShadow(color: ErpColors.navyDark.withOpacity(0.06),
+              boxShadow: [BoxShadow(color: ErpColors.navyDark.withValues(alpha: 0.06),
                   blurRadius: 8, offset: const Offset(0, -3))],
             ),
             child: Row(children: [
@@ -648,7 +647,7 @@ class _WarpingPlanSheetState extends State<_WarpingPlanSheet> {
                 onPressed: widget.c.savingPlan.value ? null : _save,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF7C3AED),
-                  disabledBackgroundColor: const Color(0xFF7C3AED).withOpacity(0.5),
+                  disabledBackgroundColor: const Color(0xFF7C3AED).withValues(alpha: 0.5),
                   elevation: 0, padding: const EdgeInsets.symmetric(vertical: 13),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                 ),
@@ -708,7 +707,7 @@ class _SheetBeamCard extends StatelessWidget {
           child: Row(children: [
             Container(width: 28, height: 28, alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED).withOpacity(0.12),
+                  color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text('${beam.beamNo}', style: const TextStyle(
@@ -719,8 +718,8 @@ class _SheetBeamCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: const Color(0xFF7C3AED).withOpacity(0.08),
-                border: Border.all(color: const Color(0xFF7C3AED).withOpacity(0.22)),
+                color: const Color(0xFF7C3AED).withValues(alpha: 0.08),
+                border: Border.all(color: const Color(0xFF7C3AED).withValues(alpha: 0.22)),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text('$_totalEnds ends', style: const TextStyle(
@@ -795,7 +794,7 @@ class _SheetSectionRow extends StatelessWidget {
         // Section badge
         Container(width: 22, height: 22, alignment: Alignment.center,
             decoration: BoxDecoration(
-                color: const Color(0xFF7C3AED).withOpacity(0.09), shape: BoxShape.circle),
+                color: const Color(0xFF7C3AED).withValues(alpha: 0.09), shape: BoxShape.circle),
             child: Text('${secIdx + 1}', style: const TextStyle(
                 fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF7C3AED)))),
         const SizedBox(width: 8),
@@ -961,9 +960,9 @@ class _HeroCard extends StatelessWidget {
           child: Row(children: [
             Container(width: 48, height: 48,
                 decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.2),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: ErpColors.accentBlue.withOpacity(0.4))),
+                    border: Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.4))),
                 child: const Icon(Icons.layers_outlined, size: 24, color: Colors.white)),
             const SizedBox(width: 14),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1065,7 +1064,7 @@ class _WarpYarnsSection extends StatelessWidget {
               Row(children: [
                 Container(width: 20, height: 20, alignment: Alignment.center,
                     decoration: BoxDecoration(
-                        color: ErpColors.accentBlue.withOpacity(0.1), shape: BoxShape.circle),
+                        color: ErpColors.accentBlue.withValues(alpha: 0.1), shape: BoxShape.circle),
                     child: Text("${i + 1}", style: TextStyle(fontSize: 10,
                         fontWeight: FontWeight.w800, color: ErpColors.accentBlue))),
                 const SizedBox(width: 8),
@@ -1182,7 +1181,7 @@ class _CostingSection extends StatelessWidget {
             : TextButton.icon(
           onPressed: () => _showRecalcDialog(context),
           style: TextButton.styleFrom(
-            backgroundColor: ErpColors.successGreen.withOpacity(0.12),
+            backgroundColor: ErpColors.successGreen.withValues(alpha: 0.12),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6)),
             padding: const EdgeInsets.symmetric(
@@ -1326,9 +1325,9 @@ class _CostingSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: ErpColors.successGreen.withOpacity(0.06),
+                color: ErpColors.successGreen.withValues(alpha: 0.06),
                 border: Border.all(
-                    color: ErpColors.successGreen.withOpacity(0.3)),
+                    color: ErpColors.successGreen.withValues(alpha: 0.3)),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -1379,7 +1378,7 @@ class _CostingSection extends StatelessWidget {
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: ErpColors.successGreen.withOpacity(0.1),
+              color: ErpColors.successGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(Icons.refresh_rounded,

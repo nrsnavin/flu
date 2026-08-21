@@ -153,7 +153,7 @@ class _SectionCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.04),
+            color: ErpColors.navyDark.withValues(alpha: 0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -298,7 +298,7 @@ class _FooterBar extends StatelessWidget {
             top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.06),
+            color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, -3),
           ),
@@ -337,7 +337,7 @@ class _FooterBar extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ErpColors.accentBlue,
                   disabledBackgroundColor:
-                  ErpColors.accentBlue.withOpacity(0.5),
+                  ErpColors.accentBlue.withValues(alpha: 0.5),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6)),

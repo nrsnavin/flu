@@ -1,4 +1,3 @@
-import 'package:production/src/features/shiftProgram/models/shiftOpenListModel.dart';
 
 class ShiftPlanModel {
   String id;

@@ -751,7 +751,7 @@ class _JobCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
-                        color: _purple.withOpacity(0.12),
+                        color: _purple.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(3),
                       ),
                       child: Text(badge,

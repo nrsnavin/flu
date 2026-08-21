@@ -1,7 +1,6 @@
 import 'package:production/src/features/Job/models/preparatory_model.dart';
 import 'package:production/src/features/Job/models/wastage_view.dart';
 
-import '../../shiftProgram/models/shiftDetailModel.dart';
 import 'ShiftDetailModel.dart';
 import 'eqv.dart';
 

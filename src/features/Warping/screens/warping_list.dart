@@ -275,9 +275,9 @@ class _Pill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.09),
+      color: color.withValues(alpha: 0.09),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: color.withOpacity(0.3)),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -376,7 +376,7 @@ class _WarpingCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.04),
+            color: ErpColors.navyDark.withValues(alpha: 0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -387,7 +387,7 @@ class _WarpingCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
             decoration: BoxDecoration(
-              color: ErpColors.navyDark.withOpacity(0.03),
+              color: ErpColors.navyDark.withValues(alpha: 0.03),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(7),
               ),
@@ -398,7 +398,7 @@ class _WarpingCard extends StatelessWidget {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.1),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -447,8 +447,8 @@ class _WarpingCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: w.hasPlan
-                            ? ErpColors.successGreen.withOpacity(0.1)
-                            : ErpColors.warningAmber.withOpacity(0.1),
+                            ? ErpColors.successGreen.withValues(alpha: 0.1)
+                            : ErpColors.warningAmber.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -515,9 +515,9 @@ class _StatusPill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
+      color: color.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: color.withOpacity(0.4)),
+      border: Border.all(color: color.withValues(alpha: 0.4)),
     ),
     child: Text(
       status

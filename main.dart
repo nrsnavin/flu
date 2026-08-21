@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl_standalone.dart'
     if (dart.library.html) 'package:intl/intl_browser.dart';
 import 'package:production/src/core/lock/app_lock_controller.dart';
-import 'package:production/src/core/lock/app_lock_gate.dart';
 import 'package:production/src/core/theme/theme_controller.dart';
 import 'package:production/src/features/authentication/controllers/login_controller.dart';
 import 'package:production/src/features/authentication/screens/auth_gate.dart';

@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import 'package:production/src/features/elastic/models/cost.dart';
 import 'package:production/src/features/elastic/models/raw_material.dart';
-import 'package:production/src/features/elastic/models/warp_yarn_input.dart';
 import 'package:production/src/features/elastic/screens/elastic_list_page.dart';
 import '../../../core/app_config.dart';
 

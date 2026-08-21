@@ -210,7 +210,7 @@ class _FeedbackCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: typeColor.withOpacity(0.10),
+                      color: typeColor.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -476,7 +476,7 @@ class FeedbackDetailPage extends StatelessWidget {
                         return ChoiceChip(
                           label: Text(_capitalize(s)),
                           selected: selected,
-                          selectedColor: ErpColors.accentBlue.withOpacity(0.15),
+                          selectedColor: ErpColors.accentBlue.withValues(alpha: 0.15),
                           backgroundColor: ErpColors.bgMuted,
                           labelStyle: TextStyle(
                             fontSize: 12,

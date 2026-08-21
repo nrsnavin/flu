@@ -145,12 +145,12 @@ class _PendingShiftsBanner extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all(
                 color: highlight
-                    ? ErpColors.warningAmber.withOpacity(0.55)
+                    ? ErpColors.warningAmber.withValues(alpha: 0.55)
                     : ErpColors.borderLight,
               ),
               borderRadius: BorderRadius.circular(8),
               color: highlight
-                  ? ErpColors.warningAmber.withOpacity(0.08)
+                  ? ErpColors.warningAmber.withValues(alpha: 0.08)
                   : ErpColors.bgSurface,
             ),
             child: Row(
@@ -158,7 +158,7 @@ class _PendingShiftsBanner extends StatelessWidget {
                 Container(
                   width: 36, height: 36,
                   decoration: BoxDecoration(
-                    color: ErpColors.warningAmber.withOpacity(0.18),
+                    color: ErpColors.warningAmber.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.hourglass_top_rounded,
@@ -306,7 +306,7 @@ class _KpiTile extends StatelessWidget {
                   Container(
                     width: 32, height: 32,
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.10),
+                      color: color.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Icon(icon, color: color, size: 18),
@@ -432,8 +432,8 @@ class _AttPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        border: Border.all(color: color.withOpacity(0.25)),
+        color: color.withValues(alpha: 0.08),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

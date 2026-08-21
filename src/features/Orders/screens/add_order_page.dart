@@ -242,7 +242,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
         border: Border(top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.06),
+            color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, -3),
           ),
@@ -278,7 +278,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: ErpColors.accentBlue,
                 disabledBackgroundColor:
-                ErpColors.accentBlue.withOpacity(0.5),
+                ErpColors.accentBlue.withValues(alpha: 0.5),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),
@@ -354,7 +354,7 @@ class _ElasticRowCard extends StatelessWidget {
               width: 22, height: 22,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: ErpColors.accentBlue.withOpacity(0.1),
+                color: ErpColors.accentBlue.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Text('${index + 1}',
@@ -376,7 +376,7 @@ class _ElasticRowCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: ErpColors.errorRed.withOpacity(0.08),
+                  color: ErpColors.errorRed.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Icon(Icons.delete_outline,
@@ -539,7 +539,7 @@ class _PickerField extends StatelessWidget {
           color: ErpColors.bgMuted,
           border: Border.all(
             color: selected != null
-                ? ErpColors.accentBlue.withOpacity(0.4)
+                ? ErpColors.accentBlue.withValues(alpha: 0.4)
                 : ErpColors.borderLight,
           ),
           borderRadius: BorderRadius.circular(4),

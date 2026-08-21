@@ -169,10 +169,10 @@ class _StatusTabs extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: selected ? color : color.withOpacity(0.1),
+                    color: selected ? color : color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: selected ? color : color.withOpacity(0.3),
+                      color: selected ? color : color.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
@@ -261,7 +261,7 @@ class _JobCard extends StatelessWidget {
           border: Border.all(color: ErpColors.borderLight),
           boxShadow: [
             BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color: ErpColors.navyDark.withValues(alpha: 0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -278,7 +278,7 @@ class _JobCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: stageColor.withOpacity(0.1),
+                      color: stageColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(Icons.work_outline,
@@ -311,9 +311,9 @@ class _JobCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: stageColor.withOpacity(0.1),
+                        color: stageColor.withValues(alpha: 0.1),
                         border: Border.all(
-                            color: stageColor.withOpacity(0.4)),
+                            color: stageColor.withValues(alpha: 0.4)),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

@@ -196,7 +196,7 @@ class _ElasticAllocationRow extends StatelessWidget {
             height: 28,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: ErpColors.accentBlue.withOpacity(0.1),
+              color: ErpColors.accentBlue.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Text("${index + 1}",
@@ -335,9 +335,9 @@ class _ExcessPanel extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
             decoration: BoxDecoration(
-              color: ErpColors.warningAmber.withOpacity(0.09),
+              color: ErpColors.warningAmber.withValues(alpha: 0.09),
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: ErpColors.warningAmber.withOpacity(0.35)),
+              border: Border.all(color: ErpColors.warningAmber.withValues(alpha: 0.35)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -437,7 +437,7 @@ class _ProcessRow extends StatelessWidget {
         width: 34,
         height: 34,
         decoration: BoxDecoration(
-          color: ErpColors.accentBlue.withOpacity(0.08),
+          color: ErpColors.accentBlue.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Icon(icon, size: 17, color: ErpColors.accentBlue),
@@ -478,7 +478,7 @@ class _FooterBar extends StatelessWidget {
         border: Border(top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.06),
+            color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, -3),
           ),
@@ -512,7 +512,7 @@ class _FooterBar extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: ErpColors.accentBlue,
                 disabledBackgroundColor:
-                ErpColors.accentBlue.withOpacity(0.5),
+                ErpColors.accentBlue.withValues(alpha: 0.5),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),

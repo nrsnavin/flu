@@ -188,13 +188,13 @@ class _AiGenerateButton extends StatelessWidget {
           border: Border.all(
             color: generating
                 ? const Color(0xFF2A3F5F)
-                : const Color(0xFF1D6FEB).withOpacity(0.5),
+                : const Color(0xFF1D6FEB).withValues(alpha: 0.5),
           ),
           boxShadow: generating
               ? []
               : [
             BoxShadow(
-                color: const Color(0xFF1D6FEB).withOpacity(0.15),
+                color: const Color(0xFF1D6FEB).withValues(alpha: 0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 3)),
           ],
@@ -277,9 +277,9 @@ class _AiBadge extends StatelessWidget {
     margin: const EdgeInsets.only(bottom: 12),
     padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
     decoration: BoxDecoration(
-      color: const Color(0xFF16A34A).withOpacity(0.07),
+      color: const Color(0xFF16A34A).withValues(alpha: 0.07),
       border:
-      Border.all(color: const Color(0xFF16A34A).withOpacity(0.3)),
+      Border.all(color: const Color(0xFF16A34A).withValues(alpha: 0.3)),
       borderRadius: BorderRadius.circular(8),
     ),
     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -343,15 +343,15 @@ class _CombineBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       decoration: BoxDecoration(
-        color: _amber.withOpacity(0.1),
+        color: _amber.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _amber.withOpacity(0.5)),
+        border: Border.all(color: _amber.withValues(alpha: 0.5)),
       ),
       child: Row(children: [
         Container(
           width: 32, height: 32,
           decoration: BoxDecoration(
-            color: _amber.withOpacity(0.15),
+            color: _amber.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           child: const Icon(Icons.merge_rounded, size: 18, color: _amber),
@@ -385,7 +385,7 @@ class _CombineBanner extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: _amber.withOpacity(0.15),
+              color: _amber.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(6),
             ),
             child: const Text('Cancel',
@@ -732,9 +732,9 @@ class _LotStat extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: color.withOpacity(0.25)),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
         ),
         child: Column(children: [
           Text('${_qty(value)} kg',
@@ -835,7 +835,7 @@ class _BeamCard extends StatelessWidget {
     final borderColor = isSelected
         ? _combineAccent
         : isCombineMode
-        ? _combineAccent.withOpacity(0.35)
+        ? _combineAccent.withValues(alpha: 0.35)
         : ErpColors.borderLight;
 
     return GestureDetector(
@@ -844,13 +844,13 @@ class _BeamCard extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
             color: isSelected
-                ? _combineAccent.withOpacity(0.06)
+                ? _combineAccent.withValues(alpha: 0.06)
                 : ErpColors.bgSurface,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: borderColor, width: isSelected ? 1.8 : 1.0),
             boxShadow: [
               BoxShadow(
-                  color: ErpColors.navyDark.withOpacity(0.04),
+                  color: ErpColors.navyDark.withValues(alpha: 0.04),
                   blurRadius: 5,
                   offset: const Offset(0, 2))
             ],
@@ -863,8 +863,8 @@ class _BeamCard extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
                 decoration: BoxDecoration(
                     color: isSelected
-                        ? _combineAccent.withOpacity(0.12)
-                        : ErpColors.navyDark.withOpacity(0.03),
+                        ? _combineAccent.withValues(alpha: 0.12)
+                        : ErpColors.navyDark.withValues(alpha: 0.03),
                     borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(7))),
                 child: Row(children: [
@@ -877,7 +877,7 @@ class _BeamCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: isSelected ? _combineAccent : Colors.transparent,
                         border: Border.all(
-                          color: isSelected ? _combineAccent : _combineAccent.withOpacity(0.5),
+                          color: isSelected ? _combineAccent : _combineAccent.withValues(alpha: 0.5),
                           width: 1.5,
                         ),
                       ),
@@ -910,7 +910,7 @@ class _BeamCard extends StatelessWidget {
                           margin: const EdgeInsets.only(right: 8),
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF7C3AED).withOpacity(0.1),
+                            color: const Color(0xFF7C3AED).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Row(mainAxisSize: MainAxisSize.min, children: [
@@ -931,8 +931,8 @@ class _BeamCard extends StatelessWidget {
                         horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                         color: isSelected
-                            ? _combineAccent.withOpacity(0.15)
-                            : ErpColors.accentBlue.withOpacity(0.1),
+                            ? _combineAccent.withValues(alpha: 0.15)
+                            : ErpColors.accentBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8)),
                     child: Text('${beam.totalEnds} Ends',
                         style: TextStyle(
@@ -1285,10 +1285,10 @@ class _TotalEndsCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: ErpColors.accentBlue.withOpacity(0.06),
+      color: ErpColors.accentBlue.withValues(alpha: 0.06),
       borderRadius: BorderRadius.circular(8),
       border:
-      Border.all(color: ErpColors.accentBlue.withOpacity(0.25)),
+      Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.25)),
     ),
     child: Row(children: [
       Icon(Icons.calculate_rounded,
@@ -1391,10 +1391,10 @@ class _WarnBanner extends StatelessWidget {
     margin: const EdgeInsets.only(bottom: 12),
     padding: const EdgeInsets.all(10),
     decoration: BoxDecoration(
-      color: ErpColors.warningAmber.withOpacity(0.08),
+      color: ErpColors.warningAmber.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(6),
       border: Border.all(
-          color: ErpColors.warningAmber.withOpacity(0.4)),
+          color: ErpColors.warningAmber.withValues(alpha: 0.4)),
     ),
     child: Row(children: [
       Icon(Icons.info_outline,

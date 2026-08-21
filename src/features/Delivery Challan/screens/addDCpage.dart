@@ -545,7 +545,7 @@ class _TypeTile extends StatelessWidget {
       duration: const Duration(milliseconds: 140),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: active ? color.withOpacity(0.07) : ErpColors.bgMuted,
+        color: active ? color.withValues(alpha: 0.07) : ErpColors.bgMuted,
         border: Border.all(color: active ? color : ErpColors.borderLight, width: active ? 1.5 : 1),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -582,15 +582,15 @@ class _OrderCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: ErpColors.accentBlue.withOpacity(0.05),
+              color: ErpColors.accentBlue.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: ErpColors.accentBlue.withOpacity(0.25)),
+              border: Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.25)),
             ),
             child: Row(children: [
               Container(
                 width: 34, height: 34,
                 decoration: BoxDecoration(
-                  color: ErpColors.accentBlue.withOpacity(0.10),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Icon(Icons.receipt_outlined, size: 18, color: ErpColors.accentBlue),
@@ -684,7 +684,7 @@ class _OrderCard extends StatelessWidget {
                 color: ErpColors.bgSurface,
                 border: Border.all(color: ErpColors.borderLight),
                 borderRadius: BorderRadius.circular(6),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06),
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 8, offset: const Offset(0, 3))],
               ),
               child: Column(children: c.orderResults.map((o) {
@@ -799,9 +799,9 @@ class _ScannedJobBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: ErpColors.successGreen.withOpacity(0.06),
+        color: ErpColors.successGreen.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: ErpColors.successGreen.withOpacity(0.28)),
+        border: Border.all(color: ErpColors.successGreen.withValues(alpha: 0.28)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(Icons.qr_code_2_rounded, size: 18, color: ErpColors.successGreen),
@@ -864,9 +864,9 @@ class _Notice extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: colour.withOpacity(0.06),
+          color: colour.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: colour.withOpacity(0.28)),
+          border: Border.all(color: colour.withValues(alpha: 0.28)),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, size: 16, color: colour),
@@ -903,9 +903,9 @@ class _ElasticPickerCard extends StatelessWidget {
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
               decoration: BoxDecoration(
-                color: sel ? ErpColors.accentBlue.withOpacity(0.04) : ErpColors.bgMuted,
+                color: sel ? ErpColors.accentBlue.withValues(alpha: 0.04) : ErpColors.bgMuted,
                 border: Border.all(color: sel
-                    ? ErpColors.accentBlue.withOpacity(0.28) : ErpColors.borderLight),
+                    ? ErpColors.accentBlue.withValues(alpha: 0.28) : ErpColors.borderLight),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Column(children: [
@@ -1038,7 +1038,7 @@ class _MachineItemsCard extends StatelessWidget {
                   width: 22, height: 22,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF7C3AED).withOpacity(0.10),
+                    color: const Color(0xFF7C3AED).withValues(alpha: 0.10),
                     shape: BoxShape.circle,
                   ),
                   child: Text('${i + 1}', style: const TextStyle(
@@ -1054,7 +1054,7 @@ class _MachineItemsCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: ErpColors.errorRed.withOpacity(0.08),
+                        color: ErpColors.errorRed.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Icon(Icons.delete_outline, color: ErpColors.errorRed, size: 16),
@@ -1279,7 +1279,7 @@ class _Footer extends StatelessWidget {
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         border: Border(top: BorderSide(color: ErpColors.borderLight)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8, offset: const Offset(0, -3))],
       ),
       child: Obx(() => Row(children: [
@@ -1302,7 +1302,7 @@ class _Footer extends StatelessWidget {
             onPressed: c.loading.value ? null : c.submit,
             style: ElevatedButton.styleFrom(
               backgroundColor: ErpColors.accentBlue,
-              disabledBackgroundColor: ErpColors.accentBlue.withOpacity(0.5),
+              disabledBackgroundColor: ErpColors.accentBlue.withValues(alpha: 0.5),
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
             ),
@@ -1339,9 +1339,9 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         border: Border.all(color: errorText != null
-            ? ErpColors.errorRed.withOpacity(0.4) : ErpColors.borderLight),
+            ? ErpColors.errorRed.withValues(alpha: 0.4) : ErpColors.borderLight),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 5, offset: const Offset(0, 2))],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -1401,7 +1401,7 @@ class _Field extends StatelessWidget {
       errorStyle: TextStyle(color: ErpColors.errorRed, fontSize: 10),
       enabledBorder: errorText != null ? OutlineInputBorder(
         borderRadius: BorderRadius.circular(4),
-        borderSide: BorderSide(color: ErpColors.errorRed.withOpacity(0.6)),
+        borderSide: BorderSide(color: ErpColors.errorRed.withValues(alpha: 0.6)),
       ) : null,
     ),
   );
@@ -1417,9 +1417,9 @@ class _TotalBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.07),
+      color: color.withValues(alpha: 0.07),
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: color.withOpacity(0.20)),
+      border: Border.all(color: color.withValues(alpha: 0.20)),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 13, color: color),

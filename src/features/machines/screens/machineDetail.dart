@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:production/src/features/shift/screens/shift_detail.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
-import '../../shiftProgram/screens/shiftDetailScreen.dart';
 import '../controllers/machine_controller.dart';
 import '../models/machine.dart';
 import '../widgets/machine_health_card.dart';
@@ -87,7 +86,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                       width: 38,
                       height: 38,
                       decoration: BoxDecoration(
-                        color: ErpColors.accentBlue.withOpacity(0.1),
+                        color: ErpColors.accentBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -256,7 +255,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: ErpColors.accentBlue,
                               disabledBackgroundColor: ErpColors.accentBlue
-                                  .withOpacity(0.35),
+                                  .withValues(alpha: 0.35),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -525,7 +524,7 @@ class _HeroCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.06),
+            color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -548,9 +547,9 @@ class _HeroCard extends StatelessWidget {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.18),
+                    color: color.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: color.withOpacity(0.5)),
+                    border: Border.all(color: color.withValues(alpha: 0.5)),
                   ),
                   child: Icon(icon, size: 27, color: color),
                 ),
@@ -617,8 +616,8 @@ class _HeroCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.22),
-                    border: Border.all(color: color.withOpacity(0.5)),
+                    color: color.withValues(alpha: 0.22),
+                    border: Border.all(color: color.withValues(alpha: 0.5)),
                     borderRadius: BorderRadius.circular(5),
                   ),
                   child: Text(
@@ -972,7 +971,7 @@ class _PerfBox extends StatelessWidget {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 17, color: color),
@@ -1099,7 +1098,7 @@ class _ShiftRow extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: shiftColor.withOpacity(0.1),
+                color: shiftColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
@@ -1296,9 +1295,9 @@ class _ServiceLogSection extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.12),
+                      color: color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(5),
-                      border: Border.all(color: color.withOpacity(0.35)),
+                      border: Border.all(color: color.withValues(alpha: 0.35)),
                     ),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       Icon(_typeIcon(log.type), size: 11, color: color),
@@ -1314,7 +1313,7 @@ class _ServiceLogSection extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
-                        color: ErpColors.errorRed.withOpacity(0.10),
+                        color: ErpColors.errorRed.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text('OPEN',
@@ -1415,12 +1414,12 @@ class _BillsRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
           color: has
-              ? ErpColors.accentBlue.withOpacity(0.06)
+              ? ErpColors.accentBlue.withValues(alpha: 0.06)
               : ErpColors.bgSurface,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: has
-                ? ErpColors.accentBlue.withOpacity(0.3)
+                ? ErpColors.accentBlue.withValues(alpha: 0.3)
                 : ErpColors.borderLight,
           ),
         ),
@@ -1471,12 +1470,12 @@ class _StepButton extends StatelessWidget {
       height: 48,
       decoration: BoxDecoration(
         color: enabled
-            ? ErpColors.accentBlue.withOpacity(0.1)
+            ? ErpColors.accentBlue.withValues(alpha: 0.1)
             : ErpColors.bgMuted,
         shape: BoxShape.circle,
         border: Border.all(
           color: enabled
-              ? ErpColors.accentBlue.withOpacity(0.4)
+              ? ErpColors.accentBlue.withValues(alpha: 0.4)
               : ErpColors.borderLight,
         ),
       ),

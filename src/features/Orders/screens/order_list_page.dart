@@ -241,12 +241,12 @@ class _OrderCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isOverdue
-                ? ErpColors.errorRed.withOpacity(0.4)
+                ? ErpColors.errorRed.withValues(alpha: 0.4)
                 : ErpColors.borderLight,
           ),
           boxShadow: [
             BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color: ErpColors.navyDark.withValues(alpha: 0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -265,7 +265,7 @@ class _OrderCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: ErpColors.accentBlue.withOpacity(0.1),
+                      color: ErpColors.accentBlue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(Icons.receipt_long_outlined,
@@ -531,7 +531,7 @@ class _OrderCard extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.1),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.check_circle_outline,
@@ -594,7 +594,7 @@ class _OrderCard extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: ErpColors.errorRed.withOpacity(0.1),
+                    color: ErpColors.errorRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.cancel_outlined,
@@ -701,12 +701,12 @@ class _EtaPendingChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
         color: highlight
-            ? ErpColors.errorRed.withOpacity(0.06)
+            ? ErpColors.errorRed.withValues(alpha: 0.06)
             : ErpColors.bgMuted,
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
           color: highlight
-              ? ErpColors.errorRed.withOpacity(0.3)
+              ? ErpColors.errorRed.withValues(alpha: 0.3)
               : ErpColors.borderLight,
         ),
       ),
@@ -748,9 +748,9 @@ class _WhatsAppApprovedPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: tone.withOpacity(0.10),
+        color: tone.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(3),
-        border: Border.all(color: tone.withOpacity(0.35)),
+        border: Border.all(color: tone.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -939,7 +939,7 @@ class _ListDialogButton extends StatelessWidget {
       return ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          disabledBackgroundColor: color.withOpacity(0.6),
+          disabledBackgroundColor: color.withValues(alpha: 0.6),
           elevation: 0,
         ),
         onPressed: busy ? null : () async {

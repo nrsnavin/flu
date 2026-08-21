@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 // import '../../Orders/screens/erp_theme.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/shiftPlan_controller.dart';
 import '../../shiftPlanView/screens/shiftPlanDetail.dart';
 import '../models/MachineRunningModel.dart';
-import '../models/OperatorModel.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  CREATE SHIFT PLAN PAGE
@@ -421,15 +419,15 @@ class _SummaryBanner extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         decoration: BoxDecoration(
-          color:  accent.withOpacity(0.07),
+          color:  accent.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: accent.withOpacity(0.3)),
+          border: Border.all(color: accent.withValues(alpha: 0.3)),
         ),
         child: Row(children: [
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.12),
+              color: accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(statusIcon, size: 19, color: accent),
@@ -446,9 +444,9 @@ class _SummaryBanner extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color:  accent.withOpacity(0.12),
+              color:  accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: accent.withOpacity(0.4)),
+              border: Border.all(color: accent.withValues(alpha: 0.4)),
             ),
             child: Text('$assigned/$total',
                 style: TextStyle(
@@ -560,7 +558,7 @@ class _MachineOperatorCard extends StatelessWidget {
                 Container(
                   width: 40, height: 40,
                   decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.1),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.precision_manufacturing_outlined,
@@ -606,11 +604,11 @@ class _MachineOperatorCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 7, vertical: 3),
                     decoration: BoxDecoration(
-                      color: ErpColors.successGreen.withOpacity(0.12),
+                      color: ErpColors.successGreen.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
                           color:
-                          ErpColors.successGreen.withOpacity(0.35)),
+                          ErpColors.successGreen.withValues(alpha: 0.35)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -631,11 +629,11 @@ class _MachineOperatorCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 7, vertical: 3),
                     decoration: BoxDecoration(
-                      color: ErpColors.warningAmber.withOpacity(0.1),
+                      color: ErpColors.warningAmber.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
                           color:
-                          ErpColors.warningAmber.withOpacity(0.35)),
+                          ErpColors.warningAmber.withValues(alpha: 0.35)),
                     ),
                     child: Text('Unassigned',
                         style: TextStyle(
@@ -708,7 +706,7 @@ class _OperatorDropdown extends StatelessWidget {
               Container(
                 width: 26, height: 36,
                 decoration: BoxDecoration(
-                  color: ErpColors.accentBlue.withOpacity(0.1),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.person_outline,
@@ -759,7 +757,7 @@ class _SaveBar extends StatelessWidget {
         border: Border(top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.08),
+            color: ErpColors.navyDark.withValues(alpha: 0.08),
             blurRadius: 14,
             offset: const Offset(0, -4),
           ),
@@ -798,7 +796,7 @@ class _SaveBar extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ErpColors.accentBlue,
                   disabledBackgroundColor:
-                  ErpColors.accentBlue.withOpacity(0.45),
+                  ErpColors.accentBlue.withValues(alpha: 0.45),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(9)),

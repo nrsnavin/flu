@@ -213,9 +213,9 @@ class _Pill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.09),
+      color: color.withValues(alpha: 0.09),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: color.withOpacity(0.3)),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       Text(value,
@@ -277,10 +277,10 @@ class _JobCard extends StatelessWidget {
           color: ErpColors.bgSurface,
           borderRadius: BorderRadius.circular(8),
           border:
-          Border.all(color: ErpColors.errorRed.withOpacity(0.2)),
+          Border.all(color: ErpColors.errorRed.withValues(alpha: 0.2)),
           boxShadow: [
             BoxShadow(
-                color: ErpColors.navyDark.withOpacity(0.04),
+                color: ErpColors.navyDark.withValues(alpha: 0.04),
                 blurRadius: 6,
                 offset: const Offset(0, 2)),
           ],
@@ -290,7 +290,7 @@ class _JobCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
             decoration: BoxDecoration(
-              color: ErpColors.navyDark.withOpacity(0.03),
+              color: ErpColors.navyDark.withValues(alpha: 0.03),
               borderRadius:
               const BorderRadius.vertical(top: Radius.circular(7)),
             ),
@@ -298,7 +298,7 @@ class _JobCard extends StatelessWidget {
               Container(
                 width: 40, height: 40,
                 decoration: BoxDecoration(
-                  color: ErpColors.errorRed.withOpacity(0.1),
+                  color: ErpColors.errorRed.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.warning_amber_rounded,
@@ -451,9 +451,9 @@ class _StatusPill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
+      color: color.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: color.withOpacity(0.4)),
+      border: Border.all(color: color.withValues(alpha: 0.4)),
     ),
     child: Text(
       status[0].toUpperCase() + status.substring(1),

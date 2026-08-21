@@ -373,7 +373,7 @@ void _showStatusSheet(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: ErpColors.accentBlue,
                           disabledBackgroundColor:
-                              ErpColors.accentBlue.withOpacity(0.55),
+                              ErpColors.accentBlue.withValues(alpha: 0.55),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6)),
                         ),

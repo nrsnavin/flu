@@ -131,9 +131,9 @@ class _Pill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.09),
+      color: color.withValues(alpha: 0.09),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: color.withOpacity(0.3)),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       Text(value,
@@ -201,7 +201,7 @@ class _WastageCard extends StatelessWidget {
           border: Border.all(color: ErpColors.borderLight),
           boxShadow: [
             BoxShadow(
-                color: ErpColors.navyDark.withOpacity(0.04),
+                color: ErpColors.navyDark.withValues(alpha: 0.04),
                 blurRadius: 5,
                 offset: const Offset(0, 2)),
           ],
@@ -212,7 +212,7 @@ class _WastageCard extends StatelessWidget {
             Container(
               width: 34, height: 34,
               decoration: BoxDecoration(
-                color: ErpColors.errorRed.withOpacity(0.1),
+                color: ErpColors.errorRed.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -241,7 +241,7 @@ class _WastageCard extends StatelessWidget {
                         padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: ErpColors.errorRed.withOpacity(0.1),
+                          color: ErpColors.errorRed.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -355,7 +355,7 @@ class _WastageDetailSheet extends StatelessWidget {
                 Container(
                   width: 44, height: 44,
                   decoration: BoxDecoration(
-                    color: ErpColors.errorRed.withOpacity(0.1),
+                    color: ErpColors.errorRed.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.warning_amber_rounded,
@@ -450,7 +450,7 @@ class _WastageDetailSheet extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: ErpColors.errorRed,
                     side: BorderSide(
-                        color: ErpColors.errorRed.withOpacity(0.6)),
+                        color: ErpColors.errorRed.withValues(alpha: 0.6)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),

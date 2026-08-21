@@ -139,7 +139,7 @@ class _TopBar extends StatelessWidget {
               content: const Text('All adjustments will be cleared.',
                   style: TextStyle(color: _ts, fontSize: 12)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: _amber.withOpacity(0.4))),
+                  side: BorderSide(color: _amber.withValues(alpha: 0.4))),
               actions: [
                 TextButton(onPressed: Get.back,
                     child: const Text('Cancel', style: TextStyle(color: _ts))),
@@ -217,10 +217,10 @@ class _FilterBarState extends State<_FilterBar> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                     color: c.filterChanged.value
-                        ? _amber.withOpacity(0.18) : _s2,
+                        ? _amber.withValues(alpha: 0.18) : _s2,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: c.filterChanged.value
-                        ? _amber.withOpacity(0.6) : _bdr)),
+                        ? _amber.withValues(alpha: 0.6) : _bdr)),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Icon(Icons.edit_rounded, size: 11,
                       color: c.filterChanged.value ? _amberLt : _ts),
@@ -240,9 +240,9 @@ class _FilterBarState extends State<_FilterBar> {
                     margin: const EdgeInsets.only(right: 6),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                        color: on ? cc.withOpacity(0.18) : _s2,
+                        color: on ? cc.withValues(alpha: 0.18) : _s2,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: on ? cc.withOpacity(0.6) : _bdr)),
+                        border: Border.all(color: on ? cc.withValues(alpha: 0.6) : _bdr)),
                     child: Text(cat, style: TextStyle(
                         color: on ? Color.lerp(cc, Colors.white, 0.3)! : _ts,
                         fontSize: 10, fontWeight: FontWeight.w700))));
@@ -305,7 +305,7 @@ class _MaterialRowState extends State<_MaterialRow> {
     final willFix   = isLow && hasChange && newStock > item.minStock;
 
     final borderColor = hasChange
-        ? (item.adjustment > 0 ? _green.withOpacity(0.5) : _red.withOpacity(0.5))
+        ? (item.adjustment > 0 ? _green.withValues(alpha: 0.5) : _red.withValues(alpha: 0.5))
         : _bdr;
 
     return Container(
@@ -433,7 +433,7 @@ class _AdjTextFieldState extends State<_AdjTextField> {
       height: 38,
       decoration: BoxDecoration(
           color: _s3, borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: adj != 0 ? textColor.withOpacity(0.4) : _bdr)),
+          border: Border.all(color: adj != 0 ? textColor.withValues(alpha: 0.4) : _bdr)),
       child: Center(child: TextField(
         controller: ctrl,
         textAlign: TextAlign.center,
@@ -508,7 +508,7 @@ class _SummaryBarState extends State<_SummaryBar> {
       decoration: BoxDecoration(
           color: _s1,
           border: const Border(top: BorderSide(color: _bdr)),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, -2))]),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, -2))]),
       child: SafeArea(top: false, child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -554,10 +554,10 @@ class _SummaryBarState extends State<_SummaryBar> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 13),
               decoration: BoxDecoration(
-                  color: canSubmit ? _green.withOpacity(0.18) : _s3,
+                  color: canSubmit ? _green.withValues(alpha: 0.18) : _s3,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                      color: canSubmit ? _green.withOpacity(0.5) : _bdr)),
+                      color: canSubmit ? _green.withValues(alpha: 0.5) : _bdr)),
               child: Center(child: c.isSubmitting.value
                   ? const SizedBox(width: 20, height: 20,
                   child: CircularProgressIndicator(color: _green, strokeWidth: 2))
@@ -652,9 +652,9 @@ class _SummaryBarState extends State<_SummaryBar> {
                           child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 13),
                               decoration: BoxDecoration(
-                                  color: _green.withOpacity(0.18),
+                                  color: _green.withValues(alpha: 0.18),
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: _green.withOpacity(0.5))),
+                                  border: Border.all(color: _green.withValues(alpha: 0.5))),
                               child: const Center(child: Text('Confirm & Update',
                                   style: TextStyle(color: _greenLt, fontSize: 13,
                                       fontWeight: FontWeight.w900)))))),
@@ -671,9 +671,9 @@ class _SumStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: color.withOpacity(0.1),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(7),
-          border: Border.all(color: color.withOpacity(0.3))),
+          border: Border.all(color: color.withValues(alpha: 0.3))),
       child: Column(children: [
         Text(value, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w900)),
         Text(label, style: const TextStyle(color: _tm, fontSize: 9)),
@@ -692,9 +692,9 @@ class _ResultsScreen extends StatelessWidget {
     Container(color: _s1, padding: const EdgeInsets.all(16),
         child: Row(children: [
           Container(width: 44, height: 44,
-              decoration: BoxDecoration(color: _green.withOpacity(0.12),
+              decoration: BoxDecoration(color: _green.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
-                  border: Border.all(color: _green.withOpacity(0.4))),
+                  border: Border.all(color: _green.withValues(alpha: 0.4))),
               child: const Icon(Icons.check_rounded, color: _green, size: 22)),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -720,7 +720,7 @@ class _ResultsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: _s2,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: inc ? _green.withOpacity(0.3) : _red.withOpacity(0.3))),
+                  border: Border.all(color: inc ? _green.withValues(alpha: 0.3) : _red.withValues(alpha: 0.3))),
               child: Row(children: [
                 Container(width: 5, height: 40,
                     decoration: BoxDecoration(
@@ -761,9 +761,9 @@ class _ResultsScreen extends StatelessWidget {
             onTap: Get.back,
             child: Container(
                 width: double.infinity, padding: const EdgeInsets.symmetric(vertical: 13),
-                decoration: BoxDecoration(color: _blue.withOpacity(0.15),
+                decoration: BoxDecoration(color: _blue.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: _blue.withOpacity(0.4))),
+                    border: Border.all(color: _blue.withValues(alpha: 0.4))),
                 child: const Center(child: Text('← Back to Materials',
                     style: TextStyle(color: _blueLt, fontSize: 14, fontWeight: FontWeight.w800)))))),
   ]);
@@ -812,9 +812,9 @@ class _StepBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(onTap: onTap,
       child: Container(width: 34, height: 34,
-          decoration: BoxDecoration(color: color.withOpacity(0.1),
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(7),
-              border: Border.all(color: color.withOpacity(0.3))),
+              border: Border.all(color: color.withValues(alpha: 0.3))),
           child: Icon(icon, size: 16, color: color)));
 }
 
@@ -826,7 +826,7 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
       margin: const EdgeInsets.only(left: 5),
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      decoration: BoxDecoration(color: color.withOpacity(0.15),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(4)),
       child: Text(text, style: TextStyle(
           color: color, fontSize: 8, fontWeight: FontWeight.w800)));
@@ -841,9 +841,9 @@ class _OutBtn extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(onTap: onTap,
       child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-          decoration: BoxDecoration(color: color.withOpacity(0.08),
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: color.withOpacity(0.35))),
+              border: Border.all(color: color.withValues(alpha: 0.35))),
           child: Text(label, style: TextStyle(
               color: color, fontSize: 11, fontWeight: FontWeight.w700),
               textAlign: TextAlign.center)));

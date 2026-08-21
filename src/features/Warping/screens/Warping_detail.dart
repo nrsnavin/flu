@@ -172,7 +172,7 @@ class _HeroCard extends StatelessWidget {
         Container(
           width: 48, height: 48,
           decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               shape: BoxShape.circle),
           child: const Icon(Icons.layers_rounded,
               color: Colors.white, size: 24),
@@ -224,9 +224,9 @@ class _StatBox extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
+      color: color.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: color.withOpacity(0.3)),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Column(children: [
       Text(value,
@@ -253,9 +253,9 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.18),
+      color: color.withValues(alpha: 0.18),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: color.withOpacity(0.5)),
+      border: Border.all(color: color.withValues(alpha: 0.5)),
     ),
     child: Text(
       status
@@ -384,10 +384,10 @@ class _StatusActions extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(14, 10, 14, 0),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: ErpColors.successGreen.withOpacity(0.08),
+          color: ErpColors.successGreen.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(8),
           border:
-          Border.all(color: ErpColors.successGreen.withOpacity(0.3)),
+          Border.all(color: ErpColors.successGreen.withValues(alpha: 0.3)),
         ),
         child: Row(children: [
           Icon(Icons.check_circle_rounded,
@@ -425,10 +425,10 @@ class _StatusActions extends StatelessWidget {
             padding:
             const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFF7C3AED).withOpacity(0.1),
+              color: const Color(0xFF7C3AED).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                  color: const Color(0xFF7C3AED).withOpacity(0.3)),
+                  color: const Color(0xFF7C3AED).withValues(alpha: 0.3)),
             ),
             child: const Row(children: [
               SizedBox(
@@ -576,7 +576,7 @@ class _ElasticCard extends StatelessWidget {
       border: Border.all(color: ErpColors.borderLight),
       boxShadow: [
         BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.04),
+            color: ErpColors.navyDark.withValues(alpha: 0.04),
             blurRadius: 5,
             offset: const Offset(0, 2))
       ],
@@ -586,7 +586,7 @@ class _ElasticCard extends StatelessWidget {
       Container(
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
         decoration: BoxDecoration(
-          color: ErpColors.navyDark.withOpacity(0.03),
+          color: ErpColors.navyDark.withValues(alpha: 0.03),
           borderRadius:
           const BorderRadius.vertical(top: Radius.circular(7)),
         ),
@@ -602,7 +602,7 @@ class _ElasticCard extends StatelessWidget {
             padding:
             const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: ErpColors.accentBlue.withOpacity(0.1),
+              color: ErpColors.accentBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text('Qty: ${e.plannedQty}',
@@ -1020,7 +1020,7 @@ class _BeamCard extends StatelessWidget {
       border: Border.all(color: ErpColors.borderLight),
       boxShadow: [
         BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.04),
+            color: ErpColors.navyDark.withValues(alpha: 0.04),
             blurRadius: 5,
             offset: const Offset(0, 2))
       ],
@@ -1030,7 +1030,7 @@ class _BeamCard extends StatelessWidget {
       Container(
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
         decoration: BoxDecoration(
-          color: ErpColors.navyDark.withOpacity(0.04),
+          color: ErpColors.navyDark.withValues(alpha: 0.04),
           borderRadius:
           const BorderRadius.vertical(top: Radius.circular(7)),
         ),
@@ -1061,7 +1061,7 @@ class _BeamCard extends StatelessWidget {
             padding:
             const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: ErpColors.accentBlue.withOpacity(0.1),
+              color: ErpColors.accentBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text('${beam.totalEnds} Ends',

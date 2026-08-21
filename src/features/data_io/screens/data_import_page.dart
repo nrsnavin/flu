@@ -57,9 +57,9 @@ class _HelpCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: ErpColors.accentBlue.withOpacity(0.06),
+        color: ErpColors.accentBlue.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: ErpColors.accentBlue.withOpacity(0.25)),
+        border: Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +155,7 @@ class _ResultCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: ErpColors.bgSurface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: tone.withOpacity(0.4)),
+        border: Border.all(color: tone.withValues(alpha: 0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,9 +242,9 @@ class _ErrorCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: ErpColors.errorRed.withOpacity(0.06),
+        color: ErpColors.errorRed.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: ErpColors.errorRed.withOpacity(0.4)),
+        border: Border.all(color: ErpColors.errorRed.withValues(alpha: 0.4)),
       ),
       child: Row(children: [
         Icon(Icons.error_outline_rounded,

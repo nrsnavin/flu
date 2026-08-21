@@ -275,7 +275,7 @@ class _DCDetailPageState extends State<DCDetailPage> {
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: ErpColors.errorRed.withOpacity(0.10),
+              color: ErpColors.errorRed.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(Icons.delete_outline, color: ErpColors.errorRed, size: 20),
@@ -349,11 +349,11 @@ class _HeroBanner extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [ErpColors.navyDark, typeColor.withOpacity(0.85)],
+          colors: [ErpColors.navyDark, typeColor.withValues(alpha: 0.85)],
           begin: Alignment.topLeft, end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [BoxShadow(color: typeColor.withOpacity(0.25),
+        boxShadow: [BoxShadow(color: typeColor.withValues(alpha: 0.25),
             blurRadius: 12, offset: const Offset(0, 4))],
       ),
       padding: const EdgeInsets.all(16),
@@ -363,9 +363,9 @@ class _HeroBanner extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
+              color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.white.withOpacity(0.20)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.20)),
             ),
             child: Text(typeLabel, style: const TextStyle(
                 color: Colors.white70, fontSize: 9,
@@ -375,9 +375,9 @@ class _HeroBanner extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.15),
+              color: statusColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: statusColor.withOpacity(0.30)),
+              border: Border.all(color: statusColor.withValues(alpha: 0.30)),
             ),
             child: Text(d.status.toUpperCase(), style: TextStyle(
                 color: statusColor, fontSize: 9,
@@ -429,9 +429,9 @@ class _HeroStat extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.10),
+      color: Colors.white.withValues(alpha: 0.10),
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: Colors.white.withOpacity(0.15)),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label, style: const TextStyle(color: Colors.white54, fontSize: 9,
@@ -500,9 +500,9 @@ class _ItemsSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
           decoration: BoxDecoration(
-            color: typeColor.withOpacity(0.06),
+            color: typeColor.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: typeColor.withOpacity(0.15)),
+            border: Border.all(color: typeColor.withValues(alpha: 0.15)),
           ),
           child: Row(children: [
             Expanded(flex: 3, child: Text('ITEM',
@@ -578,9 +578,9 @@ class _ItemsSection extends StatelessWidget {
           margin: const EdgeInsets.only(top: 6),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
-            color: typeColor.withOpacity(0.05),
+            color: typeColor.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: typeColor.withOpacity(0.15)),
+            border: Border.all(color: typeColor.withValues(alpha: 0.15)),
           ),
           child: Row(children: [
             Expanded(flex: 3, child: Text('TOTAL',
@@ -660,15 +660,15 @@ class _StatusSection extends StatelessWidget {
           return Expanded(child: Row(children: [
             if (idx > 0) Expanded(child: Container(
               height: 2,
-              color: done ? f.$4.withOpacity(0.5) : ErpColors.borderLight,
+              color: done ? f.$4.withValues(alpha: 0.5) : ErpColors.borderLight,
             )),
             Container(
               width: 36, height: 36,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: current
-                    ? f.$4.withOpacity(0.15)
-                    : done ? f.$4.withOpacity(0.08) : ErpColors.bgMuted,
+                    ? f.$4.withValues(alpha: 0.15)
+                    : done ? f.$4.withValues(alpha: 0.08) : ErpColors.bgMuted,
                 border: Border.all(
                   color: done ? f.$4 : ErpColors.borderLight,
                   width: current ? 2 : 1,
@@ -741,7 +741,7 @@ class _StatusSection extends StatelessWidget {
         onPressed: loading ? null : onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          disabledBackgroundColor: color.withOpacity(0.4),
+          disabledBackgroundColor: color.withValues(alpha: 0.4),
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         ),
@@ -830,7 +830,7 @@ class _Section extends StatelessWidget {
       color: ErpColors.bgSurface,
       border: Border.all(color: ErpColors.borderLight),
       borderRadius: BorderRadius.circular(8),
-      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03),
+      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03),
           blurRadius: 4, offset: const Offset(0, 2))],
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

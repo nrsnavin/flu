@@ -130,7 +130,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            color: ErpColors.accentBlue.withOpacity(0.12),
+            color: ErpColors.accentBlue.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
           child: Icon(Icons.mark_email_read_outlined,

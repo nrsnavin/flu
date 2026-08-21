@@ -132,7 +132,7 @@ class _Option extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
           decoration: BoxDecoration(
             color: selected
-                ? ErpColors.accentBlue.withOpacity(0.12)
+                ? ErpColors.accentBlue.withValues(alpha: 0.12)
                 : ErpColors.bgMuted,
             borderRadius: BorderRadius.circular(9),
             border: Border.all(

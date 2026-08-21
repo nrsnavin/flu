@@ -179,7 +179,7 @@ class ThemeController extends GetxController with WidgetsBindingObserver {
       ),
       chipTheme: base.chipTheme.copyWith(
         backgroundColor: p.bgMuted,
-        selectedColor: p.accentBlue.withOpacity(0.14),
+        selectedColor: p.accentBlue.withValues(alpha: 0.14),
         labelStyle: TextStyle(color: p.textSecondary),
         side: BorderSide(color: p.borderLight),
       ),
@@ -187,7 +187,7 @@ class ThemeController extends GetxController with WidgetsBindingObserver {
           ProgressIndicatorThemeData(color: p.accentBlue),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: p.accentBlue,
-        selectionColor: p.accentBlue.withOpacity(0.25),
+        selectionColor: p.accentBlue.withValues(alpha: 0.25),
         selectionHandleColor: p.accentBlue,
       ),
     );

@@ -275,10 +275,10 @@ class _TypeSelector extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: active ? color.withOpacity(0.12) : ErpColors.bgMuted,
+            color: active ? color.withValues(alpha: 0.12) : ErpColors.bgMuted,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: active ? color.withOpacity(0.5) : ErpColors.borderLight,
+              color: active ? color.withValues(alpha: 0.5) : ErpColors.borderLight,
               width: active ? 1.5 : 1,
             ),
           ),
@@ -323,12 +323,12 @@ class _MaintenanceToggle extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: on
-              ? ErpColors.warningAmber.withOpacity(0.08)
+              ? ErpColors.warningAmber.withValues(alpha: 0.08)
               : ErpColors.bgMuted,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: on
-                ? ErpColors.warningAmber.withOpacity(0.45)
+                ? ErpColors.warningAmber.withValues(alpha: 0.45)
                 : ErpColors.borderLight,
           ),
         ),
@@ -371,9 +371,9 @@ class _MaintenanceToggle extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: ErpColors.errorRed.withOpacity(0.07),
+            color: ErpColors.errorRed.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: ErpColors.errorRed.withOpacity(0.35)),
+            border: Border.all(color: ErpColors.errorRed.withValues(alpha: 0.35)),
           ),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(Icons.block_rounded,
@@ -457,7 +457,7 @@ class _FooterBar extends StatelessWidget {
       color: ErpColors.bgSurface,
       border: Border(top: BorderSide(color: ErpColors.borderLight)),
       boxShadow: [
-        BoxShadow(color: ErpColors.navyDark.withOpacity(0.06),
+        BoxShadow(color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 8, offset: const Offset(0, -3)),
       ],
     ),
@@ -490,7 +490,7 @@ class _FooterBar extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: ErpColors.accentBlue,
-              disabledBackgroundColor: ErpColors.accentBlue.withOpacity(0.4),
+              disabledBackgroundColor: ErpColors.accentBlue.withValues(alpha: 0.4),
               elevation: 0,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6)),

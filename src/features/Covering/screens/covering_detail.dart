@@ -144,7 +144,7 @@ class _HeroCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.06),
+            color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 10, offset: const Offset(0, 3),
           ),
         ],
@@ -160,10 +160,10 @@ class _HeroCard extends StatelessWidget {
             Container(
               width: 52, height: 52,
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.22),
+                color: statusColor.withValues(alpha: 0.22),
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: statusColor.withOpacity(0.6), width: 2),
+                    color: statusColor.withValues(alpha: 0.6), width: 2),
               ),
               child: Icon(_statusIcon(data.status),
                   size: 24, color: statusColor),
@@ -189,9 +189,9 @@ class _HeroCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.22),
+                        color: statusColor.withValues(alpha: 0.22),
                         border: Border.all(
-                            color: statusColor.withOpacity(0.5)),
+                            color: statusColor.withValues(alpha: 0.5)),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(statusLabel,
@@ -311,10 +311,10 @@ class _RemarksCard extends StatelessWidget {
     width: double.infinity,
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: ErpColors.warningAmber.withOpacity(0.08),
+      color: ErpColors.warningAmber.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(8),
       border: Border.all(
-          color: ErpColors.warningAmber.withOpacity(0.4)),
+          color: ErpColors.warningAmber.withValues(alpha: 0.4)),
     ),
     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Icon(Icons.notes_rounded,
@@ -356,7 +356,7 @@ class _ElasticProgramCard extends StatelessWidget {
             Container(
               width: 34, height: 34,
               decoration: BoxDecoration(
-                color: ErpColors.accentBlue.withOpacity(0.22),
+                color: ErpColors.accentBlue.withValues(alpha: 0.22),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.grain_rounded,
@@ -475,8 +475,8 @@ class _SpecBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.2),
-      border: Border.all(color: color.withOpacity(0.5)),
+      color: color.withValues(alpha: 0.2),
+      border: Border.all(color: color.withValues(alpha: 0.5)),
       borderRadius: BorderRadius.circular(4),
     ),
     child: Text(label,
@@ -568,9 +568,9 @@ class _ActionSection extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: ErpColors.accentBlue.withOpacity(0.07),
+              color: ErpColors.accentBlue.withValues(alpha: 0.07),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: ErpColors.accentBlue.withOpacity(0.3)),
+              border: Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.3)),
             ),
             child: Row(children: [
               Icon(Icons.info_outline_rounded,
@@ -620,10 +620,10 @@ class _ActionSection extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: ErpColors.warningAmber.withOpacity(0.07),
+              color: ErpColors.warningAmber.withValues(alpha: 0.07),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                  color: ErpColors.warningAmber.withOpacity(0.3)),
+                  color: ErpColors.warningAmber.withValues(alpha: 0.3)),
             ),
             child: Row(children: [
               SizedBox(
@@ -782,10 +782,10 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: ErpColors.successGreen.withOpacity(0.12),
+                  color: ErpColors.successGreen.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(5),
                   border: Border.all(
-                      color: ErpColors.successGreen.withOpacity(0.35)),
+                      color: ErpColors.successGreen.withValues(alpha: 0.35)),
                 ),
                 child: Text(
                   '${_wt(widget.data.producedWeight)} kg total',
@@ -800,10 +800,10 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: ErpColors.warningAmber.withOpacity(0.10),
+                  color: ErpColors.warningAmber.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(5),
                   border: Border.all(
-                      color: ErpColors.warningAmber.withOpacity(0.35)),
+                      color: ErpColors.warningAmber.withValues(alpha: 0.35)),
                 ),
                 child: Text(
                   '≈ ${_wt(widget.data.expectedProduceWeight)} kg exp.',
@@ -830,13 +830,13 @@ class _BeamEntriesSectionState extends State<_BeamEntriesSection> {
                       horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
                     color: _showForm
-                        ? ErpColors.errorRed.withOpacity(0.10)
-                        : ErpColors.accentBlue.withOpacity(0.10),
+                        ? ErpColors.errorRed.withValues(alpha: 0.10)
+                        : ErpColors.accentBlue.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color: _showForm
-                          ? ErpColors.errorRed.withOpacity(0.35)
-                          : ErpColors.accentBlue.withOpacity(0.35),
+                          ? ErpColors.errorRed.withValues(alpha: 0.35)
+                          : ErpColors.accentBlue.withValues(alpha: 0.35),
                     ),
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -1045,7 +1045,7 @@ class _BeamEntryForm extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: ErpColors.successGreen,
               disabledBackgroundColor:
-              ErpColors.successGreen.withOpacity(0.4),
+              ErpColors.successGreen.withValues(alpha: 0.4),
               elevation: 0,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
@@ -1120,10 +1120,10 @@ class _BeamEntryRow extends StatelessWidget {
         Container(
           width: 40, height: 40,
           decoration: BoxDecoration(
-            color: ErpColors.accentBlue.withOpacity(0.10),
+            color: ErpColors.accentBlue.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-                color: ErpColors.accentBlue.withOpacity(0.3)),
+                color: ErpColors.accentBlue.withValues(alpha: 0.3)),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1197,10 +1197,10 @@ class _BeamEntryRow extends StatelessWidget {
             width: 32, height: 32,
             margin: const EdgeInsets.only(right: 6),
             decoration: BoxDecoration(
-              color: ErpColors.accentBlue.withOpacity(0.08),
+              color: ErpColors.accentBlue.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                  color: ErpColors.accentBlue.withOpacity(0.3)),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.3)),
             ),
             child: Icon(Icons.print_outlined,
                 size: 15, color: ErpColors.accentBlue),
@@ -1212,10 +1212,10 @@ class _BeamEntryRow extends StatelessWidget {
             child: Container(
               width: 32, height: 32,
               decoration: BoxDecoration(
-                color: ErpColors.errorRed.withOpacity(0.08),
+                color: ErpColors.errorRed.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                    color: ErpColors.errorRed.withOpacity(0.3)),
+                    color: ErpColors.errorRed.withValues(alpha: 0.3)),
               ),
               child: Icon(Icons.delete_outline_rounded,
                   size: 15, color: ErpColors.errorRed),

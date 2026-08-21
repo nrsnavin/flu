@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_time_duration_picker/flutter_time_duration_picker.dart';
@@ -6,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:production/src/common_widgets/appBar.dart';
 // import 'package:production/src/features/elastics/screens/elasticDetailScreen.dart';
-import 'package:production/src/features/shiftProgram/models/shiftDetailModel.dart';
 
 import '../controllers/shift_controller.dart';
 

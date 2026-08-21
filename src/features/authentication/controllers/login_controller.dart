@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/api_client.dart';
 import '../models/user.dart';
 import '../screens/auth_gate.dart';
-import '../screens/home.dart';
 import 'storage_keys.dart';
 
 /// The outcome of asking for a sign-in code.

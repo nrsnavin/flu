@@ -266,7 +266,7 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
                 selected: selected,
                 onSelected: (_) => setState(() => _priority = p),
                 backgroundColor: ErpColors.bgMuted,
-                selectedColor: ErpColors.accentBlue.withOpacity(0.12),
+                selectedColor: ErpColors.accentBlue.withValues(alpha: 0.12),
                 side: BorderSide(
                     color: selected
                         ? ErpColors.accentBlue
@@ -317,7 +317,7 @@ class _RaiseSamplePageState extends State<RaiseSamplePage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: ErpColors.accentBlue,
                 disabledBackgroundColor:
-                    ErpColors.accentBlue.withOpacity(0.5),
+                    ErpColors.accentBlue.withValues(alpha: 0.5),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6)),

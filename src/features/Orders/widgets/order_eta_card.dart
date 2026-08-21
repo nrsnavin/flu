@@ -79,16 +79,16 @@ class _Card extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
             decoration: BoxDecoration(
-              color: tone.withOpacity(0.06),
+              color: tone.withValues(alpha: 0.06),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              border: Border(bottom: BorderSide(color: tone.withOpacity(0.18))),
+              border: Border(bottom: BorderSide(color: tone.withValues(alpha: 0.18))),
             ),
             child: Row(
               children: [
                 Container(
                   width: 30, height: 30,
                   decoration: BoxDecoration(
-                    color: tone.withOpacity(0.14),
+                    color: tone.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(7),
                   ),
                   child: Icon(
@@ -119,7 +119,7 @@ class _Card extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: tone.withOpacity(0.12),
+                    color: tone.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -237,7 +237,7 @@ class _Card extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: isCurrent
-                            ? ErpColors.accentBlue.withOpacity(0.08)
+                            ? ErpColors.accentBlue.withValues(alpha: 0.08)
                             : ErpColors.bgMuted,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
@@ -353,9 +353,9 @@ class _SplitPart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: tone.withOpacity(0.06),
+        color: tone.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: tone.withOpacity(0.20)),
+        border: Border.all(color: tone.withValues(alpha: 0.20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -415,9 +415,9 @@ class _ChipStat extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: tone.withOpacity(0.06),
+          color: tone.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: tone.withOpacity(0.25)),
+          border: Border.all(color: tone.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [

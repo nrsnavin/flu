@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:production/src/features/materials/models/RawMaterial.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
@@ -66,7 +65,7 @@ class _RawMaterialListPageState extends State<RawMaterialListPage> {
         child: TextButton.icon(
           onPressed: () => _openBulkPriceSheet(context),
           style: TextButton.styleFrom(
-            backgroundColor: ErpColors.warningAmber.withOpacity(0.18),
+            backgroundColor: ErpColors.warningAmber.withValues(alpha: 0.18),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6)),
             padding: const EdgeInsets.symmetric(
@@ -233,9 +232,9 @@ class _FilterChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.08),
+      color: color.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: color.withOpacity(0.3)),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       Text(label,
@@ -296,12 +295,12 @@ class _MaterialCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isLow
-                ? ErpColors.errorRed.withOpacity(0.35)
+                ? ErpColors.errorRed.withValues(alpha: 0.35)
                 : ErpColors.borderLight,
           ),
           boxShadow: [
             BoxShadow(
-                color: ErpColors.navyDark.withOpacity(0.04),
+                color: ErpColors.navyDark.withValues(alpha: 0.04),
                 blurRadius: 6,
                 offset: const Offset(0, 2)),
           ],
@@ -315,7 +314,7 @@ class _MaterialCard extends StatelessWidget {
               Container(
                 width: 38, height: 38,
                 decoration: BoxDecoration(
-                  color: ErpColors.accentBlue.withOpacity(0.1),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(7),
                 ),
                 alignment: Alignment.center,
@@ -364,7 +363,7 @@ class _MaterialCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 9),
             decoration: BoxDecoration(
               color: isLow
-                  ? ErpColors.errorRed.withOpacity(0.04)
+                  ? ErpColors.errorRed.withValues(alpha: 0.04)
                   : ErpColors.bgMuted,
               borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(8)),
@@ -383,10 +382,10 @@ class _MaterialCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 7, vertical: 2),
                   decoration: BoxDecoration(
-                    color: ErpColors.errorRed.withOpacity(0.1),
+                    color: ErpColors.errorRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
-                        color: ErpColors.errorRed.withOpacity(0.35)),
+                        color: ErpColors.errorRed.withValues(alpha: 0.35)),
                   ),
                   child: Text('LOW STOCK',
                       style: TextStyle(
@@ -506,12 +505,12 @@ class _FilterSheet extends StatelessWidget {
       Obx(() => Container(
         decoration: BoxDecoration(
           color: c.tempLowStock.value
-              ? ErpColors.errorRed.withOpacity(0.05)
+              ? ErpColors.errorRed.withValues(alpha: 0.05)
               : ErpColors.bgMuted,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: c.tempLowStock.value
-                ? ErpColors.errorRed.withOpacity(0.3)
+                ? ErpColors.errorRed.withValues(alpha: 0.3)
                 : ErpColors.borderLight,
           ),
         ),
@@ -690,7 +689,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
                 Container(
                   width: 34, height: 34,
                   decoration: BoxDecoration(
-                    color: ErpColors.warningAmber.withOpacity(0.12),
+                    color: ErpColors.warningAmber.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.price_change_outlined,
@@ -801,7 +800,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
                   top: BorderSide(color: ErpColors.borderLight)),
               boxShadow: [
                 BoxShadow(
-                    color: ErpColors.navyDark.withOpacity(0.06),
+                    color: ErpColors.navyDark.withValues(alpha: 0.06),
                     blurRadius: 8,
                     offset: const Offset(0, -3)),
               ],
@@ -837,7 +836,7 @@ class _BulkPriceSheetState extends State<_BulkPriceSheet> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ErpColors.warningAmber,
                     disabledBackgroundColor:
-                    ErpColors.warningAmber.withOpacity(0.5),
+                    ErpColors.warningAmber.withValues(alpha: 0.5),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
@@ -894,11 +893,11 @@ class _PriceRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: isChanged
             ? ErpColors.bgSurface
-            : ErpColors.bgMuted.withOpacity(0.6),
+            : ErpColors.bgMuted.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(7),
         border: Border.all(
           color: isChanged
-              ? ErpColors.warningAmber.withOpacity(0.4)
+              ? ErpColors.warningAmber.withValues(alpha: 0.4)
               : ErpColors.borderLight,
         ),
       ),
@@ -991,20 +990,20 @@ class _PriceRow extends StatelessWidget {
                   fontSize: 13, fontWeight: FontWeight.w700),
               filled: true,
               fillColor: isChanged
-                  ? ErpColors.warningAmber.withOpacity(0.06)
+                  ? ErpColors.warningAmber.withValues(alpha: 0.06)
                   : ErpColors.bgSurface,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6),
                 borderSide: BorderSide(
                     color: isChanged
-                        ? ErpColors.warningAmber.withOpacity(0.5)
+                        ? ErpColors.warningAmber.withValues(alpha: 0.5)
                         : ErpColors.borderLight),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(6),
                 borderSide: BorderSide(
                     color: isChanged
-                        ? ErpColors.warningAmber.withOpacity(0.5)
+                        ? ErpColors.warningAmber.withValues(alpha: 0.5)
                         : ErpColors.borderLight),
               ),
               focusedBorder: OutlineInputBorder(
@@ -1040,7 +1039,7 @@ class _ConfirmBulkDialog extends StatelessWidget {
       Container(
         width: 36, height: 36,
         decoration: BoxDecoration(
-          color: ErpColors.warningAmber.withOpacity(0.12),
+          color: ErpColors.warningAmber.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(Icons.price_change_outlined,

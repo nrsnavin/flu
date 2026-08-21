@@ -206,7 +206,7 @@ class ErpDecorations {
     borderRadius: BorderRadius.circular(6),
     boxShadow: [
       BoxShadow(
-        color: const Color(0xFF1B2B45).withOpacity(0.05),
+        color: const Color(0xFF1B2B45).withValues(alpha: 0.05),
         blurRadius: 8,
         offset: const Offset(0, 2),
       ),
@@ -215,11 +215,11 @@ class ErpDecorations {
 
   static BoxDecoration cardHover = BoxDecoration(
     color: ErpColors.bgHover,
-    border: Border.all(color: ErpColors.accentBlue.withOpacity(0.3)),
+    border: Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.3)),
     borderRadius: BorderRadius.circular(6),
     boxShadow: [
       BoxShadow(
-        color: ErpColors.accentBlue.withOpacity(0.08),
+        color: ErpColors.accentBlue.withValues(alpha: 0.08),
         blurRadius: 12,
         offset: const Offset(0, 4),
       ),
@@ -362,7 +362,7 @@ class ErpSectionCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.04),
+            color: ErpColors.navyDark.withValues(alpha: 0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -586,7 +586,7 @@ class ErpKpiCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.25),
+            color: ErpColors.navyDark.withValues(alpha: 0.25),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -598,7 +598,7 @@ class ErpKpiCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.15),
+              color: accentColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Icon(icon, color: accentColor, size: 18),
@@ -738,7 +738,7 @@ class ErpPrimaryButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: ErpColors.accentBlue,
-          disabledBackgroundColor: ErpColors.accentBlue.withOpacity(0.5),
+          disabledBackgroundColor: ErpColors.accentBlue.withValues(alpha: 0.5),
           elevation: 0,
           shape:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),

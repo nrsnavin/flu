@@ -111,7 +111,7 @@ class _ErpBottomNav extends StatelessWidget {
         color: ErpColors.navyDark,
         boxShadow: [
           BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.3),
+              color: ErpColors.navyDark.withValues(alpha: 0.3),
               blurRadius: 12, offset: const Offset(0, -4)),
         ],
       ),
@@ -157,7 +157,7 @@ class _NavItem extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
               decoration: BoxDecoration(
                 color: isActive
-                    ? ErpColors.accentBlue.withOpacity(0.18)
+                    ? ErpColors.accentBlue.withValues(alpha: 0.18)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),

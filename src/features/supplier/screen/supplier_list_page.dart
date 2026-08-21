@@ -224,7 +224,7 @@ class _SupplierCard extends StatelessWidget {
           border: Border.all(color: ErpColors.borderLight),
           boxShadow: [
             BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color: ErpColors.navyDark.withValues(alpha: 0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -243,7 +243,7 @@ class _SupplierCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF7C3AED).withOpacity(0.1),
+                      color: const Color(0xFF7C3AED).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,

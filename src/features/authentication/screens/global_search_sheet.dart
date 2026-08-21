@@ -234,7 +234,7 @@ class _ResultTile extends StatelessWidget {
               Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(
-                  color: ErpColors.accentBlue.withOpacity(0.10),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(module.icon,

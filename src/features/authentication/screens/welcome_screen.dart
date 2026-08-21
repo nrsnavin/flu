@@ -40,10 +40,10 @@ class WelcomeScreen extends StatelessWidget {
                     Container(
                       width: 90, height: 90,
                       decoration: BoxDecoration(
-                        color: ErpColors.accentBlue.withOpacity(0.15),
+                        color: ErpColors.accentBlue.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                         border: Border.all(
-                            color: ErpColors.accentBlue.withOpacity(0.4), width: 1.5),
+                            color: ErpColors.accentBlue.withValues(alpha: 0.4), width: 1.5),
                       ),
                       child: Icon(
                         Icons.factory_rounded,
@@ -156,9 +156,9 @@ class _ModulePill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.06),
+      color: Colors.white.withValues(alpha: 0.06),
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: Colors.white.withOpacity(0.12)),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 12, color: ErpColors.textOnDarkSub),

@@ -234,7 +234,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ErpColors.accentBlue,
                   disabledBackgroundColor:
-                  ErpColors.accentBlue.withOpacity(0.5),
+                  ErpColors.accentBlue.withValues(alpha: 0.5),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),

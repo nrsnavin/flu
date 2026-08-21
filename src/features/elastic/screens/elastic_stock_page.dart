@@ -426,9 +426,9 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: ErpColors.accentBlue.withOpacity(0.08),
+                      color: ErpColors.accentBlue.withValues(alpha: 0.08),
                       border: Border.all(
-                          color: ErpColors.accentBlue.withOpacity(0.4)),
+                          color: ErpColors.accentBlue.withValues(alpha: 0.4)),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(children: [
@@ -455,7 +455,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
                             color: isAdd
-                                ? ErpColors.successGreen.withOpacity(0.18)
+                                ? ErpColors.successGreen.withValues(alpha: 0.18)
                                 : ErpColors.bgMuted,
                             border: Border.all(
                                 color: isAdd
@@ -481,7 +481,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
                             color: !isAdd
-                                ? ErpColors.errorRed.withOpacity(0.18)
+                                ? ErpColors.errorRed.withValues(alpha: 0.18)
                                 : ErpColors.bgMuted,
                             border: Border.all(
                                 color: !isAdd
@@ -563,10 +563,10 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: ErpColors.warningAmber.withOpacity(0.12),
+                      color: ErpColors.warningAmber.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                          color: ErpColors.warningAmber.withOpacity(0.6)),
+                          color: ErpColors.warningAmber.withValues(alpha: 0.6)),
                     ),
                     child: Row(children: [
                       Icon(Icons.warning_amber_rounded,
@@ -1108,7 +1108,7 @@ class _MiniStat extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.10),
+          color: Colors.white.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
@@ -1196,7 +1196,7 @@ class _MovementRow extends StatelessWidget {
           Container(
             width: 30, height: 30,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -1218,8 +1218,8 @@ class _MovementRow extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.10),
-                      border: Border.all(color: color.withOpacity(0.4)),
+                      color: color.withValues(alpha: 0.10),
+                      border: Border.all(color: color.withValues(alpha: 0.4)),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(label.toUpperCase(),
@@ -1235,9 +1235,9 @@ class _MovementRow extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 5, vertical: 2),
                       decoration: BoxDecoration(
-                        color: ErpColors.warningAmber.withOpacity(0.15),
+                        color: ErpColors.warningAmber.withValues(alpha: 0.15),
                         border: Border.all(
-                            color: ErpColors.warningAmber.withOpacity(0.6)),
+                            color: ErpColors.warningAmber.withValues(alpha: 0.6)),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text('CLAMPED',
@@ -1379,7 +1379,7 @@ class _MovementDetailSheet extends StatelessWidget {
               Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.swap_vert, color: color, size: 18),
@@ -1424,9 +1424,9 @@ class _MovementDetailSheet extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: ErpColors.warningAmber.withOpacity(0.10),
+                  color: ErpColors.warningAmber.withValues(alpha: 0.10),
                   border: Border.all(
-                      color: ErpColors.warningAmber.withOpacity(0.5)),
+                      color: ErpColors.warningAmber.withValues(alpha: 0.5)),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(children: [

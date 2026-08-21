@@ -392,9 +392,9 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
         margin: const EdgeInsets.only(top: 4),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: _C.warningAmber.withOpacity(0.07),
+          color: _C.warningAmber.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _C.warningAmber.withOpacity(0.4)),
+          border: Border.all(color: _C.warningAmber.withValues(alpha: 0.4)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,7 +458,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
       Container(
         width: 72, height: 72,
         decoration: BoxDecoration(
-          color: _C.successGreen.withOpacity(0.1),
+          color: _C.successGreen.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: const Icon(Icons.inventory_2_outlined,
@@ -482,7 +482,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
       color: _C.bgSurface,
       border: const Border(top: BorderSide(color: _C.borderLight)),
       boxShadow: [BoxShadow(
-        color: Colors.black.withOpacity(0.06),
+        color: Colors.black.withValues(alpha: 0.06),
         blurRadius: 8, offset: const Offset(0, -2),
       )],
     ),
@@ -506,7 +506,7 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: _C.accentBlue,
-            disabledBackgroundColor: _C.accentBlue.withOpacity(0.35),
+            disabledBackgroundColor: _C.accentBlue.withValues(alpha: 0.35),
             foregroundColor: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -537,9 +537,9 @@ class _MaterialInwardPageState extends State<MaterialInwardPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: _C.accentBlue.withOpacity(0.07),
+        color: _C.accentBlue.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _C.accentBlue.withOpacity(0.25)),
+        border: Border.all(color: _C.accentBlue.withValues(alpha: 0.25)),
       ),
       child: Row(children: [
         const Icon(Icons.check_circle_outline_rounded,
@@ -596,9 +596,9 @@ class _POSummaryHeader extends StatelessWidget {
               padding:
               const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.15),
+                color: statusColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: statusColor.withOpacity(0.4)),
+                border: Border.all(color: statusColor.withValues(alpha: 0.4)),
               ),
               child: Text(
                 po.status,
@@ -695,7 +695,7 @@ class _SectionLabel extends StatelessWidget {
         padding:
         const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         decoration: BoxDecoration(
-          color: _C.accentBlue.withOpacity(0.1),
+          color: _C.accentBlue.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
@@ -734,13 +734,13 @@ class _ItemCard extends StatelessWidget {
           color: isOver
               ? _C.warningAmber
               : hasQty
-              ? _C.accentBlue.withOpacity(0.4)
+              ? _C.accentBlue.withValues(alpha: 0.4)
               : _C.borderLight,
           width: (isOver || hasQty) ? 1.5 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 4, offset: const Offset(0, 1),
           ),
         ],
@@ -766,7 +766,7 @@ class _ItemCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: _C.successGreen.withOpacity(0.1),
+                    color: _C.successGreen.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -782,7 +782,7 @@ class _ItemCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: _C.errorRed.withOpacity(0.1),
+                    color: _C.errorRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Text(
@@ -849,7 +849,7 @@ class _ItemCard extends StatelessWidget {
                       decoration: InputDecoration(
                         filled:      true,
                         fillColor:   isOver
-                            ? _C.errorRed.withOpacity(0.05)
+                            ? _C.errorRed.withValues(alpha: 0.05)
                             : _C.bgMuted,
                         hintText:    '0',
                         hintStyle:   const TextStyle(
@@ -1091,7 +1091,7 @@ class _StatChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.08),
+      color: color.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(6),
     ),
     child: Column(mainAxisSize: MainAxisSize.min, children: [

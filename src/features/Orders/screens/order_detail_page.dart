@@ -180,9 +180,9 @@ class _HeroCard extends StatelessWidget {
                 Container(
                   width: 48, height: 48,
                   decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.2),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: ErpColors.accentBlue.withOpacity(0.4)),
+                    border: Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.4)),
                   ),
                   child: const Icon(Icons.receipt_long_outlined, size: 24, color: Colors.white),
                 ),
@@ -391,9 +391,9 @@ class _ActivityTrail extends StatelessWidget {
                   Container(
                     width: 30, height: 30,
                     decoration: BoxDecoration(
-                      color:  color.withOpacity(0.12),
+                      color:  color.withValues(alpha: 0.12),
                       shape:  BoxShape.circle,
-                      border: Border.all(color: color.withOpacity(0.45)),
+                      border: Border.all(color: color.withValues(alpha: 0.45)),
                     ),
                     child: Icon(e["icon"] as IconData, size: 15, color: color),
                   ),
@@ -405,7 +405,7 @@ class _ActivityTrail extends StatelessWidget {
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end:   Alignment.bottomCenter,
-                          colors: [color.withOpacity(0.3), ErpColors.borderLight],
+                          colors: [color.withValues(alpha: 0.3), ErpColors.borderLight],
                         ),
                       ),
                     ),
@@ -473,9 +473,9 @@ class _ActionBar extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: ErpColors.errorRed.withOpacity(0.07),
+                color: ErpColors.errorRed.withValues(alpha: 0.07),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: ErpColors.errorRed.withOpacity(0.3)),
+                border: Border.all(color: ErpColors.errorRed.withValues(alpha: 0.3)),
               ),
               child: Row(children: [
                 Icon(Icons.warning_amber_rounded, size: 16, color: ErpColors.errorRed),
@@ -608,7 +608,7 @@ class _ActionBar extends StatelessWidget {
               Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(
-                    color: ErpColors.errorRed.withOpacity(0.1),
+                    color: ErpColors.errorRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8)),
                 child: Icon(Icons.cancel_outlined,
                     color: ErpColors.errorRed, size: 18),
@@ -657,7 +657,7 @@ class _ActionBar extends StatelessWidget {
               Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.1),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8)),
                 child: Icon(Icons.check_circle_outline, color: ErpColors.accentBlue, size: 18),
               ),
@@ -707,7 +707,7 @@ class _ActionBar extends StatelessWidget {
               Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(
-                    color: ErpColors.warningAmber.withOpacity(0.1),
+                    color: ErpColors.warningAmber.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8)),
                 child: Icon(Icons.play_circle_outline, color: ErpColors.warningAmber, size: 18),
               ),
@@ -756,7 +756,7 @@ class _ActionBar extends StatelessWidget {
               Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(
-                    color: ErpColors.errorRed.withOpacity(0.1),
+                    color: ErpColors.errorRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8)),
                 child: Icon(Icons.delete_outline,
                     color: ErpColors.errorRed, size: 18),
@@ -797,7 +797,7 @@ class _ActionBar extends StatelessWidget {
                     ? ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                ErpColors.errorRed.withOpacity(0.4),
+                                ErpColors.errorRed.withValues(alpha: 0.4),
                             elevation: 0),
                         onPressed: null,
                         child: const Text("Delete",
@@ -809,7 +809,7 @@ class _ActionBar extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: ErpColors.errorRed,
                             disabledBackgroundColor:
-                                ErpColors.errorRed.withOpacity(0.6),
+                                ErpColors.errorRed.withValues(alpha: 0.6),
                             elevation: 0,
                           ),
                           onPressed: busy ? null : () async {
@@ -867,7 +867,7 @@ class _ActionButton extends StatelessWidget {
         onPressed: loading ? null : onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          disabledBackgroundColor: color.withOpacity(0.5),
+          disabledBackgroundColor: color.withValues(alpha: 0.5),
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
@@ -903,7 +903,7 @@ class _ElasticTable extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
             decoration: BoxDecoration(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color: ErpColors.navyDark.withValues(alpha: 0.04),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Row(
@@ -1068,7 +1068,7 @@ class _ExcessRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
           color: past
-              ? ErpColors.warningAmber.withOpacity(0.4)
+              ? ErpColors.warningAmber.withValues(alpha: 0.4)
               : ErpColors.borderLight,
         ),
       ),
@@ -1091,7 +1091,7 @@ class _ExcessRow extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
                   color: past
-                      ? ErpColors.warningAmber.withOpacity(0.14)
+                      ? ErpColors.warningAmber.withValues(alpha: 0.14)
                       : ErpColors.borderLight,
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -1188,13 +1188,13 @@ class _RawMaterialSection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: allSufficient
-                  ? ErpColors.successGreen.withOpacity(0.07)
-                  : ErpColors.errorRed.withOpacity(0.07),
+                  ? ErpColors.successGreen.withValues(alpha: 0.07)
+                  : ErpColors.errorRed.withValues(alpha: 0.07),
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
                 color: allSufficient
-                    ? ErpColors.successGreen.withOpacity(0.3)
-                    : ErpColors.errorRed.withOpacity(0.3),
+                    ? ErpColors.successGreen.withValues(alpha: 0.3)
+                    : ErpColors.errorRed.withValues(alpha: 0.3),
               ),
             ),
             child: Row(children: [
@@ -1205,7 +1205,7 @@ class _RawMaterialSection extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: ErpColors.successGreen.withOpacity(0.5),
+                      color: ErpColors.successGreen.withValues(alpha: 0.5),
                       blurRadius: 4, spreadRadius: 1,
                     ),
                   ],
@@ -1333,9 +1333,9 @@ class _StockBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
     decoration: BoxDecoration(
-      color:        color.withOpacity(0.12),
+      color:        color.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(4),
-      border:       Border.all(color: color.withOpacity(0.35)),
+      border:       Border.all(color: color.withValues(alpha: 0.35)),
     ),
     child: Text(label,
         style: TextStyle(
@@ -1409,7 +1409,7 @@ class _JobOrdersSection extends StatelessWidget {
                       width: 28, height: 28,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: ErpColors.accentBlue.withOpacity(0.1),
+                        color: ErpColors.accentBlue.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Text("${i + 1}",
@@ -1483,7 +1483,7 @@ class _DialogActionButton extends StatelessWidget {
       return ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          disabledBackgroundColor: color.withOpacity(0.55),
+          disabledBackgroundColor: color.withValues(alpha: 0.55),
           elevation: 0,
         ),
         onPressed: busy ? null : () async {

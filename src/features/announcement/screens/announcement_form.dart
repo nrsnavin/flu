@@ -79,7 +79,7 @@ class AnnouncementFormPage extends StatelessWidget {
                           label: Text(_cap(t)),
                           selected: selected,
                           selectedColor:
-                              ErpColors.accentBlue.withOpacity(0.15),
+                              ErpColors.accentBlue.withValues(alpha: 0.15),
                           backgroundColor: ErpColors.bgMuted,
                           labelStyle: TextStyle(
                             fontSize: 12,
@@ -113,7 +113,7 @@ class AnnouncementFormPage extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               decoration: BoxDecoration(
                                 color: selected
-                                    ? ErpColors.accentBlue.withOpacity(0.10)
+                                    ? ErpColors.accentBlue.withValues(alpha: 0.10)
                                     : ErpColors.bgMuted,
                                 border: Border.all(
                                   color: selected

@@ -223,9 +223,9 @@ class _TabsState extends State<_Tabs> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          color: on ? _blue.withOpacity(0.18) : _s3,
+          color: on ? _blue.withValues(alpha: 0.18) : _s3,
           borderRadius: BorderRadius.circular(7),
-          border: Border.all(color: on ? _blue.withOpacity(0.5) : _bdr),
+          border: Border.all(color: on ? _blue.withValues(alpha: 0.5) : _bdr),
         ),
         child: Text(
           '$ic $lb',
@@ -373,9 +373,9 @@ class _EmptyDash extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
             decoration: BoxDecoration(
-              color: _blue.withOpacity(0.15),
+              color: _blue.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _blue.withOpacity(0.4)),
+              border: Border.all(color: _blue.withValues(alpha: 0.4)),
             ),
             child: const Text(
               'Set Employee Rates →',
@@ -515,7 +515,7 @@ class _EmpRow extends StatelessWidget {
           color: _s2,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: row.excessAbsents > 0 ? _red.withOpacity(0.35) : _bdr,
+            color: row.excessAbsents > 0 ? _red.withValues(alpha: 0.35) : _bdr,
           ),
         ),
         child: Row(
@@ -588,7 +588,7 @@ class _EmpRow extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: sc.withOpacity(0.12),
+                    color: sc.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -694,7 +694,7 @@ class _SlipBodyState extends State<_SlipBody> {
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _blue.withOpacity(0.3)),
+          border: Border.all(color: _blue.withValues(alpha: 0.3)),
         ),
         child: Column(
           children: [
@@ -924,9 +924,9 @@ class _SlipActionsState extends State<_SlipActions> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: _green.withOpacity(0.07),
+              color: _green.withValues(alpha: 0.07),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _green.withOpacity(0.25)),
+              border: Border.all(color: _green.withValues(alpha: 0.25)),
             ),
             child: Row(
               children: [
@@ -956,7 +956,7 @@ class _SlipActionsState extends State<_SlipActions> {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: _green.withOpacity(0.4)),
+          side: BorderSide(color: _green.withValues(alpha: 0.4)),
         ),
         content: TextField(
           style: const TextStyle(color: _tp, fontSize: 12),
@@ -1166,7 +1166,7 @@ class _RateRowState extends State<_RateRow> {
         color: _s2,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: widget.emp.hourlyRate == 0 ? _amber.withOpacity(0.35) : _bdr,
+          color: widget.emp.hourlyRate == 0 ? _amber.withValues(alpha: 0.35) : _bdr,
         ),
       ),
       child: Row(
@@ -1247,10 +1247,10 @@ class _RateRowState extends State<_RateRow> {
               width: 44,
               height: 40,
               decoration: BoxDecoration(
-                color: _saving || rate <= 0 ? _s3 : _green.withOpacity(0.15),
+                color: _saving || rate <= 0 ? _s3 : _green.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(7),
                 border: Border.all(
-                  color: _saving || rate <= 0 ? _bdr : _green.withOpacity(0.4),
+                  color: _saving || rate <= 0 ? _bdr : _green.withValues(alpha: 0.4),
                 ),
               ),
               child: _saving
@@ -1313,7 +1313,7 @@ class _SettingsViewState extends State<_SettingsView> {
             decoration: BoxDecoration(
               color: _s2,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _amber.withOpacity(0.25)),
+              border: Border.all(color: _amber.withValues(alpha: 0.25)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1529,9 +1529,9 @@ class _LeaveListState extends State<_LeaveList> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: on ? _blue.withOpacity(0.15) : _s2,
+          color: on ? _blue.withValues(alpha: 0.15) : _s2,
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: on ? _blue.withOpacity(0.5) : _bdr),
+          border: Border.all(color: on ? _blue.withValues(alpha: 0.5) : _bdr),
         ),
         child: Text(
           label,
@@ -1574,7 +1574,7 @@ class _LeaveCard extends StatelessWidget {
     decoration: BoxDecoration(
       color: _s2,
       borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: _bc.withOpacity(0.4)),
+      border: Border.all(color: _bc.withValues(alpha: 0.4)),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1604,7 +1604,7 @@ class _LeaveCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: _teal.withOpacity(0.12),
+                  color: _teal.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
@@ -1692,7 +1692,7 @@ class _LeaveCard extends StatelessWidget {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: _red.withOpacity(0.4)),
+          side: BorderSide(color: _red.withValues(alpha: 0.4)),
         ),
         content: TextField(
           style: const TextStyle(color: _tp, fontSize: 12),
@@ -1804,9 +1804,9 @@ class _LeaveFormState extends State<_LeaveForm> {
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: on ? _purple.withOpacity(0.15) : _s2,
+                color: on ? _purple.withValues(alpha: 0.15) : _s2,
                 borderRadius: BorderRadius.circular(7),
-                border: Border.all(color: on ? _purple.withOpacity(0.5) : _bdr),
+                border: Border.all(color: on ? _purple.withValues(alpha: 0.5) : _bdr),
               ),
               child: Text(
                 s,
@@ -1934,9 +1934,9 @@ class _LeaveFormState extends State<_LeaveForm> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: on ? color.withOpacity(0.15) : _s2,
+          color: on ? color.withValues(alpha: 0.15) : _s2,
           borderRadius: BorderRadius.circular(7),
-          border: Border.all(color: on ? color.withOpacity(0.5) : _bdr),
+          border: Border.all(color: on ? color.withValues(alpha: 0.5) : _bdr),
         ),
         child: Text(
           label,
@@ -2066,9 +2066,9 @@ class _AnalyticsViewState extends State<_AnalyticsView> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: _gold.withOpacity(0.12),
+                color: _gold.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: _gold.withOpacity(0.4)),
+                border: Border.all(color: _gold.withValues(alpha: 0.4)),
               ),
               child: Text(
                 c.isComputingYB.value ? 'Computing…' : '⚡ Compute',
@@ -2162,9 +2162,9 @@ class _AnaHeader extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         decoration: BoxDecoration(
-          color: on ? _teal.withOpacity(0.15) : _s2,
+          color: on ? _teal.withValues(alpha: 0.15) : _s2,
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: on ? _teal.withOpacity(0.5) : _bdr),
+          border: Border.all(color: on ? _teal.withValues(alpha: 0.5) : _bdr),
         ),
         child: Text(
           label,
@@ -2224,7 +2224,7 @@ class _AnaCard extends StatelessWidget {
         color: _s2,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: emp.rank == 1 ? _gold.withOpacity(0.4) : _bdr,
+          color: emp.rank == 1 ? _gold.withValues(alpha: 0.4) : _bdr,
         ),
       ),
       child: Column(
@@ -2236,9 +2236,9 @@ class _AnaCard extends StatelessWidget {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: rankColor.withOpacity(0.15),
+                  color: rankColor.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
-                  border: Border.all(color: rankColor.withOpacity(0.5)),
+                  border: Border.all(color: rankColor.withValues(alpha: 0.5)),
                 ),
                 child: Center(
                   child: Text(
@@ -2341,7 +2341,7 @@ class _Stat extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
@@ -2378,8 +2378,8 @@ class _YBCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       border: Border.all(
         color: yb.status == 'paid'
-            ? _green.withOpacity(0.35)
-            : _gold.withOpacity(0.3),
+            ? _green.withValues(alpha: 0.35)
+            : _gold.withValues(alpha: 0.3),
       ),
     ),
     child: Row(
@@ -2426,9 +2426,9 @@ class _YBCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               decoration: BoxDecoration(
-                color: _green.withOpacity(0.12),
+                color: _green.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: _green.withOpacity(0.4)),
+                border: Border.all(color: _green.withValues(alpha: 0.4)),
               ),
               child: const Text(
                 'Pay',
@@ -2577,9 +2577,9 @@ class _AdvListState extends State<_AdvList> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: on ? _blue.withOpacity(0.15) : _s2,
+          color: on ? _blue.withValues(alpha: 0.15) : _s2,
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: on ? _blue.withOpacity(0.5) : _bdr),
+          border: Border.all(color: on ? _blue.withValues(alpha: 0.5) : _bdr),
         ),
         child: Text(
           label,
@@ -2630,7 +2630,7 @@ class _AdvCard extends StatelessWidget {
     decoration: BoxDecoration(
       color: _s2,
       borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: _bc.withOpacity(0.4)),
+      border: Border.all(color: _bc.withValues(alpha: 0.4)),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2748,7 +2748,7 @@ class _AdvCard extends StatelessWidget {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: _green.withOpacity(0.4)),
+          side: BorderSide(color: _green.withValues(alpha: 0.4)),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -2835,7 +2835,7 @@ class _AdvCard extends StatelessWidget {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: _red.withOpacity(0.4)),
+          side: BorderSide(color: _red.withValues(alpha: 0.4)),
         ),
         content: TextField(
           style: const TextStyle(color: _tp, fontSize: 12),
@@ -2958,9 +2958,9 @@ class _AdvFormState extends State<_AdvForm> {
       Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: _amber.withOpacity(0.06),
+          color: _amber.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: _amber.withOpacity(0.25)),
+          border: Border.all(color: _amber.withValues(alpha: 0.25)),
         ),
         child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -3061,7 +3061,7 @@ class _EmpDropdown extends StatelessWidget {
         color: _s2,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: selected != null ? _blue.withOpacity(0.5) : _bdr,
+          color: selected != null ? _blue.withValues(alpha: 0.5) : _bdr,
         ),
       ),
       child: DropdownButtonHideUnderline(
@@ -3174,9 +3174,9 @@ class _GBtn extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: loading ? _s3 : color.withOpacity(0.18),
+        color: loading ? _s3 : color.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: loading ? _bdr : color.withOpacity(0.45)),
+        border: Border.all(color: loading ? _bdr : color.withValues(alpha: 0.45)),
       ),
       child: Center(
         child: loading
@@ -3209,9 +3209,9 @@ class _SmBtn extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(7),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Center(
         child: Text(
@@ -3235,9 +3235,9 @@ class _Kpi extends StatelessWidget {
   Widget build(BuildContext ctx) => Container(
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: c.withOpacity(0.07),
+      color: c.withValues(alpha: 0.07),
       borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: c.withOpacity(0.25)),
+      border: Border.all(color: c.withValues(alpha: 0.25)),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -3287,8 +3287,8 @@ class _Avatar extends StatelessWidget {
     height: 38,
     decoration: BoxDecoration(
       shape: BoxShape.circle,
-      color: c.withOpacity(0.12),
-      border: Border.all(color: c.withOpacity(0.4)),
+      color: c.withValues(alpha: 0.12),
+      border: Border.all(color: c.withValues(alpha: 0.4)),
     ),
     child: Center(
       child: Text(
@@ -3312,7 +3312,7 @@ class _StatusPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: c.withOpacity(0.12),
+        color: c.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
@@ -3331,7 +3331,7 @@ class _Chip2 extends StatelessWidget {
   Widget build(BuildContext ctx) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
+      color: color.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(5),
     ),
     child: Text(
@@ -3363,9 +3363,9 @@ class _InfoBox extends StatelessWidget {
   Widget build(BuildContext ctx) => Container(
     padding: const EdgeInsets.all(10),
     decoration: BoxDecoration(
-      color: c.withOpacity(0.06),
+      color: c.withValues(alpha: 0.06),
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: c.withOpacity(0.2)),
+      border: Border.all(color: c.withValues(alpha: 0.2)),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -3604,7 +3604,7 @@ class _PdfButtonState extends State<_PdfButton> {
         onPressed: _busy ? null : _generate,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF2563EB),
-          disabledBackgroundColor: const Color(0xFF2563EB).withOpacity(0.5),
+          disabledBackgroundColor: const Color(0xFF2563EB).withValues(alpha: 0.5),
           elevation: 0,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10)),
@@ -3794,10 +3794,10 @@ class _DayCell extends StatelessWidget {
       }).join('\n'),
       child: Container(
         decoration: BoxDecoration(
-          color: isEmpty ? _s3 : color.withOpacity(0.2),
+          color: isEmpty ? _s3 : color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-              color: isEmpty ? _bdr : color.withOpacity(0.6),
+              color: isEmpty ? _bdr : color.withValues(alpha: 0.6),
               width: 1),
         ),
         child: Column(
@@ -3851,9 +3851,9 @@ class _Legend extends StatelessWidget {
     Container(
       width: 10, height: 10,
       decoration: BoxDecoration(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(2),
-          border: Border.all(color: color.withOpacity(0.8))),
+          border: Border.all(color: color.withValues(alpha: 0.8))),
     ),
     const SizedBox(width: 4),
     Text(label, style: const TextStyle(color: _ts, fontSize: 9)),

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:open_file/open_file.dart';
 import '../../../core/lock/open_externally.dart';
 import 'package:path_provider/path_provider.dart';
 

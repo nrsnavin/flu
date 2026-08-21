@@ -196,10 +196,10 @@ class _LoginState extends State<Login> {
                   Container(
                     width: 70, height: 70,
                     decoration: BoxDecoration(
-                      color: ErpColors.accentBlue.withOpacity(0.15),
+                      color: ErpColors.accentBlue.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: ErpColors.accentBlue.withOpacity(0.4), width: 1.5),
+                          color: ErpColors.accentBlue.withValues(alpha: 0.4), width: 1.5),
                     ),
                     child: Icon(Icons.factory_rounded,
                         size: 36, color: ErpColors.accentBlue),
@@ -325,7 +325,7 @@ class _LoginState extends State<Login> {
         Container(
           width: 48, height: 48,
           decoration: BoxDecoration(
-            color: ErpColors.accentBlue.withOpacity(0.10),
+            color: ErpColors.accentBlue.withValues(alpha: 0.10),
             shape: BoxShape.circle,
           ),
           child: Icon(Icons.key_rounded, size: 24, color: ErpColors.accentBlue),
@@ -441,9 +441,9 @@ class _LoginState extends State<Login> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: ErpColors.errorRed.withOpacity(0.07),
+          color: ErpColors.errorRed.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: ErpColors.errorRed.withOpacity(0.25)),
+          border: Border.all(color: ErpColors.errorRed.withValues(alpha: 0.25)),
         ),
         child: Text(text,
             style: TextStyle(

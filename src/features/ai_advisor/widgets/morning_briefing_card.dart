@@ -41,7 +41,7 @@ class MorningBriefingCard extends StatelessWidget {
                 border: Border.all(color: ErpColors.borderLight),
                 gradient: LinearGradient(
                   colors: [
-                    ErpColors.accentBlue.withOpacity(0.08),
+                    ErpColors.accentBlue.withValues(alpha: 0.08),
                     ErpColors.bgSurface,
                   ],
                   begin: Alignment.topLeft,
@@ -53,7 +53,7 @@ class MorningBriefingCard extends StatelessWidget {
                   Container(
                     width: 36, height: 36,
                     decoration: BoxDecoration(
-                      color: ErpColors.accentBlue.withOpacity(0.15),
+                      color: ErpColors.accentBlue.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(Icons.auto_awesome_rounded,
@@ -128,7 +128,7 @@ class _MockBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
       decoration: BoxDecoration(
-        color: ErpColors.warningAmber.withOpacity(0.14),
+        color: ErpColors.warningAmber.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Text(
@@ -204,7 +204,7 @@ class MorningBriefingSheet extends StatelessWidget {
                 Container(
                   width: 32, height: 32,
                   decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.15),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.auto_awesome_rounded,
@@ -226,7 +226,7 @@ class MorningBriefingSheet extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: ErpColors.warningAmber.withOpacity(0.14),
+                          color: ErpColors.warningAmber.withValues(alpha: 0.14),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(

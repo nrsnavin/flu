@@ -217,7 +217,7 @@ class _Chip extends StatelessWidget {
       duration: const Duration(milliseconds: 140),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color:  active ? color.withOpacity(0.10) : ErpColors.bgMuted,
+        color:  active ? color.withValues(alpha: 0.10) : ErpColors.bgMuted,
         border: Border.all(color: active ? color : ErpColors.borderLight),
         borderRadius: BorderRadius.circular(20),
       ),
@@ -316,25 +316,25 @@ class _DCCard extends StatelessWidget {
           color: ErpColors.bgSurface,
           border: Border.all(color: ErpColors.borderLight),
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 4, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 4, offset: const Offset(0, 2))],
         ),
         child: Column(children: [
           // ── Header ───────────────────────────────────────────
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: typeColor.withOpacity(0.05),
+              color: typeColor.withValues(alpha: 0.05),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-              border: Border(bottom: BorderSide(color: typeColor.withOpacity(0.12))),
+              border: Border(bottom: BorderSide(color: typeColor.withValues(alpha: 0.12))),
             ),
             child: Row(children: [
               // Type badge
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: typeColor.withOpacity(0.10),
+                  color: typeColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: typeColor.withOpacity(0.25)),
+                  border: Border.all(color: typeColor.withValues(alpha: 0.25)),
                 ),
                 child: Text(typeLabel, style: TextStyle(
                     color: typeColor, fontSize: 9,
@@ -350,9 +350,9 @@ class _DCCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.10),
+                  color: statusColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: statusColor.withOpacity(0.30)),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.30)),
                 ),
                 child: Text(dc.status.toUpperCase(), style: TextStyle(
                     color: statusColor, fontSize: 9,
@@ -421,13 +421,13 @@ class _StatPill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.06),
+      color: color.withValues(alpha: 0.06),
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: color.withOpacity(0.15)),
+      border: Border.all(color: color.withValues(alpha: 0.15)),
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700,
-          color: color.withOpacity(0.7), letterSpacing: 0.4)),
+          color: color.withValues(alpha: 0.7), letterSpacing: 0.4)),
       Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: color)),
     ]),
   );

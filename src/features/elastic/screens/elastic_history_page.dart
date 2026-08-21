@@ -517,9 +517,9 @@ class _StatusPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(text,
           style: TextStyle(
@@ -647,9 +647,9 @@ class _Note extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.07),
+          color: color.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: color.withOpacity(0.35)),
+          border: Border.all(color: color.withValues(alpha: 0.35)),
         ),
         child: Row(children: [
           Icon(icon, color: color, size: 15),

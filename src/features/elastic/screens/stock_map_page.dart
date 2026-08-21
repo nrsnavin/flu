@@ -136,9 +136,9 @@ class _StockMapPageState extends State<StockMapPage> {
                           decoration: BoxDecoration(
                             color: _lowOnly
                                 ? ErpColors.warningAmber
-                                : ErpColors.warningAmber.withOpacity(0.15),
+                                : ErpColors.warningAmber.withValues(alpha: 0.15),
                             border: Border.all(
-                                color: ErpColors.warningAmber.withOpacity(0.6)),
+                                color: ErpColors.warningAmber.withValues(alpha: 0.6)),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -237,9 +237,9 @@ class _StockMapPageState extends State<StockMapPage> {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: ErpColors.successGreen.withOpacity(0.08),
+                        color: ErpColors.successGreen.withValues(alpha: 0.08),
                         border: Border.all(
-                            color: ErpColors.successGreen.withOpacity(0.4)),
+                            color: ErpColors.successGreen.withValues(alpha: 0.4)),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(children: [
@@ -310,12 +310,12 @@ class _StockMapPageState extends State<StockMapPage> {
                                       color: (positive
                                               ? ErpColors.warningAmber
                                               : ErpColors.errorRed)
-                                          .withOpacity(0.15),
+                                          .withValues(alpha: 0.15),
                                       border: Border.all(
                                         color: (positive
                                                 ? ErpColors.warningAmber
                                                 : ErpColors.errorRed)
-                                            .withOpacity(0.5),
+                                            .withValues(alpha: 0.5),
                                       ),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
@@ -556,8 +556,8 @@ class _FlowBox extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
-          border: Border.all(color: color.withOpacity(0.4)),
+          color: color.withValues(alpha: 0.08),
+          border: Border.all(color: color.withValues(alpha: 0.4)),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Column(

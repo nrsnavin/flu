@@ -75,9 +75,9 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: ErpColors.accentBlue.withOpacity(0.2),
+                        color: ErpColors.accentBlue.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(3),
-                        border: Border.all(color: ErpColors.accentBlue.withOpacity(0.4)),
+                        border: Border.all(color: ErpColors.accentBlue.withValues(alpha: 0.4)),
                       ),
                       child: Text(
                         DateFormat('HH:mm').format(now),
@@ -136,7 +136,7 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.06),
+            color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -149,10 +149,10 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.06),
+              color: accentColor.withValues(alpha: 0.06),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
               border: Border(
-                bottom: BorderSide(color: accentColor.withOpacity(0.15)),
+                bottom: BorderSide(color: accentColor.withValues(alpha: 0.15)),
                 left: BorderSide(color: accentColor, width: 3),
               ),
             ),

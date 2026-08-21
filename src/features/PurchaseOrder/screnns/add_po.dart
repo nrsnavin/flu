@@ -99,7 +99,7 @@ class _AddPOPageState extends State<AddPOPage> {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: ErpColors.accentBlue.withOpacity(0.2),
+              color: ErpColors.accentBlue.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Icon(_modeIcon, color: ErpColors.accentLight, size: 15),
@@ -134,10 +134,10 @@ class _AddPOPageState extends State<AddPOPage> {
             margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: ErpColors.warningAmber.withOpacity(0.15),
+              color: ErpColors.warningAmber.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(3),
               border: Border.all(
-                  color: ErpColors.warningAmber.withOpacity(0.4)),
+                  color: ErpColors.warningAmber.withValues(alpha: 0.4)),
             ),
             child: Icon(Icons.edit_note,
                 size: 16, color: ErpColors.warningAmber),
@@ -428,7 +428,7 @@ class _ItemCard extends StatelessWidget {
                   height: 22,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: ErpColors.accentBlue.withOpacity(0.1),
+                    color: ErpColors.accentBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(3),
                   ),
                   child: Text(
@@ -454,7 +454,7 @@ class _ItemCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: ErpColors.errorRed.withOpacity(0.08),
+                      color: ErpColors.errorRed.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Icon(Icons.delete_outline,
@@ -586,10 +586,10 @@ class _ItemCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: ErpColors.accentBlue.withOpacity(0.05),
+                      color: ErpColors.accentBlue.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
-                          color: ErpColors.accentBlue.withOpacity(0.2)),
+                          color: ErpColors.accentBlue.withValues(alpha: 0.2)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -621,10 +621,10 @@ class _ItemCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 7),
                     decoration: BoxDecoration(
-                      color: ErpColors.warningAmber.withOpacity(0.07),
+                      color: ErpColors.warningAmber.withValues(alpha: 0.07),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
-                          color: ErpColors.warningAmber.withOpacity(0.3)),
+                          color: ErpColors.warningAmber.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
@@ -682,7 +682,7 @@ class _FooterBar extends StatelessWidget {
         border: Border(top: BorderSide(color: ErpColors.borderLight)),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.06),
+            color: ErpColors.navyDark.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, -3),
           ),
@@ -756,7 +756,7 @@ class _FooterBar extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ErpColors.accentBlue,
                         disabledBackgroundColor:
-                        ErpColors.accentBlue.withOpacity(0.5),
+                        ErpColors.accentBlue.withValues(alpha: 0.5),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6)),
@@ -811,7 +811,7 @@ class _SectionCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.04),
+            color: ErpColors.navyDark.withValues(alpha: 0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),

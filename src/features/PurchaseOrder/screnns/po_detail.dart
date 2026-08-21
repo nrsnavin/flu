@@ -282,10 +282,10 @@ class _PdfButtonState extends State<_PdfButton> {
           padding:
           const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(4),
             border: Border.all(
-                color: Colors.white.withOpacity(0.25)),
+                color: Colors.white.withValues(alpha: 0.25)),
           ),
           child: _loading
               ? const SizedBox(
@@ -618,7 +618,7 @@ class _ItemCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.04),
+            color: ErpColors.navyDark.withValues(alpha: 0.04),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -643,7 +643,7 @@ class _ItemCard extends StatelessWidget {
                   height: 22,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: progressColor.withOpacity(0.12),
+                    color: progressColor.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Text(
@@ -847,7 +847,7 @@ class _InwardRecordCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.03),
+            color: ErpColors.navyDark.withValues(alpha: 0.03),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -860,10 +860,10 @@ class _InwardRecordCard extends StatelessWidget {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: ErpColors.successGreen.withOpacity(0.1),
+            color: ErpColors.successGreen.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
-                color: ErpColors.successGreen.withOpacity(0.3)),
+                color: ErpColors.successGreen.withValues(alpha: 0.3)),
           ),
           child: Icon(Icons.arrow_downward,
               size: 18, color: ErpColors.successGreen),

@@ -163,7 +163,7 @@ class _MachineIssueReportScreenState extends State<MachineIssueReportScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ErpColors.accentBlue,
                         disabledBackgroundColor:
-                            ErpColors.accentBlue.withOpacity(0.5),
+                            ErpColors.accentBlue.withValues(alpha: 0.5),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                       ),

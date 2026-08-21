@@ -222,7 +222,7 @@ class _CustomerCard extends StatelessWidget {
           border: Border.all(color: ErpColors.borderLight),
           boxShadow: [
             BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color: ErpColors.navyDark.withValues(alpha: 0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -241,7 +241,7 @@ class _CustomerCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: ErpColors.accentBlue.withOpacity(0.1),
+                      color: ErpColors.accentBlue.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,

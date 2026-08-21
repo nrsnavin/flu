@@ -188,9 +188,9 @@ class _AnnouncementCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.06),
+              color: color.withValues(alpha: 0.06),
               border: Border(
-                  bottom: BorderSide(color: color.withOpacity(0.18))),
+                  bottom: BorderSide(color: color.withValues(alpha: 0.18))),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(8)),
             ),

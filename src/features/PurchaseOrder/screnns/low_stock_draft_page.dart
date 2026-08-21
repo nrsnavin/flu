@@ -282,7 +282,7 @@ class _MaterialRow extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: (m.isCritical ? ErpColors.errorRed : ErpColors.warningAmber)
-                        .withOpacity(0.12),
+                        .withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -298,7 +298,7 @@ class _MaterialRow extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
-                  color: ErpColors.accentBlue.withOpacity(0.1),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -344,9 +344,9 @@ class _SkippedNote extends StatelessWidget {
       margin: const EdgeInsets.only(top: 4),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: ErpColors.warningAmber.withOpacity(0.07),
+        color: ErpColors.warningAmber.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: ErpColors.warningAmber.withOpacity(0.3)),
+        border: Border.all(color: ErpColors.warningAmber.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

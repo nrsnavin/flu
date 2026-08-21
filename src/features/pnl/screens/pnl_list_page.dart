@@ -232,7 +232,7 @@ class _SortBar extends StatelessWidget {
                 selected: on,
                 onSelected: (_) => c.sort.value = s,
                 backgroundColor: ErpColors.bgMuted,
-                selectedColor: ErpColors.accentBlue.withOpacity(0.12),
+                selectedColor: ErpColors.accentBlue.withValues(alpha: 0.12),
                 side: BorderSide(
                     color: on ? ErpColors.accentBlue : ErpColors.borderLight),
                 shape: RoundedRectangleBorder(
@@ -266,7 +266,7 @@ class _Row extends StatelessWidget {
             // A loss earns a red edge. Nothing else does — a thin margin
             // would need a threshold nobody has agreed on.
             color: row.losing
-                ? ErpColors.errorRed.withOpacity(0.4)
+                ? ErpColors.errorRed.withValues(alpha: 0.4)
                 : ErpColors.borderLight,
           ),
         ),

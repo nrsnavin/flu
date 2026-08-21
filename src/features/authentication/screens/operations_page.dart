@@ -89,7 +89,7 @@ class ModuleTile extends StatelessWidget {
               Container(
                 width: 40, height: 40,
                 decoration: BoxDecoration(
-                  color: ErpColors.accentBlue.withOpacity(0.10),
+                  color: ErpColors.accentBlue.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(module.icon,

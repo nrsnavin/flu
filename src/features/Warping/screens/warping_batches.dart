@@ -160,7 +160,7 @@ class _RaiseButton extends StatelessWidget {
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: _purple,
-              disabledBackgroundColor: _purple.withOpacity(0.4),
+              disabledBackgroundColor: _purple.withValues(alpha: 0.4),
               elevation: 0,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -221,7 +221,7 @@ class _BatchCard extends StatelessWidget {
         border: Border.all(color: ErpColors.borderLight),
         boxShadow: [
           BoxShadow(
-              color: ErpColors.navyDark.withOpacity(0.04),
+              color: ErpColors.navyDark.withValues(alpha: 0.04),
               blurRadius: 5,
               offset: const Offset(0, 2))
         ],
@@ -231,7 +231,7 @@ class _BatchCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.06),
+            color: color.withValues(alpha: 0.06),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(7)),
           ),
           child: Row(children: [
@@ -255,9 +255,9 @@ class _BatchCard extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.14),
+                color: color.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: color.withOpacity(0.45)),
+                border: Border.all(color: color.withValues(alpha: 0.45)),
               ),
               child: Text(batchStatusLabel(batch.status),
                   style: TextStyle(
@@ -717,7 +717,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
                                       v ? _selected.add(n) : _selected.remove(n);
                                     }),
                             backgroundColor: ErpColors.bgMuted,
-                            selectedColor: _purple.withOpacity(0.12),
+                            selectedColor: _purple.withValues(alpha: 0.12),
                             side: BorderSide(
                                 color: on ? _purple : ErpColors.borderLight),
                             shape: RoundedRectangleBorder(
@@ -824,7 +824,7 @@ class _RaiseBatchSheetState extends State<_RaiseBatchSheet> {
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _purple,
-                  disabledBackgroundColor: _purple.withOpacity(0.4),
+                  disabledBackgroundColor: _purple.withValues(alpha: 0.4),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
@@ -1022,9 +1022,9 @@ class _Banner extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: color.withOpacity(0.35)),
+          border: Border.all(color: color.withValues(alpha: 0.35)),
         ),
         child: Row(children: [
           Icon(icon, color: color, size: 15),

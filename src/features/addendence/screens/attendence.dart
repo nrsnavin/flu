@@ -165,10 +165,10 @@ class _ViewSwitcher extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-            color: active ? _C.blue.withOpacity(0.2) : _C.surface3,
+            color: active ? _C.blue.withValues(alpha: 0.2) : _C.surface3,
             borderRadius: BorderRadius.circular(7),
             border: Border.all(
-                color: active ? _C.blue.withOpacity(0.6) : _C.border)),
+                color: active ? _C.blue.withValues(alpha: 0.6) : _C.border)),
         child: Text(label, style: TextStyle(
             fontSize: 11, fontWeight: FontWeight.w700,
             color: active ? _C.blueLt : _C.textSec)),
@@ -274,9 +274,9 @@ class _MarkShiftHeader extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                    color: _C.green.withOpacity(0.1),
+                    color: _C.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: _C.green.withOpacity(0.4))),
+                    border: Border.all(color: _C.green.withValues(alpha: 0.4))),
                 child: const Text('All Present',
                     style: TextStyle(color: _C.green, fontSize: 10,
                         fontWeight: FontWeight.w700)),
@@ -345,9 +345,9 @@ class _ShiftToggle extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-            color: active ? _C.blue.withOpacity(0.2) : _C.surface3,
+            color: active ? _C.blue.withValues(alpha: 0.2) : _C.surface3,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: active ? _C.blue.withOpacity(0.5) : _C.border)),
+            border: Border.all(color: active ? _C.blue.withValues(alpha: 0.5) : _C.border)),
         child: Row(children: [
           Icon(icon, size: 12, color: active ? _C.blueLt : _C.textMuted),
           const SizedBox(width: 4),
@@ -409,8 +409,8 @@ class _EmployeeMarkRow extends StatelessWidget {
             Container(width: 36, height: 36,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: color.withOpacity(0.12),
-                    border: Border.all(color: color.withOpacity(0.5))),
+                    color: color.withValues(alpha: 0.12),
+                    border: Border.all(color: color.withValues(alpha: 0.5))),
                 child: Center(child: Text(
                     record.name.isNotEmpty ? record.name[0].toUpperCase() : '?',
                     style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w900)))),
@@ -425,9 +425,9 @@ class _EmployeeMarkRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                  color: color.withOpacity(0.12),
+                  color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(5),
-                  border: Border.all(color: color.withOpacity(0.4))),
+                  border: Border.all(color: color.withValues(alpha: 0.4))),
               child: Text('${status.emoji} ${status.label}',
                   style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w700)),
             ),
@@ -493,9 +493,9 @@ class _ClockControl extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: color.withOpacity(0.5))),
+              border: Border.all(color: color.withValues(alpha: 0.5))),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             if (busy)
               const SizedBox(width: 12, height: 12,
@@ -565,9 +565,9 @@ class _StatusBtn extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
           decoration: BoxDecoration(
-              color: active ? color.withOpacity(0.2) : _C.surface3,
+              color: active ? color.withValues(alpha: 0.2) : _C.surface3,
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: active ? color.withOpacity(0.6) : _C.border)),
+              border: Border.all(color: active ? color.withValues(alpha: 0.6) : _C.border)),
           child: Text(status.emoji,
               style: const TextStyle(fontSize: 13)),
         ),
@@ -588,9 +588,9 @@ class _LateDetails extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-          color: _C.amber.withOpacity(0.07),
+          color: _C.amber.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(7),
-          border: Border.all(color: _C.amber.withOpacity(0.25))),
+          border: Border.all(color: _C.amber.withValues(alpha: 0.25))),
       child: Row(children: [
         const Icon(Icons.timer_rounded, size: 13, color: _C.amber),
         const SizedBox(width: 6),
@@ -603,9 +603,9 @@ class _LateDetails extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                  color: active ? _C.amber.withOpacity(0.2) : _C.surface3,
+                  color: active ? _C.amber.withValues(alpha: 0.2) : _C.surface3,
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: active ? _C.amber.withOpacity(0.5) : _C.border)),
+                  border: Border.all(color: active ? _C.amber.withValues(alpha: 0.5) : _C.border)),
               child: Text('${m}m', style: TextStyle(
                   color: active ? _C.amber : _C.textSec,
                   fontSize: 10, fontWeight: FontWeight.w700)),
@@ -629,9 +629,9 @@ class _LeaveDetails extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-          color: _C.purple.withOpacity(0.07),
+          color: _C.purple.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(7),
-          border: Border.all(color: _C.purple.withOpacity(0.25))),
+          border: Border.all(color: _C.purple.withValues(alpha: 0.25))),
       child: Row(children: [
         const Icon(Icons.beach_access_rounded, size: 13, color: _C.purple),
         const SizedBox(width: 6),
@@ -645,9 +645,9 @@ class _LeaveDetails extends StatelessWidget {
               margin: const EdgeInsets.only(right: 5),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                  color: active ? _C.purple.withOpacity(0.2) : _C.surface3,
+                  color: active ? _C.purple.withValues(alpha: 0.2) : _C.surface3,
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: active ? _C.purple.withOpacity(0.5) : _C.border)),
+                  border: Border.all(color: active ? _C.purple.withValues(alpha: 0.5) : _C.border)),
               child: Text(type[0].toUpperCase() + type.substring(1),
                   style: TextStyle(color: active ? _C.purple : _C.textSec,
                       fontSize: 10, fontWeight: FontWeight.w700)),
@@ -832,13 +832,13 @@ class _EmployeeSummaryTile extends StatelessWidget {
         decoration: BoxDecoration(
             color: _C.surface2,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: pct < 75 ? _C.red.withOpacity(0.3) : _C.border)),
+            border: Border.all(color: pct < 75 ? _C.red.withValues(alpha: 0.3) : _C.border)),
         child: Row(children: [
           // Avatar
           Container(width: 36, height: 36, decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: color.withOpacity(0.12),
-              border: Border.all(color: color.withOpacity(0.4))),
+              color: color.withValues(alpha: 0.12),
+              border: Border.all(color: color.withValues(alpha: 0.4))),
               child: Center(child: Text(
                   row.name.isNotEmpty ? row.name[0].toUpperCase() : '?',
                   style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w900)))),
@@ -899,9 +899,9 @@ class _CalendarView extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                  color: _C.blue.withOpacity(0.15),
+                  color: _C.blue.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: _C.blue.withOpacity(0.4))),
+                  border: Border.all(color: _C.blue.withValues(alpha: 0.4))),
               child: const Text('Go to Summary',
                   style: TextStyle(color: _C.blueLt, fontWeight: FontWeight.w700)),
             ),
@@ -938,8 +938,8 @@ class _CalendarHeader extends StatelessWidget {
           // Employee name
           Row(children: [
             Container(width: 32, height: 32, decoration: BoxDecoration(
-                shape: BoxShape.circle, color: _C.blue.withOpacity(0.15),
-                border: Border.all(color: _C.blue.withOpacity(0.4))),
+                shape: BoxShape.circle, color: _C.blue.withValues(alpha: 0.15),
+                border: Border.all(color: _C.blue.withValues(alpha: 0.4))),
                 child: Center(child: Text(
                     name.isNotEmpty ? name[0].toUpperCase() : '?',
                     style: const TextStyle(color: _C.blueLt, fontSize: 13, fontWeight: FontWeight.w900)))),
@@ -1062,10 +1062,10 @@ class _DayCell extends StatelessWidget {
       height: 44,
       margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-          color: isUntracked ? _C.surface2 : color.withOpacity(0.15),
+          color: isUntracked ? _C.surface2 : color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-              color: isUntracked ? _C.border : color.withOpacity(0.5))),
+              color: isUntracked ? _C.border : color.withValues(alpha: 0.5))),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Text('${day!.day}', style: TextStyle(
             color: isUntracked ? _C.textMuted : _C.textPrim,
@@ -1143,9 +1143,9 @@ class _QuickChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: color.withOpacity(0.35))),
+        border: Border.all(color: color.withValues(alpha: 0.35))),
     child: Text(label, style: TextStyle(
         color: color, fontSize: 10, fontWeight: FontWeight.w800)),
   );
@@ -1159,9 +1159,9 @@ class _KpiBox extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(10),
     decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.25))),
+        border: Border.all(color: color.withValues(alpha: 0.25))),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(value, style: TextStyle(
           color: color, fontSize: 20, fontWeight: FontWeight.w900)),
@@ -1213,7 +1213,7 @@ class _MiniDot extends StatelessWidget {
       margin: const EdgeInsets.only(right: 3),
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
       decoration: BoxDecoration(
-          color: color.withOpacity(0.15),
+          color: color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(3)),
       child: Text('$count',
           style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w700)),

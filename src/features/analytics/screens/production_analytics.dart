@@ -147,7 +147,7 @@ class _AppBar extends StatelessWidget {
             Row(children: [
               Container(width:6, height:6, margin:const EdgeInsets.only(right:6),
                   decoration: BoxDecoration(color:_C.green, shape:BoxShape.circle,
-                      boxShadow:[BoxShadow(color:_C.green.withOpacity(0.6), blurRadius:8)])),
+                      boxShadow:[BoxShadow(color:_C.green.withValues(alpha: 0.6), blurRadius:8)])),
               const Text('Production Analytics',
                   style: TextStyle(color:_C.textPrim, fontSize:15, fontWeight:FontWeight.w800)),
             ]),
@@ -163,9 +163,9 @@ class _AppBar extends StatelessWidget {
               child: Container(
                 width:34, height:34,
                 decoration: BoxDecoration(
-                  color: cnt>0 ? _C.red.withOpacity(0.15) : _C.surface2,
+                  color: cnt>0 ? _C.red.withValues(alpha: 0.15) : _C.surface2,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: cnt>0 ? _C.red.withOpacity(0.4) : _C.border),
+                  border: Border.all(color: cnt>0 ? _C.red.withValues(alpha: 0.4) : _C.border),
                 ),
                 child: Icon(Icons.warning_amber_rounded, size:16,
                     color: cnt>0 ? _C.red : _C.textMuted),
@@ -175,7 +175,7 @@ class _AppBar extends StatelessWidget {
               Positioned(right:-4, top:-4,
                   child: Container(width:16, height:16, alignment:Alignment.center,
                       decoration: BoxDecoration(color:_C.red, shape:BoxShape.circle,
-                          boxShadow:[BoxShadow(color:_C.red.withOpacity(0.5), blurRadius:4)]),
+                          boxShadow:[BoxShadow(color:_C.red.withValues(alpha: 0.5), blurRadius:4)]),
                       child: Text('$cnt',
                           style:const TextStyle(color:Colors.white, fontSize:9, fontWeight:FontWeight.w900)))),
           ]);
@@ -272,9 +272,9 @@ class _DateFilterBar extends StatelessWidget {
           margin: const EdgeInsets.only(right:6),
           padding: const EdgeInsets.symmetric(horizontal:10, vertical:5),
           decoration: BoxDecoration(
-            color: active ? _C.blue.withOpacity(0.2) : _C.surface3,
+            color: active ? _C.blue.withValues(alpha: 0.2) : _C.surface3,
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: active ? _C.blue.withOpacity(0.6) : _C.border),
+            border: Border.all(color: active ? _C.blue.withValues(alpha: 0.6) : _C.border),
           ),
           child: Text(label, style: TextStyle(
               fontSize:11, fontWeight:FontWeight.w600,
@@ -312,9 +312,9 @@ class _ShiftTabBar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal:12, vertical:6),
         decoration: BoxDecoration(
-          color: active ? _C.blue.withOpacity(0.2) : _C.surface3,
+          color: active ? _C.blue.withValues(alpha: 0.2) : _C.surface3,
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: active ? _C.blue.withOpacity(0.6) : _C.border),
+          border: Border.all(color: active ? _C.blue.withValues(alpha: 0.6) : _C.border),
         ),
         child: Row(mainAxisSize:MainAxisSize.min, children: [
           Icon(icon, size:12, color: active ? _C.blueLt : _C.textMuted),
@@ -342,7 +342,7 @@ class _ActiveFiltersStrip extends StatelessWidget {
       final emp  = data?.byEmployee.where((e)=>e.employeeId==c.filterEmployeeId.value).firstOrNull;
       return Container(
         padding: const EdgeInsets.symmetric(horizontal:14, vertical:7),
-        color: _C.amber.withOpacity(0.08),
+        color: _C.amber.withValues(alpha: 0.08),
         child: Row(children: [
           const Icon(Icons.filter_alt_rounded, size:12, color:_C.amber),
           const SizedBox(width:6),
@@ -372,9 +372,9 @@ class _ActiveFiltersStrip extends StatelessWidget {
       margin: const EdgeInsets.only(right:6),
       padding: const EdgeInsets.fromLTRB(8,3,4,3),
       decoration: BoxDecoration(
-        color: _C.amber.withOpacity(0.15),
+        color: _C.amber.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color:_C.amber.withOpacity(0.3)),
+        border: Border.all(color:_C.amber.withValues(alpha: 0.3)),
       ),
       child: Row(mainAxisSize:MainAxisSize.min, children: [
         Text(label, style: const TextStyle(color:_C.amber, fontSize:10, fontWeight:FontWeight.w600)),
@@ -734,7 +734,7 @@ class _RiskTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: count != null && count! > 0
-                ? color.withOpacity(0.55)
+                ? color.withValues(alpha: 0.55)
                 : _C.border,
           ),
         ),
@@ -743,7 +743,7 @@ class _RiskTile extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, size: 18, color: color),
@@ -815,7 +815,7 @@ class _DayNightBar extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: Stack(children: [
-            Container(height:16, color:_C.purple.withOpacity(0.3)),
+            Container(height:16, color:_C.purple.withValues(alpha: 0.3)),
             FractionallySizedBox(
               widthFactor: dayPct,
               child: Container(height:16,
@@ -893,7 +893,7 @@ class _TrendPainter extends CustomPainter {
     if (avgLine > 0) {
       final avgY = chartH * (1 - avgLine / max);
       final dash = Paint()
-        ..color = _C.cyan.withOpacity(0.4)
+        ..color = _C.cyan.withValues(alpha: 0.4)
         ..strokeWidth = 1;
       double x = 0;
       while (x < size.width) {
@@ -918,7 +918,7 @@ class _TrendPainter extends CustomPainter {
       final barPaint = Paint()
         ..shader = LinearGradient(
           begin:Alignment.topCenter, end:Alignment.bottomCenter,
-          colors:[barColor.withOpacity(0.9), barColor.withOpacity(0.3)],
+          colors:[barColor.withValues(alpha: 0.9), barColor.withValues(alpha: 0.3)],
         ).createShader(Rect.fromLTWH(cx-barW/2, top, barW, h));
 
       canvas.drawRRect(
@@ -933,7 +933,7 @@ class _TrendPainter extends CustomPainter {
     // Line overlay
     if (pts.length > 1) {
       final linePaint = Paint()
-        ..color = _C.green.withOpacity(0.7)
+        ..color = _C.green.withValues(alpha: 0.7)
         ..strokeWidth = 1.5
         ..style = PaintingStyle.stroke;
       final path = Path()..moveTo(pts[0].dx, pts[0].dy);
@@ -1002,7 +1002,7 @@ class _WeeklyHeatmap extends StatelessWidget {
           const Text('Low', style:_t10),
           const SizedBox(width:12),
           Container(width:8, height:8,
-              decoration:BoxDecoration(color:_C.purple.withOpacity(0.5), borderRadius:BorderRadius.circular(2))),
+              decoration:BoxDecoration(color:_C.purple.withValues(alpha: 0.5), borderRadius:BorderRadius.circular(2))),
           const SizedBox(width:4),
           const Text('Mid', style:_t10),
           const SizedBox(width:12),
@@ -1019,8 +1019,8 @@ class _WeeklyHeatmap extends StatelessWidget {
     final ratio = max > 0 ? p.avgProduction / max : 0.0;
     final Color cellColor;
     if (ratio < 0.15)      cellColor = _C.surface3;
-    else if (ratio < 0.40) cellColor = _C.purple.withOpacity(0.25);
-    else if (ratio < 0.70) cellColor = _C.purple.withOpacity(0.55);
+    else if (ratio < 0.40) cellColor = _C.purple.withValues(alpha: 0.25);
+    else if (ratio < 0.70) cellColor = _C.purple.withValues(alpha: 0.55);
     else                   cellColor = _C.purple;
 
     return Column(children: [
@@ -1033,7 +1033,7 @@ class _WeeklyHeatmap extends StatelessWidget {
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: _C.border),
           boxShadow: ratio > 0.7
-              ? [BoxShadow(color:_C.purple.withOpacity(0.4), blurRadius:6)] : [],
+              ? [BoxShadow(color:_C.purple.withValues(alpha: 0.4), blurRadius:6)] : [],
         ),
         alignment: Alignment.center,
         child: Text(
@@ -1085,10 +1085,10 @@ class _PodiumWidget extends StatelessWidget {
                 width:40, height:40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: colors[i].withOpacity(0.15),
+                  color: colors[i].withValues(alpha: 0.15),
                   border: Border.all(color:colors[i], width:2),
                   boxShadow: isGold
-                      ? [BoxShadow(color:_C.gold.withOpacity(0.4), blurRadius:12)] : [],
+                      ? [BoxShadow(color:_C.gold.withValues(alpha: 0.4), blurRadius:12)] : [],
                 ),
                 child: Center(child: Text(
                     emp.name.isNotEmpty ? emp.name[0].toUpperCase() : '?',
@@ -1108,7 +1108,7 @@ class _PodiumWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                       begin:Alignment.topCenter, end:Alignment.bottomCenter,
-                      colors:[colors[i].withOpacity(0.4), colors[i].withOpacity(0.1)]),
+                      colors:[colors[i].withValues(alpha: 0.4), colors[i].withValues(alpha: 0.1)]),
                   borderRadius: const BorderRadius.vertical(top:Radius.circular(4)),
                 ),
               ),
@@ -1197,9 +1197,9 @@ class _MachineBigRow extends StatelessWidget {
           color: _C.surface2,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-              color: isFiltered ? _C.blue.withOpacity(0.7) : _C.border, width:isFiltered?2:1),
+              color: isFiltered ? _C.blue.withValues(alpha: 0.7) : _C.border, width:isFiltered?2:1),
           boxShadow: isFiltered
-              ? [BoxShadow(color:_C.blue.withOpacity(0.15), blurRadius:8)] : [],
+              ? [BoxShadow(color:_C.blue.withValues(alpha: 0.15), blurRadius:8)] : [],
         ),
         child: Column(crossAxisAlignment:CrossAxisAlignment.start, children: [
           // Header
@@ -1235,7 +1235,7 @@ class _MachineBigRow extends StatelessWidget {
                   widthFactor: barRatio.clamp(0.0,1.0),
                   child: Container(height:8, decoration:BoxDecoration(
                       borderRadius:BorderRadius.circular(4),
-                      gradient: LinearGradient(colors:[barColor.withOpacity(0.6), barColor]))),
+                      gradient: LinearGradient(colors:[barColor.withValues(alpha: 0.6), barColor]))),
                 ),
                 // Average marker
                 if (avg > 0 && max > 0)
@@ -1296,8 +1296,8 @@ class _MachineBigRow extends StatelessWidget {
             Container(
               padding:const EdgeInsets.symmetric(horizontal:8, vertical:4),
               decoration:BoxDecoration(
-                  color:_C.red.withOpacity(0.1), borderRadius:BorderRadius.circular(4),
-                  border:Border.all(color:_C.red.withOpacity(0.3))),
+                  color:_C.red.withValues(alpha: 0.1), borderRadius:BorderRadius.circular(4),
+                  border:Border.all(color:_C.red.withValues(alpha: 0.3))),
               child: Row(mainAxisSize:MainAxisSize.min, children:[
                 const Icon(Icons.warning_rounded, size:10, color:_C.red),
                 const SizedBox(width:4),
@@ -1376,7 +1376,7 @@ class _EmployeeDetailCard extends StatelessWidget {
           color: _C.surface2,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-              color: isFiltered ? _C.blue.withOpacity(0.7) : _C.border,
+              color: isFiltered ? _C.blue.withValues(alpha: 0.7) : _C.border,
               width: isFiltered ? 2 : 1),
         ),
         child: Column(crossAxisAlignment:CrossAxisAlignment.start, children: [
@@ -1386,7 +1386,7 @@ class _EmployeeDetailCard extends StatelessWidget {
             Container(width:40, height:40,
                 decoration:BoxDecoration(
                     shape:BoxShape.circle,
-                    color:_badgeColor.withOpacity(0.15),
+                    color:_badgeColor.withValues(alpha: 0.15),
                     border:Border.all(color:_badgeColor, width:1.5)),
                 child:Center(child:Text(
                     emp.name.isNotEmpty ? emp.name[0].toUpperCase() : '?',
@@ -1520,8 +1520,8 @@ class _ArenaHeader extends StatelessWidget {
         gradient: const LinearGradient(
             begin:Alignment.topLeft, end:Alignment.bottomRight,
             colors:[Color(0xFF1A1435), Color(0xFF0F1A30), Color(0xFF0A1525)]),
-        border: Border.all(color:_C.xpColor.withOpacity(0.4), width:1.5),
-        boxShadow:[BoxShadow(color:_C.xpGlow.withOpacity(0.2), blurRadius:20)],
+        border: Border.all(color:_C.xpColor.withValues(alpha: 0.4), width:1.5),
+        boxShadow:[BoxShadow(color:_C.xpGlow.withValues(alpha: 0.2), blurRadius:20)],
       ),
       child: Column(children: [
         Row(children: [
@@ -1531,7 +1531,7 @@ class _ArenaHeader extends StatelessWidget {
             const Text('PRODUCTION ARENA',
                 style:TextStyle(color:_C.xpColor, fontSize:14, fontWeight:FontWeight.w900, letterSpacing:2)),
             Text('XP-Ranked Performance System',
-                style:TextStyle(color:_C.xpColor.withOpacity(0.6), fontSize:10)),
+                style:TextStyle(color:_C.xpColor.withValues(alpha: 0.6), fontSize:10)),
           ]),
         ]),
         const SizedBox(height:14),
@@ -1539,16 +1539,16 @@ class _ArenaHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: _C.gold.withOpacity(0.07),
+            color: _C.gold.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color:_C.gold.withOpacity(0.3)),
+            border: Border.all(color:_C.gold.withValues(alpha: 0.3)),
           ),
           child: Row(children: [
             Container(width:44, height:44,
                 decoration:BoxDecoration(shape:BoxShape.circle,
-                    color:_C.gold.withOpacity(0.2),
+                    color:_C.gold.withValues(alpha: 0.2),
                     border:Border.all(color:_C.gold, width:2),
-                    boxShadow:[BoxShadow(color:_C.gold.withOpacity(0.5), blurRadius:12)]),
+                    boxShadow:[BoxShadow(color:_C.gold.withValues(alpha: 0.5), blurRadius:12)]),
                 child:Center(child:Text(
                     leader.name.isNotEmpty ? leader.name[0].toUpperCase() : '?',
                     style:const TextStyle(color:_C.gold, fontSize:20, fontWeight:FontWeight.w900)))),
@@ -1637,10 +1637,10 @@ class _PlayerCard extends StatelessWidget {
             color: _C.surface2,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-                color: isTop ? lvlColor.withOpacity(0.4) : _C.border,
+                color: isTop ? lvlColor.withValues(alpha: 0.4) : _C.border,
                 width: isTop ? 1.5 : 1),
             boxShadow: isTop
-                ? [BoxShadow(color:lvlColor.withOpacity(0.1), blurRadius:8)] : [],
+                ? [BoxShadow(color:lvlColor.withValues(alpha: 0.1), blurRadius:8)] : [],
           ),
           child: Column(children: [
             Padding(
@@ -1649,7 +1649,7 @@ class _PlayerCard extends StatelessWidget {
                 // XP rank number
                 Container(width:28, height:28,
                     decoration:BoxDecoration(
-                        color:isTop ? lvlColor.withOpacity(0.2) : _C.surface3,
+                        color:isTop ? lvlColor.withValues(alpha: 0.2) : _C.surface3,
                         shape:BoxShape.circle,
                         border:Border.all(color:isTop?lvlColor:_C.border)),
                     child:Center(child:Text('$xpRank',
@@ -1660,9 +1660,9 @@ class _PlayerCard extends StatelessWidget {
                 Container(
                     padding: const EdgeInsets.symmetric(horizontal:6, vertical:3),
                     decoration: BoxDecoration(
-                        color: lvlColor.withOpacity(0.15),
+                        color: lvlColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color:lvlColor.withOpacity(0.4))),
+                        border: Border.all(color:lvlColor.withValues(alpha: 0.4))),
                     child: Row(mainAxisSize:MainAxisSize.min, children:[
                       Text(emp.levelIcon, style:const TextStyle(fontSize:12)),
                       const SizedBox(width:3),
@@ -1706,7 +1706,7 @@ class _PlayerCard extends StatelessWidget {
                       child: Container(height:6, decoration:BoxDecoration(
                           borderRadius:BorderRadius.circular(3),
                           gradient:LinearGradient(
-                              colors:[lvlColor.withOpacity(0.5), lvlColor])))),
+                              colors:[lvlColor.withValues(alpha: 0.5), lvlColor])))),
                 ]),
                 if (emp.nextLevelXp != null) ...[
                   const SizedBox(height:2),
@@ -1730,9 +1730,9 @@ class _PlayerCard extends StatelessWidget {
                                   margin:const EdgeInsets.only(right:5),
                                   padding:const EdgeInsets.symmetric(horizontal:6, vertical:3),
                                   decoration:BoxDecoration(
-                                      color:_C.amber.withOpacity(0.1),
+                                      color:_C.amber.withValues(alpha: 0.1),
                                       borderRadius:BorderRadius.circular(5),
-                                      border:Border.all(color:_C.amber.withOpacity(0.2))),
+                                      border:Border.all(color:_C.amber.withValues(alpha: 0.2))),
                                   child:Text('${a.icon} ${a.label}',
                                       style:const TextStyle(color:_C.amber, fontSize:9, fontWeight:FontWeight.w600))),
                             )).toList()),
@@ -1812,7 +1812,7 @@ class _AchievementShowcase extends StatelessWidget {
             decoration: BoxDecoration(
               color: _C.surface3,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: multi ? _C.amber.withOpacity(0.3) : _C.border),
+              border: Border.all(color: multi ? _C.amber.withValues(alpha: 0.3) : _C.border),
             ),
             child: Column(crossAxisAlignment:CrossAxisAlignment.start, children: [
               Text(e.value['icon'] as String, style:const TextStyle(fontSize:18)),
@@ -1902,9 +1902,9 @@ class _SeverityFilterBar extends StatelessWidget {
         margin: const EdgeInsets.only(right:6),
         padding: const EdgeInsets.symmetric(horizontal:10, vertical:5),
         decoration: BoxDecoration(
-            color: active ? color.withOpacity(0.15) : _C.surface3,
+            color: active ? color.withValues(alpha: 0.15) : _C.surface3,
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: active ? color.withOpacity(0.5) : _C.border)),
+            border: Border.all(color: active ? color.withValues(alpha: 0.5) : _C.border)),
         child: Row(mainAxisSize:MainAxisSize.min, children: [
           Text(label, style: TextStyle(fontSize:11, fontWeight:FontWeight.w700,
               color: active ? color : _C.textSec)),
@@ -1912,7 +1912,7 @@ class _SeverityFilterBar extends StatelessWidget {
             const SizedBox(width:5),
             Container(
                 width:16, height:16, alignment:Alignment.center,
-                decoration: BoxDecoration(color:color.withOpacity(0.25), shape:BoxShape.circle),
+                decoration: BoxDecoration(color:color.withValues(alpha: 0.25), shape:BoxShape.circle),
                 child: Text('$cnt', style:TextStyle(color:color, fontSize:9, fontWeight:FontWeight.w900))),
           ],
         ]),
@@ -1943,9 +1943,9 @@ class _AnomalyCard extends StatelessWidget {
         child: Column(crossAxisAlignment:CrossAxisAlignment.start, children: [
           Row(children: [
             Container(padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                decoration:BoxDecoration(color:_color.withOpacity(0.15),
+                decoration:BoxDecoration(color:_color.withValues(alpha: 0.15),
                     borderRadius:BorderRadius.circular(4),
-                    border:Border.all(color:_color.withOpacity(0.4))),
+                    border:Border.all(color:_color.withValues(alpha: 0.4))),
                 child:Text(a.typeLabel, style:TextStyle(color:_color,
                     fontSize:9, fontWeight:FontWeight.w700, letterSpacing:0.5))),
             const SizedBox(width:6),
@@ -1980,7 +1980,7 @@ class _SevPill extends StatelessWidget {
     final label = severity=='high' ? '🔴 HIGH' : severity=='medium' ? '🟡 MED' : '🟢 SPIKE';
     return Container(
         padding: const EdgeInsets.symmetric(horizontal:5, vertical:1),
-        decoration:BoxDecoration(color:color.withOpacity(0.1), borderRadius:BorderRadius.circular(4)),
+        decoration:BoxDecoration(color:color.withValues(alpha: 0.1), borderRadius:BorderRadius.circular(4)),
         child: Text(label, style:TextStyle(color:color, fontSize:8, fontWeight:FontWeight.w700, letterSpacing:0.5)));
   }
 }
@@ -2042,7 +2042,7 @@ class _KpiCard extends StatelessWidget {
           Text(value, style: TextStyle(color:iconColor, fontSize:22, fontWeight:FontWeight.w900, height:1)),
           if (unit != null)
             Padding(padding:const EdgeInsets.only(left:2, bottom:1),
-                child:Text(unit!, style:TextStyle(color:iconColor.withOpacity(0.7), fontSize:11))),
+                child:Text(unit!, style:TextStyle(color:iconColor.withValues(alpha: 0.7), fontSize:11))),
         ]),
         const SizedBox(height:2),
         Text(label, style:_t11b),
@@ -2081,9 +2081,9 @@ class _AnomalyBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom:14),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-          color: _C.red.withOpacity(0.1),
+          color: _C.red.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color:_C.red.withOpacity(0.4))),
+          border: Border.all(color:_C.red.withValues(alpha: 0.4))),
       child: Row(children: [
         const Icon(Icons.warning_amber_rounded, size:14, color:_C.red),
         const SizedBox(width:8),
@@ -2103,15 +2103,15 @@ class _RankBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bg = highlight
-        ? _C.gold.withOpacity(0.2)
+        ? _C.gold.withValues(alpha: 0.2)
         : rank<=3 ? _C.surface3 : _C.surface3;
     final fg = highlight ? _C.gold
         : rank==2 ? _C.silver : rank==3 ? _C.bronze : _C.textSec;
     return Container(
       width:26, height:26,
       decoration:BoxDecoration(color:bg, shape:BoxShape.circle,
-          border:Border.all(color:fg.withOpacity(0.5)),
-          boxShadow: highlight ? [BoxShadow(color:_C.gold.withOpacity(0.4), blurRadius:8)] : []),
+          border:Border.all(color:fg.withValues(alpha: 0.5)),
+          boxShadow: highlight ? [BoxShadow(color:_C.gold.withValues(alpha: 0.4), blurRadius:8)] : []),
       child:Center(child:Text('#$rank',
           style:TextStyle(color:fg, fontSize:9, fontWeight:FontWeight.w900))),
     );
@@ -2125,7 +2125,7 @@ class _ActiveDot extends StatelessWidget {
     width:6, height:6,
     decoration:BoxDecoration(
         color:_C.green, shape:BoxShape.circle,
-        boxShadow:[BoxShadow(color:_C.green.withOpacity(0.6), blurRadius:6)]),
+        boxShadow:[BoxShadow(color:_C.green.withValues(alpha: 0.6), blurRadius:6)]),
   );
 }
 
@@ -2157,9 +2157,9 @@ class _StreakBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal:6, vertical:2),
-    decoration: BoxDecoration(color:_C.orange.withOpacity(0.15),
+    decoration: BoxDecoration(color:_C.orange.withValues(alpha: 0.15),
         borderRadius:BorderRadius.circular(4),
-        border:Border.all(color:_C.orange.withOpacity(0.4))),
+        border:Border.all(color:_C.orange.withValues(alpha: 0.4))),
     child: Row(mainAxisSize:MainAxisSize.min, children:[
       const Text('🔥', style:TextStyle(fontSize:10)),
       const SizedBox(width:3),
@@ -2178,9 +2178,9 @@ class _StatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal:6, vertical:3),
-    decoration: BoxDecoration(color:color.withOpacity(0.1),
+    decoration: BoxDecoration(color:color.withValues(alpha: 0.1),
         borderRadius:BorderRadius.circular(4),
-        border:Border.all(color:color.withOpacity(0.3))),
+        border:Border.all(color:color.withValues(alpha: 0.3))),
     child: Row(mainAxisSize:MainAxisSize.min, children:[
       Icon(icon, size:9, color:color),
       const SizedBox(width:3),
@@ -2236,9 +2236,9 @@ class _AchievementChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal:6, vertical:3),
     decoration: BoxDecoration(
-        color: _C.amber.withOpacity(0.08),
+        color: _C.amber.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(5),
-        border: Border.all(color:_C.amber.withOpacity(0.25))),
+        border: Border.all(color:_C.amber.withValues(alpha: 0.25))),
     child: Row(mainAxisSize:MainAxisSize.min, children:[
       Text(a.icon, style:const TextStyle(fontSize:10)),
       const SizedBox(width:3),
@@ -2328,8 +2328,8 @@ class _ErrorView extends StatelessWidget {
       GestureDetector(
           onTap: c.fetch,
           child:Container(padding:const EdgeInsets.symmetric(horizontal:16,vertical:8),
-              decoration:BoxDecoration(color:_C.blue.withOpacity(0.2),
-                  borderRadius:BorderRadius.circular(8), border:Border.all(color:_C.blue.withOpacity(0.4))),
+              decoration:BoxDecoration(color:_C.blue.withValues(alpha: 0.2),
+                  borderRadius:BorderRadius.circular(8), border:Border.all(color:_C.blue.withValues(alpha: 0.4))),
               child:const Text('Retry', style:TextStyle(color:_C.blueLt, fontWeight:FontWeight.w700)))),
     ]),
   );

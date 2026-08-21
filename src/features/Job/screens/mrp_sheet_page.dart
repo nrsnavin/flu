@@ -364,7 +364,7 @@ class _MaterialsCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: ErpColors.errorRed.withOpacity(0.08),
+                color: ErpColors.errorRed.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -397,7 +397,7 @@ class _MaterialRow extends StatelessWidget {
     final name = m['name']?.toString() ?? 'Unknown';
     final cat = m['category']?.toString() ?? '';
     return Container(
-      color: short ? ErpColors.errorRed.withOpacity(0.06) : null,
+      color: short ? ErpColors.errorRed.withValues(alpha: 0.06) : null,
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [

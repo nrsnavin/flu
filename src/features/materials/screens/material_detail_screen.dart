@@ -173,10 +173,10 @@ class _HeroCard extends StatelessWidget {
         Container(
           width: 52, height: 52,
           decoration: BoxDecoration(
-            color: ErpColors.accentBlue.withOpacity(0.2),
+            color: ErpColors.accentBlue.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-                color: ErpColors.accentBlue.withOpacity(0.4)),
+                color: ErpColors.accentBlue.withValues(alpha: 0.4)),
           ),
           child: const Icon(Icons.category_outlined,
               size: 26, color: Colors.white),
@@ -215,7 +215,7 @@ class _HeroCard extends StatelessWidget {
           Text(
             isLow ? '⚠ Low Stock' : 'In Stock',
             style: TextStyle(
-                color: stockColor.withOpacity(0.8), fontSize: 10),
+                color: stockColor.withValues(alpha: 0.8), fontSize: 10),
           ),
           const SizedBox(height: 4),
           Text('₹${material.price.toStringAsFixed(2)}/kg',
@@ -236,7 +236,7 @@ class _HeroPill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
     decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.08),
+      color: Colors.white.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(4),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -323,7 +323,7 @@ class _SumChip extends StatelessWidget {
             padding: const EdgeInsets.symmetric(
                 horizontal: 5, vertical: 1),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text('$count',
@@ -408,7 +408,7 @@ class _InwardCard extends StatelessWidget {
       border: Border.all(color: ErpColors.borderLight),
       boxShadow: [
         BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.03),
+            color: ErpColors.navyDark.withValues(alpha: 0.03),
             blurRadius: 4,
             offset: const Offset(0, 1)),
       ],
@@ -420,7 +420,7 @@ class _InwardCard extends StatelessWidget {
         Container(
           width: 36, height: 36,
           decoration: BoxDecoration(
-            color: ErpColors.successGreen.withOpacity(0.1),
+            color: ErpColors.successGreen.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(7),
           ),
           child: Icon(Icons.arrow_downward_rounded,
@@ -437,10 +437,10 @@ class _InwardCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: ErpColors.successGreen.withOpacity(0.08),
+                  color: ErpColors.successGreen.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                      color: ErpColors.successGreen.withOpacity(0.3)),
+                      color: ErpColors.successGreen.withValues(alpha: 0.3)),
                 ),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Icon(Icons.receipt_outlined,
@@ -542,7 +542,7 @@ class _OutwardCard extends StatelessWidget {
       border: Border.all(color: ErpColors.borderLight),
       boxShadow: [
         BoxShadow(
-            color: ErpColors.navyDark.withOpacity(0.03),
+            color: ErpColors.navyDark.withValues(alpha: 0.03),
             blurRadius: 4,
             offset: const Offset(0, 1)),
       ],
@@ -553,7 +553,7 @@ class _OutwardCard extends StatelessWidget {
         Container(
           width: 36, height: 36,
           decoration: BoxDecoration(
-            color: _typeColor.withOpacity(0.1),
+            color: _typeColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(7),
           ),
           child: Icon(_typeIcon, size: 18, color: _typeColor),
@@ -569,10 +569,10 @@ class _OutwardCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 7, vertical: 3),
                   decoration: BoxDecoration(
-                    color: _typeColor.withOpacity(0.08),
+                    color: _typeColor.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
-                        color: _typeColor.withOpacity(0.3)),
+                        color: _typeColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(record.typeLabel,
                       style: TextStyle(
@@ -716,7 +716,7 @@ class _LedgerRow extends StatelessWidget {
     return Container(
       color: isEven
           ? ErpColors.bgSurface
-          : ErpColors.bgMuted.withOpacity(0.5),
+          : ErpColors.bgMuted.withValues(alpha: 0.5),
       padding: const EdgeInsets.symmetric(
           horizontal: 16, vertical: 10),
       child: Row(children: [
@@ -803,7 +803,7 @@ class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
                   Container(
                     width: 28, height: 28,
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Icon(
@@ -834,7 +834,7 @@ class _PriceHistoryStripState extends State<_PriceHistoryStrip> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 5, vertical: 2),
                             decoration: BoxDecoration(
-                              color: color.withOpacity(0.08),
+                              color: color.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -1151,7 +1151,7 @@ class _LotCard extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
               decoration: BoxDecoration(
-                color: tone.withOpacity(0.12),
+                color: tone.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(lot.status.toUpperCase(),

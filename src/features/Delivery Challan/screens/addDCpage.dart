@@ -11,6 +11,7 @@ import '../../../core/scan.dart';
 import '../../Orders/controllers/add_order_controller.dart' show buildActorPayload;
 import '../../PurchaseOrder/services/theme.dart';
 import '../models/dc_model.dart';
+import '../widgets/stock_short_dialog.dart';
 import '../../../core/app_config.dart';
 
 // ════════════════════════════════════════════════════════════════
@@ -362,6 +363,11 @@ class AddDCController extends GetxController {
       _requestSig = sig;
     }
 
+    await _send(payload);
+  }
+
+  Future<void> _send(Map<String, dynamic> payload, {String? stockShortfallReason}) async {
+    String? askedReason;
     try {
       loading.value = true;
       // 🪪 Attach logged-in user so the DC_CREATED fingerprint
@@ -370,6 +376,7 @@ class AddDCController extends GetxController {
         ...payload,
         'requestId': _requestId,
         'actor': buildActorPayload(),
+        if (stockShortfallReason != null) 'stockShortfallReason': stockShortfallReason,
       });
       _requestId = null; // next challan is a new business event
       Get.snackbar('Created', 'Delivery Challan created successfully',
@@ -377,11 +384,40 @@ class AddDCController extends GetxController {
           snackPosition: SnackPosition.BOTTOM);
       onSuccess?.call();
     } on DioException catch (ex) {
-      Get.snackbar('Error', ex.response?.data?['message'] ?? 'Failed to create DC',
-          backgroundColor: ErpColors.solidError, colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM);
+      // Ships more than is in stock: the server refuses it unless it
+      // carries a reason. Nothing was written (the refusal rolls back),
+      // so the same requestId goes out again with the reason.
+      final data = ex.response?.data;
+      final details = data is Map ? data['details'] : null;
+      final ctx = Get.overlayContext ?? Get.context;
+      if (data is Map && data['code'] == 'DC_STOCK_SHORT' &&
+          stockShortfallReason == null && ctx != null) {
+        loading.value = false;
+        final shortfalls = details is Map && details['shortfalls'] is List
+            ? (details['shortfalls'] as List)
+                .whereType<Map>()
+                .map((m) => Map<String, dynamic>.from(m))
+                .toList()
+            : <Map<String, dynamic>>[];
+        final min = details is Map && details['minReasonLength'] is num
+            ? (details['minReasonLength'] as num).toInt()
+            : 8;
+        askedReason = await showStockShortDialog(
+          context: ctx,
+          shortfalls: shortfalls,
+          minReasonLength: min,
+        );
+      } else {
+        Get.snackbar('Error',
+            (data is Map ? data['message']?.toString() : null) ?? 'Failed to create DC',
+            backgroundColor: ErpColors.solidError, colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM);
+      }
     } finally {
       loading.value = false;
+    }
+    if (askedReason != null) {
+      await _send(payload, stockShortfallReason: askedReason);
     }
   }
 

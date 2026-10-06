@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../models/po_models.dart';
 import '../services/theme.dart';
 import '../services/api.dart';
+import '../../../core/request_id.dart';
 
 // ══════════════════════════════════════════════════════════════════════════
 //  MATERIAL INWARD
@@ -200,6 +203,15 @@ class MaterialInwardController extends GetxController {
     return true;
   }
 
+  // Idempotency key for the current receipt, as on the packing and
+  // challan screens. Kept across resends of the SAME payload (a timeout
+  // may have landed server-side, and the server credits each key once)
+  // and rotated when anything sent changes or after a confirmed success,
+  // so a resend can't receive the same goods twice and an edited
+  // resubmit isn't swallowed as a duplicate.
+  String? _requestId;
+  String? _requestSig;
+
   Future<void> submit() async {
     if (!_validate()) return;
     try {
@@ -221,14 +233,22 @@ class MaterialInwardController extends GetxController {
       })
           .toList();
 
+      final payload = <String, dynamic>{
+        'poId': po.id,
+        'items': itemPayload,
+        if (needsOverReason) 'excessReason': excessReasonCtrl.text.trim(),
+      };
+      final sig = jsonEncode(payload);
+      if (_requestId == null || sig != _requestSig) {
+        _requestId = newRequestId();
+        _requestSig = sig;
+      }
+
       final res = await POApiService.dio.post(
         '/inward-stock',
-        data: {
-          'poId': po.id,
-          'items': itemPayload,
-          if (needsOverReason) 'excessReason': excessReasonCtrl.text.trim(),
-        },
+        data: {...payload, 'requestId': _requestId},
       );
+      _requestId = null; // the next receipt is a new business event
 
       _snack(
         'Stock Updated ✓',

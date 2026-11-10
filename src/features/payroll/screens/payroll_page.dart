@@ -34,7 +34,6 @@ const _purpLt = Color(0xFFC4B5FD);
 const _teal = Color(0xFF14B8A6);
 const _tealLt = Color(0xFF5EEAD4);
 const _gold = Color(0xFFEAB308);
-const _goldLt = Color(0xFFFDE047);
 const _tp = Color(0xFFF0F6FF);
 const _ts = Color(0xFF8BA4C2);
 const _tm = Color(0xFF3D5470);
@@ -2055,47 +2054,6 @@ class _AnalyticsViewState extends State<_AnalyticsView> {
       ],
     );
   }
-
-  List<Widget> _yearlyBonusSection(BuildContext ctx) {
-    if (c.anaMonth.value != 0) return [];
-    return [
-      Row(
-        children: [
-          const Expanded(child: _SecLbl('🎁 Yearly Bonus (10% of annual pay)')),
-          GestureDetector(
-            onTap: c.isComputingYB.value ? null : c.computeYearlyBonuses,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: _gold.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: _gold.withValues(alpha: 0.4)),
-              ),
-              child: Text(
-                c.isComputingYB.value ? 'Computing…' : '⚡ Compute',
-                style: const TextStyle(
-                  color: _goldLt,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 8),
-      if (c.isLoadingYB.value)
-        const _Spin()
-      else if (c.yearlyBonuses.isEmpty)
-        const Text(
-          'No yearly bonuses computed yet.',
-          style: TextStyle(color: _tm, fontSize: 11),
-        )
-      else
-        ...c.yearlyBonuses.map((yb) => _YBCard(yb: yb, c: c)),
-      const SizedBox(height: 14),
-    ];
-  }
 }
 
 class _AnaHeader extends StatelessWidget {
@@ -2115,7 +2073,6 @@ class _AnaHeader extends StatelessWidget {
             _IBtn(Icons.chevron_left_rounded, 16, () {
               c.anaYear.value--;
               c.fetchAnalytics();
-              c.fetchYearlyBonuses();
             }),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -2131,7 +2088,6 @@ class _AnaHeader extends StatelessWidget {
             _IBtn(Icons.chevron_right_rounded, 16, () {
               c.anaYear.value++;
               c.fetchAnalytics();
-              c.fetchYearlyBonuses();
             }),
           ],
         ),
@@ -2364,126 +2320,6 @@ class _Stat extends StatelessWidget {
       ),
     ),
   );
-}
-
-class _YBCard extends StatelessWidget {
-  final YearlyBonus yb;
-  final PayrollController c;
-  const _YBCard({required this.yb, required this.c});
-  @override
-  Widget build(BuildContext ctx) => Container(
-    margin: const EdgeInsets.only(bottom: 8),
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: _s2,
-      borderRadius: BorderRadius.circular(10),
-      border: Border.all(
-        color: yb.status == 'paid'
-            ? _green.withValues(alpha: 0.35)
-            : _gold.withValues(alpha: 0.3),
-      ),
-    ),
-    child: Row(
-      children: [
-        _Avatar(yb.employeeName, _gold),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                yb.employeeName,
-                style: const TextStyle(
-                  color: _tp,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Text(
-                '${yb.monthsCounted} months  ·  Annual: ${_k(yb.totalAnnualPay)}',
-                style: const TextStyle(color: _ts, fontSize: 10),
-              ),
-            ],
-          ),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              _(yb.bonusAmount),
-              style: const TextStyle(
-                color: _goldLt,
-                fontSize: 16,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const Text('10% bonus', style: TextStyle(color: _tm, fontSize: 9)),
-          ],
-        ),
-        const SizedBox(width: 8),
-        if (yb.status != 'paid')
-          GestureDetector(
-            onTap: () => _payDlg(ctx, yb.id),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                color: _green.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: _green.withValues(alpha: 0.4)),
-              ),
-              child: const Text(
-                'Pay',
-                style: TextStyle(
-                  color: _greenLt,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          )
-        else
-          const Icon(Icons.check_circle_rounded, color: _green, size: 18),
-      ],
-    ),
-  );
-  void _payDlg(BuildContext ctx, String id) {
-    String note = '';
-    showDialog(
-      context: ctx,
-      builder: (_) => AlertDialog(
-        backgroundColor: _s2,
-        title: const Text(
-          'Pay Yearly Bonus',
-          style: TextStyle(color: _tp, fontSize: 14),
-        ),
-        content: TextField(
-          style: const TextStyle(color: _tp, fontSize: 12),
-          decoration: const InputDecoration(
-            hintText: 'Payment note',
-            hintStyle: TextStyle(color: _tm),
-            border: UnderlineInputBorder(),
-          ),
-          onChanged: (v) => note = v,
-        ),
-        actions: [
-          TextButton(
-            onPressed: Get.back,
-            child: const Text('Cancel', style: TextStyle(color: _ts)),
-          ),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              c.payYearlyBonus(id, note);
-            },
-            child: const Text(
-              'Confirm',
-              style: TextStyle(color: _green, fontWeight: FontWeight.w800),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // ══════════════════════════════════════════════════════════════

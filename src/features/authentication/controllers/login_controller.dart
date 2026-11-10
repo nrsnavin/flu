@@ -371,9 +371,21 @@ class LoginController extends GetxController {
   }
 
   // ── Logout ───────────────────────────────────────────────────────────────
-
+  //
+  // Signing out ends the session on the server as well, as the employee
+  // app does. It used to only forget the token on this phone, and the
+  // token itself stayed good, for whoever else had a copy, until it
+  // expired. Offline or slow, the phone signs out anyway after a moment.
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
+    if ((prefs.getString(StorageKeys.token) ?? '').isNotEmpty) {
+      try {
+        // While the token is still stored: the request carries it.
+        await _dio.post('/user/logout').timeout(const Duration(seconds: 5));
+      } catch (_) {
+        // Offline, slow or already ended: sign out here regardless.
+      }
+    }
     await _clearSession(prefs);
     user.value       = User(id: '', name: '', role: '');
     isLoggedIn.value = false;

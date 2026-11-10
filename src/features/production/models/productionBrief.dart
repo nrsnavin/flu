@@ -112,6 +112,8 @@ class DowntimeReason {
 
 // ── Per-machine detail within a shift ────────────────────────
 class MachineShiftDetail {
+  /// The shift entry (ShiftDetail) this row is: what the bulk save posts.
+  final String shiftDetailId;
   final int    rowIndex;
   final String machineId;
   final String machineNo;
@@ -136,6 +138,7 @@ class MachineShiftDetail {
   final String status;
 
   const MachineShiftDetail({
+    this.shiftDetailId = '',
     required this.rowIndex,
     required this.machineId,
     required this.machineNo,
@@ -160,33 +163,41 @@ class MachineShiftDetail {
     required this.status,
   });
 
-  factory MachineShiftDetail.fromJson(Map<String, dynamic> j) {
+  // GET /production/shift-detail sends a row with the machine and the
+  // operator nested, the metres as productionMeters and the operator's
+  // remark as feedback, and no row number. This read the flat keys of an
+  // older payload only, so every card showed "-" and 0 m and the bulk
+  // save had no entry to send. The flat keys still win when present.
+  factory MachineShiftDetail.fromJson(Map<String, dynamic> j, {int index = 0}) {
     final dtList = (j['downtimeReasons'] as List<dynamic>?)
         ?.map((e) => DowntimeReason.fromJson(e as Map<String,dynamic>))
         .toList() ?? [];
+    final mach = j['machine']  is Map ? Map<String, dynamic>.from(j['machine']  as Map) : <String, dynamic>{};
+    final emp  = j['employee'] is Map ? Map<String, dynamic>.from(j['employee'] as Map) : <String, dynamic>{};
     return MachineShiftDetail(
-      rowIndex:        (j['rowIndex']        as num?)?.toInt()    ?? 0,
-      machineId:       j['machineId']?.toString()                 ?? '',
-      machineNo:       j['machineNo']?.toString()                 ?? '-',
-      machineType:     j['machineType']?.toString()               ?? '-',
-      department:      j['department']?.toString()                ?? '-',
-      operatorId:      j['operatorId']?.toString()                ?? '',
-      operatorName:    j['operatorName']?.toString()              ?? '-',
-      operatorDept:    j['operatorDept']?.toString()              ?? '-',
-      operatorSkill:   j['operatorSkill']?.toString()             ?? '-',
-      noOfHeads:       (j['noOfHeads']       as num?)?.toInt()    ?? 0,
-      speed:           (j['speed']           as num?)?.toInt()    ?? 0,
-      target:          (j['target']          as num?)?.toInt()    ?? 0,
-      production:      (j['production']      as num?)?.toInt()    ?? 0,
+      shiftDetailId:   (j['shiftDetailId'] ?? j['_id'])?.toString()     ?? '',
+      rowIndex:        _asInt(j['rowIndex'], index),
+      machineId:       (j['machineId'] ?? mach['id'])?.toString()       ?? '',
+      machineNo:       (j['machineNo'] ?? mach['machineID'])?.toString() ?? '-',
+      machineType:     (j['machineType'] ?? mach['manufacturer'])?.toString() ?? '-',
+      department:      j['department']?.toString()                     ?? '-',
+      operatorId:      (j['operatorId'] ?? emp['id'])?.toString()       ?? '',
+      operatorName:    (j['operatorName'] ?? emp['name'])?.toString()   ?? '-',
+      operatorDept:    (j['operatorDept'] ?? emp['department'])?.toString() ?? '-',
+      operatorSkill:   (j['operatorSkill'] ?? emp['skill'])?.toString() ?? '-',
+      noOfHeads:       _asInt(j['noOfHeads'] ?? mach['noOfHead'], 0),
+      speed:           _asInt(j['speed'], 0),
+      target:          _asInt(j['target'], 0),
+      production:      _asInt(j['production'] ?? j['productionMeters'], 0),
       efficiency:      (j['efficiency']      as num?)?.toDouble() ?? 0,
       timerStart:      j['timerStart']?.toString(),
       timerEnd:        j['timerEnd']?.toString(),
-      runMinutes:      (j['runMinutes']       as num?)?.toInt()   ?? 0,
-      downtimeMinutes: (j['downtimeMinutes']  as num?)?.toInt()   ?? 0,
-      activeMinutes:   (j['activeMinutes']    as num?)?.toInt()   ?? 0,
+      runMinutes:      _asInt(j['runMinutes'], 0),
+      downtimeMinutes: _asInt(j['downtimeMinutes'], 0),
+      activeMinutes:   _asInt(j['activeMinutes'], 0),
       downtimeReasons: dtList,
-      remarks:         j['remarks']?.toString()                   ?? '',
-      status:          j['status']?.toString()                    ?? 'open',
+      remarks:         (j['remarks'] ?? j['feedback'])?.toString()      ?? '',
+      status:          j['status']?.toString()                          ?? 'open',
     );
   }
 
@@ -296,8 +307,17 @@ class ShiftPlanDetail {
       summary: ShiftSummaryStats.fromJson(
           j['summary'] as Map<String,dynamic>? ?? {}),
       machines: (j['machines'] as List<dynamic>?)
-          ?.map((e) => MachineShiftDetail.fromJson(e as Map<String,dynamic>))
+          ?.asMap().entries
+          .map((e) => MachineShiftDetail.fromJson(e.value as Map<String,dynamic>, index: e.key))
           .toList() ?? [],
     );
   }
+}
+
+// A whole number however the server sends it (8, 8.0 or "8"), else the
+// fallback. A cast would throw on a string and take the whole page down.
+int _asInt(dynamic v, int fallback) {
+  if (v is num) return v.toInt();
+  if (v is String) return int.tryParse(v.trim()) ?? fallback;
+  return fallback;
 }

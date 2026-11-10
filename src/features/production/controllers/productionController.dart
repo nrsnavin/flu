@@ -12,6 +12,8 @@ import '../../../core/app_config.dart';
 
 // ── Shared Dio instance ───────────────────────────────────────
 final _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/production');
+// The bulk save lives on the shift routes, as for the Shift list page.
+final _shiftDio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
 // ══════════════════════════════════════════════════════════════
 //  BULK ENTRY MODEL
@@ -39,18 +41,23 @@ class BulkEntry {
 
   /// Returns null if valid, or an error message.
   String? validate() {
+    if (machine.shiftDetailId.isEmpty)
+      return '${machine.machineNo}: this row has no shift entry to save to. Pull to refresh and try again';
     final v = int.tryParse(productionCtrl.text.trim());
     if (v == null || v < 0)
       return '${machine.machineNo}: enter a valid production number';
     return null;
   }
 
+  // What POST /shift/bulk-enter-production takes: the same route and the
+  // same fields as the Shift list's bulk save, which works.
   Map<String, dynamic> toPayload() => {
-    'machineId':  machine.machineId,
-    'rowIndex':   machine.rowIndex,
+    'id':         machine.shiftDetailId,
     'production': int.tryParse(productionCtrl.text.trim()) ?? 0,
-    'timer':      timerCtrl.text.trim(),
-    'remarks':    remarksCtrl.text.trim(),
+    'timer':      timerCtrl.text.trim().isNotEmpty
+        ? timerCtrl.text.trim()
+        : '00:00:00',
+    'feedback':   remarksCtrl.text.trim(),
   };
 }
 
@@ -253,8 +260,9 @@ class ShiftDetailController extends GetxController {
 
     isBulkUpdating.value = true;
     try {
-      await _dio.post('/bulk-enter-production', data: {
-        'shiftPlanId': shiftPlanId,
+      // There is no /production/bulk-enter-production on the server; this
+      // posted there and every save failed.
+      await _shiftDio.post('/shift/bulk-enter-production', data: {
         'entries': bulkEntries.map((e) => e.toPayload()).toList(),
       });
       Get.snackbar(

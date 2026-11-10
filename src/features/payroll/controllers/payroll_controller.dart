@@ -7,7 +7,6 @@
 //   • rejectLeave(id, notes)
 //   • rejectAdvance(id, notes)
 //   • approveAdvance(id, month, year, notes)  — positional, not named
-//   • payYearlyBonus(id, note)
 //   • submitLeaveRequest()     — no args, uses stored leaveEmpId
 //   • submitAdvanceRequest(amount) — 1 arg, uses stored advEmpId
 //   • isSavingRate → RxnString (stores employee ID being saved)
@@ -481,38 +480,12 @@ class PayrollController extends GetxController {
   }
 
   // ════════════════════════════════════════════════════════════
-  //  9. YEARLY BONUS
+  //  9. YEARLY BONUS: RETIRED
+  //  The flat 10%-of-net-pay yearly bonus was retired on the server in
+  //  favour of the attendance-tiered Diwali bonus (the Bonus tab). Its
+  //  compute and pay calls, and the hidden section and card that used
+  //  them, are gone, so nothing here can call the removed routes.
   // ════════════════════════════════════════════════════════════
-  final isLoadingYB   = false.obs;
-  final isComputingYB = false.obs;
-  final yearlyBonuses = <YearlyBonus>[].obs;
-
-  // The flat 10%-of-net-pay yearly bonus was retired backend-side in
-  // favour of the attendance-tiered Diwali bonus (Bonus module). This is
-  // now a no-op so the analytics tab never calls the removed endpoint.
-  Future<void> fetchYearlyBonuses() async {
-    yearlyBonuses.clear();
-  }
-
-  Future<void> computeYearlyBonuses() async {
-    try {
-      isComputingYB.value = true;
-      await _dio.post('/payroll/yearly-bonus/compute',
-          queryParameters: {'year': selectedYear.value});
-      await fetchYearlyBonuses();
-    } catch (e) {
-      _actionFailed('Compute yearly bonus', e);
-    } finally { isComputingYB.value = false; }
-  }
-
-  // FIX #5 — view calls payYearlyBonus(id, note)
-  Future<void> payYearlyBonus(String id, [String note = '']) async {
-    try {
-      await _dio.put('/payroll/yearly-bonus/$id/pay',
-          data: {'paidBy': 'admin', if (note.isNotEmpty) 'paymentNote': note});
-      await fetchYearlyBonuses();
-    } catch (e) { _actionFailed('Pay yearly bonus', e); }
-  }
 
   // ════════════════════════════════════════════════════════════
   //  10. LIFECYCLE

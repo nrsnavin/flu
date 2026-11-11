@@ -8,6 +8,7 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../floor_api.dart';
 import '../floor_models.dart';
 import '../floor_rules.dart';
+import '../widgets/timer_photo_reader.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  FLOOR ENTRY — production loom by loom, opened with a shift PIN
@@ -1006,6 +1007,23 @@ class _EntryViewState extends State<_EntryView> {
                 ),
             ]),
           ],
+          const SizedBox(height: 10),
+          // The photo first: the run time is read off it, and it is kept
+          // with the entry for whoever verifies it.
+          TimerPhotoReader(
+            detailId: _detailId,
+            startHours: _previous?.meterHours,
+            previousMetres: _previous?.counterMetres,
+            onUse: (runTime) {
+              _timer.text = runTime;
+              _runTimeChanged(runTime);
+            },
+            onMetres: (m) => setState(() {
+              _metres.text = _num(m);
+              _filled = null;
+            }),
+            onPinAgain: widget.onPinAgain,
+          ),
           const SizedBox(height: 8),
           TextField(
             controller: _timer,

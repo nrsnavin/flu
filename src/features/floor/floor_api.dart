@@ -1,10 +1,15 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+// Comes with dio; the claims receipt upload imports it the same way.
+// ignore: depend_on_referenced_packages
+import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/app_config.dart';
 import 'floor_models.dart';
+import 'timer_reading.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  THE FLOOR'S OWN CLIENT
@@ -185,4 +190,50 @@ class FloorApi {
         () => _dio.get('/floor/previous-timer-photo', queryParameters: {'machine': machineId}),
         (b) => FloorPreviousTimer.from(b['previous']),
       );
+
+  /// A photo of the loom's timer, read by the server. With [detailId]
+  /// (the loom is on the shift) the photo is kept with the entry for
+  /// whoever verifies it, even when it cannot be read: the refusal then
+  /// carries the photo's id in `details.photoId`.
+  Future<({TimerReading reading, String? photoId})> readTimerPhoto(Uint8List bytes, {String? detailId}) => _call(
+        () => _dio.post(
+          '/floor/timer-photo',
+          data: FormData.fromMap({
+            // Before the file, so the server reads it first.
+            if (detailId != null && detailId.isNotEmpty) 'detailId': detailId,
+            'photo': MultipartFile.fromBytes(bytes, filename: 'timer.${_ext(bytes)}', contentType: _type(bytes)),
+          }),
+          // Reading a photo is an AI call and can take a while.
+          options: Options(receiveTimeout: const Duration(seconds: 60), sendTimeout: const Duration(seconds: 60)),
+        ),
+        (b) => (reading: TimerReading.from(b['reading']), photoId: b['photoId']?.toString()),
+      );
+
+  /// The kept photo the run time was filled from: keeps the meter or
+  /// counter reading for the next shift to start from. Best effort.
+  Future<void> photoUsed(String photoId, String runTime, {MeterReadings? meter, double? counter}) async {
+    try {
+      await _dio.post('/floor/timer-photo/${Uri.encodeComponent(photoId)}/use', data: {
+        'runTime': runTime,
+        if (meter != null) 'meter': {'start': meter.start, 'end': meter.end},
+        if (counter != null) 'counter': counter,
+      });
+    } catch (_) {/* the entry stands without it */}
+  }
+
+  // The server keeps JPEG, PNG and WEBP and checks the type it is told,
+  // so the type is read from the bytes rather than assumed: a phone's
+  // camera gives JPEG, a picture chosen in a browser may be anything.
+  static String _ext(Uint8List b) => switch (_type(b).subtype) { 'png' => 'png', 'webp' => 'webp', _ => 'jpg' };
+
+  static MediaType _type(Uint8List b) {
+    if (b.length > 8 && b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47) {
+      return MediaType('image', 'png');
+    }
+    if (b.length > 12 && b[0] == 0x52 && b[1] == 0x49 && b[2] == 0x46 && b[3] == 0x46 &&
+        b[8] == 0x57 && b[9] == 0x45 && b[10] == 0x42 && b[11] == 0x50) {
+      return MediaType('image', 'webp');
+    }
+    return MediaType('image', 'jpeg');
+  }
 }

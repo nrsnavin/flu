@@ -298,7 +298,19 @@ class FloorPreviousTimer {
   final String? operator;
   final String? runTime;
   final bool verified;
-  const FloorPreviousTimer({required this.shiftLabel, this.operator, this.runTime, this.verified = false});
+  /// Where a total-hours meter stood when that shift ended (its photo):
+  /// this shift's start, so nobody has to remember it.
+  final double? meterHours;
+  /// Where a metre counter on the panel stood when that shift ended.
+  final double? counterMetres;
+  const FloorPreviousTimer({
+    required this.shiftLabel,
+    this.operator,
+    this.runTime,
+    this.verified = false,
+    this.meterHours,
+    this.counterMetres,
+  });
 
   static FloorPreviousTimer? from(Object? raw) {
     if (raw is! Map) return null;
@@ -309,6 +321,8 @@ class FloorPreviousTimer {
       operator: _sn(j['operator']),
       runTime: _sn(j['runTime']) ?? _sn(photo['runTimeUsed']) ?? _sn(photo['readText']),
       verified: j['verified'] == true,
+      meterHours: _dn(photo['meterHours']),
+      counterMetres: _dn(photo['counterMetres']),
     );
   }
 }

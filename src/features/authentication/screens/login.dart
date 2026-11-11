@@ -7,6 +7,7 @@ import 'package:production/src/features/authentication/controllers/login_control
 
 import '../../PurchaseOrder/services/theme.dart';
 import 'forgot_password.dart';
+import 'worker_sign_in.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  SIGNING IN WHEN THE CODE CANNOT COME
@@ -302,6 +303,23 @@ class _LoginState extends State<Login> {
             ),
             onPressed: _usePasswordFromEmailStep,
             child: Text('Sign in with a password instead',
+                style: TextStyle(
+                    color: ErpColors.accentBlue,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700)),
+          ),
+        ),
+        // The other way in: an employee's phone number and PIN. Either
+        // form works for anyone; the account decides where it lands.
+        Center(
+          child: TextButton(
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onPressed: () => Get.off(() => const WorkerSignInPage()),
+            child: Text('Employee? Sign in with phone and PIN',
                 style: TextStyle(
                     color: ErpColors.accentBlue,
                     fontSize: 13,

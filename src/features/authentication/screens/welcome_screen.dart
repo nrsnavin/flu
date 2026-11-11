@@ -170,7 +170,7 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Employees: your phone number and PIN',
+                    'Employees: phone number and PIN, or email',
                     style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 11),
                   ),
                   const SizedBox(height: 10),

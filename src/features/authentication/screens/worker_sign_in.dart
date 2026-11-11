@@ -16,6 +16,12 @@ import 'login.dart';
 //  session is the same one the staff form gives; the server marks it a
 //  worker's, and AuthGate opens the employee screens for it.
 //
+//  Both ways in are open to everyone: phone and PIN here, or email
+//  (a code, or a password) on the staff form, one tap away below.
+//  Whichever is used, the server's answer decides where the person
+//  lands — a worker's own login on the employee screens, an office
+//  login on Home.
+//
 //  Shown two ways:
 //    * from the welcome screen's "Sign in as employee" button, with a
 //      back arrow;
@@ -282,7 +288,7 @@ class _WorkerSignInPageState extends State<WorkerSignInPage> {
               onPressed: () => widget.kiosk
                   ? Get.to(() => const Login())
                   : Get.off(() => const Login()),
-              child: Text('Office staff? Sign in with email',
+              child: Text('Sign in with email instead',
                   style: TextStyle(
                       color: ErpColors.accentBlue,
                       fontSize: 13,

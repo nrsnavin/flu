@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Response;
 import 'package:dio/dio.dart';
 
 import '../../../core/api_client.dart';
@@ -54,9 +54,9 @@ class DashboardController extends GetxController {
       // Fetch the consolidated KPIs and the pending-shifts count in
       // parallel. Pending-shifts failure must not block the rest of
       // the dashboard — catch separately.
-      final results = await Future.wait([
+      final results = await Future.wait<Response?>([
         _dio.get('/kpis'),
-        _shiftDio.get('/pending-verification').catchError((_) => null),
+        _pendingShifts(),
       ]);
 
       final kpiRes = results[0]!;
@@ -95,6 +95,19 @@ class DashboardController extends GetxController {
       errorMsg.value = e.toString();
     } finally {
       loading.value = false;
+    }
+  }
+
+  // The shifts waiting for verification, or null when that call fails, so
+  // a failure there leaves the rest of the dashboard standing. It was
+  // `.catchError((_) => null)` on the request, but a Future<Response>'s
+  // error handler may not answer null: that threw instead, and the whole
+  // dashboard stayed on its spinner (ai_advisor.dart's _safe, for the same).
+  Future<Response?> _pendingShifts() async {
+    try {
+      return await _shiftDio.get('/pending-verification');
+    } catch (_) {
+      return null;
     }
   }
 }

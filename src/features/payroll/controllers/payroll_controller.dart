@@ -377,7 +377,10 @@ class PayrollController extends GetxController {
   //  7. ADVANCE
   // ════════════════════════════════════════════════════════════
   final isLoadingAdv = false.obs;
-  final advApproving = false.obs;
+  // The advance being approved right now, so its card can show "…" and
+  // not offer Approve a second time. It was a plain true/false that the
+  // card compared with an advance's id, which never matched.
+  final advApproving = RxnString();
   final advances     = <AdvanceRequest>[].obs;
   final advError     = Rxn<String>();
   final advFilter    = 'pending'.obs;
@@ -405,8 +408,9 @@ class PayrollController extends GetxController {
   // FIX #4 — view calls approveAdvance(id, month, year, notes) — all positional
   Future<void> approveAdvance(
       String id, int deductMonth, int deductYear, [String notes = '']) async {
+    if (advApproving.value == id) return; // already on its way
     try {
-      advApproving.value = true;
+      advApproving.value = id;
       await _dio.put('/payroll/advance/$id/approve', data: {
         'deductMonth': deductMonth,
         'deductYear':  deductYear,
@@ -415,7 +419,7 @@ class PayrollController extends GetxController {
       await fetchAdvances();
     } catch (e) {
       _actionFailed('Approve advance', e);
-    } finally { advApproving.value = false; }
+    } finally { advApproving.value = null; }
   }
 
   // FIX #3 — view calls rejectAdvance(id, notes)
@@ -496,6 +500,27 @@ class PayrollController extends GetxController {
     fetchDashboard();
     fetchSettings();
     fetchRates();
+    ever(activeView, _loadView);
+  }
+
+  // A tab's list loads when the tab is opened. Only Monthly, Rates and
+  // Settings were loaded at the start, so Leave, Analytics and Advance
+  // opened on "No … requests" until a filter chip or the refresh button
+  // was tapped, and a new leave or advance request looked like none.
+  void _loadView(PayrollView v) {
+    switch (v) {
+      case PayrollView.leave:
+        fetchLeaveRequests();
+        break;
+      case PayrollView.advance:
+        fetchAdvances();
+        break;
+      case PayrollView.analytics:
+        fetchAnalytics();
+        break;
+      default:
+        break;
+    }
   }
 
   @override

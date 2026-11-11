@@ -2556,7 +2556,8 @@ class _AdvCard extends StatelessWidget {
                 child: _SmBtn(
                   isApproving ? '…' : '✅ Approve',
                   _green,
-                      () => _approveDlg(ctx, adv.id),
+                  // While it is being approved, a second tap does nothing.
+                  isApproving ? () {} : () => _approveDlg(ctx, adv.id),
                 ),
               ),
               const SizedBox(width: 8),

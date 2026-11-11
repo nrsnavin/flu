@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import '../../profile/screens/user_details_page.dart';
 
-import 'package:production/src/features/authentication/screens/login.dart';
+import '../controllers/login_controller.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../services/nav_registry.dart';
 import 'global_search_sheet.dart';
@@ -385,7 +385,18 @@ class _AccountSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          onPressed: () => Get.offAll(() => const Login()),
+          // Signing out ends the session on this phone and on the server
+          // (LoginController.logout), as the profile page and the app lock
+          // do. This only opened the login page: the token stayed stored
+          // and the session open, so the next person to open the app was
+          // signed in as whoever had just signed out.
+          onPressed: () async {
+            Get.back(); // the dialog
+            await LoginController.find.logout();
+            // Back to the first screen, where AuthGate now shows the
+            // welcome screen.
+            Get.until((route) => route.isFirst);
+          },
           child: const Text(
             'Logout',
             style: TextStyle(

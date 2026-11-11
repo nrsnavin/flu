@@ -41,11 +41,13 @@ class BulkEntry {
 
   /// Returns null if valid, or an error message.
   String? validate() {
-    if (machine.shiftDetailId.isEmpty)
+    if (machine.shiftDetailId.isEmpty) {
       return '${machine.machineNo}: this row has no shift entry to save to. Pull to refresh and try again';
+    }
     final v = int.tryParse(productionCtrl.text.trim());
-    if (v == null || v < 0)
+    if (v == null || v < 0) {
       return '${machine.machineNo}: enter a valid production number';
+    }
     return null;
   }
 

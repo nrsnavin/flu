@@ -80,13 +80,33 @@ Future<Uint8List?> fetchServerPdf(String path) async {
 /// generator behind this one, and a sheet without codes beats no
 /// sheet at all on a bad connection.
 Future<Uint8List?> fetchShiftSheetPdf(String shiftPlanId) =>
-    fetchServerPdf('/shift/\$shiftPlanId/production-sheet.pdf');
+    fetchServerPdf(shiftSheetPdfPath(shiftPlanId));
 
 /// Purchase order — rendered from the "purchase-order" template.
-Future<Uint8List?> fetchPoPdf(String poId) => fetchServerPdf('/supplier/po/$poId/pdf');
+Future<Uint8List?> fetchPoPdf(String poId) => fetchServerPdf(poPdfPath(poId));
 
 /// Delivery challan — rendered from the "delivery-challan" template.
-Future<Uint8List?> fetchDcPdf(String dcId) => fetchServerPdf('/dc/$dcId/pdf');
+Future<Uint8List?> fetchDcPdf(String dcId) => fetchServerPdf(dcPdfPath(dcId));
+
+/// One employee's payslip for a month — services/payslipPdf.js, the
+/// copy the web prints, with the name in Tamil where one is set. Null
+/// on failure: the phone can still draw a payslip itself.
+Future<Uint8List?> fetchPayslipPdf(String employeeId,
+        {required int year, required int month}) =>
+    fetchServerPdf(payslipPdfPath(employeeId, year: year, month: month));
+
+// ── Where each document lives on the server ────────────────────
+// Plain functions, so a test can hold them to the server's routes.
+// The shift sheet's once read '/shift/\$shiftPlanId/…' — the escaped
+// dollar sent those words instead of the id, the server refused them,
+// and every sheet printed from the phone came out without QR codes.
+String shiftSheetPdfPath(String shiftPlanId) =>
+    '/shift/$shiftPlanId/production-sheet.pdf';
+String poPdfPath(String poId) => '/supplier/po/$poId/pdf';
+String dcPdfPath(String dcId) => '/dc/$dcId/pdf';
+String payslipPdfPath(String employeeId,
+        {required int year, required int month}) =>
+    '/payroll/slip/$employeeId/pdf?year=$year&month=$month';
 
 // ── For documents the app cannot draw itself ──────────────────
 

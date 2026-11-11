@@ -11,6 +11,7 @@ import '../../PurchaseOrder/services/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:production/src/features/payroll/screens/pdf.dart';
+import '../../../core/server_pdf.dart' show fetchPayslipPdf;
 import '../controllers/payroll_controller.dart';
 import '../models/payroll_models.dart';
 import 'Bonus_tab.dart';
@@ -3414,11 +3415,36 @@ class _PdfButtonState extends State<_PdfButton> {
   Future<void> _generate() async {
     setState(() => _busy = true);
     try {
+      final ps = widget.ps;
+      // The server's payslip first: it is the copy the web prints, with
+      // the name in Tamil where one is set. The phone's own layout is
+      // only for when the server cannot be reached — and says so, since
+      // the two can differ.
+      final server = ps.employeeId.isEmpty
+          ? null
+          : await fetchPayslipPdf(ps.employeeId,
+              year: ps.year, month: ps.month);
+      if (server != null) {
+        await PayslipPdfService.openOrShare(server, ps);
+        return;
+      }
       final bytes = await PayslipPdfService.generate(
-        widget.ps,
+        ps,
         attendance: widget.body._att,
       );
-      await PayslipPdfService.openOrShare(bytes, widget.ps);
+      await PayslipPdfService.openOrShare(bytes, ps);
+      if (mounted) {
+        Get.snackbar(
+          'Drawn on the phone',
+          'Could not reach the server, so this payslip was drawn on the '
+              'phone. It can differ from the copy the web prints.',
+          backgroundColor: ErpColors.solidWarning,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 6),
+          margin: const EdgeInsets.all(12),
+        );
+      }
     } catch (e) {
       if (mounted) {
         Get.snackbar(

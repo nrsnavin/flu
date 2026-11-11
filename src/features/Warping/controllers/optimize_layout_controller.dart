@@ -120,8 +120,10 @@ class OptimizeLayoutController extends GetxController {
         warpingId: warpingId,
         beams: editable,
         remarks: m != null
-            ? 'AI-optimised layout · ${m.beamsUsed} beams · ${m.fillRate}% fill'
-            : 'AI-optimised layout',
+            // The optimiser is a deterministic bin-pack, not AI — the
+            // remark is stored on the plan, so it says what it was.
+            ? 'Optimised layout · ${m.beamsUsed} beams · ${m.fillRate}% fill'
+            : 'Optimised layout',
       );
       return true;
     } catch (_) {

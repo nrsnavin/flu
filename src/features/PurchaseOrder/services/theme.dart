@@ -948,33 +948,6 @@ class ErpProgressBar extends StatelessWidget {
   }
 }
 
-// ── Page wrapper for all PO pages ─────────────────────────────
-class ErpPage extends StatelessWidget {
-  final Widget appBar;
-  final Widget body;
-  final Widget? bottomBar;
-  final Widget? fab;
-
-  const ErpPage({
-    super.key,
-    required this.appBar,
-    required this.body,
-    this.bottomBar,
-    this.fab,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ErpColors.bgBase,
-      appBar: appBar as PreferredSizeWidget,
-      body: body,
-      bottomNavigationBar: bottomBar,
-      floatingActionButton: fab,
-    );
-  }
-}
-
 // ══════════════════════════════════════════════════════════════
 //  DATE AND TIME PICKERS
 //

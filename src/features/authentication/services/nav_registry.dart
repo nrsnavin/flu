@@ -55,6 +55,16 @@ import 'package:production/src/features/shift/screens/pending_verification_page.
 import 'package:production/src/features/shift/screens/shift_list_page.dart';
 import 'package:production/src/features/supplier/screen/supplier_list_page.dart';
 import 'package:production/src/features/wastage/screens/wastage_list.dart';
+// Modules that were reachable only from the Home quick links.
+import 'package:production/src/features/planning/screens/auto_planner_page.dart' show AutoPlannerPage;
+import 'package:production/src/features/Orders/screens/delivery_risk_page.dart' show DeliveryRiskPage;
+import 'package:production/src/features/qc/screens/qc_list_page.dart' show QcListPage;
+import 'package:production/src/features/assistant/screens/assistant_chat_page.dart' show AssistantChatPage;
+import 'package:production/src/features/materials/screens/forecast_page.dart' show ForecastPage;
+import 'package:production/src/features/elasticGroups/screens/elastic_group_list_page.dart' show ElasticGroupListPage;
+import 'package:production/src/features/audit/screens/audit_trail_page.dart' show AuditTrailPage;
+import 'package:production/src/features/users/screens/users_list_page.dart' show UsersListPage;
+import 'package:production/src/features/settings/screens/document_settings_page.dart' show DocumentSettingsPage;
 
 /// One module entry — id, display label, icon, what to open, plus a
 /// `section` for the grouped Modules page and a `keywords` list for
@@ -151,6 +161,12 @@ class NavRegistry extends GetxController {
   NavModule? byId(String id) => _byId[id];
 
   /// Sections in the canonical display order used by the Modules page.
+  ///
+  /// Every module's `section` must be one of these. More lists only
+  /// these sections, so a module filed under any other name is in the
+  /// catalogue and in search but in no menu — Stock Counts, Material
+  /// Groups, Service Spend and Complaints sat like that under
+  /// INVENTORY, MAINTENANCE and PEOPLE & FEEDBACK.
   static const sectionsOrder = <String>[
     'PEOPLE',
     'CUSTOMERS & ORDERS',
@@ -159,6 +175,7 @@ class NavRegistry extends GetxController {
     'SHIFT MANAGEMENT',
     'HR & COMMUNICATION',
     'ANALYTICS',
+    'ADMINISTRATION',
   ];
 
   List<NavModule> modulesInSection(String section) => _modules
@@ -372,7 +389,7 @@ class NavRegistry extends GetxController {
     ),
     NavModule(
       id: 'stock_counts', feature: '/materials', label: 'Stock Counts',
-      icon: Icons.fact_check_outlined, section: 'INVENTORY',
+      icon: Icons.fact_check_outlined, section: 'PRODUCTION',
       keywords: const ['physical inventory', 'count', 'variance', 'stocktake'],
       open: () => Get.to(() => const StockCountListPageView()),
     ),
@@ -382,7 +399,7 @@ class NavRegistry extends GetxController {
       // An unregistered key is dropped by sanitizeFeatures(), so
       // inventing one here would hide the screen with no error.
       id: 'material_groups', feature: '/materials', label: 'Material Groups',
-      icon: Icons.category_outlined, section: 'INVENTORY',
+      icon: Icons.category_outlined, section: 'PRODUCTION',
       keywords: const ['category', 'categories', 'group', 'warp', 'weft', 'rubber'],
       open: () => Get.to(() => const MaterialGroupsPage()),
     ),
@@ -489,7 +506,7 @@ class NavRegistry extends GetxController {
     ),
     NavModule(
       id: 'complaints', feature: '/complaints', label: 'Complaints',
-      icon: Icons.report_problem_outlined, section: 'PEOPLE & FEEDBACK',
+      icon: Icons.report_problem_outlined, section: 'CUSTOMERS & ORDERS',
       keywords: const ['customer complaint', 'defect', 'recall', 'trace', 'blast radius'],
       open: () => Get.to(() => const ComplaintListPage()),
     ),
@@ -501,7 +518,7 @@ class NavRegistry extends GetxController {
     ),
     NavModule(
       id: 'service_spend', feature: '/machines', label: 'Service Spend',
-      icon: Icons.currency_rupee_rounded, section: 'MAINTENANCE',
+      icon: Icons.currency_rupee_rounded, section: 'HR & COMMUNICATION',
       keywords: const ['machine cost', 'analytics', 'spend', 'costliest', 'patterns'],
       open: () => Get.to(() => const ServiceAnalyticsPage()),
     ),
@@ -574,6 +591,67 @@ class NavRegistry extends GetxController {
       icon: Icons.swap_vert_rounded, section: 'ANALYTICS',
       keywords: const ['report', 'movement', 'ledger', 'inward', 'outward', 'consumption', 'stock'],
       open: () => Get.to(() => const StockMovementsReportScreen()),
+    ),
+
+    // ── Once reachable only from the Home quick links ───────────
+    // Not in More and not in search, so whoever did not scroll Home
+    // never found them. Same permission keys as the quick links, so
+    // nobody sees a module here they could not open there.
+    NavModule(
+      id: 'auto_planner', feature: '/planner', label: 'Auto Planner',
+      icon: Icons.auto_fix_high_outlined, section: 'PRODUCTION',
+      keywords: const ['planner', 'plan', 'schedule', 'machine assignment', 'loom plan'],
+      open: () => Get.to(() => const AutoPlannerPage()),
+    ),
+    NavModule(
+      id: 'qc', feature: '/qc', label: 'Quality Control',
+      icon: Icons.verified_outlined, section: 'PRODUCTION',
+      keywords: const ['qc', 'quality', 'inspection', 'coa', 'certificate', 'defect'],
+      open: () => Get.to(() => const QcListPage()),
+    ),
+    NavModule(
+      id: 'replenishment_forecast', feature: '/materials', label: 'Replenishment Forecast',
+      icon: Icons.trending_up_outlined, section: 'PRODUCTION',
+      keywords: const ['forecast', 'reorder', 'replenish', 'low stock', 'yarn', 'run out'],
+      open: () => Get.to(() => const ForecastPage()),
+    ),
+    NavModule(
+      id: 'elastic_groups', feature: '/elastic-groups', label: 'Elastic Groups',
+      icon: Icons.workspaces_outline, section: 'PRODUCTION',
+      keywords: const ['group', 'family', 'families', 'elastic group'],
+      open: () => Get.to(() => const ElasticGroupListPage()),
+    ),
+    NavModule(
+      id: 'delivery_risk', feature: '/orders', label: 'Delivery Risk',
+      icon: Icons.running_with_errors_rounded, section: 'CUSTOMERS & ORDERS',
+      keywords: const ['late', 'at risk', 'eta', 'overdue', 'due date', 'delay'],
+      open: () => Get.to(() => const DeliveryRiskPage()),
+    ),
+    NavModule(
+      id: 'ask_jarvis', feature: '/assistant', label: 'Ask Jarvis',
+      icon: Icons.smart_toy_outlined, section: 'ANALYTICS',
+      keywords: const ['jarvis', 'assistant', 'ask', 'question', 'chat', 'ai'],
+      open: () => Get.to(() => const AssistantChatPage()),
+    ),
+    NavModule(
+      id: 'audit_trail', feature: '/audit', label: 'Audit Trail',
+      icon: Icons.history, section: 'ANALYTICS',
+      keywords: const ['audit', 'history', 'changes', 'who changed', 'log'],
+      open: () => Get.to(() => const AuditTrailPage()),
+    ),
+
+    // ADMINISTRATION
+    NavModule(
+      id: 'users', feature: '/users', label: 'Users',
+      icon: Icons.manage_accounts_outlined, section: 'ADMINISTRATION',
+      keywords: const ['logins', 'accounts', 'permissions', 'roles', 'access', 'password'],
+      open: () => Get.to(() => const UsersListPage()),
+    ),
+    NavModule(
+      id: 'document_settings', feature: '/settings', label: 'Document Settings',
+      icon: Icons.description_outlined, section: 'ADMINISTRATION',
+      keywords: const ['settings', 'company details', 'letterhead', 'gstin', 'address', 'terms', 'footer', 'pdf'],
+      open: () => Get.to(() => const DocumentSettingsPage()),
     ),
   ];
 }

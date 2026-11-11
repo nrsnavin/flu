@@ -87,6 +87,8 @@ class _ErpShellState extends State<ErpShell> {
         foregroundColor: Colors.white,
         elevation: 6,
         onPressed: _openSearch,
+        // Without it a screen reader announces only "button".
+        tooltip: 'Search',
         child: const Icon(Icons.search_rounded, size: 26),
       ),
       floatingActionButtonLocation:

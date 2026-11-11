@@ -136,6 +136,9 @@ class PayrollLineItem {
 // ══════════════════════════════════════════════════════════════
 class PayrollDoc {
   final String id, employeeName, department, status;
+  /// The employee's id — what the server's payslip PDF is fetched by.
+  /// Empty when the response did not carry it.
+  final String employeeId;
   final double hourlyRate;
   final int    month, year;
   final int    totalShifts, presentShifts, halfDayShifts, absentShifts;
@@ -169,6 +172,7 @@ class PayrollDoc {
     required this.totalOvertimeMinutes, required this.overtimeEarnings,
     required this.longestStreak, required this.perfectAttendance, required this.lineItems,
     this.paidAt, this.paidBy, this.paymentNote,
+    this.employeeId = '',
   });
 
   factory PayrollDoc.fromJson(Map<String, dynamic> raw) {
@@ -176,6 +180,9 @@ class PayrollDoc {
     final emp = j['employee'];
     return PayrollDoc(
         id: _s(j['_id'] ?? j['id']),
+        employeeId: emp is Map
+            ? _s(emp['_id'] ?? emp['id'])
+            : _s(emp ?? j['employeeId']),
         employeeName: emp is Map ? _s(emp['name']) : _s(j['employeeName']),
         department:   emp is Map ? _s(emp['department']) : _s(j['department']),
         hourlyRate:   _d(j['hourlyRate']), month: _i(j['month']), year: _i(j['year']),

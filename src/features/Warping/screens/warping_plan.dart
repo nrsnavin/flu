@@ -11,7 +11,7 @@ import '../models/models.dart';
 //  NESTED Obx FIXES (this revision):
 //  All child widgets (_BeamCountCard, _StepperField, _BeamCard,
 //  _SectionRow dropdown, _TotalEndsCard, _SubmitButton,
-//  _AiGenerateButton, _AiBadge) previously had their own Obx
+//  _SuggestLayoutButton, _AiBadge) previously had their own Obx
 //  wrappers while already sitting inside the single outer Obx
 //  in _WarpingPlanPageState.build(). Removed every nested Obx.
 //  Only the one outer Obx remains — all children just read
@@ -65,11 +65,11 @@ class _WarpingPlanPageState extends State<WarpingPlanPage> {
               _WarnBanner(
                   'No warp yarns found for this job. Check the elastic configuration.'),
 
-            // ── AI generate button ─────────────────────────
-            _AiGenerateButton(c: c),
+            // ── Suggest a layout (server optimiser) ─────────
+            _SuggestLayoutButton(c: c),
             const SizedBox(height: 12),
 
-            // ── AI badge (visible after generation / prefill) ──
+            // ── Badge (visible after a suggestion / prefill) ──
             if (c.aiRemarks.value != null)
               _AiBadge(
                   remarks: c.aiRemarks.value!,
@@ -160,18 +160,21 @@ class _WarpingPlanPageState extends State<WarpingPlanPage> {
 }
 
 // ════════════════════════════════════════════════════════════
-//  AI GENERATE BUTTON
+//  SUGGEST LAYOUT BUTTON
+//  Asks the server's layout optimiser for beams (see
+//  WarpingPlanController.suggestLayout). It once promised an AI plan
+//  from a route the server never had.
 //  No Obx — reads c.isGenerating directly (inside outer Obx)
 // ════════════════════════════════════════════════════════════
-class _AiGenerateButton extends StatelessWidget {
+class _SuggestLayoutButton extends StatelessWidget {
   final WarpingPlanController c;
-  const _AiGenerateButton({required this.c});
+  const _SuggestLayoutButton({required this.c});
 
   @override
   Widget build(BuildContext context) {
     final generating = c.isGenerating.value; // read directly — inside outer Obx
     return GestureDetector(
-      onTap: generating ? null : c.generateFromAi,
+      onTap: generating ? null : c.suggestLayout,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
@@ -210,7 +213,7 @@ class _AiGenerateButton extends StatelessWidget {
               child: CircularProgressIndicator(
                   color: ErpColors.accentBlue, strokeWidth: 2.5),
             )
-                : Icon(Icons.auto_awesome_rounded,
+                : Icon(Icons.view_week_rounded,
                 key: ValueKey('icon'),
                 size: 22,
                 color: ErpColors.accentBlue),
@@ -222,8 +225,8 @@ class _AiGenerateButton extends StatelessWidget {
               children: [
                 Text(
                   generating
-                      ? 'Claude is generating a plan…'
-                      : 'Generate with AI',
+                      ? 'Working out a layout…'
+                      : 'Suggest a layout',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -235,8 +238,9 @@ class _AiGenerateButton extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   generating
-                      ? 'Analysing elastic spec — this may take a few seconds'
-                      : 'Let Claude suggest beams, sections and ends based on the elastic spec',
+                      ? "Packing the job's warp yarns onto beams"
+                      : "Packs the job's warp yarns onto as few beams as fit. "
+                          'Nothing is saved until you save the plan.',
                   style: const TextStyle(
                       fontSize: 10, color: Color(0xFF8BAAC8)),
                 ),
@@ -251,7 +255,7 @@ class _AiGenerateButton extends StatelessWidget {
                 color: ErpColors.accentBlue,
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: const Text('Generate',
+              child: const Text('Suggest',
                   style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -264,7 +268,7 @@ class _AiGenerateButton extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════
-//  AI BADGE
+//  PLAN BADGE (after a suggested layout or the template prefill)
 //  Pure StatelessWidget — no Obx (parent Obx controls visibility)
 // ════════════════════════════════════════════════════════════
 class _AiBadge extends StatelessWidget {
@@ -291,7 +295,7 @@ class _AiBadge extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                'AI plan loaded — review and edit before submitting',
+                'Plan filled in — review and edit before saving',
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,

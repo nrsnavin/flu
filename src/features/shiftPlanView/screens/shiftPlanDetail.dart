@@ -95,6 +95,7 @@ class _ShiftPlanDetailPageState extends State<ShiftPlanDetailPage> {
     actions: [
       Obx(() => c.shiftDetail.value != null
           ? IconButton(
+        tooltip: 'Production sheet',
         icon: const Icon(Icons.picture_as_pdf_outlined,
             color: Colors.white, size: 20),
         onPressed: () => Navigator.of(context).push(

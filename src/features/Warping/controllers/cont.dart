@@ -106,6 +106,14 @@ class WarpingApi {
     return WarpingPlanDetail.fromJson(res.data['plan'] as Map<String, dynamic>);
   }
 
+  /// The server's proposed beam layout for a warping: the job's warp-yarn
+  /// ends packed onto as few beams as fit (GET /optimize-layout/:id).
+  /// Deterministic — the same proposal the "Optimise layout" page shows.
+  static Future<Map<String, dynamic>> optimizeLayout(String warpingId) async {
+    final res = await _dio.get('/optimize-layout/$warpingId');
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
   // DELETE /warpingPlan/:id — removes the plan (only while warping is open)
   // so a corrected one can be created. Requires an audit reason; the server
   // stamps a WARPING_PLAN_DELETED fingerprint on the parent job.
@@ -113,6 +121,25 @@ class WarpingApi {
     await _dio.delete('/warpingPlan/$planId',
         queryParameters: {'auditReason': auditReason});
   }
+}
+
+/// One line on what the layout optimiser proposed, for the badge over
+/// the beams — e.g. "3 beams of up to 600 ends · 86% full · 2 fewer than
+/// one yarn per beam".
+String layoutSummary(Map<String, dynamic> data) {
+  int n(Object? v) => v is num ? v.toInt() : int.tryParse('${v ?? ''}') ?? 0;
+  final m = data['metrics'] is Map
+      ? Map<String, dynamic>.from(data['metrics'] as Map)
+      : const <String, dynamic>{};
+  final used     = n(m['beamsUsed']);
+  final saved    = n(m['beamsSaved']);
+  final capacity = n(data['capacity']);
+  return [
+    '$used beam${used == 1 ? '' : 's'}'
+        '${capacity > 0 ? ' of up to $capacity ends' : ''}',
+    '${n(m['fillRate'])}% full',
+    if (saved > 0) '$saved fewer than one yarn per beam',
+  ].join(' · ');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -363,8 +390,6 @@ class WarpingPlanController extends GetxController {
   final String jobId;
   final String warpingId;
   WarpingPlanController(this.jobId, this.warpingId);
-
-  static final _aiDio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
   final warpYarns    = <WarpYarnOption>[].obs;
 
@@ -859,30 +884,62 @@ class WarpingPlanController extends GetxController {
     beams.refresh();
   }
 
-  // ── AI Generation ────────────────────────────────────────
-  Future<void> generateFromAi() async {
+  // ── Suggested layout ─────────────────────────────────────
+  //  This button used to post to /ai/generate-warping-plan, a route the
+  //  server has never had, so every tap ended in an error. It now asks
+  //  the server's layout optimiser — the one the "Optimise layout" page
+  //  uses — and fills the editor with its beams. Nothing is saved until
+  //  the planner presses Save.
+  //
+  //  The optimiser says nothing about metres. Rather than leave every
+  //  section at 0, a section takes the shared value in uniform mode, or
+  //  else the metres its yarn already had in this editor.
+  Future<void> suggestLayout() async {
     if (isGenerating.value) return;
     isGenerating.value = true;
     try {
-      final res = await _aiDio.post('/ai/generate-warping-plan', data: {
-        'jobId':     jobId,
-        'warpingId': warpingId,
-      });
-      final plan     = res.data['plan'] as Map<String, dynamic>;
-      final rawBeams = plan['beams'] as List? ?? [];
-      final generated = _beamsFromRaw(rawBeams, startBeamNo: 1);
-      beams.assignAll(generated);
-      beamCount.value = generated.length;
-      // An AI plan is NOT the template repeated — it is its own
-      // proposal. Without this the tapes stepper would still be live
-      // and the next tap on it would silently replace the whole
-      // generated plan with the template.
+      final data     = await WarpingApi.optimizeLayout(warpingId);
+      final rawBeams = data['beams'] as List? ?? [];
+      if (rawBeams.isEmpty) {
+        _snack(data['message']?.toString() ??
+            'No warp-yarn ends found on this job', isError: true);
+        return;
+      }
+
+      final metresByYarn = <String, double>{};
+      for (final b in beams) {
+        for (final s in b.sections) {
+          final id = s.warpYarnId ?? '';
+          if (id.isNotEmpty && s.maxMeters > 0) {
+            metresByYarn.putIfAbsent(id, () => s.maxMeters);
+          }
+        }
+      }
+      final shared = uniformMaxMeters.value
+          ? (double.tryParse(uniformMaxMetersCtrl.text.trim()) ?? 0)
+          : 0.0;
+
+      final suggested = _beamsFromRaw(rawBeams, startBeamNo: 1);
+      for (final b in suggested) {
+        for (final s in b.sections) {
+          if (s.maxMeters > 0) continue;
+          s.maxMeters = shared > 0 ? shared : (metresByYarn[s.warpYarnId ?? ''] ?? 0);
+        }
+      }
+      beams.assignAll(suggested);
+      beamCount.value = suggested.length;
+      // A suggestion is NOT the template repeated. Without this the
+      // tapes stepper would still be live, and its next tap would
+      // silently replace the suggestion with the template.
       _touchBeams();
       _syncControllers();
-      aiRemarks.value = plan['remarks']?.toString() ?? '';
-      _snack('AI plan generated — review and edit below', isError: false);
+      aiRemarks.value = 'Suggested layout: ${layoutSummary(data)}.';
+      _snack('Layout suggested — check the metres, then save', isError: false);
     } on DioException catch (e) {
-      _snack(e.response?.data?['message'] as String? ?? 'AI generation failed', isError: true);
+      final body = e.response?.data;
+      _snack(body is Map && body['message'] != null
+          ? '${body['message']}'
+          : "Couldn't suggest a layout", isError: true);
     } catch (e) {
       _snack('Unexpected error: $e', isError: true);
     } finally {

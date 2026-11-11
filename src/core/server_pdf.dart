@@ -107,6 +107,12 @@ String dcPdfPath(String dcId) => '/dc/$dcId/pdf';
 String payslipPdfPath(String employeeId,
         {required int year, required int month}) =>
     '/payroll/slip/$employeeId/pdf?year=$year&month=$month';
+String invoicePdfPath(String invoiceId) => '/invoice/$invoiceId/pdf';
+
+/// The bytes of a server PDF, or a [ServerPdfError] with words — for a
+/// preview with share and print, where a silent null would leave a
+/// button that does nothing. Same checks as [openServerPdf].
+Future<Uint8List> serverPdfBytes(String path) => _strictFetch(path);
 
 // ── For documents the app cannot draw itself ──────────────────
 

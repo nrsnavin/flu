@@ -26,6 +26,10 @@ const List<FeatureDef> kFeatures = [
   FeatureDef('/quotes', 'Quotations', 'Sales', ['admin', 'finance']),
   FeatureDef('/jobs', 'Job Orders', 'Sales', ['admin', 'production', 'packing']),
   FeatureDef('/delivery-challans', 'Delivery Challans', 'Sales', ['admin', 'finance']),
+  // Tax invoices raised against an order's challans, with the IRN.
+  FeatureDef('/invoices', 'Invoices', 'Sales', ['admin', 'finance']),
+  // Bills, expenses, receipts and payments, ledgers and ageing.
+  FeatureDef('/accounts', 'Accounts', 'Sales', ['admin', 'finance']),
   FeatureDef('/samples', 'Sample Requests', 'Sales', ['admin', 'finance', 'production']),
 
   FeatureDef('/planner', 'Auto Planner', 'Production', ['admin', 'production']),
@@ -55,6 +59,8 @@ const List<FeatureDef> kFeatures = [
 
   FeatureDef('/announcements', 'Announcements', 'Communication'),
   FeatureDef('/feedback', 'Feedback', 'Communication'),
+  // Anyone signed in enters what they spent; Accounts approves.
+  FeatureDef('/claims', 'Expense Claims', 'Communication'),
   FeatureDef('/machine-issues', 'Machine Issues', 'Communication'),
   FeatureDef('/notification-settings', 'Notifications', 'Communication', ['admin']),
 

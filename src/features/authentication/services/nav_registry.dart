@@ -65,6 +65,8 @@ import 'package:production/src/features/elasticGroups/screens/elastic_group_list
 import 'package:production/src/features/audit/screens/audit_trail_page.dart' show AuditTrailPage;
 import 'package:production/src/features/users/screens/users_list_page.dart' show UsersListPage;
 import 'package:production/src/features/settings/screens/document_settings_page.dart' show DocumentSettingsPage;
+// Money on the phone.
+import 'package:production/src/features/invoices/screens/invoice_list_page.dart' show InvoiceListPage;
 
 /// One module entry — id, display label, icon, what to open, plus a
 /// `section` for the grouped Modules page and a `keywords` list for
@@ -620,6 +622,14 @@ class NavRegistry extends GetxController {
       icon: Icons.workspaces_outline, section: 'PRODUCTION',
       keywords: const ['group', 'family', 'families', 'elastic group'],
       open: () => Get.to(() => const ElasticGroupListPage()),
+    ),
+    // Raised from an order's page, against its challans; listed, read,
+    // shared and cancelled here.
+    NavModule(
+      id: 'invoices', feature: '/invoices', label: 'Invoices',
+      icon: Icons.request_page_outlined, section: 'CUSTOMERS & ORDERS',
+      keywords: const ['invoice', 'tax invoice', 'bill', 'gst', 'irn', 'e-invoice', 'sales'],
+      open: () => Get.to(() => const InvoiceListPage()),
     ),
     NavModule(
       id: 'delivery_risk', feature: '/orders', label: 'Delivery Risk',

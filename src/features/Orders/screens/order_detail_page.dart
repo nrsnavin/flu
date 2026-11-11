@@ -9,6 +9,7 @@ import '../../Job/screens/add_job_page.dart';
 import '../../Job/screens/job_detail.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../../../core/server_pdf.dart';
+import '../../invoices/widgets/order_invoices_section.dart';
 import '../controllers/running_order_eta_controller.dart';
 import '../widgets/running_order_eta_card.dart';
 import 'add_order_page.dart' show AddOrderPage;
@@ -129,6 +130,12 @@ class OrderDetailPage extends StatelessWidget {
                 _RawMaterialSection(order: order),
                 const SizedBox(height: 10),
                 _JobOrdersSection(order: order),
+                const SizedBox(height: 10),
+                // Its invoices, and the challans still to go on one.
+                OrderInvoicesSection(
+                  key: ValueKey('invoices-${order["_id"]}'),
+                  orderId: order["_id"]?.toString() ?? '',
+                ),
                 const SizedBox(height: 10),
                 // 🪪 Fingerprint timeline — every action recorded
                 FingerprintTimeline(

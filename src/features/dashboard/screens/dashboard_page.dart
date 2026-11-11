@@ -26,6 +26,15 @@ import '../../authentication/controllers/login_controller.dart';
 import '../../../core/features.dart';
 import '../../../core/scan_navigate.dart';
 import '../controllers/dashboard_controller.dart';
+import '../models/overview_models.dart';
+// Where each decision on the Home is made.
+import '../../accounts/screens/approvals_page.dart' show ApprovalsPage;
+import '../../accounts/screens/collections_page.dart' show CollectionsPage;
+import '../../accounts/screens/voucher_entry_page.dart' show VoucherEntryPage;
+import '../../invoices/screens/invoice_list_page.dart' show InvoiceListPage;
+import '../../payroll/models/payroll_models.dart' show PayrollView;
+import '../../payroll/screens/payroll_page.dart' show PayrollPage;
+import '../../PurchaseOrder/screnns/po_aging_page.dart' show POAgingPage;
 
 // ══════════════════════════════════════════════════════════════
 //  ADMIN DASHBOARD
@@ -103,6 +112,7 @@ class DashboardPage extends StatelessWidget {
             children: [
               const AISuggestionsStrip(),
               const SizedBox(height: 14),
+              _DecisionsCard(ctrl: ctrl),
               _KpiGrid(ctrl: ctrl),
               const SizedBox(height: 12),
               _PendingShiftsBanner(ctrl: ctrl),
@@ -116,6 +126,127 @@ class DashboardPage extends StatelessWidget {
           ),
         );
       }),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  WAITING FOR YOU
+//
+//  The server's list of what needs a decision for this role (GET
+//  /dashboard/overview), each with a count and its first few lines,
+//  opening the screen where it is decided — when the person may open
+//  it. Shifts to verify and materials below minimum have their own
+//  cards further down, so they are not said twice.
+// ══════════════════════════════════════════════════════════════
+class _DecisionsCard extends StatefulWidget {
+  const _DecisionsCard({required this.ctrl});
+
+  final DashboardController ctrl;
+
+  @override
+  State<_DecisionsCard> createState() => _DecisionsCardState();
+}
+
+class _DecisionsCardState extends State<_DecisionsCard> {
+  static const _shownBelow = {'shiftsToVerify', 'lowStock'};
+  List<String> _features = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    LoginController.currentFeatures().then((f) {
+      if (mounted) setState(() => _features = f);
+    });
+  }
+
+  /// The screen for a decision, and the permission it needs.
+  static (Widget Function(), String)? _where(String key) => switch (key) {
+        'ordersAtRisk' => (() => const DeliveryRiskPage(), '/orders'),
+        'overdueInvoices' => (() => const CollectionsPage(), '/accounts'),
+        'billsDue' => (() => const VoucherEntryPage(kind: 'payment'), '/accounts'),
+        'expensesToApprove' => (() => const ApprovalsPage(), '/accounts'),
+        'advancesRequested' => (() => const PayrollPage(initialView: PayrollView.advance), '/payroll'),
+        'pendingLeaves' => (() => const PayrollPage(initialView: PayrollView.leave), '/payroll'),
+        'irnPending' => (() => const InvoiceListPage(), '/invoices'),
+        'latePos' => (() => const POAgingPage(), '/purchase-orders'),
+        _ => null,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final items = widget.ctrl.attention.where((a) => !_shownBelow.contains(a.key)).toList();
+      if (items.isEmpty) return const SizedBox.shrink();
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 14),
+        child: Container(
+          decoration: BoxDecoration(
+            color: ErpColors.bgSurface,
+            border: Border.all(color: ErpColors.borderLight),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
+              child: Row(children: [
+                Text('WAITING FOR YOU', style: ErpTextStyles.sectionHeader),
+                const Spacer(),
+                Text('${items.length} ${items.length == 1 ? 'decision' : 'decisions'}',
+                    style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+              ]),
+            ),
+            for (final (i, a) in items.indexed) ...[
+              if (i > 0) Divider(height: 1, color: ErpColors.borderLight),
+              _row(a),
+            ],
+          ]),
+        ),
+      );
+    });
+  }
+
+  Widget _row(AttentionItem a) {
+    final where = _where(a.key);
+    final canOpen = where != null && hasFeature(_features, where.$2);
+    final colour = a.tone == 'danger' ? ErpColors.errorRed : ErpColors.warningAmber;
+    final sub = a.summary.isNotEmpty
+        ? a.summary
+        : a.lines.isEmpty
+            ? ''
+            : [a.lines.first.title, if (a.lines.first.detail.isNotEmpty) a.lines.first.detail].join(' · ');
+    return InkWell(
+      onTap: canOpen
+          ? () async {
+              await Get.to(where.$1);
+              widget.ctrl.fetch();
+            }
+          : null,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+        child: Row(children: [
+          Container(
+            constraints: const BoxConstraints(minWidth: 30),
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+            decoration: BoxDecoration(color: colour.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
+            child: Text('${a.count}',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: colour)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(a.label, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: ErpColors.textPrimary)),
+              if (sub.isNotEmpty)
+                Text(sub,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11.5, color: ErpColors.textMuted)),
+            ]),
+          ),
+          if (canOpen) Icon(Icons.chevron_right, color: ErpColors.textMuted),
+        ]),
+      ),
     );
   }
 }

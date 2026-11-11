@@ -50,7 +50,11 @@ String _fmtDate(DateTime d) =>
 //  ROOT
 // ══════════════════════════════════════════════════════════════
 class PayrollPage extends StatefulWidget {
-  const PayrollPage({super.key});
+  const PayrollPage({super.key, this.initialView = PayrollView.dashboard});
+
+  /// Where it opens: the Home's "Advance requests" opens on Advance,
+  /// "Leave to decide" on Leave.
+  final PayrollView initialView;
   @override
   State<PayrollPage> createState() => _PayrollPageState();
 }
@@ -62,6 +66,8 @@ class _PayrollPageState extends State<PayrollPage> {
     super.initState();
     Get.delete<PayrollController>(force: true);
     c = Get.put(PayrollController());
+    // The controller loads a view's data when it becomes the active one.
+    if (widget.initialView != PayrollView.dashboard) c.activeView.value = widget.initialView;
     ever(c.activeView, (_) {
       if (mounted) setState(() {});
     });

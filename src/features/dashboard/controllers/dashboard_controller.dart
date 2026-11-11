@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
+import '../models/overview_models.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  DashboardController
@@ -31,6 +32,11 @@ class DashboardController extends GetxController {
   final lowStockCount = 0.obs;
   final lowStockItems = <Map<String, dynamic>>[].obs;
 
+  /// What is waiting for a decision, from the server's overview for
+  /// this role. Empty when there is nothing, or the overview failed —
+  /// it never holds up the rest of the dashboard.
+  final attention = <AttentionItem>[].obs;
+
   final _dio = ApiClient.buildClient(
     baseUrl: '${ApiConfig.baseUrl}/dashboard',
   );
@@ -57,7 +63,9 @@ class DashboardController extends GetxController {
       final results = await Future.wait<Response?>([
         _dio.get('/kpis'),
         _pendingShifts(),
+        _overview(),
       ]);
+      attention.value = AttentionItem.listFrom(results[2]?.data is Map ? (results[2]!.data as Map)['data'] : null);
 
       final kpiRes = results[0]!;
       final data   = (kpiRes.data['data'] as Map?) ?? {};
@@ -106,6 +114,15 @@ class DashboardController extends GetxController {
   Future<Response?> _pendingShifts() async {
     try {
       return await _shiftDio.get('/pending-verification');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // The decisions waiting, or null when that call fails — same reason.
+  Future<Response?> _overview() async {
+    try {
+      return await _dio.get('/overview');
     } catch (_) {
       return null;
     }

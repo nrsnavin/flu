@@ -381,6 +381,8 @@ class PayrollController extends GetxController {
   // not offer Approve a second time. It was a plain true/false that the
   // card compared with an advance's id, which never matched.
   final advApproving = RxnString();
+  // The advance whose cash is being handed over right now.
+  final advPayingOut = RxnString();
   final advances     = <AdvanceRequest>[].obs;
   final advError     = Rxn<String>();
   final advFilter    = 'pending'.obs;
@@ -420,6 +422,30 @@ class PayrollController extends GetxController {
     } catch (e) {
       _actionFailed('Approve advance', e);
     } finally { advApproving.value = null; }
+  }
+
+  /// approved → paid out: the cash is handed over now, and the server
+  /// books it to the worker's ledger in the same step. Once only — a
+  /// second tap while it is on its way does nothing, and the server
+  /// refuses an advance already paid out.
+  Future<void> payOutAdvance(String id) async {
+    if (advPayingOut.value != null) return;
+    try {
+      advPayingOut.value = id;
+      final res = await _dio.put('/payroll/advance/$id/pay-out');
+      final msg = res.data is Map ? (res.data as Map)['message'] as String? : null;
+      Get.snackbar(
+        'Advance paid out',
+        msg ?? 'The cash is on the worker\'s ledger',
+        backgroundColor: ErpColors.solidSuccess,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 4),
+      );
+      await fetchAdvances();
+    } catch (e) {
+      _actionFailed('Pay out advance', e);
+    } finally { advPayingOut.value = null; }
   }
 
   // FIX #3 — view calls rejectAdvance(id, notes)

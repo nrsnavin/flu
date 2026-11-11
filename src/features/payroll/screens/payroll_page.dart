@@ -15,6 +15,7 @@ import '../../../core/server_pdf.dart' show fetchPayslipPdf;
 import '../controllers/payroll_controller.dart';
 import '../models/payroll_models.dart';
 import 'Bonus_tab.dart';
+import 'payroll_review_pages.dart';
 
 // ── Palette ────────────────────────────────────────────────────
 const _bg = Color(0xFF060D18);
@@ -425,6 +426,44 @@ class _DashBody extends StatelessWidget {
         draft: d.draftCount,
         total: d.totalEmployees,
       ),
+      if (d.totalEmployees > 0) ...[
+        const SizedBox(height: 8),
+        // Before anything is paid: each slip against the worker's own
+        // last three months. A worker tapped there opens their slip here.
+        GestureDetector(
+          onTap: () async {
+            final emp = await Get.to<String>(() => PayrollCheckPage(
+                year: c.selectedYear.value, month: c.selectedMonth.value));
+            if (emp != null && emp.isNotEmpty) c.openPayslip(emp);
+          },
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: _s2,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: _blue.withValues(alpha: 0.4)),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.fact_check_outlined, color: _blueLt, size: 20),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Check before paying',
+                          style: TextStyle(color: _tp, fontSize: 13, fontWeight: FontWeight.w800)),
+                      Text('Each slip against the worker\'s last three months',
+                          style: TextStyle(color: _ts, fontSize: 10.5)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: _ts, size: 18),
+              ],
+            ),
+          ),
+        ),
+      ],
       const SizedBox(height: 14),
       const _SecLbl('👷 Employees'),
       const SizedBox(height: 8),
@@ -940,6 +979,14 @@ class _SlipActionsState extends State<_SlipActions> {
               ],
             ),
           ),
+        ],
+        // Every rupee owed to and by this worker, with the balance.
+        if ((live.employeeId.isNotEmpty ? live.employeeId : c.selectedEmployee.value ?? '').isNotEmpty) ...[
+          const SizedBox(height: 8),
+          _GBtn('📒 Ledger', _blueLt, false, () => Get.to(() => EmployeeLedgerPage(
+                employeeId: live.employeeId.isNotEmpty ? live.employeeId : c.selectedEmployee.value!,
+                name: live.employeeName,
+              ))),
         ],
       ],
     );
@@ -2377,6 +2424,7 @@ class _AdvListState extends State<_AdvList> {
       c.advances,
       c.advFilter,
       c.advApproving,
+      c.advPayingOut,
     ]) {
       ever(rx, (_) {
         if (mounted) setState(() {});
@@ -2389,17 +2437,24 @@ class _AdvListState extends State<_AdvList> {
     children: [
       Container(
         color: _s1,
+        width: double.infinity,
         padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
-        child: Row(
-          children: [
-            _fchip('Pending', 'pending'),
-            const SizedBox(width: 6),
-            _fchip('Approved', 'approved'),
-            const SizedBox(width: 6),
-            _fchip('Rejected', 'rejected'),
-            const SizedBox(width: 6),
-            _fchip('All', 'all'),
-          ],
+        // Five filters are wider than a small phone: they scroll.
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _fchip('Pending', 'pending'),
+              const SizedBox(width: 6),
+              _fchip('Approved', 'approved'),
+              const SizedBox(width: 6),
+              _fchip('Paid out', 'paid_out'),
+              const SizedBox(width: 6),
+              _fchip('Rejected', 'rejected'),
+              const SizedBox(width: 6),
+              _fchip('All', 'all'),
+            ],
+          ),
         ),
       ),
       Expanded(child: _body()),
@@ -2442,6 +2497,7 @@ class _AdvListState extends State<_AdvList> {
         adv: c.advances[i],
         c: c,
         isApproving: c.advApproving.value == c.advances[i].id,
+        isPayingOut: c.advPayingOut.value == c.advances[i].id,
       ),
     );
   }
@@ -2451,16 +2507,27 @@ class _AdvCard extends StatelessWidget {
   final AdvanceRequest adv;
   final PayrollController c;
   final bool isApproving;
+  final bool isPayingOut;
   const _AdvCard({
     required this.adv,
     required this.c,
     required this.isApproving,
+    this.isPayingOut = false,
   });
-  Color get _bc => adv.status == AdvanceStatus.approved
-      ? _green
-      : adv.status == AdvanceStatus.rejected
-      ? _red
-      : _amber;
+  Color get _bc => switch (adv.status) {
+        AdvanceStatus.approved => _green,
+        AdvanceStatus.paidOut => _blueLt,
+        AdvanceStatus.recovered => _ts,
+        AdvanceStatus.rejected => _red,
+        AdvanceStatus.pending => _amber,
+      };
+  String get _statusLabel => switch (adv.status) {
+        AdvanceStatus.approved => '✅ Approved',
+        AdvanceStatus.paidOut => '💵 Paid out',
+        AdvanceStatus.recovered => '✔ Recovered',
+        AdvanceStatus.rejected => '❌ Rejected',
+        AdvanceStatus.pending => '⏳ Pending',
+      };
   @override
   Widget build(BuildContext ctx) => Container(
     margin: const EdgeInsets.only(bottom: 10),
@@ -2503,14 +2570,7 @@ class _AdvCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            _Chip2(
-              adv.status == AdvanceStatus.approved
-                  ? '✅ Approved'
-                  : adv.status == AdvanceStatus.rejected
-                  ? '❌ Rejected'
-                  : '⏳ Pending',
-              _bc,
-            ),
+            _Chip2(_statusLabel, _bc),
           ],
         ),
         if (adv.reason.isNotEmpty) ...[
@@ -2527,7 +2587,7 @@ class _AdvCard extends StatelessWidget {
             ),
           ),
         ],
-        if (adv.status == AdvanceStatus.approved) ...[
+        if (adv.status == AdvanceStatus.approved || adv.status == AdvanceStatus.paidOut) ...[
           const SizedBox(height: 6),
           Text(
             'Deduct: ${kMonths[adv.deductMonth ?? 1]} ${adv.deductYear}  ${adv.deductedInPayroll ? "✅ Already deducted" : "⏳ Pending deduction"}',
@@ -2537,6 +2597,14 @@ class _AdvCard extends StatelessWidget {
             ),
           ),
         ],
+        if (adv.status == AdvanceStatus.paidOut && adv.paidOutAt.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              'Paid out ${_fmtDate(DateTime.parse(adv.paidOutAt).toLocal())}${adv.paidOutBy.isNotEmpty ? ' by ${adv.paidOutBy}' : ''}',
+              style: const TextStyle(color: _blueLt, fontSize: 10),
+            ),
+          ),
         if (adv.adminNotes.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 4),
@@ -2568,9 +2636,58 @@ class _AdvCard extends StatelessWidget {
             ],
           ),
         ],
+        // Approved is a promise; the money moves when it is paid out.
+        if (adv.status == AdvanceStatus.approved) ...[
+          const SizedBox(height: 10),
+          _SmBtn(
+            isPayingOut ? '…' : '💵 Pay out ${_(adv.amount)}',
+            _blue,
+            isPayingOut ? () {} : () => _payOutDlg(ctx),
+          ),
+        ],
       ],
     ),
   );
+
+  void _payOutDlg(BuildContext ctx) {
+    final month = adv.deductMonth != null ? '${kMonths[adv.deductMonth!]} ${adv.deductYear}' : 'the month set';
+    final amount = _(adv.amount);
+    showDialog(
+      context: ctx,
+      builder: (_) => AlertDialog(
+        backgroundColor: _s2,
+        title: Text(
+          'Pay out $amount?',
+          style: const TextStyle(color: _tp, fontSize: 14),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: _blue.withValues(alpha: 0.4)),
+        ),
+        content: Text(
+          'Hand $amount to ${adv.employeeName} now. It goes on the '
+          'worker\'s ledger as owed back, and comes off the $month payslip.',
+          style: const TextStyle(color: _ts, fontSize: 12),
+        ),
+        actions: [
+          TextButton(
+            onPressed: Get.back,
+            child: const Text('Cancel', style: TextStyle(color: _ts)),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              c.payOutAdvance(adv.id);
+            },
+            child: const Text(
+              'Pay out',
+              style: TextStyle(color: _blueLt, fontWeight: FontWeight.w800),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _approveDlg(BuildContext ctx, String id) {
     int month = DateTime.now().month, year = DateTime.now().year;

@@ -241,7 +241,11 @@ class LeaveRequest {
 // ══════════════════════════════════════════════════════════════
 //  ADVANCE REQUEST
 // ══════════════════════════════════════════════════════════════
-enum AdvanceStatus { pending, approved, rejected }
+/// requested → approved → paid out (the cash handed over, booked to the
+/// worker's ledger) → recovered from pay; or rejected. A paid-out or
+/// recovered advance used to read as pending here, and offered Approve
+/// and Reject on money already given.
+enum AdvanceStatus { pending, approved, paidOut, recovered, rejected }
 
 class AdvanceRequest {
   final String id, employeeName, department, reason, adminNotes, approvedBy;
@@ -250,12 +254,13 @@ class AdvanceRequest {
   final int?   deductMonth, deductYear;
   final bool   deductedInPayroll;
   final String createdAt;
+  final String paidOutAt, paidOutBy;
 
   const AdvanceRequest({required this.id, required this.employeeName,
     required this.department, required this.amount, required this.reason,
     required this.adminNotes, required this.approvedBy, required this.status,
     this.deductMonth, this.deductYear, required this.deductedInPayroll,
-    required this.createdAt});
+    required this.createdAt, this.paidOutAt = '', this.paidOutBy = ''});
 
   factory AdvanceRequest.fromJson(Map<String, dynamic> j) {
     final emp = j['employee'];
@@ -271,12 +276,17 @@ class AdvanceRequest {
         deductMonth:    j['deductMonth'] != null ? _i(j['deductMonth']) : null,
         deductYear:     j['deductYear']  != null ? _i(j['deductYear'])  : null,
         deductedInPayroll: _b(j['deductedInPayroll']),
-        createdAt:      _s(j['createdAt']));
+        createdAt:      _s(j['createdAt']),
+        paidOutAt:      _s(j['paidOutAt']),
+        paidOutBy:      _s(j['paidOutBy']));
   }
 
   static AdvanceStatus _parseAdv(String s) => switch (s) {
     'approved' => AdvanceStatus.approved,
+    'paid_out' => AdvanceStatus.paidOut,
+    'recovered' => AdvanceStatus.recovered,
     'rejected' => AdvanceStatus.rejected,
+    // 'requested', and 'pending' on older ones.
     _ => AdvanceStatus.pending,
   };
 }

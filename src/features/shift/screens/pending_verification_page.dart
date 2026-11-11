@@ -145,7 +145,8 @@ class PendingVerificationPage extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Worker submitted ${submittedProd.toStringAsFixed(0)} m. Adjust if needed; the value you enter is final.',
+              '${(shift['submittedByName']?.toString() ?? '').trim().isNotEmpty ? '${shift['submittedByName'].toString().trim()} entered' : 'Worker submitted'} '
+              '${submittedProd.toStringAsFixed(0)} m. Adjust if needed; the value you enter is final.',
               style: TextStyle(
                   color: ErpColors.textSecondary, fontSize: 12),
             ),
@@ -349,7 +350,13 @@ class _ShiftCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('SUBMITTED BY WORKER',
+                      // Who typed it: a floor entry carries the floor
+                      // supervisor's name (opened with the shift PIN);
+                      // the employee screens' entries do not.
+                      Text(
+                          (shift['submittedByName']?.toString() ?? '').trim().isNotEmpty
+                              ? 'ENTERED ON THE FLOOR BY ${shift['submittedByName'].toString().trim().toUpperCase()}'
+                              : 'SUBMITTED BY WORKER',
                           style: TextStyle(
                               color: ErpColors.textSecondary,
                               fontSize: 10,

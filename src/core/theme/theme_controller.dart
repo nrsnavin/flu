@@ -96,6 +96,24 @@ class ThemeController extends GetxController with WidgetsBindingObserver {
 
   bool get isDark => ErpColors.palette.isDark;
 
+  // ── The employee side is drawn light ───────────────────────────
+  //
+  // The employee screens (src/employee) were built for one light
+  // palette: the employee app never had a dark mode, and its text
+  // colours are fixed for a light page. While they show — a worker's
+  // own session, or "My work" opened from an office login — the app is
+  // drawn light whatever the stored mode says, office widgets shown
+  // there (the lock, its switch) included. The stored mode is not
+  // touched, so the office screens come back as they were left.
+  // Set by AppSide, which knows which side is showing.
+  final _employeeSide = false.obs;
+  bool get employeeSide => _employeeSide.value;
+  set employeeSide(bool on) {
+    if (_employeeSide.value == on) return;
+    _employeeSide.value = on;
+    _apply();
+  }
+
   Future<void> setMode(ErpThemeMode m) async {
     if (m == mode.value) return;
     mode.value = m;
@@ -127,7 +145,7 @@ class ThemeController extends GetxController with WidgetsBindingObserver {
   }
 
   void _apply() {
-    final dark = switch (mode.value) {
+    final dark = !_employeeSide.value && switch (mode.value) {
       ErpThemeMode.light => false,
       ErpThemeMode.dark => true,
       ErpThemeMode.system =>

@@ -6,7 +6,10 @@ import 'package:intl/intl_standalone.dart'
     if (dart.library.html) 'package:intl/intl_browser.dart';
 import 'package:production/src/core/error_handling.dart';
 import 'package:production/src/core/lock/app_lock_controller.dart';
+import 'package:production/src/core/shared_device.dart';
 import 'package:production/src/core/theme/theme_controller.dart';
+import 'package:production/src/employee/core/app_translations.dart';
+import 'package:production/src/employee/theme/erp_theme.dart' as emp;
 import 'package:production/src/features/authentication/controllers/login_controller.dart';
 import 'package:production/src/features/authentication/screens/auth_gate.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -34,6 +37,10 @@ Future<void> main() async {
     // is built — a lock that appears a beat AFTER the app has drawn is
     // a lock that showed somebody the screen it was meant to hide.
     await AppLockController.ensure();
+    // Before the first frame for the same reason: a phone kept for the
+    // floor opens straight on the employee sign-in, never on the office
+    // welcome screen for a moment first.
+    await SharedDevice.ensure();
     runApp(const MyApp());
   }, reportZoneError);
 }
@@ -60,7 +67,16 @@ class MyApp extends StatelessWidget {
 
       return GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: theme.themeData,
+        // The employee screens (src/employee) bring their own light
+        // theme; while they show, the app wears it (AppSide decides).
+        theme: theme.employeeSide ? emp.ErpTheme.light() : theme.themeData,
+        // Their words, in the language a worker picked (English, Tamil
+        // or Hindi). The office screens use none of these keys, so they
+        // read the same whatever is chosen; a worker's choice is applied
+        // when their screens open and dropped when they sign out.
+        translations: AppTranslations(),
+        locale: const Locale('en'),
+        fallbackLocale: const Locale('en'),
         initialBinding: BindingsBuilder(() {
           Get.put(LoginController());
         }),

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:production/src/features/shiftPlanView/controllers/shift_plan_view_controller.dart';
 import 'package:production/src/features/shiftPlanView/screens/shiftPlanDetail.dart';
 import '../../PurchaseOrder/services/theme.dart';
+import '../../floor/widgets/floor_pin_card.dart';
 import '../models/shiftSummary.dart';
 
 class TodayShiftPage extends StatefulWidget {
@@ -91,6 +92,10 @@ class _TodayShiftPageState extends State<TodayShiftPage> {
                   ],
                 ),
               ),
+
+              // The PIN the floor supervisor opens floor entry with.
+              const SizedBox(height: 14),
+              const FloorPinCard(),
 
               const SizedBox(height: 14),
               const ErpSectionLabel(text: "Shift Overview"),

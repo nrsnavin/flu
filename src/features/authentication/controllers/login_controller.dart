@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/app_side.dart';
 import '../models/user.dart';
 import '../screens/auth_gate.dart';
 import 'storage_keys.dart';
@@ -52,6 +53,12 @@ class LoginController extends GetxController {
   RxBool    justSignedIn     = false.obs;
   RxBool    isCheckingAuth   = true.obs;
 
+  /// The employee record this login is linked to ('' when none). An
+  /// office login with one gets "My work"; a worker's own login always
+  /// has one. Whether the session is a worker's lives on AppSide.worker,
+  /// because the theme and the language follow it too.
+  final RxString employeeId = ''.obs;
+
   Dio get _dio => ApiClient.instance.dio;
 
   @override
@@ -67,6 +74,11 @@ class LoginController extends GetxController {
       final prefs       = await SharedPreferences.getInstance();
       final storedToken = prefs.getString(StorageKeys.token) ?? '';
       if (storedToken.isEmpty) return;
+
+      // Which side to open on, as stored — before the network answers,
+      // so a worker with no signal still opens on their own screens.
+      AppSide.to.worker.value = prefs.getBool(StorageKeys.selfService) ?? false;
+      employeeId.value = prefs.getString(StorageKeys.employee) ?? '';
 
       // The interceptor in ApiClient attaches the cookie automatically.
       final response = await _dio.get(
@@ -92,6 +104,12 @@ class LoginController extends GetxController {
         if (fresh.isNotEmpty) {
           await prefs.setString(StorageKeys.token, fresh);
         }
+
+        // The account may have changed since (given office access, or
+        // linked to an employee): the server's word wins over the copy.
+        await _rememberKind(prefs,
+            selfService: response.data['selfService'],
+            employee: u is Map ? u['employee'] : null);
 
         isLoggedIn.value = true;
       } else if (response.statusCode == 401) {
@@ -172,6 +190,11 @@ class LoginController extends GetxController {
           user: u,
           features: _parseFeatures(response.data['features']),
         );
+        // A self-service login signing in with the staff form still
+        // belongs on the employee screens, as on the web.
+        await _rememberKind(await SharedPreferences.getInstance(),
+            selfService: response.data['selfService'] == true,
+            employee: response.data['employee']);
         user.value       = u;
         isLoggedIn.value = true;
         justSignedIn.value = true;
@@ -217,6 +240,61 @@ class LoginController extends GetxController {
       Get.snackbar('Login Failed', 'Something went wrong. Please try again.',
           snackPosition: SnackPosition.BOTTOM);
       return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ── Phone + PIN: a worker's own login ─────────────────────────────────
+  //
+  //  "Sign in as employee" on the welcome screen. The server checks the
+  //  phone number on the employee record and the PIN the office set, and
+  //  answers with the same session as the staff form — flagged
+  //  selfService, which is what opens the employee screens. Five wrong
+  //  PINs lock the login for a while (429, PIN_LOCKED); somebody who has
+  //  left cannot sign in at all.
+  //
+  //  Returns null once signed in, else the sentence to show under the
+  //  form — the server's own words where it gave any ("2 tries left"),
+  //  because a snackbar that vanishes is no place for those.
+  Future<String?> tryWorkerLogin(String phone, String pin) async {
+    isLoading.value = true;
+    try {
+      final response = await _dio.post(
+        '/user/worker-login',
+        data: {'phone': phone, 'pin': pin},
+      );
+      if (response.statusCode != 201) return 'Unexpected server response.';
+      final u = User(
+        id:   response.data['id']?.toString()       ?? '',
+        name: response.data['username']?.toString() ?? '',
+        role: response.data['role']?.toString()     ?? '',
+      );
+      await _saveSession(
+        token: response.data['token']?.toString() ?? '',
+        user: u,
+        features: _parseFeatures(response.data['features']),
+      );
+      await _rememberKind(await SharedPreferences.getInstance(),
+          // The route only ever signs in self-service logins; read it
+          // anyway, so the server stays the one that decides.
+          selfService: response.data['selfService'] != false,
+          employee: response.data['employee']);
+      user.value         = u;
+      isLoggedIn.value   = true;
+      justSignedIn.value = true;
+      // AuthGate, as after the staff form, so the lock is in the tree.
+      Get.offAll(() => const AuthGate());
+      return null;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response?.data;
+        return (data is Map ? data['message']?.toString() : null) ??
+            'Wrong phone number or PIN';
+      }
+      return 'Could not reach the server. Check your connection and try again.';
+    } catch (_) {
+      return 'Something went wrong. Please try again.';
     } finally {
       isLoading.value = false;
     }
@@ -302,6 +380,11 @@ class LoginController extends GetxController {
           user: u,
           features: _parseFeatures(response.data['features']),
         );
+        // A self-service login signing in with the staff form still
+        // belongs on the employee screens, as on the web.
+        await _rememberKind(await SharedPreferences.getInstance(),
+            selfService: response.data['selfService'] == true,
+            employee: response.data['employee']);
         user.value       = u;
         isLoggedIn.value = true;
         justSignedIn.value = true;
@@ -407,6 +490,30 @@ class LoginController extends GetxController {
     await prefs.setBool(StorageKeys.isLoggedIn, true);
   }
 
+  /// Which kind of login this is: a worker's own (the app opens on the
+  /// employee screens), and the employee record it is linked to. A
+  /// [selfService] that is not a bool — an older server's /getuser,
+  /// which does not send it — leaves the stored answer as it was.
+  Future<void> _rememberKind(
+    SharedPreferences prefs, {
+    Object? selfService,
+    Object? employee,
+  }) async {
+    if (selfService is bool) {
+      await prefs.setBool(StorageKeys.selfService, selfService);
+      AppSide.to.worker.value = selfService;
+    }
+    final id = _idOf(employee);
+    await prefs.setString(StorageKeys.employee, id);
+    employeeId.value = id;
+  }
+
+  /// An id however it came: a plain string, or a populated record.
+  static String _idOf(Object? v) {
+    if (v is Map) return (v['_id'] ?? v['id'] ?? '').toString();
+    return v?.toString() ?? '';
+  }
+
   // Parse a login/verify response's `features` array into a string list.
   static List<String> _parseFeatures(dynamic raw) {
     if (raw is List) {
@@ -429,6 +536,10 @@ class LoginController extends GetxController {
     await prefs.remove(StorageKeys.name);
     await prefs.remove(StorageKeys.role);
     await prefs.remove(StorageKeys.features);
+    await prefs.remove(StorageKeys.selfService);
+    await prefs.remove(StorageKeys.employee);
     await prefs.setBool(StorageKeys.isLoggedIn, false);
+    AppSide.to.worker.value = false;
+    employeeId.value = '';
   }
 }

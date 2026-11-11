@@ -449,6 +449,9 @@ class _MachineRow extends StatelessWidget {
 
   bool get _hasProduction => machine.production > 0;
 
+  /// Entered on the floor (or by the worker) and waiting to be verified.
+  bool get _waitingDraft => machine.waiting && machine.draftProduction > 0;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -571,13 +574,30 @@ class _MachineRow extends StatelessWidget {
                       Text(
                         _hasProduction
                             ? '${machine.production.toStringAsFixed(0)} m'
-                            : '—',
+                            : _waitingDraft
+                                ? '${machine.draftProduction.toStringAsFixed(0)} m'
+                                : '—',
                         style: TextStyle(
                             color: _hasProduction
                                 ? ErpColors.successGreen
-                                : ErpColors.textPrimary,
+                                : _waitingDraft
+                                    ? ErpColors.warningAmber
+                                    : ErpColors.textPrimary,
                             fontSize: 14, fontWeight: FontWeight.w900),
                       ),
+                      // Entered, not verified yet: say so, and by whom
+                      // when it came from the floor.
+                      if (!_hasProduction && machine.waiting)
+                        Text(
+                          machine.submittedBy.isNotEmpty
+                              ? 'Waiting · ${machine.submittedBy}'
+                              : 'Waiting to verify',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: ErpColors.warningAmber,
+                              fontSize: 8, fontWeight: FontWeight.w700),
+                        ),
                     ],
                   ),
                 ),
@@ -587,7 +607,13 @@ class _MachineRow extends StatelessWidget {
               Expanded(
                 child: _Stat(
                   Icons.timer_outlined,
-                  machine.status == 'open' ? '—' : machine.timer,
+                  machine.status == 'open'
+                      ? '—'
+                      : machine.waiting
+                          ? (machine.submittedTimer?.isNotEmpty == true
+                              ? machine.submittedTimer!
+                              : '—')
+                          : machine.timer,
                   'Run Time',
                 ),
               ),

@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
 import '../../../core/lock/app_lock_setting.dart';
+import '../../../core/shared_device.dart';
+import '../../../employee/employee_area.dart';
 import '../../../core/theme/theme_toggle.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../../authentication/controllers/login_controller.dart';
@@ -123,7 +125,13 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         ],
       ),
     );
-    if (ok == true) await Get.find<LoginController>().logout();
+    if (ok == true) {
+      await Get.find<LoginController>().logout();
+      // Back to the first screen, which is then the sign-in, as the More
+      // page's Logout does. This page used to stay open over it, signed
+      // out, until somebody pressed back.
+      Get.until((route) => route.isFirst);
+    }
   }
 
   @override
@@ -184,6 +192,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             const AppLockSetting(),
             const SizedBox(height: 10),
             const ThemeModePicker(),
+            const SizedBox(height: 10),
+            const SharedDeviceSetting(),
 
             const SizedBox(height: 20),
             _SignOutButton(onTap: _confirmLogout),
@@ -292,6 +302,17 @@ class _EmployeeCard extends StatelessWidget {
           _Row(label: 'Department', value: titleCase(employee.department)),
           _Row(label: 'Role', value: titleCase(employee.role)),
           _Row(label: 'Phone', value: employee.phoneNumber),
+          const SizedBox(height: 8),
+          // Their own payslip, leave, attendance and shifts — the
+          // employee screens, as a worker's own login sees them.
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => Get.to(() => const EmployeeArea(staffView: true)),
+              icon: const Icon(Icons.badge_outlined, size: 16),
+              label: const Text('Open My work'),
+            ),
+          ),
         ]),
       );
 }

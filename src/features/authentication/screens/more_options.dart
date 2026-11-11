@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../employee/employee_area.dart';
 import '../../profile/screens/user_details_page.dart';
 
 import '../controllers/login_controller.dart';
@@ -256,6 +257,25 @@ class _AccountSection extends StatelessWidget {
           padding: EdgeInsets.only(left: 2, bottom: 8, top: 4),
           child: Text('ACCOUNT', style: ErpTextStyles.sectionHeader),
         ),
+        // ── My work ───────────────────────────────────────────
+        // An office login that is also on the payroll — a supervisor,
+        // someone in accounts — sees their own payslip, leave,
+        // attendance and shifts here: the employee screens, the same
+        // ones a worker's own login opens.
+        Obx(() {
+          if (LoginController.find.employeeId.value.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _AccountTile(
+              icon: Icons.badge_outlined,
+              title: 'My work',
+              subtitle: 'Your payslip, leave, attendance and shifts',
+              onTap: () => Get.to(() => const EmployeeArea(staffView: true)),
+            ),
+          );
+        }),
         // ── My account ────────────────────────────────────────
         // Above logout on purpose: the common reason to come to this
         // section is to look at the account or set the app lock, and
@@ -412,6 +432,66 @@ class _AccountSection extends StatelessWidget {
             color: ErpColors.accentBlue,
             fontWeight: FontWeight.w600,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One row of the ACCOUNT section, in the My account row's style.
+class _AccountTile extends StatelessWidget {
+  final IconData icon;
+  final String title, subtitle;
+  final VoidCallback onTap;
+  const _AccountTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: ErpColors.bgSurface,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: ErpColors.borderLight),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          child: Row(children: [
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(
+                color: ErpColors.accentBlue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: ErpColors.accentBlue, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: ErpColors.textPrimary,
+                      )),
+                  Text(subtitle,
+                      style: TextStyle(
+                          fontSize: 11, color: ErpColors.textSecondary)),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: ErpColors.textMuted),
+          ]),
         ),
       ),
     );

@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:production/src/features/authentication/screens/login.dart';
 import '../../PurchaseOrder/services/theme.dart';
+import '../../floor/screens/floor_page.dart';
+import 'worker_sign_in.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  WELCOME / SPLASH SCREEN
@@ -130,7 +132,62 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
+                  // ── The employee door ─────────────────────────
+                  // One app for everyone: a worker signs in here with
+                  // phone and PIN and lands on their own screens (the
+                  // employee app that used to be separate).
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.55), width: 1.4),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () => Get.to(() => const WorkerSignInPage()),
+                      // Shrinks rather than overflowing on a narrow phone
+                      // or with the phone's text size turned up.
+                      child: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.badge_outlined, color: Colors.white, size: 18),
+                            SizedBox(width: 10),
+                            Text('SIGN IN AS EMPLOYEE',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.2)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Employees: your phone number and PIN',
+                    style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 11),
+                  ),
+                  const SizedBox(height: 10),
+                  // ── The floor door ────────────────────────────
+                  // Loom production entered by the shift supervisor,
+                  // opened with the shift's PIN rather than a login.
+                  TextButton.icon(
+                    onPressed: () => Get.to(() => const FloorPage()),
+                    icon: Icon(Icons.precision_manufacturing_outlined,
+                        size: 16, color: ErpColors.accentLight),
+                    label: Text('Floor entry with the shift PIN',
+                        style: TextStyle(
+                            color: ErpColors.accentLight,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700)),
+                  ),
+                  const SizedBox(height: 6),
                   Text(
                     'v1.0  ·  Powered by Factory ERP',
                     style: TextStyle(

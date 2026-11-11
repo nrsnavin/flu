@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import 'package:get/get.dart';
@@ -23,26 +25,43 @@ class PendingVerificationController extends GetxController {
     baseUrl: '${ApiConfig.baseUrl}/shift',
   );
 
+  Timer? _poll;
+
   @override
   void onInit() {
     super.onInit();
     fetch();
+    // Entries arrive from the floor all through the shift; the list
+    // keeps up on its own rather than waiting for a pull to refresh.
+    // Quietly: no spinner, and nothing while a verification is saving.
+    _poll = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (!loading.value && !verifying.value) fetch(quiet: true);
+    });
   }
 
-  Future<void> fetch() async {
+  @override
+  void onClose() {
+    _poll?.cancel();
+    super.onClose();
+  }
+
+  Future<void> fetch({bool quiet = false}) async {
     try {
-      loading.value = true;
+      if (!quiet) loading.value = true;
       errorMsg.value = null;
       final res = await _dio.get('/pending-verification');
       final List list = (res.data['shifts'] as List?) ??
           (res.data['data'] as List?) ?? [];
       items.value = List<Map<String, dynamic>>.from(list);
     } on DioException catch (e) {
-      errorMsg.value =
-          e.response?.data?['message'] as String? ??
-              'Failed to load pending shifts';
+      // A background refresh that fails keeps the list on screen.
+      if (!quiet) {
+        errorMsg.value =
+            e.response?.data?['message'] as String? ??
+                'Failed to load pending shifts';
+      }
     } catch (e) {
-      errorMsg.value = e.toString();
+      if (!quiet) errorMsg.value = e.toString();
     } finally {
       loading.value = false;
     }

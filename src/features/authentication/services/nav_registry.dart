@@ -51,6 +51,7 @@ import 'package:production/src/features/packing/screens/AddPacking.dart';
 import 'package:production/src/features/packing/screens/PackingOverview.dart';
 import 'package:production/src/features/payroll/screens/payroll_page.dart';
 import 'package:production/src/features/production/screens/productionView.dart';
+import 'package:production/src/features/floor/widgets/floor_pin_card.dart';
 import 'package:production/src/features/shift/screens/pending_verification_page.dart';
 import 'package:production/src/features/shift/screens/shift_list_page.dart';
 import 'package:production/src/features/supplier/screen/supplier_list_page.dart';
@@ -488,6 +489,14 @@ class NavRegistry extends GetxController {
       icon: Icons.analytics_outlined, section: 'SHIFT MANAGEMENT',
       keywords: const ['production by day', 'daily production', 'metres', 'meters', 'efficiency', 'enter production', 'bulk entry'],
       open: () => Get.to(() => const ProductionRangePage()),
+    ),
+    // The PIN the floor supervisor opens floor entry with, to read out
+    // or change. Shift plans' permission, as the server's own check.
+    NavModule(
+      id: 'floor_pin', feature: '/shift-plans', label: 'Floor Entry PIN',
+      icon: Icons.pin_outlined, section: 'SHIFT MANAGEMENT',
+      keywords: const ['floor pin', 'shift pin', 'floor entry', 'tablet', 'supervisor'],
+      open: () => Get.to(() => const FloorPinPage()),
     ),
     NavModule(
       id: 'pending_verification', feature: '/shift-verification', label: 'Pending Verifications',

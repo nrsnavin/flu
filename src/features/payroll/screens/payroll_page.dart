@@ -1435,7 +1435,7 @@ class _SettingsViewState extends State<_SettingsView> {
             'No-Leave Bonus (₹)',
             c.tfNoLeaveBonus,
             hint: '300',
-            sub: 'Zero leaves all month',
+            sub: 'No leave all month, with shifts worked',
           ),
           const SizedBox(height: 8),
           _Field(

@@ -67,6 +67,7 @@ import 'package:production/src/features/users/screens/users_list_page.dart' show
 import 'package:production/src/features/settings/screens/document_settings_page.dart' show DocumentSettingsPage;
 // Money on the phone.
 import 'package:production/src/features/invoices/screens/invoice_list_page.dart' show InvoiceListPage;
+import 'package:production/src/features/claims/screens/claims_page.dart' show ClaimsPage;
 
 /// One module entry — id, display label, icon, what to open, plus a
 /// `section` for the grouped Modules page and a `keywords` list for
@@ -529,6 +530,14 @@ class NavRegistry extends GetxController {
       icon: Icons.engineering_outlined, section: 'HR & COMMUNICATION',
       keywords: const ['service', 'preventive'],
       open: () => Get.to(() => const MaintenanceDuePage()),
+    ),
+    // Money anyone spent for work, claimed back with the receipt; every
+    // signed-in person has it, as on the server.
+    NavModule(
+      id: 'expense_claims', feature: '/claims', label: 'Expense Claims',
+      icon: Icons.account_balance_wallet_outlined, section: 'HR & COMMUNICATION',
+      keywords: const ['claim', 'expense', 'reimburse', 'receipt', 'spent', 'diesel', 'toll', 'travel'],
+      open: () => Get.to(() => const ClaimsPage()),
     ),
     NavModule(
       id: 'notice_board', feature: '/announcements', label: 'Notice Board',

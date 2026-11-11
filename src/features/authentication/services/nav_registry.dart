@@ -51,6 +51,7 @@ import 'package:production/src/features/packing/screens/AddPacking.dart';
 import 'package:production/src/features/packing/screens/PackingOverview.dart';
 import 'package:production/src/features/payroll/screens/payroll_page.dart';
 import 'package:production/src/features/production/screens/productionView.dart';
+import 'package:production/src/features/floor/screens/floor_page.dart';
 import 'package:production/src/features/floor/widgets/floor_pin_card.dart';
 import 'package:production/src/features/shift/screens/pending_verification_page.dart';
 import 'package:production/src/features/shift/screens/shift_list_page.dart';
@@ -489,6 +490,15 @@ class NavRegistry extends GetxController {
       icon: Icons.analytics_outlined, section: 'SHIFT MANAGEMENT',
       keywords: const ['production by day', 'daily production', 'metres', 'meters', 'efficiency', 'enter production', 'bulk entry'],
       open: () => Get.to(() => const ProductionRangePage()),
+    ),
+    // Floor entry from inside the app, for a supervisor already signed
+    // in: it opens with the shift's PIN, as from the first screen, and
+    // does not use (or end) the login.
+    NavModule(
+      id: 'floor_entry', feature: '/production', label: 'Floor Entry',
+      icon: Icons.precision_manufacturing_outlined, section: 'SHIFT MANAGEMENT',
+      keywords: const ['loom entry', 'enter production', 'floor', 'scan loom', 'shift pin'],
+      open: () => Get.to(() => const FloorPage()),
     ),
     // The PIN the floor supervisor opens floor entry with, to read out
     // or change. Shift plans' permission, as the server's own check.

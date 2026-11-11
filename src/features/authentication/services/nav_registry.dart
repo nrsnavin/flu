@@ -68,6 +68,13 @@ import 'package:production/src/features/settings/screens/document_settings_page.
 // Money on the phone.
 import 'package:production/src/features/invoices/screens/invoice_list_page.dart' show InvoiceListPage;
 import 'package:production/src/features/claims/screens/claims_page.dart' show ClaimsPage;
+import 'package:production/src/features/accounts/screens/accounts_home_page.dart' show AccountsHomePage;
+import 'package:production/src/features/accounts/screens/approvals_page.dart' show ApprovalsPage;
+import 'package:production/src/features/accounts/screens/bill_inbox_page.dart' show BillInboxPage;
+import 'package:production/src/features/accounts/screens/cash_forecast_page.dart' show CashForecastPage;
+import 'package:production/src/features/accounts/screens/collections_page.dart' show CollectionsPage;
+import 'package:production/src/features/accounts/screens/month_end_page.dart' show MonthEndPage;
+import 'package:production/src/features/accounts/screens/voucher_entry_page.dart' show VoucherEntryPage;
 
 /// One module entry — id, display label, icon, what to open, plus a
 /// `section` for the grouped Modules page and a `keywords` list for
@@ -173,6 +180,7 @@ class NavRegistry extends GetxController {
   static const sectionsOrder = <String>[
     'PEOPLE',
     'CUSTOMERS & ORDERS',
+    'ACCOUNTS',
     'PRODUCTION',
     'PACKING & SHIPPING',
     'SHIFT MANAGEMENT',
@@ -639,6 +647,58 @@ class NavRegistry extends GetxController {
       icon: Icons.request_page_outlined, section: 'CUSTOMERS & ORDERS',
       keywords: const ['invoice', 'tax invoice', 'bill', 'gst', 'irn', 'e-invoice', 'sales'],
       open: () => Get.to(() => const InvoiceListPage()),
+    ),
+
+    // ACCOUNTS — the money that cannot wait for a desk: balances, who
+    // owes and is owed, receipts and payments, approvals, the bills
+    // mailbox, and the forecast and month end to read.
+    NavModule(
+      id: 'accounts', feature: '/accounts', label: 'Accounts',
+      icon: Icons.account_balance_outlined, section: 'ACCOUNTS',
+      keywords: const ['accounts', 'money', 'balance', 'bank', 'cash', 'books', 'finance'],
+      open: () => Get.to(() => const AccountsHomePage()),
+    ),
+    NavModule(
+      id: 'collections', feature: '/accounts', label: 'Collections',
+      icon: Icons.call_outlined, section: 'ACCOUNTS',
+      keywords: const ['collect', 'overdue', 'chase', 'reminder', 'outstanding', 'receivable', 'dues', 'promise'],
+      open: () => Get.to(() => const CollectionsPage()),
+    ),
+    NavModule(
+      id: 'receive_money', feature: '/accounts', label: 'Receive Money',
+      icon: Icons.south_west_rounded, section: 'ACCOUNTS',
+      keywords: const ['receipt', 'received', 'customer paid', 'collection', 'cheque', 'neft', 'upi'],
+      open: () => Get.to(() => const VoucherEntryPage(kind: 'receipt')),
+    ),
+    NavModule(
+      id: 'pay_supplier', feature: '/accounts', label: 'Pay a Supplier',
+      icon: Icons.north_east_rounded, section: 'ACCOUNTS',
+      keywords: const ['payment', 'pay', 'supplier', 'vendor', 'bill payment', 'payable'],
+      open: () => Get.to(() => const VoucherEntryPage(kind: 'payment')),
+    ),
+    NavModule(
+      id: 'expense_approvals', feature: '/accounts', label: 'Expense Approvals',
+      icon: Icons.how_to_reg_outlined, section: 'ACCOUNTS',
+      keywords: const ['approve', 'approval', 'claim', 'expense', 'reimburse', 'pay back'],
+      open: () => Get.to(() => const ApprovalsPage()),
+    ),
+    NavModule(
+      id: 'bills_mailbox', feature: '/accounts', label: 'Bills Mailbox',
+      icon: Icons.mark_email_unread_outlined, section: 'ACCOUNTS',
+      keywords: const ['bill', 'mail', 'mailbox', 'inbox', 'supplier bill', 'purchase bill'],
+      open: () => Get.to(() => const BillInboxPage()),
+    ),
+    NavModule(
+      id: 'cash_forecast', feature: '/accounts', label: 'Cash Forecast',
+      icon: Icons.show_chart_rounded, section: 'ACCOUNTS',
+      keywords: const ['forecast', 'cash flow', 'cashflow', 'short', 'liquidity'],
+      open: () => Get.to(() => const CashForecastPage()),
+    ),
+    NavModule(
+      id: 'month_end', feature: '/accounts', label: 'Month End',
+      icon: Icons.fact_check_outlined, section: 'ACCOUNTS',
+      keywords: const ['month end', 'close', 'closing', 'checklist', 'tally', 'lock'],
+      open: () => Get.to(() => const MonthEndPage()),
     ),
     NavModule(
       id: 'delivery_risk', feature: '/orders', label: 'Delivery Risk',

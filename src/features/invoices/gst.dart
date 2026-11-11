@@ -1,6 +1,7 @@
-import 'package:intl/intl.dart';
-
 import 'models/invoice_models.dart';
+
+// The invoice screens have always taken their rupee formatting from here.
+export '../../core/money.dart' show inr, inr0, qty;
 
 // ══════════════════════════════════════════════════════════════
 //  THE INVOICE ARITHMETIC, BEFORE THE SERVER DOES IT FOR REAL
@@ -12,19 +13,6 @@ import 'models/invoice_models.dart';
 // ══════════════════════════════════════════════════════════════
 
 double round2(double n) => (n * 100).roundToDouble() / 100;
-
-final _inr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
-final _inr0 = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
-final _qty = NumberFormat('#,##,##0.###', 'en_IN');
-
-/// ₹1,23,456.00
-String inr(double v) => _inr.format(v);
-
-/// ₹1,23,456 — for headline figures, where paise are noise.
-String inr0(double v) => _inr0.format(v);
-
-/// 1,234.5
-String qty(double v) => _qty.format(v);
 
 /// What has been typed over the line the server proposed.
 class LineOverride {

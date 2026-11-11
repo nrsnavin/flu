@@ -8,6 +8,7 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../../shiftPlanView/screens/shiftPlanDetail.dart';
 import '../controllers/productionController.dart';
 import '../models/productionBrief.dart';
+import 'shiftViewPage.dart' show ShiftDetailPage;
 
 class ProductionRangePage extends StatefulWidget {
   const ProductionRangePage({super.key});
@@ -47,7 +48,9 @@ class _ProductionRangePageState extends State<ProductionRangePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Production Report',
+              // Named as it is in the menu and on the Users screen; the
+              // Analytics menu has a different "Production Report".
+              'Production View',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 15,
@@ -766,6 +769,34 @@ class _ShiftCard extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 8),
+                  // A shift with looms still to enter: their metres all at
+                  // once, on the shift's production sheet. The rest of the
+                  // card opens the plan, as before. Its own line, since a
+                  // day and a night card share the width of a phone.
+                  if (summary.shiftPlanId != null &&
+                      (summary.status == 'open' || summary.status == 'running')) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: accent,
+                          side: BorderSide(color: accent.withValues(alpha: 0.5)),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                          minimumSize: const Size(0, 34),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        onPressed: () => Get.to(
+                          () => ShiftDetailPage(shiftPlanId: summary.shiftPlanId!),
+                        ),
+                        icon: const Icon(Icons.bolt_rounded, size: 15),
+                        label: const Text(
+                          'Enter production',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                  ],
                   // View detail button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,

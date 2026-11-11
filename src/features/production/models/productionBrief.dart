@@ -295,7 +295,9 @@ class ShiftPlanDetail {
       shiftPlanId:    j['shiftPlanId']?.toString() ?? '',
       date:           j['date']?.toString()        ?? '',
       dateLabel:      j['dateLabel']?.toString()   ?? '',
-      shiftType:      j['shiftType']?.toString()   ?? 'day',
+      // The server sends "DAY" / "NIGHT"; every check on it here is for
+      // "day", so a day shift read as a night shift.
+      shiftType:      (j['shiftType']?.toString() ?? 'day').toLowerCase(),
       status:         j['status']?.toString()      ?? 'open',
       startTime:      j['startTime']?.toString(),
       endTime:        j['endTime']?.toString(),

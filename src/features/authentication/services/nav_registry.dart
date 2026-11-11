@@ -50,6 +50,7 @@ import 'package:production/src/features/aiHealth/screens/ai_health_page.dart';
 import 'package:production/src/features/packing/screens/AddPacking.dart';
 import 'package:production/src/features/packing/screens/PackingOverview.dart';
 import 'package:production/src/features/payroll/screens/payroll_page.dart';
+import 'package:production/src/features/production/screens/productionView.dart';
 import 'package:production/src/features/shift/screens/pending_verification_page.dart';
 import 'package:production/src/features/shift/screens/shift_list_page.dart';
 import 'package:production/src/features/supplier/screen/supplier_list_page.dart';
@@ -449,6 +450,16 @@ class NavRegistry extends GetxController {
       id: 'shift_list', feature: '/production', label: 'Shift Production',
       icon: Icons.access_time_outlined, section: 'SHIFT MANAGEMENT',
       open: () => Get.to(() => ShiftListPage()),
+    ),
+    // Each day's shifts with their metres and efficiency, and from a
+    // shift, every open loom's metres entered at once. It was the old
+    // home screen's Production tab, and the new shell left it with no
+    // way in. The permission is the one named "Production View".
+    NavModule(
+      id: 'production_view', feature: '/production', label: 'Production View',
+      icon: Icons.analytics_outlined, section: 'SHIFT MANAGEMENT',
+      keywords: const ['production by day', 'daily production', 'metres', 'meters', 'efficiency', 'enter production', 'bulk entry'],
+      open: () => Get.to(() => const ProductionRangePage()),
     ),
     NavModule(
       id: 'pending_verification', feature: '/shift-verification', label: 'Pending Verifications',

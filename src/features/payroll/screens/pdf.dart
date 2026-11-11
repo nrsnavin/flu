@@ -283,7 +283,7 @@ class PayslipPdfService {
             _KvItem('Total Shifts Scheduled', '${ps.totalShifts}'),
             _KvItem('Present / Late', '${ps.presentShifts}', _green),
             _KvItem('Half Day', '${ps.halfDayShifts}', _amber),
-            _KvItem('Approved Leave (paid)',
+            _KvItem('Approved Leave (unpaid)',
                 '${ps.approvedLeaveShifts}', _teal),
             _KvItem('Unapproved Absent', '${ps.unapprovedAbsents}',
                 ps.unapprovedAbsents > 0 ? _red : _sil),

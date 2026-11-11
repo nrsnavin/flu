@@ -814,7 +814,7 @@ class _SlipBodyState extends State<_SlipBody> {
             _R2('✅ Present / Late', '${ps.presentShifts}', vc: _green),
             _R2('🔶 Half Day', '${ps.halfDayShifts}', vc: _amber),
             _R2(
-              '✅ Approved Leave (paid)',
+              '✅ Approved Leave (unpaid)',
               '${ps.approvedLeaveShifts}',
               vc: _teal,
             ),

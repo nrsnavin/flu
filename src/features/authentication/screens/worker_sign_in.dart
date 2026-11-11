@@ -286,7 +286,7 @@ class _WorkerSignInPageState extends State<WorkerSignInPage> {
           Center(
             child: TextButton(
               onPressed: () => widget.kiosk
-                  ? Get.to(() => const Login())
+                  ? Get.to(() => const Login(backToEmployee: true))
                   : Get.off(() => const Login()),
               child: Text('Sign in with email instead',
                   style: TextStyle(

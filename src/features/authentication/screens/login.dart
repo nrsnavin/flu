@@ -48,7 +48,12 @@ import 'worker_sign_in.dart';
 // ══════════════════════════════════════════════════════════════
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  const Login({super.key, this.backToEmployee = false});
+
+  /// Opened over the employee form a shared phone stands on: the link to
+  /// phone and PIN goes back to that form instead of opening another.
+  final bool backToEmployee;
+
   @override
   State<Login> createState() => _LoginState();
 }
@@ -311,15 +316,23 @@ class _LoginState extends State<Login> {
         ),
         // The other way in: an employee's phone number and PIN. Either
         // form works for anyone; the account decides where it lands.
+        // Spaced off the password link above, with a full-height target,
+        // so a thumb cannot land on the wrong one.
+        const SizedBox(height: 6),
         Center(
-          child: TextButton(
+          child: TextButton.icon(
             style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              minimumSize: Size.zero,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              minimumSize: const Size(0, 44),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            onPressed: () => Get.off(() => const WorkerSignInPage()),
-            child: Text('Employee? Sign in with phone and PIN',
+            // Navigator, not Get.back: that closes an open snackbar
+            // instead of leaving the page.
+            onPressed: () => widget.backToEmployee
+                ? Navigator.of(context).pop()
+                : Get.off(() => const WorkerSignInPage()),
+            icon: Icon(Icons.badge_outlined, size: 16, color: ErpColors.accentBlue),
+            label: Text('Employee? Sign in with phone and PIN',
                 style: TextStyle(
                     color: ErpColors.accentBlue,
                     fontSize: 13,

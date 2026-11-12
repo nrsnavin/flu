@@ -2,6 +2,8 @@
 //  EMPLOYEE MODELS — unified single file
 // ══════════════════════════════════════════════════════════════
 
+import '../aadhaar_qr.dart' show AadhaarCheck;
+
 // ─────────────────────────────────────────────────────────────
 //  EmployeeListItem  (list view)
 //
@@ -61,6 +63,13 @@ class EmployeeDetail {
   final int totalShifts;
   final double hourlyRate;
   final Map<String, dynamic>? skillProfile;
+  /// As on their Aadhaar card ('' when not recorded).
+  final String dob;
+  final String gender;
+  final String address;
+  final String pincode;
+  /// The last check of their Aadhaar card's QR code; null until someone checks it.
+  final AadhaarCheck? aadhaarCheck;
 
   const EmployeeDetail({
     required this.id,
@@ -73,6 +82,11 @@ class EmployeeDetail {
     required this.totalShifts,
     this.hourlyRate = 0,
     this.skillProfile,
+    this.dob = '',
+    this.gender = '',
+    this.address = '',
+    this.pincode = '',
+    this.aadhaarCheck,
   });
 
   factory EmployeeDetail.fromJson(Map<String, dynamic> json) {
@@ -90,6 +104,11 @@ class EmployeeDetail {
       skillProfile: json['skillProfile'] is Map
           ? Map<String, dynamic>.from(json['skillProfile'] as Map)
           : null,
+      dob:          json['dob']?.toString()          ?? '',
+      gender:       json['gender']?.toString()       ?? '',
+      address:      json['address']?.toString()      ?? '',
+      pincode:      json['pincode']?.toString()      ?? '',
+      aadhaarCheck: AadhaarCheck.from(json['aadhaarCheck']),
     );
   }
 
@@ -170,6 +189,16 @@ class EmployeeCreate {
   /// validates the enum levels.
   final Map<String, dynamic>? skillProfile;
 
+  /// As on the Aadhaar card (sent only when filled in).
+  final String dob;      // YYYY-MM-DD
+  final String gender;   // male, female or other
+  final String address;
+  final String pincode;
+
+  /// The card's QR code, scanned on the form with the holder's consent:
+  /// the server reads it again and keeps the check with the record.
+  final String? aadhaarQr;
+
   const EmployeeCreate({
     required this.name,
     required this.phoneNumber,
@@ -178,6 +207,11 @@ class EmployeeCreate {
     required this.aadhaar,
     this.hourlyRate = 0,
     this.skillProfile,
+    this.dob = '',
+    this.gender = '',
+    this.address = '',
+    this.pincode = '',
+    this.aadhaarQr,
   });
 
   Map<String, dynamic> toJson() => {
@@ -188,5 +222,10 @@ class EmployeeCreate {
     'aadhar':      aadhaar,   // schema field is 'aadhar' not 'aadhaar'
     'hourlyRate':  hourlyRate,
     if (skillProfile != null) 'skillProfile': skillProfile,
+    if (dob.isNotEmpty) 'dob': dob,
+    if (gender.isNotEmpty) 'gender': gender,
+    if (address.isNotEmpty) 'address': address,
+    if (pincode.isNotEmpty) 'pincode': pincode,
+    if (aadhaarQr != null) ...{'aadhaarQr': aadhaarQr, 'aadhaarQrConsent': true},
   };
 }

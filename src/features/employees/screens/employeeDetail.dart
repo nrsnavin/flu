@@ -5,6 +5,8 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../../shift/screens/shift_detail.dart';
 import '../controllers/employee_controller.dart';
 import '../models/employee.dart';
+import '../aadhaar_qr.dart';
+import '../../authentication/controllers/login_controller.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -27,6 +29,38 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
     super.initState();
     Get.delete<EmployeeDetailController>(force: true);
     c = Get.put(EmployeeDetailController(widget.employeeId));
+  }
+
+  /// Checking a card is an admin's, as the server holds too.
+  bool get _canCheckAadhaar {
+    try {
+      return Get.find<LoginController>().user.value.role == 'admin';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// The card's QR code: the check is kept on the record as it is made;
+  /// the card's date of birth, gender and address can follow.
+  Future<void> _checkAadhaar(EmployeeDetail emp) async {
+    final out = await Navigator.of(context).push<AadhaarQrOutcome>(MaterialPageRoute(
+      builder: (_) => AadhaarQrPage(
+        personName: emp.name,
+        employeeId: emp.id,
+        fillLabel: 'Use the card\'s details on the record',
+      ),
+    ));
+    if (out != null && out.fill && out.result.read.fields != null) {
+      try {
+        await AadhaarQrApi.useOnRecord(emp.id, out.result.read.fields!);
+        Get.snackbar('Saved', 'Date of birth, gender and address taken from the card',
+            snackPosition: SnackPosition.BOTTOM, backgroundColor: ErpColors.successGreen, colorText: Colors.white);
+      } on AadhaarQrError catch (e) {
+        Get.snackbar('Not saved', e.message,
+            snackPosition: SnackPosition.BOTTOM, backgroundColor: ErpColors.errorRed, colorText: Colors.white);
+      }
+    }
+    await c.fetchDetail();
   }
 
   @override
@@ -57,7 +91,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
             child: Column(children: [
               _HeroCard(emp: emp),
               const SizedBox(height: 12),
-              _InfoCard(emp: emp),
+              _InfoCard(emp: emp, onCheckAadhaar: _canCheckAadhaar ? () => _checkAadhaar(emp) : null),
               const SizedBox(height: 12),
               _SkillProfileCard(emp: emp),
               const SizedBox(height: 12),
@@ -286,7 +320,9 @@ class _StatBox extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════
 class _InfoCard extends StatelessWidget {
   final EmployeeDetail emp;
-  const _InfoCard({required this.emp});
+  /// Shown to an admin: check the employee's Aadhaar QR code.
+  final VoidCallback? onCheckAadhaar;
+  const _InfoCard({required this.emp, this.onCheckAadhaar});
 
   @override
   Widget build(BuildContext context) {
@@ -297,6 +333,11 @@ class _InfoCard extends StatelessWidget {
         ErpInfoRow('Full Name',   emp.name),
         ErpInfoRow('Phone',       emp.phoneNumber),
         ErpInfoRow('Aadhaar',     emp.aadhar),
+        ErpInfoRow('Aadhaar QR',  _checkText(emp.aadhaarCheck)),
+        if (emp.dob.isNotEmpty) ErpInfoRow('Date of birth', dmy(emp.dob)),
+        if (emp.gender.isNotEmpty) ErpInfoRow('Gender', genderText(emp.gender)),
+        if (emp.address.isNotEmpty)
+          ErpInfoRow('Address', emp.pincode.isNotEmpty ? '${emp.address} – ${emp.pincode}' : emp.address),
         ErpInfoRow('Department',
             emp.department[0].toUpperCase() + emp.department.substring(1)),
         ErpInfoRow('Role',        emp.role),
@@ -304,8 +345,25 @@ class _InfoCard extends StatelessWidget {
         if (emp.hourlyRate > 0)
           ErpInfoRow('Shift salary (DAY 12h)',
               'Rs ${(emp.hourlyRate * 12).toStringAsFixed(0)}'),
+        if (onCheckAadhaar != null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: onCheckAadhaar,
+              icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
+              label: const Text('Check Aadhaar QR'),
+            ),
+          ),
       ]),
     );
+  }
+
+  /// The last check, in a line: what the signature said, when, and by whom.
+  static String _checkText(AadhaarCheck? check) {
+    if (check == null) return 'Not checked';
+    return [signatureWords(check.signature).title, dayText(check.at), check.byName]
+        .where((p) => p.isNotEmpty)
+        .join(' · ');
   }
 }
 

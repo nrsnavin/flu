@@ -5,7 +5,9 @@ import 'package:intl/intl.dart';
 
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
+import '../../../core/request_id.dart';
 import '../models/accounts_models.dart';
+import '../voucher_math.dart' show Allocation;
 
 // ══════════════════════════════════════════════════════════════
 //  ACCOUNTS API — /api/v2/accounts, and the party pickers
@@ -119,9 +121,13 @@ class AccountsApi {
       _list(_body(await _dio.post('/payments/check', data: body))['flags']).map(PaymentFlag.fromJson).toList();
 
   /// The body of a receipt or payment, as POST /accounts/payments and
-  /// its /check take it. [riskNote] says how a flagged payment — a bank
-  /// account changed lately, or shared with another supplier — was
-  /// confirmed; the server will not pay one without it.
+  /// its /check take it. [amount] is the money that moves; each
+  /// allocation's amount is what comes off its document, which on a
+  /// bill carrying TDS is more than the money paid for it (the server
+  /// works the TDS out again, by the same sum). [riskNote] says how a
+  /// flagged payment — a bank account changed lately, or shared with
+  /// another supplier — was confirmed; the server will not pay one
+  /// without it.
   static Map<String, dynamic> voucherBody({
     required String kind,
     required String partyType,
@@ -130,7 +136,7 @@ class AccountsApi {
     required String mode,
     required String account,
     required DateTime date,
-    required List<({OpenDoc doc, double amount})> allocations,
+    required List<Allocation> allocations,
     String reference = '',
     String chequeNo = '',
     String chequeBank = '',
@@ -183,12 +189,22 @@ class AccountsApi {
   static Future<void> rejectExpense(String id, String reason) =>
       _dio.post('/expenses/$id/reject', data: {'reason': reason});
 
+  // One id for one payment. The same expense paid the same way again —
+  // a second tap, a resend after a timeout whose first attempt did land
+  // — carries the same id, and the server answers with the voucher the
+  // first made. The id is let go once the payment has gone through.
+  static final Map<String, String> _payIds = {};
+
   static Future<String> payExpense(String id, {required String account, required String mode, String reference = ''}) async {
+    final what = '$id|$account|$mode|${reference.trim()}';
+    final requestId = _payIds.putIfAbsent(what, newRequestId);
     final b = _body(await _dio.post('/expenses/$id/pay', data: {
       'account': account,
       'mode': mode,
       if (reference.trim().isNotEmpty) 'reference': reference.trim(),
+      'requestId': requestId,
     }));
+    _payIds.remove(what);
     return '${(b['voucher'] as Map?)?['voucherNo'] ?? ''}';
   }
 

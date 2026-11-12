@@ -22,7 +22,8 @@ final _day = DateFormat('dd MMM yyyy');
 //  Before a payment goes, the server's own checks run — a supplier's
 //  bank account changed lately, the same payment twice — and a danger
 //  flag is not paid without saying how it was confirmed. A bill that
-//  carries TDS is paid on the web, where the TDS is worked out.
+//  carries TDS is paid here too: the tax is kept back on it, by the
+//  server's own sum, and the row says how much money it takes.
 // ══════════════════════════════════════════════════════════════
 
 class VoucherEntryPage extends StatefulWidget {
@@ -130,28 +131,22 @@ class _VoucherEntryPageState extends State<VoucherEntryPage> {
 
   double get _amountValue => r2(double.tryParse(_amount.text.replaceAll(',', '').trim()) ?? 0);
 
-  List<({OpenDoc doc, double amount})> get _allocations =>
-      allocateOldestFirst(_amountValue, _docs ?? const [], skipped: _skipped);
+  // On a payment a bill carrying TDS is settled for less money than it
+  // is for: the tax is kept back, worked out as the server works it.
+  List<Allocation> get _allocations =>
+      allocateOldestFirst(_amountValue, _docs ?? const [], skipped: _skipped, payment: !_receipt);
 
   /// The first thing stopping the voucher, in words; null when it can go.
-  String? _problem(List<({OpenDoc doc, double amount})> allocations) {
+  String? _problem(List<Allocation> allocations) {
     if (_party == null) return 'Choose the ${_receipt ? 'customer' : 'supplier'}';
     if (_docsLoading) return 'Loading what is open…';
     if (_amountValue <= 0) return 'Enter the amount';
     if (_account == null || _mode == null) return 'Choose the account';
     if (_mode == 'cheque' && _chequeNo.text.trim().isEmpty) return 'Enter the cheque number';
-    if (!_receipt) {
-      final tds = tdsBlockers(allocations);
-      if (tds.isNotEmpty) {
-        return '${tds.map((d) => d.docNo).join(', ')} ${tds.length == 1 ? 'carries' : 'carry'} TDS — pay '
-            '${tds.length == 1 ? 'it' : 'them'} on the web, where the TDS is worked out, or untick '
-            '${tds.length == 1 ? 'it' : 'them'}';
-      }
-    }
     return null;
   }
 
-  Map<String, dynamic> _body(List<({OpenDoc doc, double amount})> allocations, {String riskNote = ''}) =>
+  Map<String, dynamic> _body(List<Allocation> allocations, {String riskNote = ''}) =>
       AccountsApi.voucherBody(
         kind: widget.kind,
         partyType: _partyType,
@@ -201,6 +196,7 @@ class _VoucherEntryPageState extends State<VoucherEntryPage> {
           party.name,
           '${_receipt ? 'Into' : 'From'} ${_account!.name} · ${modeLabel(_mode!)} · ${_day.format(_date)}',
           if (settledNos.isNotEmpty) 'Settles ${settledNos.join(', ')}',
+          if (s.tds > 0) 'TDS ${inr(s.tds)} is kept back, to be deposited — ${inr(s.settled)} comes off what is owed',
           if (s.onAccount > 0) '${inr(s.onAccount)} stays on their account as an advance',
         ],
         flags: flags,
@@ -293,9 +289,7 @@ class _VoucherEntryPageState extends State<VoucherEntryPage> {
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(problem,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: problem.contains('TDS') ? ErpColors.errorRed : ErpColors.textMuted)),
+                          style: TextStyle(fontSize: 12, color: ErpColors.textMuted)),
                     ),
                   SizedBox(
                     width: double.infinity,
@@ -344,7 +338,7 @@ class _VoucherEntryPageState extends State<VoucherEntryPage> {
     );
   }
 
-  List<Widget> _docsSection(List<({OpenDoc doc, double amount})> allocations) {
+  List<Widget> _docsSection(List<Allocation> allocations) {
     final docs = _docs;
     final title = _receipt ? 'Settles these invoices' : 'Settles these bills';
     if (_docsLoading) return [accountsLabel(title), const LinearProgressIndicator()];
@@ -374,7 +368,7 @@ class _VoucherEntryPageState extends State<VoucherEntryPage> {
       ];
     }
     final s = settlement(_amountValue, allocations);
-    final ticked = tickedTotal(docs, _skipped);
+    final ticked = tickedTotal(docs, _skipped, payment: !_receipt);
     return [
       Row(children: [
         Expanded(child: accountsLabel(title)),
@@ -389,7 +383,7 @@ class _VoucherEntryPageState extends State<VoucherEntryPage> {
         child: Column(children: [
           for (final (i, a) in allocations.indexed) ...[
             if (i > 0) Divider(height: 1, color: ErpColors.borderLight),
-            _docRow(a.doc, a.amount),
+            _docRow(a),
           ],
         ]),
       ),
@@ -399,6 +393,7 @@ class _VoucherEntryPageState extends State<VoucherEntryPage> {
           child: Text(
             [
               if (s.docs > 0) 'Settles ${inr(s.settled)} on ${s.docs} ${s.docs == 1 ? 'document' : 'documents'}',
+              if (s.tds > 0) 'TDS ${inr(s.tds)} kept back',
               if (s.onAccount > 0) '${inr(s.onAccount)} stays on account as an advance',
             ].join(' · '),
             style: TextStyle(fontSize: 12, color: s.onAccount > 0 && !_receipt ? ErpColors.warningAmber : ErpColors.textSecondary),
@@ -407,7 +402,9 @@ class _VoucherEntryPageState extends State<VoucherEntryPage> {
     ];
   }
 
-  Widget _docRow(OpenDoc d, double settles) {
+  Widget _docRow(Allocation a) {
+    final d = a.doc;
+    final settles = a.amount;
     final skipped = _skipped.contains(d.id);
     final tds = !_receipt && d.tdsSection.isNotEmpty;
     return InkWell(
@@ -430,6 +427,14 @@ class _VoucherEntryPageState extends State<VoucherEntryPage> {
                   Text('${d.overdueDays} days overdue', style: TextStyle(fontSize: 11.5, color: ErpColors.errorRed)),
                 if (tds) accountsChip('TDS ${d.tdsSection}', ErpColors.statusCancelledBg, ErpColors.statusCancelledText),
               ]),
+              // The tax kept back on it, and the money that is paid for it. On this
+              // side of the row, where a long line wraps instead of pushing the amount off.
+              if (a.tds > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text('TDS ${inr(a.tds)} kept back · ${inr(a.cash)} paid',
+                      style: TextStyle(fontSize: 11.5, color: ErpColors.textSecondary)),
+                ),
             ]),
           ),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [

@@ -166,6 +166,8 @@ class OpenDoc {
     this.outstanding = 0,
     this.overdueDays = 0,
     this.tdsSection = '',
+    this.tdsRate = 0,
+    this.taxableRatio = 1,
   });
 
   /// Invoice, SupplierBill, Expense or OpeningBalance.
@@ -180,6 +182,10 @@ class OpenDoc {
 
   /// Set when the bill carries TDS, which is deducted when it is paid.
   final String tdsSection;
+
+  /// The rate that TDS is deducted at, and the share of the bill it is
+  /// worked on: its value net of GST over its total.
+  final double tdsRate, taxableRatio;
 
   String get kindLabel => switch (docType) {
         'Invoice' => 'Invoice',
@@ -200,6 +206,8 @@ class OpenDoc {
         outstanding: _d(j['outstanding']),
         overdueDays: _i(j['overdueDays']),
         tdsSection: j['tds'] is Map ? _s(_m(j['tds'])['section']).ifEmpty('TDS') : '',
+        tdsRate: j['tds'] is Map ? _d(_m(j['tds'])['rate']) : 0,
+        taxableRatio: j['taxableRatio'] == null ? 1 : _d(j['taxableRatio']),
       );
 }
 

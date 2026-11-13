@@ -222,6 +222,7 @@ class _RaiseInvoicePageState extends State<RaiseInvoicePage> {
                       [
                         if (dc.dispatchDate != null) _day.format(dc.dispatchDate!),
                         '${qty(dc.totalQuantity)} m',
+                        _boxes(dc.totalBoxes),
                         if (dc.invoicedOn != null) 'on ${dc.invoicedOn}' else if (!dc.eligible) dc.status,
                       ].join('  ·  '),
                       style: TextStyle(fontSize: 11.5, color: ErpColors.textMuted),
@@ -240,6 +241,9 @@ class _RaiseInvoicePageState extends State<RaiseInvoicePage> {
             if (lines.isNotEmpty) ...[
               const SizedBox(height: 6),
               _card(Column(children: [
+                // From the challans: counted when the goods went out.
+                InvoiceRow('Total boxes', '${priced.lines.fold<int>(0, (s, p) => s + p.line.boxes)}'),
+                const Divider(height: 14),
                 InvoiceRow('Taxable value', inr(priced.totals.taxable)),
                 if (!inter) ...[
                   InvoiceRow('CGST', inr(priced.totals.cgst)),
@@ -341,7 +345,7 @@ class _RaiseInvoicePageState extends State<RaiseInvoicePage> {
             style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, fontFeatures: const [FontFeature.tabularFigures()])),
       ]),
       const SizedBox(height: 2),
-      Text('${qty(l.quantity)} ${l.unit}  ·  ${l.dcNumbers.join(', ')}',
+      Text('${qty(l.quantity)} ${l.unit}  ·  ${_boxes(l.boxes)}  ·  ${l.dcNumbers.join(', ')}',
           style: TextStyle(fontSize: 11.5, color: ErpColors.textMuted)),
       const SizedBox(height: 10),
       Row(children: [
@@ -404,6 +408,9 @@ class _RaiseInvoicePageState extends State<RaiseInvoicePage> {
         child: Text(s.toUpperCase(),
             style: TextStyle(fontSize: 10.5, letterSpacing: 0.7, fontWeight: FontWeight.w700, color: ErpColors.textMuted)),
       );
+
+  /// "1 box", "20 boxes"; "no boxes" when the challans carry none.
+  String _boxes(int n) => n == 0 ? 'no boxes' : '$n ${n == 1 ? 'box' : 'boxes'}';
 
   Widget _muted(String s) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),

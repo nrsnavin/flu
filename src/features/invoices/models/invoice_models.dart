@@ -295,6 +295,9 @@ class InvoiceDcOption {
   final DateTime? dispatchDate;
   final double totalQuantity;
 
+  /// Every box on the challan's lines.
+  int get totalBoxes => items.fold(0, (s, i) => s + i.boxes);
+
   /// The invoice this challan is already on, if any.
   final String? invoicedOn;
   final bool eligible;
@@ -313,16 +316,20 @@ class InvoiceDcOption {
 }
 
 class InvoiceDcItem {
-  const InvoiceDcItem({this.elastic = '', this.elasticName = '', this.quantity = 0, this.unit = ''});
+  const InvoiceDcItem({this.elastic = '', this.elasticName = '', this.quantity = 0, this.unit = '', this.boxes = 0});
 
   final String elastic, elasticName, unit;
   final double quantity;
+
+  /// The boxes the line went out in. The invoice takes its boxes from these.
+  final int boxes;
 
   factory InvoiceDcItem.fromJson(Map<String, dynamic> j) => InvoiceDcItem(
         elastic: _s(j['elastic'] is Map ? (j['elastic'] as Map)['_id'] : j['elastic']),
         elasticName: _s(j['elasticName']),
         quantity: _d(j['quantity']),
         unit: _s(j['unit']),
+        boxes: _i(j['boxes']),
       );
 }
 
@@ -339,10 +346,14 @@ class InvoiceDraftLine {
     this.gstPercent = 0,
     List<String>? dcNumbers,
     this.rateSource = 'none',
+    this.boxes = 0,
   }) : dcNumbers = dcNumbers ?? [];
 
   final String elastic, name, unit;
   double quantity, rate, gstPercent;
+
+  /// The ticked challans' boxes of this elastic, added up (not typed).
+  int boxes;
   String hsn;
   final List<String> dcNumbers;
 
@@ -359,6 +370,7 @@ class InvoiceDraftLine {
         gstPercent: _d(j['gstPercent']),
         dcNumbers: _strings(j['dcNumbers']),
         rateSource: _s(j['rateSource']).isEmpty ? 'none' : _s(j['rateSource']),
+        boxes: _i(j['boxes']),
       );
 }
 

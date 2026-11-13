@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
@@ -293,6 +294,11 @@ class AddDCController extends GetxController {
   double get totalAmount => selectedType.value == 'elastic'
       ? elasticItems.values.fold(0, (s, i) => s + i.amount)
       : machineItems.fold(0, (s, i) => s + i.amount);
+
+  /// Every box on the challan's lines: the invoice takes its boxes from these.
+  int get totalBoxes => selectedType.value == 'elastic'
+      ? selectedIds.fold(0, (s, id) => s + (elasticItems[id]?.boxes ?? 0))
+      : machineItems.fold(0, (s, i) => s + i.boxes);
 
   // ─────────────────────────────────────────────────────────
   //  VALIDATION
@@ -1001,6 +1007,17 @@ class _ElasticPickerCard extends StatelessWidget {
                         ),
                       )),
                       const SizedBox(width: 8),
+                      // The boxes this line goes out in: whole boxes only.
+                      // The invoice raised against the challan takes them.
+                      SizedBox(width: 84, child: TextField(
+                        controller: item.boxesCtrl,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        style: ErpTextStyles.fieldValue,
+                        onChanged: (_) => c.elasticItems.refresh(),
+                        decoration: ErpDecorations.formInput('Boxes'),
+                      )),
+                      const SizedBox(width: 8),
                       Expanded(child: TextField(
                         controller: item.rateCtrl,
                         keyboardType: TextInputType.number,
@@ -1021,14 +1038,14 @@ class _ElasticPickerCard extends StatelessWidget {
             Divider(height: 1, color: ErpColors.borderLight),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-              child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              child: Wrap(alignment: WrapAlignment.end, spacing: 8, runSpacing: 6, children: [
                 _TotalBadge('${c.totalQty.toStringAsFixed(0)} m',
                     icon: Icons.straighten, color: ErpColors.accentBlue),
-                if (c.totalAmount > 0) ...[
-                  const SizedBox(width: 8),
+                _TotalBadge('${c.totalBoxes} ${c.totalBoxes == 1 ? 'box' : 'boxes'}',
+                    icon: Icons.inventory_2_outlined, color: ErpColors.textSecondary),
+                if (c.totalAmount > 0)
                   _TotalBadge('₹${_fmt(c.totalAmount)}',
                       icon: Icons.currency_rupee, color: ErpColors.successGreen),
-                ],
               ]),
             ),
           ],

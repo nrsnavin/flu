@@ -13,6 +13,8 @@ class DCItem {
   final double  quantity;
   final double  rate;
   final double  amount;
+  /// Boxes (cartons) the line went out in. The invoice takes its boxes from these.
+  final int     boxes;
 
   const DCItem({
     this.elasticId,
@@ -22,6 +24,7 @@ class DCItem {
     required this.quantity,
     this.rate   = 0,
     this.amount = 0,
+    this.boxes  = 0,
   });
 
   String get displayName => elasticName ?? description ?? "—";
@@ -45,6 +48,7 @@ class DCItem {
       quantity:    (j["quantity"] ?? 0).toDouble(),
       rate:        (j["rate"]     ?? 0).toDouble(),
       amount:      (j["amount"]   ?? 0).toDouble(),
+      boxes:       (j["boxes"] as num?)?.toInt() ?? 0,
     );
   }
 }
@@ -61,6 +65,7 @@ class DCListItem {
   final String  dispatchDate;
   final double  totalAmount;
   final double  totalQuantity;
+  final int     totalBoxes;
 
   const DCListItem({
     required this.id,
@@ -73,6 +78,7 @@ class DCListItem {
     required this.dispatchDate,
     required this.totalAmount,
     required this.totalQuantity,
+    this.totalBoxes = 0,
   });
 
   bool get isElastic     => type == "elastic";
@@ -89,6 +95,7 @@ class DCListItem {
     dispatchDate:  j["dispatchDate"]?.toString()   ?? "",
     totalAmount:   (j["totalAmount"]   ?? 0).toDouble(),
     totalQuantity: (j["totalQuantity"] ?? 0).toDouble(),
+    totalBoxes:    (j["totalBoxes"] as num?)?.toInt() ?? 0,
   );
 }
 
@@ -113,6 +120,10 @@ class DCDetail {
   final double       totalQuantity;
   final double       totalAmount;
   final String       remarks;
+
+  /// Every line's boxes added up, from the lines themselves (a challan
+  /// from before boxes were kept has no stored total).
+  int get totalBoxes => items.fold(0, (s, i) => s + i.boxes);
   final String       status;
   final String       createdAt;
   /// 🪪 Audit-trail entries from `dc.fingerprints`. Newest-first.
@@ -315,6 +326,8 @@ class EditableDCItem {
   final TextEditingController descCtrl = TextEditingController();
   final TextEditingController qtyCtrl  = TextEditingController();
   final TextEditingController rateCtrl = TextEditingController();
+  /// Whole boxes; blank is none.
+  final TextEditingController boxesCtrl = TextEditingController();
   String unit = "m";
 
   EditableDCItem.elastic({
@@ -337,6 +350,7 @@ class EditableDCItem {
   double get qty    => double.tryParse(qtyCtrl.text)  ?? 0;
   double get rate   => double.tryParse(rateCtrl.text) ?? 0;
   double get amount => qty * rate;
+  int    get boxes  => int.tryParse(boxesCtrl.text.trim()) ?? 0;
 
   Map<String, dynamic> toPayload() {
     if (elasticId != null) {
@@ -346,6 +360,7 @@ class EditableDCItem {
         "unit":        unit,
         "quantity":    qty,
         "rate":        rate,
+        "boxes":       boxes,
       };
     }
     return {
@@ -353,6 +368,7 @@ class EditableDCItem {
       "unit":        unit,
       "quantity":    qty,
       "rate":        rate,
+      "boxes":       boxes,
     };
   }
 
@@ -360,5 +376,6 @@ class EditableDCItem {
     descCtrl.dispose();
     qtyCtrl.dispose();
     rateCtrl.dispose();
+    boxesCtrl.dispose();
   }
 }

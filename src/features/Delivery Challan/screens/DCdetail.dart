@@ -400,21 +400,22 @@ class _HeroBanner extends StatelessWidget {
           ),
         const SizedBox(height: 14),
 
-        // Stats row
-        Row(children: [
+        // Stats: they wrap onto a second line on a narrow phone rather
+        // than run off the edge.
+        Wrap(spacing: 10, runSpacing: 8, children: [
           _HeroStat(
             label: d.isElastic ? 'TOTAL QTY' : 'TOTAL ITEMS',
             value: d.isElastic
                 ? '${d.totalQuantity.toStringAsFixed(0)} m'
                 : d.totalQuantity.toStringAsFixed(0),
           ),
-          const SizedBox(width: 10),
+          if (d.totalBoxes > 0)
+            _HeroStat(label: 'TOTAL BOXES', value: '${d.totalBoxes}'),
           if (d.totalAmount > 0)
             _HeroStat(
               label: 'TOTAL AMOUNT',
               value: '₹${NumberFormat('#,##0.##').format(d.totalAmount)}',
             ),
-          const SizedBox(width: 10),
           _HeroStat(label: 'ITEMS', value: '${d.items.length}'),
         ]),
       ]),
@@ -508,9 +509,6 @@ class _ItemsSection extends StatelessWidget {
             Expanded(flex: 3, child: Text('ITEM',
                 style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800,
                     color: ErpColors.textSecondary, letterSpacing: 0.4))),
-            SizedBox(width: 6,
-                child: Text('QTY', style: TextStyle(fontSize: 10,
-                    fontWeight: FontWeight.w800, color: ErpColors.textSecondary))),
             Expanded(flex: 1, child: Text('QTY',
                 style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800,
                     color: typeColor, letterSpacing: 0.4),
@@ -550,11 +548,21 @@ class _ItemsSection extends StatelessWidget {
                       fontSize: 10, color: ErpColors.textMuted)),
                 ],
               )),
-              Expanded(flex: 1, child: Text(
-                item.quantity.toStringAsFixed(
-                    item.quantity % 1 == 0 ? 0 : 2),
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: typeColor),
-                textAlign: TextAlign.right,
+              // The quantity, and under it the boxes it went out in.
+              Expanded(flex: 1, child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    item.quantity.toStringAsFixed(
+                        item.quantity % 1 == 0 ? 0 : 2),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: typeColor),
+                    textAlign: TextAlign.right,
+                  ),
+                  if (item.boxes > 0)
+                    Text('${item.boxes} ${item.boxes == 1 ? 'box' : 'boxes'}',
+                        style: TextStyle(fontSize: 10, color: ErpColors.textMuted),
+                        textAlign: TextAlign.right),
+                ],
               )),
               const SizedBox(width: 8),
               Expanded(flex: 1, child: Text(
@@ -586,11 +594,21 @@ class _ItemsSection extends StatelessWidget {
             Expanded(flex: 3, child: Text('TOTAL',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800,
                     color: ErpColors.textPrimary))),
-            Expanded(flex: 1, child: Text(
-              d.totalQuantity.toStringAsFixed(
-                  d.totalQuantity % 1 == 0 ? 0 : 2),
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: typeColor),
-              textAlign: TextAlign.right,
+            Expanded(flex: 1, child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  d.totalQuantity.toStringAsFixed(
+                      d.totalQuantity % 1 == 0 ? 0 : 2),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: typeColor),
+                  textAlign: TextAlign.right,
+                ),
+                if (d.totalBoxes > 0)
+                  Text('${d.totalBoxes} ${d.totalBoxes == 1 ? 'box' : 'boxes'}',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700,
+                          color: ErpColors.textSecondary),
+                      textAlign: TextAlign.right),
+              ],
             )),
             const SizedBox(width: 8),
             const Expanded(flex: 1, child: SizedBox.shrink()),

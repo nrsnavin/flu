@@ -68,6 +68,8 @@ List<InvoiceDraftLine> draftLines(
         ),
       );
       row.quantity = (((row.quantity + item.quantity) * 1000).roundToDouble()) / 1000;
+      // The boxes are the challans' own, added up, as the server does it.
+      row.boxes += item.boxes;
       if (!row.dcNumbers.contains(dc.dcNumber)) row.dcNumbers.add(dc.dcNumber);
     }
   }

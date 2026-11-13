@@ -395,12 +395,20 @@ class _DCCard extends StatelessWidget {
                   color: typeColor,
                 ),
                 const SizedBox(width: 8),
-                if (dc.totalAmount > 0)
+                if (dc.totalBoxes > 0) ...[
                   _StatPill(
+                    label: 'BOXES',
+                    value: '${dc.totalBoxes}',
+                    color: ErpColors.textSecondary,
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                if (dc.totalAmount > 0)
+                  Flexible(child: _StatPill(
                     label: 'AMOUNT',
                     value: '₹${_fmt(dc.totalAmount)}',
                     color: ErpColors.successGreen,
-                  ),
+                  )),
                 const Spacer(),
                 Icon(Icons.arrow_forward_ios, size: 12, color: ErpColors.textMuted),
               ]),

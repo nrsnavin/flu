@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/pending_verification_controller.dart';
+import '../widgets/timer_photos.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  PendingVerificationPage
@@ -181,6 +182,15 @@ class PendingVerificationPage extends StatelessWidget {
                 ),
               ),
             ]),
+            // Check the run time against the display itself.
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TimerPhotosButton(
+                shiftId: shiftId,
+                subtitle: 'Check the run time against the display',
+                compact: true,
+              ),
+            ),
             const SizedBox(height: 10),
             TextField(
               controller: noteCtrl,
@@ -402,14 +412,32 @@ class _ShiftCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (shift['previous'] is Map) ...[
+                  const SizedBox(height: 8),
+                  _ShiftBefore(
+                      Map<String, dynamic>.from(shift['previous'] as Map)),
+                ],
                 const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ErpPrimaryButton(
-                    label: 'Verify',
-                    icon: Icons.check_circle_outline_rounded,
-                    onPressed: onVerify,
-                  ),
+                Row(
+                  children: [
+                    // The photos of the timer taken for this entry:
+                    // fetched only when tapped, not with the list.
+                    TimerPhotosButton(
+                      shiftId: shift['_id']?.toString() ?? '',
+                      subtitle: [
+                        if (machId != '—') machId,
+                        if (shiftType.isNotEmpty) '${shiftType.toLowerCase()} shift',
+                        empName,
+                      ].join(' · '),
+                      compact: true,
+                    ),
+                    const Spacer(),
+                    ErpPrimaryButton(
+                      label: 'Verify',
+                      icon: Icons.check_circle_outline_rounded,
+                      onPressed: onVerify,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -452,4 +480,116 @@ class _MetaCell extends StatelessWidget {
           ],
         ),
       );
+}
+
+/// What the same loom's timer read the shift before (the server's
+/// `previous`, from services/floorEntry.js previousReadingFor), so the run
+/// time entered now can be checked against where the display started.
+/// Verified, or still as the floor submitted it. The web shows the same
+/// beside each entry (PreviousShiftReading.tsx). Its photo, like this
+/// entry's, is fetched only when "View photo" is tapped.
+class _ShiftBefore extends StatelessWidget {
+  final Map<String, dynamic> previous;
+  const _ShiftBefore(this.previous);
+
+  @override
+  Widget build(BuildContext context) {
+    final shift = previous['shift'] is Map
+        ? Map<String, dynamic>.from(previous['shift'] as Map)
+        : const <String, dynamic>{};
+    final photo = previous['photo'] is Map
+        ? Map<String, dynamic>.from(previous['photo'] as Map)
+        : null;
+    String? text(Object? v) {
+      final t = v?.toString().trim() ?? '';
+      return t.isEmpty ? null : t;
+    }
+
+    final label = text(shift['label']);
+    final operator = text(previous['operator']);
+    final runTime = text(previous['runTime']);
+    // The run time as it stands, else what the photo read.
+    final figure =
+        runTime ?? text(photo?['runTimeUsed']) ?? text(photo?['readText']);
+    final verified = previous['verified'] == true;
+    final entryId = text(previous['entryId']) ?? '';
+
+    final line = figure != null
+        ? 'Timer read $figure${operator != null ? ' · $operator' : ''}'
+        : operator != null
+            ? 'No run time was entered · $operator'
+            : 'This loom was not on that shift.';
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 8, 4, 8),
+      decoration: BoxDecoration(
+        border: Border.all(color: ErpColors.borderLight),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.history_rounded, size: 15, color: ErpColors.textMuted),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                    'SHIFT BEFORE${label != null ? ' · ${label.toUpperCase()}' : ''}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        color: ErpColors.textSecondary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5)),
+                const SizedBox(height: 3),
+                Text(line,
+                    style: TextStyle(
+                        color: ErpColors.textPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        fontFeatures: const [FontFeature.tabularFigures()])),
+                if (runTime != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                      verified
+                          ? 'Verified by the office'
+                          : 'Not verified yet: as the floor submitted it',
+                      style: TextStyle(
+                          color: verified
+                              ? ErpColors.successGreen
+                              : ErpColors.warningAmber,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600)),
+                ] else if (operator != null && photo == null) ...[
+                  const SizedBox(height: 2),
+                  Text('No timer photo was taken.',
+                      style: TextStyle(
+                          color: ErpColors.textMuted, fontSize: 10)),
+                ],
+              ],
+            ),
+          ),
+          if (photo != null && entryId.isNotEmpty)
+            TextButton.icon(
+              onPressed: () => openTimerPhotos(
+                context,
+                shiftId: entryId,
+                subtitle: 'Shift before${label != null ? ' · $label' : ''}',
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: ErpColors.accentBlue,
+                textStyle:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(0, 40),
+              ),
+              icon: const Icon(Icons.photo_camera_outlined, size: 16),
+              label: const Text('View photo'),
+            ),
+        ],
+      ),
+    );
+  }
 }

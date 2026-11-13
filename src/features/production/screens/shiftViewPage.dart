@@ -14,6 +14,7 @@ import 'package:get/get.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/productionController.dart';
 import '../models/productionBrief.dart';
+import '../../shift/widgets/timer_photos.dart';
 
 class ShiftDetailPage extends StatefulWidget {
   final String shiftPlanId;
@@ -1090,8 +1091,20 @@ class _MachineCardState extends State<_MachineCard> {
                 _GridItem('Speed', '${m.speed} RPM'),
               ]),
               const SizedBox(height: 12),
-              _SectionHead('Timer Details'),
-              const SizedBox(height: 6),
+              Row(children: [
+                _SectionHead('Timer Details'),
+                const Spacer(),
+                // The photos of this loom's timer for the entry:
+                // fetched only when tapped, never with the list.
+                TimerPhotosButton(
+                  shiftId: m.shiftDetailId,
+                  subtitle: [m.machineNo, m.operatorName]
+                      .where((t) => t.isNotEmpty && t != '-')
+                      .join(' · '),
+                  compact: true,
+                ),
+              ]),
+              const SizedBox(height: 2),
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(

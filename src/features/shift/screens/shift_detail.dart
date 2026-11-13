@@ -6,6 +6,7 @@ import '../../../common_widgets/reason_dialog.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/shift_detail.dart';
 import '../models/shift_detail_view_model.dart';
+import '../widgets/timer_photos.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  SHIFT DETAIL PAGE
@@ -218,8 +219,17 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
           ),
         ),
         const SizedBox(height: 12),
-        const _FieldLabel("Run Time"),
-        const SizedBox(height: 6),
+        Row(children: [
+          const _FieldLabel("Run Time"),
+          const Spacer(),
+          // Fetched only when tapped.
+          TimerPhotosButton(
+            shiftId: ctrl.shiftId,
+            subtitle: _photoSubtitle(ctrl.shift.value),
+            compact: true,
+          ),
+        ]),
+        const SizedBox(height: 2),
         _ScrollTimerField(controller: ctrl.timerController),
         const SizedBox(height: 12),
         TextField(
@@ -269,6 +279,15 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
         ErpInfoRow("Production", "${s.production} meters"),
         ErpInfoRow("Run Time", s.timer),
         if (s.feedback.isNotEmpty) ErpInfoRow("Feedback", s.feedback),
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerLeft,
+          // The timer photos: fetched only when tapped.
+          child: TimerPhotosButton(
+            shiftId: s.id,
+            subtitle: _photoSubtitle(s),
+          ),
+        ),
         // ── Correct / delete a verified entry (audit-logged) ──
         if (s.status == "closed") ...[
           const SizedBox(height: 12),
@@ -307,6 +326,16 @@ class _ShiftDetailPageState extends State<ShiftDetailPage> {
         ],
       ]),
     );
+  }
+
+  /// The line under the photo viewer's title: loom, shift, operator.
+  String _photoSubtitle(ShiftDetailViewModel? s) {
+    if (s == null) return '';
+    return [
+      s.machineName,
+      if (s.shift.isNotEmpty) '${s.shift.toLowerCase()} shift',
+      s.employeeName,
+    ].where((t) => t.trim().isNotEmpty).join(' · ');
   }
 
   Future<void> _correctEntry(ShiftDetailViewModel s) async {

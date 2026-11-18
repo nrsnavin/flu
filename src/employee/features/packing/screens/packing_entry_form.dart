@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import '../../../core/safe_json.dart';
 import '../../../theme/erp_theme.dart';
 import '../controllers/packing_entry_controller.dart';
-import 'package:production/src/core/nav.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  PACKING ENTRY FORM — POST /packing/create-packing
@@ -447,10 +446,17 @@ class _PackingEntryFormPageState extends State<PackingEntryFormPage> {
                       : () async {
                           if (!_formKey.currentState!.validate()) return;
                           FocusScope.of(context).unfocus();
-                          final ok = await c.submit(jobId: jobId);
-                          // Saved: back to the job. (Get.back would close the
-                          // "Saved" notice and leave an emptied form on screen.)
-                          if (ok && mounted) closePage();
+                          // Saved: the form empties for the next roll and the
+                          // notice says what was recorded.
+                          //
+                          // This used to call Get.back() after a save. It never
+                          // left the page: with the "Saved" notice up, Get.back
+                          // closes the NOTICE — so the worker saw the form go
+                          // blank and nothing said. Staying on the form is what
+                          // the floor is used to (the next roll is entered
+                          // straight away); what was wrong was the notice
+                          // vanishing, and it now stays for its four seconds.
+                          await c.submit(jobId: jobId);
                         },
                   icon: c.isSubmitting.value
                       ? const SizedBox(

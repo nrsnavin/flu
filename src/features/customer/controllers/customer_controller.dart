@@ -25,6 +25,14 @@ class CustomerController extends GetxController {
   final contactNameCtrl = TextEditingController();
   final phoneCtrl       = TextEditingController();
 
+  // Billing address and tax identity: what an invoice and a challan
+  // print, and what "Verify" beside the GSTIN fills in.
+  final addressCtrl   = TextEditingController();
+  final cityCtrl      = TextEditingController();
+  final pincodeCtrl   = TextEditingController();
+  final stateCodeCtrl = TextEditingController();
+  final panCtrl       = TextEditingController();
+
   // Purchase
   final purchaseNameCtrl   = TextEditingController();
   final purchaseMobileCtrl = TextEditingController();
@@ -60,6 +68,11 @@ class CustomerController extends GetxController {
         "contactName":  contactNameCtrl.text.trim(),
         "phoneNumber":  phoneCtrl.text.trim(),
         "paymentTerms": paymentTerms.value,
+        "address":      addressCtrl.text.trim(),
+        "city":         cityCtrl.text.trim(),
+        "pincode":      pincodeCtrl.text.trim(),
+        "stateCode":    stateCodeCtrl.text.trim(),
+        "pan":          panCtrl.text.trim().toUpperCase(),
         "purchase": {
           "name":   purchaseNameCtrl.text.trim(),
           "mobile": purchaseMobileCtrl.text.trim(),
@@ -105,6 +118,7 @@ class CustomerController extends GetxController {
   void onClose() {
     for (final c in [
       nameCtrl, emailCtrl, gstinCtrl, contactNameCtrl, phoneCtrl,
+      addressCtrl, cityCtrl, pincodeCtrl, stateCodeCtrl, panCtrl,
       purchaseNameCtrl, purchaseMobileCtrl, purchaseEmailCtrl,
       accountNameCtrl, accountMobileCtrl, accountEmailCtrl,
       merchantNameCtrl, merchantMobileCtrl, merchantEmailCtrl,
@@ -277,11 +291,19 @@ class EditCustomerController extends GetxController {
   late TextEditingController gstinCtrl;
   late TextEditingController contactNameCtrl;
   late TextEditingController phoneCtrl;
+  late TextEditingController addressCtrl;
+  late TextEditingController cityCtrl;
+  late TextEditingController pincodeCtrl;
+  late TextEditingController stateCodeCtrl;
+  late TextEditingController panCtrl;
 
   final status       = "Active".obs;
   final paymentTerms = "30".obs;
 
   final _dio = ApiClient.buildClient(baseUrl: _kBase);
+
+  /// A field of the record as text, whatever it was stored as.
+  String _text(String key) => (customer[key] ?? "").toString();
 
   @override
   void onInit() {
@@ -291,6 +313,11 @@ class EditCustomerController extends GetxController {
     gstinCtrl       = TextEditingController(text: customer['gstin']       ?? "");
     contactNameCtrl = TextEditingController(text: customer['contactName'] ?? "");
     phoneCtrl       = TextEditingController(text: customer['phoneNumber'] ?? "");
+    addressCtrl     = TextEditingController(text: _text('address'));
+    cityCtrl        = TextEditingController(text: _text('city'));
+    pincodeCtrl     = TextEditingController(text: _text('pincode'));
+    stateCodeCtrl   = TextEditingController(text: _text('stateCode'));
+    panCtrl         = TextEditingController(text: _text('pan'));
     status.value       = customer['status']       ?? "Active";
     paymentTerms.value = customer['paymentTerms'] ?? "30";
   }
@@ -309,6 +336,11 @@ class EditCustomerController extends GetxController {
         "phoneNumber":  phoneCtrl.text.trim(),
         "status":       status.value,
         "paymentTerms": paymentTerms.value,
+        "address":      addressCtrl.text.trim(),
+        "city":         cityCtrl.text.trim(),
+        "pincode":      pincodeCtrl.text.trim(),
+        "stateCode":    stateCodeCtrl.text.trim(),
+        "pan":          panCtrl.text.trim().toUpperCase(),
       };
 
       await _dio.put("/update", data: payload);
@@ -338,7 +370,8 @@ class EditCustomerController extends GetxController {
   @override
   void onClose() {
     for (final c in [
-      nameCtrl, emailCtrl, gstinCtrl, contactNameCtrl, phoneCtrl
+      nameCtrl, emailCtrl, gstinCtrl, contactNameCtrl, phoneCtrl,
+      addressCtrl, cityCtrl, pincodeCtrl, stateCodeCtrl, panCtrl,
     ]) {
       c.dispose();
     }

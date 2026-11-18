@@ -4,6 +4,8 @@ import '../../PurchaseOrder/services/theme.dart';
 
 
 import '../controllers/customer_controller.dart';
+import '../widgets/customer_tax_fields.dart';
+
 class EditCustomerPage extends StatelessWidget {
   // FIX: typed as Map<String, dynamic> — no more RxMap type mismatch
   final Map<String, dynamic> customer;
@@ -14,7 +16,10 @@ class EditCustomerPage extends StatelessWidget {
     Get.delete<EditCustomerController>(force: true);
     final c = Get.put(EditCustomerController(
       customer: customer,
-      onSuccess: () => Navigator.of(context).pop(),
+      // true: the detail page that opened this reads the customer again.
+      // (It came back with nothing, so the page went on showing what the
+      // customer was before the edit.)
+      onSuccess: () => Navigator.of(context).pop(true),
     ));
 
     return Scaffold(
@@ -78,13 +83,34 @@ class EditCustomerPage extends StatelessWidget {
                               keyboard: TextInputType.emailAddress,
                               prefix: Icons.email_outlined),
                           const SizedBox(height: 10),
-                          _Field(
-                              label: "GSTIN",
-                              ctrl: c.gstinCtrl,
-                              prefix: Icons.receipt_outlined),
+                          CustomerGstinField(
+                            gstin: c.gstinCtrl,
+                            name: c.nameCtrl,
+                            address: c.addressCtrl,
+                            city: c.cityCtrl,
+                            pincode: c.pincodeCtrl,
+                            stateCode: c.stateCodeCtrl,
+                            pan: c.panCtrl,
+                            showEarlier: true,
+                          ),
                           const SizedBox(height: 10),
                           _StatusDropdown(c: c),
                         ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // ── Billing address ────────────────────
+                    _SectionCard(
+                      title: "BILLING ADDRESS & PAN",
+                      icon: Icons.location_on_outlined,
+                      child: CustomerAddressFields(
+                        address: c.addressCtrl,
+                        city: c.cityCtrl,
+                        pincode: c.pincodeCtrl,
+                        stateCode: c.stateCodeCtrl,
+                        pan: c.panCtrl,
                       ),
                     ),
 

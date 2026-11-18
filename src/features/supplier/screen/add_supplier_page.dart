@@ -1,98 +1,116 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../PurchaseOrder/services/theme.dart';
 import '../controller/add_supplier_controller.dart';
+import '../widgets/supplier_form_fields.dart';
 
+// ══════════════════════════════════════════════════════════════
+//  ADD SUPPLIER
+//
+//  Name and phone, then the GSTIN with "Verify" beside it: one tap asks
+//  the GST system who the number belongs to and fills the name, the
+//  address and the PAN.
+// ══════════════════════════════════════════════════════════════
+class AddSupplierPage extends StatefulWidget {
+  const AddSupplierPage({super.key});
 
-class AddSupplierPage extends StatelessWidget {
-  AddSupplierPage({super.key});
+  @override
+  State<AddSupplierPage> createState() => _AddSupplierPageState();
+}
 
-  final c = Get.put(AddSupplierController());
+class _AddSupplierPageState extends State<AddSupplierPage> {
+  late final AddSupplierController c;
+
+  @override
+  void initState() {
+    super.initState();
+    // A form of its own each time it is opened, not the last one's text.
+    Get.delete<AddSupplierController>(force: true);
+    c = Get.put(AddSupplierController());
+  }
+
+  @override
+  void dispose() {
+    Get.delete<AddSupplierController>(force: true);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add Supplier")),
-      body: Obx(() => SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      backgroundColor: ErpColors.bgBase,
+      appBar: const ErpAppBar(title: 'New Supplier', subtitle: 'Suppliers  ›  Add New'),
+      body: Form(
+        key: c.formKey,
         child: Column(
           children: [
-            TextField(
-              decoration: const InputDecoration(
-                labelText: "Supplier Name *",
-              ),
-              onChanged: (v) => c.nameCtrl.value = v,
-            ),
-
-            const SizedBox(height: 12),
-
-            TextField(
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: "Phone Number *",
-              ),
-              onChanged: (v) => c.phoneCtrl.value = v,
-            ),
-
-            const SizedBox(height: 12),
-
-            TextField(
-              decoration: const InputDecoration(
-                labelText: "GSTIN *",
-                hintText: "15 character GSTIN",
-              ),
-              onChanged: (v) => c.gstinCtrl.value = v,
-            ),
-
-            const SizedBox(height: 12),
-
-            TextField(
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: "Email",
-              ),
-              onChanged: (v) => c.emailCtrl.value = v,
-            ),
-
-            const SizedBox(height: 12),
-
-            TextField(
-              decoration: const InputDecoration(
-                labelText: "Contact Person",
-              ),
-              onChanged: (v) => c.contactPersonCtrl.value = v,
-            ),
-
-            const SizedBox(height: 12),
-
-            TextField(
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: "Address",
-              ),
-              onChanged: (v) => c.addressCtrl.value = v,
-            ),
-
-            const SizedBox(height: 24),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: c.loading.value ? null : c.submit,
-                child: c.loading.value
-                    ? const SizedBox(
-                  height: 18,
-                  width: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-                    : const Text("Save Supplier"),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Column(
+                  children: [
+                    ErpSectionCard(
+                      title: 'BASIC DETAILS',
+                      icon: Icons.business_outlined,
+                      child: Column(
+                        children: [
+                          SupplierField(
+                            label: 'Supplier Name *',
+                            controller: c.nameCtrl,
+                            required: true,
+                            icon: Icons.storefront_outlined,
+                            capitalization: TextCapitalization.words,
+                          ),
+                          const SizedBox(height: 10),
+                          SupplierField(
+                            label: 'Phone Number *',
+                            controller: c.phoneCtrl,
+                            required: true,
+                            keyboard: TextInputType.phone,
+                            icon: Icons.phone_outlined,
+                          ),
+                          const SizedBox(height: 10),
+                          SupplierField(
+                            label: 'Email',
+                            controller: c.emailCtrl,
+                            keyboard: TextInputType.emailAddress,
+                            icon: Icons.email_outlined,
+                          ),
+                          const SizedBox(height: 10),
+                          SupplierField(
+                            label: 'Contact Person',
+                            controller: c.contactPersonCtrl,
+                            icon: Icons.badge_outlined,
+                            capitalization: TextCapitalization.words,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ErpSectionCard(
+                      title: 'GST & ADDRESS',
+                      icon: Icons.receipt_long_outlined,
+                      child: SupplierGstFields(
+                        gstin: c.gstinCtrl,
+                        name: c.nameCtrl,
+                        address: c.addressCtrl,
+                        pan: c.panCtrl,
+                        gstRegistration: c.gstRegistration,
+                        // As before: a GSTIN is asked for — unless they
+                        // are marked as not registered.
+                        requireGstin: true,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
               ),
             ),
+            SupplierFooterBar(saveLabel: 'Save Supplier', loading: c.loading, onSave: c.submit),
           ],
         ),
-      )),
+      ),
     );
   }
 }

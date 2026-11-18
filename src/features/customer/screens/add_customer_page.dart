@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/customer_controller.dart';
+import '../widgets/customer_tax_fields.dart';
 
 
 
@@ -20,7 +21,10 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
     super.initState();
     Get.delete<CustomerController>(force: true);
     _c = Get.put(CustomerController(
-      onSuccess: () => Navigator.of(context).pop(),
+      // true: the list that opened this reads itself again. (It came back
+      // with nothing, so a customer just added was not in the list until
+      // somebody pulled to refresh.)
+      onSuccess: () => Navigator.of(context).pop(true),
     ));
   }
 
@@ -90,15 +94,36 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
                             prefix: Icons.email_outlined,
                           ),
                           const SizedBox(height: 10),
-                          _Field(
-                            label: "GSTIN",
-                            ctrl: _c.gstinCtrl,
-                            prefix: Icons.receipt_outlined,
+                          // "Verify" asks the GST system who the number
+                          // belongs to and fills the name and address.
+                          CustomerGstinField(
+                            gstin: _c.gstinCtrl,
+                            name: _c.nameCtrl,
+                            address: _c.addressCtrl,
+                            city: _c.cityCtrl,
+                            pincode: _c.pincodeCtrl,
+                            stateCode: _c.stateCodeCtrl,
+                            pan: _c.panCtrl,
                             hint: "e.g. 29ABCDE1234F1Z5",
                           ),
                           const SizedBox(height: 10),
                           _StatusDropdown(c: _c),
                         ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // ── Billing address ────────────────────
+                    _SectionCard(
+                      title: "BILLING ADDRESS & PAN",
+                      icon: Icons.location_on_outlined,
+                      child: CustomerAddressFields(
+                        address: _c.addressCtrl,
+                        city: _c.cityCtrl,
+                        pincode: _c.pincodeCtrl,
+                        stateCode: _c.stateCodeCtrl,
+                        pan: _c.panCtrl,
                       ),
                     ),
 
@@ -384,7 +409,6 @@ class _Field extends StatelessWidget {
   final bool required;
   final TextInputType keyboard;
   final IconData? prefix;
-  final String? hint;
 
   const _Field({
     required this.label,
@@ -392,7 +416,6 @@ class _Field extends StatelessWidget {
     this.required = false,
     this.keyboard = TextInputType.text,
     this.prefix,
-    this.hint,
   });
 
   @override
@@ -406,7 +429,6 @@ class _Field extends StatelessWidget {
           : null,
       decoration: ErpDecorations.formInput(
         label,
-        hint: hint,
         prefix: prefix != null
             ? Icon(prefix, size: 18, color: ErpColors.textMuted)
             : null,

@@ -71,6 +71,22 @@ class _CustomerDetailView extends StatelessWidget {
                     _InfoItem("Status",        data['status']),
                   ],
                 ),
+                // What its challans and invoices are addressed to. Until
+                // now the phone neither asked for it nor showed it.
+                if (_hasAddress(data)) ...[
+                  const SizedBox(height: 10),
+                  _InfoSection(
+                    title: "BILLING ADDRESS",
+                    icon: Icons.location_on_outlined,
+                    rows: [
+                      _InfoItem("Address",        data['address']),
+                      _InfoItem("City",           data['city']),
+                      _InfoItem("PIN code",       data['pincode']),
+                      _InfoItem("GST state code", data['stateCode']),
+                      _InfoItem("PAN",            data['pan']),
+                    ],
+                  ),
+                ],
                 if (_hasContact(data['purchase'])) ...[
                   const SizedBox(height: 10),
                   _ContactSection(title: "PURCHASE", data: data['purchase']),
@@ -152,6 +168,9 @@ class _CustomerDetailView extends StatelessWidget {
       ),
     );
   }
+
+  bool _hasAddress(Map data) => ['address', 'city', 'pincode', 'stateCode', 'pan']
+      .any((k) => (data[k] ?? '').toString().trim().isNotEmpty);
 
   bool _hasContact(dynamic val) {
     if (val == null) return false;

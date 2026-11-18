@@ -189,7 +189,7 @@ class _HeroCard extends StatelessWidget {
     String? dateStr;
     try {
       if (data['createdAt'] != null) {
-        final dt = DateTime.parse(data['createdAt'].toString());
+        final dt = DateTime.parse(data['createdAt'].toString()).toLocal();
         dateStr = DateFormat("dd MMM yyyy").format(dt);
       }
     } catch (_) {}

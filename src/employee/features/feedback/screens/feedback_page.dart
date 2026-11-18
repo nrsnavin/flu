@@ -376,7 +376,7 @@ class _SubmitSheetState extends State<_SubmitSheet> {
                               body: _bodyCtrl.text,
                               isAnonymous: _anonymous,
                             );
-                            if (ok && Navigator.of(context).canPop()) {
+                            if (ok && context.mounted && Navigator.of(context).canPop()) {
                               Navigator.of(context).pop();
                             }
                           },

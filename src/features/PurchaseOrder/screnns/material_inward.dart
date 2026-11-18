@@ -222,7 +222,10 @@ class MaterialInwardController extends GetxController {
           .map((r) => {
         'rawMaterial': r.poItem.rawMaterial!.id,
         'quantity':    r.receivingQty,
-        'inwardDate':  inwardDate.value.toIso8601String(),
+        // The moment, said in UTC. Sent as this phone's clock with no
+        // zone it read as UTC on the server: goods received after 18:30
+        // were entered under the next day.
+        'inwardDate':  inwardDate.value.toUtc().toIso8601String(),
         'remarks':     r.remarksCtrl.text.trim(),
         // A row carrying a lot number also opens a YarnLot bucket, so
         // this yarn can be issued to a warping batch by lot later on.

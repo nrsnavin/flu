@@ -137,7 +137,11 @@ class OrderEtaController extends GetxController {
     try {
       final body = <String, dynamic>{
         'elasticOrdered': elasticOrdered,
-        if (supplyDate != null) 'supplyDate': supplyDate.toIso8601String(),
+        // The day alone: this phone's clock with no zone reads as UTC
+        // on the server, five and a half hours on.
+        if (supplyDate != null)
+          'supplyDate':
+              '${supplyDate.toLocal().year}-${supplyDate.toLocal().month.toString().padLeft(2, '0')}-${supplyDate.toLocal().day.toString().padLeft(2, '0')}',
         if (machinesOverride.value != null) 'machines': machinesOverride.value,
       };
       final res = await _dio.post('/estimate-completion', data: body);

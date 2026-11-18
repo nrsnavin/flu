@@ -21,7 +21,7 @@ class WarpingListItem {
       id:           json['_id']?.toString() ?? '',
       status:       json['status']?.toString() ?? 'open',
       date:         DateTime.tryParse(json['date']?.toString() ?? '') ?? DateTime.now(),
-      completedDate: DateTime.tryParse(json['completedDate']?.toString() ?? ''),
+      completedDate: DateTime.tryParse(json['completedDate']?.toString() ?? '')?.toLocal(),
       jobOrderNo:  (job is Map ? job['jobOrderNo'] as num? : null)?.toInt() ?? 0,
       jobId:        job is Map ? job['_id']?.toString() ?? '' : '',
       jobStatus:    job is Map ? job['status']?.toString() ?? '—' : '—',
@@ -125,7 +125,7 @@ class WarpingPlanDetail {
       jobOrderNo: job is Map ? (job['jobOrderNo'] as num?)?.toInt() ?? 0 : 0,
       noOfBeams:  (json['noOfBeams'] as num?)?.toInt() ?? 0,
       remarks:    json['remarks']?.toString(),
-      createdAt:  DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
+      createdAt:  DateTime.tryParse(json['createdAt']?.toString() ?? '')?.toLocal() ?? DateTime.now(),
       beams: (json['beams'] as List? ?? [])
           .map((e) => WarpingBeamDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -254,7 +254,7 @@ class WarpingDetail {
       id:           json['_id']?.toString()    ?? '',
       status:       json['status']?.toString() ?? 'open',
       date:         DateTime.tryParse(json['date']?.toString() ?? '') ?? DateTime.now(),
-      completedDate: DateTime.tryParse(json['completedDate']?.toString() ?? ''),
+      completedDate: DateTime.tryParse(json['completedDate']?.toString() ?? '')?.toLocal(),
       jobOrderNo:  (job is Map ? job['jobOrderNo'] as num? : null)?.toInt() ?? 0,
       jobId:        job is Map ? job['_id']?.toString() ?? '' : '',
       planId:       planId,

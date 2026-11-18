@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/productionBrief.dart';
 import '../../../core/app_config.dart';
+import '../../../core/bulk_result.dart';
 
 // ── Shared Dio instance ───────────────────────────────────────
 final _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/production');
@@ -264,15 +265,19 @@ class ShiftDetailController extends GetxController {
     try {
       // There is no /production/bulk-enter-production on the server; this
       // posted there and every save failed.
-      await _shiftDio.post('/shift/bulk-enter-production', data: {
+      final res = await _shiftDio.post('/shift/bulk-enter-production', data: {
         'entries': bulkEntries.map((e) => e.toPayload()).toList(),
       });
+      // What the server took, not what was sent (core/bulk_result.dart).
+      final result = BulkSaveResult.from(res.data, bulkEntries.length);
       Get.snackbar(
-        'Production Saved',
-        '${bulkEntries.length} machines updated',
-        backgroundColor: ErpColors.solidSuccess,
+        result.partial ? 'Saved, with some left out' : 'Production Saved',
+        result.message(one: 'machine', many: 'machines'),
+        backgroundColor:
+            result.partial ? ErpColors.solidWarning : ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: result.partial ? 8 : 3),
       );
       _disposeBulkEntries();
       await fetchDetail(); // refresh cards

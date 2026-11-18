@@ -191,12 +191,26 @@ class AddOrderController extends GetxController {
     return null;
   }
 
+  /// The calendar day of [d] as it reads here, "yyyy-MM-dd". A date
+  /// loaded from the server is UTC midnight of its day; made local it
+  /// is 05:30 on that same day, so the day is right either way.
+  static String _day(DateTime d) {
+    final l = d.toLocal();
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${l.year}-${two(l.month)}-${two(l.day)}';
+  }
+
   // ── Build payload ──────────────────────────────────────────
+  //
+  // The two dates go as the day alone ("2026-11-18"), as the web sends
+  // them. They went as this phone's clock with no zone, which the
+  // server (on UTC) read five and a half hours on: an order taken after
+  // 18:30 was dated the next day and promised a day late.
   Map<String, dynamic> _buildPayload() => {
-    'date':        orderDate.value.toIso8601String(),
+    'date':        _day(orderDate.value),
     'po':          poCtrl.text.trim(),
     'customer':    selectedCustomerId.value,
-    'supplyDate':  supplyDate.value.toIso8601String(),
+    'supplyDate':  _day(supplyDate.value),
     'description': descCtrl.text.trim(),
     'elasticOrdered': elasticRows
         .where((r) =>

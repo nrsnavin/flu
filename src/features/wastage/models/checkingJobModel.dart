@@ -50,7 +50,7 @@ class WastageJobSummary {
       totalWastage: (json['totalWastage'] as num?)?.toDouble() ?? 0.0,
       wastageCount: (json['wastageCount'] as num?)?.toInt()    ?? 0,
       lastAdded:    DateTime.tryParse(
-          json['lastAdded']?.toString() ?? ''),
+          json['lastAdded']?.toString() ?? '')?.toLocal(),
       wastageElastic: (json['wastageElastic'] as List? ?? [])
           .map((e) => WastageElasticTally.fromJson(
           e as Map<String, dynamic>))
@@ -141,7 +141,7 @@ class WastageRecord {
       penalty:     (json['penalty']  as num?)?.toDouble() ?? 0.0,
       reason:       json['reason']?.toString()       ?? '—',
       createdAt:    DateTime.tryParse(
-          json['createdAt']?.toString() ?? '') ??
+          json['createdAt']?.toString() ?? '')?.toLocal() ??
           DateTime.now(),
     );
   }

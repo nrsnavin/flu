@@ -363,7 +363,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                 return;
               }
               final ok = await c.setMinStock(widget.elasticId, v);
-              if (ok) Navigator.of(ctx).pop();
+              if (ok && ctx.mounted) Navigator.of(ctx).pop();
             },
             child: const Text('Save',
                 style: TextStyle(
@@ -627,6 +627,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
                   if (ok != true) return;
                 }
 
+                if (!ctx.mounted) return;
                 await _submitAdjust(
                   qty: qtyNum,
                   isAdd: isAdd,
@@ -719,7 +720,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
     // force:true. We already required the magnitudeRisky local
     // confirm, so this is a second-tier safety net for cases where
     // our threshold heuristic is more permissive than the backend.
-    if (!res.ok && res.magnitudeCap) {
+    if (!res.ok && res.magnitudeCap && dialogContext.mounted) {
       final retry = await showDialog<bool>(
         context: dialogContext,
         builder: (_) => AlertDialog(
@@ -769,7 +770,7 @@ class _ElasticStockPageState extends State<ElasticStockPage> {
       }
     }
 
-    if (res.ok && Navigator.canPop(dialogContext)) {
+    if (res.ok && dialogContext.mounted && Navigator.canPop(dialogContext)) {
       Navigator.of(dialogContext).pop();
     }
   }

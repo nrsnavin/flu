@@ -89,7 +89,7 @@ class StockCountLine {
         varianceValue: _numOrNull(j['varianceValue']),
         reason: j['reason']?.toString() ?? '',
         needsReason: j['needsReason'] == true,
-        countedAt: DateTime.tryParse(j['countedAt']?.toString() ?? ''),
+        countedAt: DateTime.tryParse(j['countedAt']?.toString() ?? '')?.toLocal(),
         stockAtPost: _numOrNull(j['stockAtPost']),
         appliedDelta: _numOrNull(j['appliedDelta']),
         correctedElsewhere: _num(j['correctedElsewhere']),
@@ -199,9 +199,9 @@ class StockCount {
         countNo: (j['countNo'] as num?)?.toInt(),
         label: j['label']?.toString() ?? '',
         status: j['status']?.toString() ?? 'open',
-        frozenAt: DateTime.tryParse(j['frozenAt']?.toString() ?? ''),
-        postedAt: DateTime.tryParse(j['postedAt']?.toString() ?? ''),
-        cancelledAt: DateTime.tryParse(j['cancelledAt']?.toString() ?? ''),
+        frozenAt: DateTime.tryParse(j['frozenAt']?.toString() ?? '')?.toLocal(),
+        postedAt: DateTime.tryParse(j['postedAt']?.toString() ?? '')?.toLocal(),
+        cancelledAt: DateTime.tryParse(j['cancelledAt']?.toString() ?? '')?.toLocal(),
         cancelledReason: j['cancelledReason']?.toString() ?? '',
         lines: (j['lines'] as List? ?? const [])
             .map((e) => StockCountLine.fromJson(Map<String, dynamic>.from(e as Map)))

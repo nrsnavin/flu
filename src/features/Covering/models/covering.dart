@@ -70,7 +70,7 @@ class CoveringDetail {
       date:          DateTime.tryParse(json['date']?.toString() ?? '') ??
           DateTime.now(),
       completedDate: json['completedDate'] != null
-          ? DateTime.tryParse(json['completedDate'].toString())
+          ? DateTime.tryParse(json['completedDate'].toString())?.toLocal()
           : null,
       remarks:       json['remarks']?.toString(),
       job:           json['job'] is Map

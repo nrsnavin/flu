@@ -367,7 +367,7 @@ class _ReportSheetState extends State<_ReportSheet> {
                               description: _descCtrl.text,
                               severity: _severity,
                             );
-                            if (ok && Navigator.of(context).canPop()) {
+                            if (ok && context.mounted && Navigator.of(context).canPop()) {
                               Navigator.of(context).pop();
                             }
                           },

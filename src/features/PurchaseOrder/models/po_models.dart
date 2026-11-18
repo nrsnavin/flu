@@ -179,7 +179,7 @@ class InwardRecord {
       rawMaterial:
       rm is Map<String, dynamic> ? MaterialMini.fromJson(rm) : null,
       quantity: (j["quantity"] ?? 0).toDouble(),
-      inwardDate: DateTime.tryParse(j["inwardDate"]?.toString() ?? '') ??
+      inwardDate: DateTime.tryParse(j["inwardDate"]?.toString() ?? '')?.toLocal() ??
           DateTime.now(),
       remarks: j["remarks"],
     );

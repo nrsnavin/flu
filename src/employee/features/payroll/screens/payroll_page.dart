@@ -398,7 +398,7 @@ class _AdvanceSection extends StatelessWidget {
                                 amount: amt,
                                 reason: reasonCtrl.text.trim(),
                               );
-                              if (ok && Navigator.of(ctx).canPop()) {
+                              if (ok && ctx.mounted && Navigator.of(ctx).canPop()) {
                                 Navigator.of(ctx).pop();
                               }
                             },

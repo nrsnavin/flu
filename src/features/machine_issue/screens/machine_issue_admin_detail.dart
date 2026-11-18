@@ -398,7 +398,7 @@ void _showStatusSheet(
                                   resolutionNotes:
                                       notesCtrl.text.trim(),
                                 );
-                                if (ok && Navigator.of(sheetCtx).canPop()) {
+                                if (ok && sheetCtx.mounted && Navigator.of(sheetCtx).canPop()) {
                                   Navigator.of(sheetCtx).pop();
                                   Get.snackbar(
                                     'Updated',

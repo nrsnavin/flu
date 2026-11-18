@@ -399,7 +399,7 @@ class _RequestSheetState extends State<_RequestSheet> {
                             leaveType: _leaveType,
                             reason: _reasonCtrl.text,
                           );
-                          if (ok && Navigator.of(context).canPop()) {
+                          if (ok && context.mounted && Navigator.of(context).canPop()) {
                             Navigator.of(context).pop();
                           }
                         },

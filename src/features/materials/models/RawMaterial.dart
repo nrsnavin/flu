@@ -129,9 +129,9 @@ class RawMaterialDetail {
       outwards: (json['outwards'] as List? ?? [])
           .map((e) => MaterialOutward.fromJson(e as Map<String, dynamic>))
           .toList(),
-      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '')?.toLocal() ??
           DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '')?.toLocal() ??
           DateTime.now(),
     );
   }
@@ -183,7 +183,7 @@ class StockMovement {
   factory StockMovement.fromJson(Map<String, dynamic> json) {
     final order = json['order'];
     return StockMovement(
-      date:     DateTime.tryParse(json['date']?.toString() ?? '') ??
+      date:     DateTime.tryParse(json['date']?.toString() ?? '')?.toLocal() ??
           DateTime.now(),
       type:     json['type']?.toString() ?? '—',
       orderId:  order is Map
@@ -228,7 +228,7 @@ class MaterialInward {
     return MaterialInward(
       id:         json['_id']?.toString() ?? '',
       quantity:   (json['quantity'] as num?)?.toDouble() ?? 0.0,
-      inwardDate: DateTime.tryParse(json['inwardDate']?.toString() ?? '') ??
+      inwardDate: DateTime.tryParse(json['inwardDate']?.toString() ?? '')?.toLocal() ??
           DateTime.now(),
       remarks:    json['remarks']?.toString(),
       poId:       po is Map ? po['_id']?.toString()  : po?.toString(),
@@ -263,7 +263,7 @@ class MaterialOutward {
     return MaterialOutward(
       id:          json['_id']?.toString() ?? '',
       quantity:    (json['quantity']   as num?)?.toDouble() ?? 0.0,
-      outwardDate: DateTime.tryParse(json['outwardDate']?.toString() ?? '') ??
+      outwardDate: DateTime.tryParse(json['outwardDate']?.toString() ?? '')?.toLocal() ??
           DateTime.now(),
       remarks:     json['remarks']?.toString(),
       jobId:       job is Map ? job['_id']?.toString() : job?.toString(),

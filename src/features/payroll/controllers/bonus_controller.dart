@@ -38,7 +38,7 @@ class BonusConfig {
     bonusDate:         DateTime.tryParse(j['bonusDate']?.toString() ?? ''),
     yearlyWorkingDays: (j['yearlyWorkingDays'] as num?)?.toInt() ?? 300,
     status:            j['status'] as String? ?? 'pending',
-    triggeredAt:       DateTime.tryParse(j['triggeredAt']?.toString() ?? ''),
+    triggeredAt:       DateTime.tryParse(j['triggeredAt']?.toString() ?? '')?.toLocal(),
   );
 }
 
@@ -126,7 +126,7 @@ class BonusRecord {
       multiplier:      (j['multiplier']     as num?)?.toDouble() ?? 0.25,
       bonusAmount:     (j['bonusAmount']    as num?)?.toDouble() ?? 0,
       status:          j['status']          as String? ?? 'pending',
-      paidAt:          DateTime.tryParse(j['paidAt']?.toString() ?? ''),
+      paidAt:          DateTime.tryParse(j['paidAt']?.toString() ?? '')?.toLocal(),
     );
   }
 }

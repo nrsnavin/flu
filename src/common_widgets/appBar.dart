@@ -29,7 +29,6 @@ class NAppBar extends StatelessWidget implements PreferredSize {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: child,
     ));
-    throw UnimplementedError();
   }
 
   @override

@@ -181,7 +181,7 @@ class _HeroCard extends StatelessWidget {
     try {
       if (supplier['createdAt'] != null) {
         dateStr = DateFormat('dd MMM yyyy')
-            .format(DateTime.parse(supplier['createdAt'].toString()));
+            .format(DateTime.parse(supplier['createdAt'].toString()).toLocal());
       }
     } catch (_) {}
 
@@ -571,7 +571,7 @@ class _PoCard extends StatelessWidget {
     try {
       if (po['createdAt'] != null) {
         createdStr = DateFormat('dd MMM yyyy')
-            .format(DateTime.parse(po['createdAt'].toString()));
+            .format(DateTime.parse(po['createdAt'].toString()).toLocal());
       }
     } catch (_) {}
 

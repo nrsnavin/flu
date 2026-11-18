@@ -652,15 +652,8 @@ class _StatusSection extends StatelessWidget {
     ('cancelled',   'Cancelled',   Icons.cancel_outlined,         ErpColors.errorRed),
   ];
 
-  String? _nextStatus() => switch (d.status) {
-    'draft'     => 'dispatched',
-    'dispatched' => 'delivered',
-    _            => null,
-  };
-
   @override
   Widget build(BuildContext context) {
-    final next = _nextStatus();
     if (d.status == 'delivered' || d.status == 'cancelled') {
       return const SizedBox.shrink();
     }

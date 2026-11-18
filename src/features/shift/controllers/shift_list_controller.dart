@@ -14,6 +14,7 @@ import 'package:get/get.dart';
 import '../models/shiftModel.dart';
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
+import '../../../core/bulk_result.dart';
 
 // ── Per-shift entry holder ────────────────────────────────────
 class BulkEntry {
@@ -157,19 +158,24 @@ class ShiftControllerView extends GetxController {
 
     isBulkSaving.value = true;
     try {
-      await _dio.post(
+      final res = await _dio.post(
         '/shift/bulk-enter-production',
         data: {
           'entries': bulkEntries.map((e) => e.toPayload()).toList(),
         },
       );
 
+      // What the server took, not what was sent: it skips a shift that
+      // was closed meanwhile, a finalised plan, a loom that was loading.
+      final result = BulkSaveResult.from(res.data, bulkEntries.length);
       Get.snackbar(
-        'Saved',
-        '${bulkEntries.length} shift${bulkEntries.length == 1 ? '' : 's'} updated',
-        backgroundColor: ErpColors.solidSuccess,
+        result.partial ? 'Saved, with some left out' : 'Saved',
+        result.message(),
+        backgroundColor:
+            result.partial ? ErpColors.solidWarning : ErpColors.solidSuccess,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: result.partial ? 8 : 3),
       );
 
       _disposeBulkEntries();

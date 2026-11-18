@@ -29,7 +29,7 @@ class MaterialInwardModel {
     return MaterialInwardModel(
       id:         j['_id']?.toString()      ?? '',
       quantity:   (j['quantity'] as num?)?.toDouble() ?? 0,
-      inwardDate: DateTime.tryParse(j['inwardDate']?.toString() ?? '')
+      inwardDate: DateTime.tryParse(j['inwardDate']?.toString() ?? '')?.toLocal()
           ?? DateTime.now(),
       remarks:    j['remarks']?.toString()  ?? '',
       poId:       po is Map ? po['_id']?.toString() : po?.toString(),
@@ -78,7 +78,7 @@ class MaterialOutwardModel {
     return MaterialOutwardModel(
       id:          j['_id']?.toString()          ?? '',
       quantity:    (j['quantity'] as num?)?.toDouble() ?? 0,
-      outwardDate: DateTime.tryParse(j['outwardDate']?.toString() ?? '')
+      outwardDate: DateTime.tryParse(j['outwardDate']?.toString() ?? '')?.toLocal()
           ?? DateTime.now(),
       type:        j['type']?.toString()          ?? 'STOCK_ADJUST',
       remarks:     j['remarks']?.toString()        ?? '',
@@ -133,7 +133,7 @@ class PriceHistoryModel {
     return PriceHistoryModel(
       price:     (j['price']    as num?)?.toDouble() ?? 0,
       oldPrice:  (j['oldPrice'] as num?)?.toDouble() ?? 0,
-      changedAt: DateTime.tryParse(j['changedAt']?.toString() ?? '')
+      changedAt: DateTime.tryParse(j['changedAt']?.toString() ?? '')?.toLocal()
           ?? DateTime.now(),
       reason:    j['reason']?.toString() ?? '',
     );
@@ -161,7 +161,7 @@ class StockMovementModel {
   factory StockMovementModel.fromJson(Map<String, dynamic> j) {
     final order = j['order'];
     return StockMovementModel(
-      date:     DateTime.tryParse(j['date']?.toString() ?? '')
+      date:     DateTime.tryParse(j['date']?.toString() ?? '')?.toLocal()
           ?? DateTime.now(),
       type:     j['type']?.toString()     ?? '',
       quantity: (j['quantity'] as num?)?.toDouble() ?? 0,
@@ -223,7 +223,7 @@ class RawMaterialDetailModel {
       minStock:     (j['minStock'] as num?)?.toDouble() ?? 0,
       price:        (j['price']    as num?)?.toDouble() ?? 0,
       supplierName: supplier is Map ? supplier['name']?.toString() : null,
-      createdAt:    DateTime.tryParse(j['createdAt']?.toString() ?? ''),
+      createdAt:    DateTime.tryParse(j['createdAt']?.toString() ?? '')?.toLocal(),
       inwards:  (j['inwards']  as List? ?? [])
           .map((e) => MaterialInwardModel.fromJson(e as Map<String, dynamic>))
           .toList(),

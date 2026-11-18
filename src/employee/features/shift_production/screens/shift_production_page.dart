@@ -285,7 +285,7 @@ class _EnterProductionSheet extends StatelessWidget {
                       ? null
                       : () async {
                           final ok = await c.submit();
-                          if (ok && Navigator.of(context).canPop()) {
+                          if (ok && context.mounted && Navigator.of(context).canPop()) {
                             Navigator.of(context).pop();
                           }
                         },

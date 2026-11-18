@@ -224,7 +224,9 @@ class PendingVerificationPage extends StatelessWidget {
                       feedback: feedbackCtrl.text.trim(),
                       note: noteCtrl.text.trim(),
                     );
-                    if (ok) Navigator.of(ctx).pop();
+                    // Closed while the request was out: nothing to pop,
+                    // and popping would take the page underneath.
+                    if (ok && ctx.mounted) Navigator.of(ctx).pop();
                   },
                 )),
           ],

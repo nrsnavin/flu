@@ -156,11 +156,20 @@ class _UserCard extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.w800)),
                   const SizedBox(height: 2),
-                  Text(email,
+                  Text(
+                      // A worker's login has no email to show.
+                      email.isNotEmpty
+                          ? email
+                          : (data['phoneSignIn'] == true ? 'Signs in by phone and PIN' : '—'),
                       style: TextStyle(
                           color: ErpColors.textSecondary, fontSize: 12)),
                   const SizedBox(height: 4),
-                  Row(
+                  // A Wrap: with a large system font the role and the
+                  // department do not fit on one line of a small phone.
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       if (role.isNotEmpty)
                         Container(
@@ -178,12 +187,10 @@ class _UserCard extends StatelessWidget {
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700)),
                         ),
-                      if (dept != null && dept.isNotEmpty) ...[
-                        const SizedBox(width: 6),
+                      if (dept != null && dept.isNotEmpty)
                         Text(dept,
                             style: TextStyle(
                                 color: ErpColors.textMuted, fontSize: 11)),
-                      ],
                     ],
                   ),
                 ],

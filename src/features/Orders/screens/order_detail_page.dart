@@ -13,6 +13,7 @@ import '../../invoices/widgets/order_invoices_section.dart';
 import '../controllers/running_order_eta_controller.dart';
 import '../widgets/running_order_eta_card.dart';
 import 'add_order_page.dart' show AddOrderPage;
+import 'package:production/src/core/nav.dart';
 
 class OrderDetailPage extends StatelessWidget {
   const OrderDetailPage({super.key});
@@ -1576,18 +1577,22 @@ class _DialogActionButton extends StatelessWidget {
         ),
         onPressed: busy ? null : () async {
           if (popDialogBeforeAction && (Get.isDialogOpen ?? false)) {
-            Get.back();
+            closePage();
           }
           await action();
           // Close the dialog regardless of success/error — feedback
           // is delivered via the controller's snackbar. (No-op when
           // popDialogBeforeAction already dismissed it above.)
-          if (Get.isDialogOpen ?? false) Get.back();
+          //
+          // closePage, not Get.back: that notice is on screen by now, and
+          // Get.back closes the NOTICE and leaves the dialog — "Approve?"
+          // stayed up after the order was approved, with nothing said.
+          if (Get.isDialogOpen ?? false) closePage();
           // For Delete: also pop the detail page if status flipped to
           // "Deleted" (the controller already updated `order` via
           // fetchOrderDetail() OR returned true).
           if (popDetailOnSuccess && (c.order.value?['status'] == 'Deleted')) {
-            Get.back();
+            closePage();
           }
         },
         child: busy

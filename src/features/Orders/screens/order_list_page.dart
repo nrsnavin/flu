@@ -12,6 +12,7 @@ import 'package:production/src/features/Orders/widgets/order_eta_chip.dart';
 
 
 import '../../PurchaseOrder/services/theme.dart';
+import 'package:production/src/core/nav.dart';
 
 class OrderListPage extends StatefulWidget {
   const OrderListPage({super.key});
@@ -944,7 +945,9 @@ class _ListDialogButton extends StatelessWidget {
         ),
         onPressed: busy ? null : () async {
           await action();
-          if (Get.isDialogOpen ?? false) Get.back();
+          // closePage, not Get.back: the action's notice is showing, and
+          // Get.back would close it and leave this dialog open.
+          if (Get.isDialogOpen ?? false) closePage();
         },
         child: busy
             ? const SizedBox(

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../../core/safe_json.dart';
 import '../../../theme/erp_theme.dart';
 import '../controllers/packing_entry_controller.dart';
+import 'package:production/src/core/nav.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  PACKING ENTRY FORM — POST /packing/create-packing
@@ -447,7 +448,9 @@ class _PackingEntryFormPageState extends State<PackingEntryFormPage> {
                           if (!_formKey.currentState!.validate()) return;
                           FocusScope.of(context).unfocus();
                           final ok = await c.submit(jobId: jobId);
-                          if (ok && mounted) Get.back();
+                          // Saved: back to the job. (Get.back would close the
+                          // "Saved" notice and leave an emptied form on screen.)
+                          if (ok && mounted) closePage();
                         },
                   icon: c.isSubmitting.value
                       ? const SizedBox(

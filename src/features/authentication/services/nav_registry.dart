@@ -70,6 +70,7 @@ import 'package:production/src/features/settings/screens/document_settings_page.
 // Money on the phone.
 import 'package:production/src/features/invoices/screens/invoice_list_page.dart' show InvoiceListPage;
 import 'package:production/src/features/claims/screens/claims_page.dart' show ClaimsPage;
+import 'package:production/src/features/dispatch/screens/dispatch_page.dart' show DispatchPage;
 import 'package:production/src/features/accounts/screens/accounts_home_page.dart' show AccountsHomePage;
 import 'package:production/src/features/accounts/screens/approvals_page.dart' show ApprovalsPage;
 import 'package:production/src/features/accounts/screens/bill_inbox_page.dart' show BillInboxPage;
@@ -201,6 +202,11 @@ class NavRegistry extends GetxController {
     _modules = _buildCatalog();
     _byId = {for (final m in _modules) m.id: m};
     _loadFeatures();
+    // This registry outlives the session it was built in. Re-read when
+    // the session's permissions change — another person signing in on
+    // this phone, or the server reporting a module given or taken away
+    // (LoginController.sessionEpoch says when).
+    ever<int>(LoginController.find.sessionEpoch, (_) => _loadFeatures());
     unawaited(_load());
   }
 
@@ -455,6 +461,14 @@ class NavRegistry extends GetxController {
       id: 'packing_add', feature: '/packing', label: 'Add Packing',
       icon: Icons.add_box_outlined, section: 'PACKING & SHIPPING',
       open: () => Get.to(() => const AddPackingPage()),
+    ),
+    // What is packed and waiting to leave, most urgent first: marketing
+    // says when the customer needs it, the loading bay marks it gone.
+    NavModule(
+      id: 'dispatch', feature: '/dispatch', label: 'Dispatch Queue',
+      icon: Icons.outbox_outlined, section: 'PACKING & SHIPPING',
+      keywords: const ['dispatch', 'queue', 'urgent', 'urgency', 'lorry', 'load', 'send', 'deliver', 'today'],
+      open: () => Get.to(() => const DispatchPage()),
     ),
     NavModule(
       id: 'dc', feature: '/delivery-challans', label: 'Delivery Challan',

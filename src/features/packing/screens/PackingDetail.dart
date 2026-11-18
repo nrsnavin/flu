@@ -6,6 +6,7 @@ import '../../../common_widgets/reason_dialog.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/packing_controller.dart';
 import '../models/PackingModel.dart';
+import 'package:production/src/core/nav.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  PACKING DETAIL PAGE
@@ -102,7 +103,9 @@ class _PackingDetailPageState extends State<PackingDetailPage> {
     );
     if (reason == null) return;
     final ok = await c.deleteRecord(reason);
-    if (ok) Get.back(result: true);
+    // "Deleted" is showing: Get.back would close that and stay on a
+    // record that no longer exists.
+    if (ok) closePage(true);
   }
 
   @override

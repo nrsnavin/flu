@@ -15,6 +15,10 @@ import '../../../core/features.dart';
 class UsersController extends GetxController {
   final users       = <Map<String, dynamic>>[].obs;
   final departments = <String>[].obs;
+
+  /// The server's own feature catalogue, sent with the list. The form
+  /// offers these — not this build's copy, which can be behind.
+  List<FeatureDef> catalog = kFeatures;
   final loading     = false.obs;
   final errorMsg    = Rxn<String>();
 
@@ -35,9 +39,8 @@ class UsersController extends GetxController {
       final res = await _dio.get('/manage/list');
       users.value =
           List<Map<String, dynamic>>.from(res.data['users'] as List? ?? []);
-      departments.value =
-          List<String>.from((res.data['departments'] as List? ?? [])
-              .map((e) => e.toString()));
+      departments.value = departmentsFrom(res.data['departments']);
+      catalog = catalogFrom(res.data['features']);
     } on DioException catch (e) {
       errorMsg.value = e.response?.data?['message'] as String? ??
           'Failed to load users';
@@ -66,6 +69,9 @@ class UsersController extends GetxController {
   }
 }
 
+/// The shortest password the server takes (prod/utils/passwordPolicy.js).
+const kMinPasswordLength = 8;
+
 // ══════════════════════════════════════════════════════════════
 //  UserFormController — create (POST) or edit (PUT). Password is
 //  required on create, optional on edit (blank = unchanged).
@@ -73,7 +79,18 @@ class UsersController extends GetxController {
 class UserFormController extends GetxController {
   final Map<String, dynamic>? existing;
   final VoidCallback? onSuccess;
-  UserFormController({this.existing, this.onSuccess});
+
+  /// What can be granted and to which departments: the server's answer
+  /// when the Users list has it, this build's copy otherwise.
+  final List<FeatureDef> catalog;
+  final List<String> departments;
+
+  UserFormController({
+    this.existing,
+    this.onSuccess,
+    this.catalog = kFeatures,
+    this.departments = kDepartments,
+  });
 
   final formKey = GlobalKey<FormState>();
   final nameCtrl     = TextEditingController();
@@ -98,26 +115,38 @@ class UserFormController extends GetxController {
     if (e != null) {
       nameCtrl.text  = e['name'] as String? ?? '';
       emailCtrl.text = e['email'] as String? ?? '';
-      deptCtrl.text  = e['department'] as String? ?? '';
-      final dept = deptCtrl.text.trim();
-      final allowed = featuresForDepartment(dept).toSet();
-      final raw = e['features'];
-      if (raw is List && raw.isNotEmpty) {
-        // Keep only keys the role can reach — features are a role-scoped subset.
-        features.assignAll(raw.map((x) => x.toString()).where(allowed.contains));
-      } else {
-        features.assignAll(featuresForDepartment(dept));
-      }
-    } else {
-      deptCtrl.text = 'production';
-      features.assignAll(featuresForDepartment('production'));
     }
+    // The department it is edited under, and the boxes ticked: both
+    // worked out in core/features.dart, where they are checked
+    // (features_check.dart). A login with no department opens under the
+    // one its role names, never as Production with every box unticked.
+    deptCtrl.text = departmentOf(e, departments);
+    features.assignAll(featuresOnOpen(e, catalog: catalog, departments: departments));
+  }
+
+  /// What this department may be given.
+  List<String> get scope => featuresForDepartment(deptCtrl.text.trim(), catalog);
+
+  /// A worker's login signs in by phone and PIN and has no email (the
+  /// server keeps a placeholder and sends none).
+  bool get signsInByPhone =>
+      existing?['phoneSignIn'] == true && ((existing?['email'] as String?) ?? '').isEmpty;
+
+  /// A worker's own login: nothing beyond the always-on screens, by design.
+  bool get isEmployeeLogin => existing?['selfService'] == true;
+
+  /// Nothing ticked beyond the screens every login has: this login would
+  /// open nothing else. Legitimate, but a decision — so it is asked.
+  bool get grantsNothing {
+    final always = alwaysOnKeys(catalog).toSet();
+    final allowed = scope.toSet();
+    return features.where(allowed.contains).every(always.contains);
   }
 
   // Picking a department re-scopes AND re-seeds the checklist to its default.
   void setDepartment(String dept) {
     deptCtrl.text = dept;
-    features.assignAll(featuresForDepartment(dept));
+    features.assignAll(featuresForDepartment(dept, catalog));
   }
 
   void toggleFeature(String key) {
@@ -134,12 +163,13 @@ class UserFormController extends GetxController {
       loading.value = true;
       final pwd = passwordCtrl.text.trim();
       // Never send features outside the role's scope.
-      final allowed = featuresForDepartment(deptCtrl.text.trim()).toSet();
+      final allowed = scope.toSet();
       final scoped = features.where(allowed.contains).toList();
       if (isEdit) {
+        final email = emailCtrl.text.trim();
         final payload = <String, dynamic>{
           'name': nameCtrl.text.trim(),
-          'email': emailCtrl.text.trim(),
+          if (email.isNotEmpty) 'email': email,
           'department': deptCtrl.text.trim(),
           'features': scoped,
           if (pwd.isNotEmpty) 'password': pwd,

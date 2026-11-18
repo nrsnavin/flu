@@ -11,6 +11,7 @@ import 'package:production/src/features/Orders/controllers/add_order_controller.
 
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
+import 'package:production/src/core/nav.dart';
 // ── API ───────────────────────────────────────────────────────
 class WarpingApi {
   static final Dio _dio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/warping');
@@ -954,7 +955,9 @@ class WarpingPlanController extends GetxController {
     try {
       final plan = await WarpingApi.createPlan(warpingId: warpingId, beams: beams);
       _snack('Warping plan saved', isError: false);
-      Get.back(result: plan);
+      // closePage, not Get.back: with the notice up, Get.back closed the
+      // notice, left the editor open and never handed the plan back.
+      closePage(plan);
     } on DioException catch (e) {
       _snack(e.response?.data?['message'] as String? ?? 'Failed to save', isError: true);
     } catch (e) {

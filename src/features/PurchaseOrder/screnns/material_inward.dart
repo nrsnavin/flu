@@ -9,6 +9,7 @@ import '../models/po_models.dart';
 import '../services/theme.dart';
 import '../services/api.dart';
 import '../../../core/request_id.dart';
+import 'package:production/src/core/nav.dart';
 
 // ══════════════════════════════════════════════════════════════════════════
 //  MATERIAL INWARD
@@ -257,7 +258,11 @@ class MaterialInwardController extends GetxController {
         'Stock Updated ✓',
         res.data['message'] ?? 'Inward recorded successfully.',
       );
-      Get.back(result: true); // pop and signal parent to refresh
+      // Leave the form and tell the PO to refresh. closePage, not
+      // Get.back: with "Stock Updated" showing, Get.back closed the
+      // notice and left this form open with the quantities still in it —
+      // a second tap on Save received the same goods again.
+      closePage(true);
     } on DioException catch (e) {
       // The server's words, not Dio's. A receipt is refused for real
       // business reasons — over the tolerance, PO already closed, a

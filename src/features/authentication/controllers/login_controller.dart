@@ -53,6 +53,17 @@ class LoginController extends GetxController {
   RxBool    justSignedIn     = false.obs;
   RxBool    isCheckingAuth   = true.obs;
 
+  /// Bumped whenever what the stored session may open has changed: a
+  /// sign-in, a sign-out, or a cold start on which the server sent a
+  /// different feature list. The menu (NavRegistry) re-reads on it.
+  ///
+  /// The menu is built once and kept for the life of the app, and it
+  /// read the permissions only when it was built. So after one person
+  /// signed out and another signed in on the same phone, the second saw
+  /// the first one's modules until the app was closed and reopened; and
+  /// a module given to a login never appeared until they signed in again.
+  final RxInt sessionEpoch = 0.obs;
+
   /// The employee record this login is linked to ('' when none). An
   /// office login with one gets "My work"; a worker's own login always
   /// has one. Whether the session is a worker's lives on AppSide.worker,
@@ -110,6 +121,15 @@ class LoginController extends GetxController {
         await _rememberKind(prefs,
             selfService: response.data['selfService'],
             employee: u is Map ? u['employee'] : null);
+
+        // And what it may open. The app stays signed in for months, so
+        // this is the only moment the menu can learn that a module was
+        // given to the login since, or taken away.
+        final now = featuresIn(response.data);
+        if (now != null && now.join(',') != (prefs.getString(StorageKeys.features) ?? '')) {
+          await prefs.setString(StorageKeys.features, now.join(','));
+          sessionEpoch.value++;
+        }
 
         isLoggedIn.value = true;
       } else if (response.statusCode == 401) {
@@ -488,6 +508,7 @@ class LoginController extends GetxController {
     await prefs.setString(StorageKeys.role,  user.role);
     await prefs.setString(StorageKeys.features, features.join(','));
     await prefs.setBool(StorageKeys.isLoggedIn, true);
+    sessionEpoch.value++; // a new person: the menu is theirs now
   }
 
   /// Which kind of login this is: a worker's own (the app opens on the
@@ -522,6 +543,18 @@ class LoginController extends GetxController {
     return const [];
   }
 
+  /// The feature list in a session check's answer (GET /user/getuser):
+  /// the effective list at the top level, as a current server sends it;
+  /// else the login's own stored list on `user` (an older server). Null
+  /// when neither is a list — then what was stored at sign-in stays.
+  static List<String>? featuresIn(dynamic data) {
+    if (data is! Map) return null;
+    if (data['features'] is List) return _parseFeatures(data['features']);
+    final u = data['user'];
+    if (u is Map && u['features'] is List) return _parseFeatures(u['features']);
+    return null;
+  }
+
   // The current user's stored feature keys (empty => unrestricted).
   static Future<List<String>> currentFeatures() async {
     final prefs = await SharedPreferences.getInstance();
@@ -541,5 +574,6 @@ class LoginController extends GetxController {
     await prefs.setBool(StorageKeys.isLoggedIn, false);
     AppSide.to.worker.value = false;
     employeeId.value = '';
+    sessionEpoch.value++; // nobody's menu until the next sign-in
   }
 }

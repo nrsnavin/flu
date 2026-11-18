@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/feedback_admin_controller.dart';
+import 'package:production/src/core/nav.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  FEEDBACK ADMIN LIST PAGE
@@ -410,6 +411,11 @@ class FeedbackDetailPage extends StatelessWidget {
         feedbackId: id,
         initialStatus: feedback['status'] as String? ?? 'open',
         initialResponse: feedback['response'] as String? ?? '',
+        // Leave the page once the response is saved — and only then: a
+        // response that failed to save stays here, with its error, to be
+        // sent again. (closePage, not Get.back, which would close the
+        // "Response saved" notice and leave the page.)
+        onSuccess: closePage,
       ),
       tag: tag,
     );
@@ -499,10 +505,7 @@ class FeedbackDetailPage extends StatelessWidget {
                       label: 'Save Response',
                       icon: Icons.send_rounded,
                       isLoading: ctrl.loading.value,
-                      onPressed: () async {
-                        await ctrl.submit();
-                        if (!ctrl.loading.value) Get.back();
-                      },
+                      onPressed: ctrl.submit,
                     )),
               ],
             ),

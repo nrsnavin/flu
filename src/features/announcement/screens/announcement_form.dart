@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/announcement_controller.dart';
+import 'package:production/src/core/nav.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  ANNOUNCEMENT FORM PAGE — create + edit
@@ -21,7 +22,10 @@ class AnnouncementFormPage extends StatelessWidget {
     final ctrl = Get.put(
       AnnouncementFormController(
         existing: existing,
-        onSuccess: () => Get.back(),
+        // closePage, not Get.back: "Announcement posted" is showing, and
+        // Get.back would close that notice and leave the form open — one
+        // more tap on Post, and everyone gets the notice twice.
+        onSuccess: closePage,
       ),
       tag: tag,
     );

@@ -17,6 +17,7 @@ import '../services/theme.dart';
 import 'add_po.dart';
 
 import 'material_inward.dart';
+import 'package:production/src/core/nav.dart';
 
 
 class PODetailPage extends StatelessWidget {
@@ -210,7 +211,9 @@ class _PODetailViewState extends State<_PODetailView>
               );
               if (reason == null) return;
               final ok = await c.deletePO(reason);
-              if (ok) Get.back(result: true);
+              // "Purchase order cancelled" is showing: Get.back would
+              // close that notice and stay on the cancelled PO.
+              if (ok) closePage(true);
             },
           ),
         const SizedBox(width: 4),

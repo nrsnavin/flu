@@ -5,6 +5,7 @@ import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/add_wastage_controller.dart';
 import '../models/checkingJobModel.dart';
 import 'Add_Wastage.dart';
+import 'package:production/src/core/nav.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  WASTAGE JOB PAGE  — all wastage records for one job
@@ -534,7 +535,7 @@ class _WastageDetailSheet extends StatelessWidget {
                       Navigator.of(dctx).pop();
                       final ok = await c.removeOne(r.id, reason);
                       if (ok && Get.isBottomSheetOpen == true) {
-                        Get.back(); // close the detail sheet
+                        closePage(); // close the detail sheet (Get.back would close the notice instead)
                       }
                     },
               child: const Text('Delete',

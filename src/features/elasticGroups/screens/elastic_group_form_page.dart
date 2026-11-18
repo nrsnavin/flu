@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/elastic_group_controller.dart';
+import 'package:production/src/core/nav.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  ELASTIC GROUP FORM PAGE — create / edit a bundle.
@@ -14,7 +15,7 @@ class ElasticGroupFormPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.put(
-      ElasticGroupFormController(existing: existing, onSuccess: Get.back),
+      ElasticGroupFormController(existing: existing, onSuccess: closePage),
       tag: existing == null ? 'create' : 'edit-${existing!['_id']}',
     );
 

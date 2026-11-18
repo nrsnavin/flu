@@ -4,8 +4,7 @@ import 'package:get/get.dart';
 import '../../PurchaseOrder/services/theme.dart';
 import '../../../core/features.dart';
 import '../controllers/users_controller.dart';
-
-const _departments = ['admin', 'production', 'packing', 'finance'];
+import 'package:production/src/core/nav.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  USER FORM PAGE — create / edit an app user.
@@ -16,8 +15,19 @@ class UserFormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The Users list holds what the server says can be granted, and to
+    // which departments; opened from anywhere else, this build's copy.
+    final list = Get.isRegistered<UsersController>() ? Get.find<UsersController>() : null;
+    final departments = (list == null || list.departments.isEmpty) ? kDepartments : list.departments.toList();
     final ctrl = Get.put(
-      UserFormController(existing: existing, onSuccess: Get.back),
+      UserFormController(
+        existing: existing,
+        // closePage, not Get.back: the save has just shown "Saved", and
+        // Get.back would close that notice and leave this form open.
+        onSuccess: closePage,
+        catalog: list?.catalog ?? kFeatures,
+        departments: departments,
+      ),
       tag: existing?['_id'] as String? ?? 'new-user',
     );
 
@@ -25,7 +35,10 @@ class UserFormPage extends StatelessWidget {
       backgroundColor: ErpColors.bgBase,
       appBar: ErpAppBar(
         title: ctrl.isEdit ? 'Edit User' : 'New User',
-        subtitle: ctrl.isEdit ? existing != null?['name'] as String? : 'Create an account':"",
+        // Was `existing != null?['name'] as String?`, which Dart reads as
+        // "if existing is not null, the LIST ['name'] cast to a String":
+        // it threw on every edit, so no login could be opened here.
+        subtitle: ctrl.isEdit ? (existing?['name'] as String? ?? '') : 'Create an account',
       ),
       body: Form(
         key: ctrl.formKey,
@@ -42,10 +55,14 @@ class UserFormPage extends StatelessWidget {
             TextFormField(
               controller: ctrl.emailCtrl,
               keyboardType: TextInputType.emailAddress,
-              decoration: ErpDecorations.formInput('Email'),
+              decoration: ErpDecorations.formInput(
+                ctrl.signsInByPhone ? 'Email (none — signs in by phone and PIN)' : 'Email',
+              ),
               validator: (v) {
                 final s = (v ?? '').trim();
-                if (s.isEmpty) return 'Required';
+                // A worker's login has no email: it signs in by phone and
+                // PIN, and must stay saveable without one.
+                if (s.isEmpty) return ctrl.signsInByPhone ? null : 'Required';
                 if (!s.contains('@')) return 'Enter a valid email';
                 return null;
               },
@@ -58,9 +75,11 @@ class UserFormPage extends StatelessWidget {
                 ctrl.isEdit ? 'New password (leave blank to keep)' : 'Password',
               ),
               validator: (v) {
-                if (ctrl.isEdit) return null; // optional on edit
                 final s = (v ?? '').trim();
-                if (s.length < 6) return 'Min 6 characters';
+                if (ctrl.isEdit && s.isEmpty) return null; // blank keeps the old one
+                // The server's rule (utils/passwordPolicy.js); it also
+                // refuses the easy ones, in its own words.
+                if (s.length < kMinPasswordLength) return 'At least $kMinPasswordLength characters';
                 return null;
               },
             ),
@@ -73,7 +92,7 @@ class UserFormPage extends StatelessWidget {
             const SizedBox(height: 6),
             Obx(() {
               ctrl.features.length; // reactive dep — setDepartment mutates features
-              final dept = ctrl.deptCtrl.text.isEmpty ? 'production' : ctrl.deptCtrl.text;
+              final dept = ctrl.deptCtrl.text;
               return Container(
                 decoration: BoxDecoration(
                   color: ErpColors.bgSurface,
@@ -84,8 +103,8 @@ class UserFormPage extends StatelessWidget {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     isExpanded: true,
-                    value: _departments.contains(dept) ? dept : 'production',
-                    items: _departments
+                    value: departments.contains(dept) ? dept : null,
+                    items: departments
                         .map((d) => DropdownMenuItem(
                               value: d,
                               child: Text(d[0].toUpperCase() + d.substring(1),
@@ -125,7 +144,7 @@ class UserFormPage extends StatelessWidget {
                   label: ctrl.isEdit ? 'Save changes' : 'Create user',
                   icon: Icons.save_outlined,
                   isLoading: ctrl.loading.value,
-                  onPressed: ctrl.submit,
+                  onPressed: () => _save(context, ctrl),
                 )),
           ],
         ),
@@ -133,14 +152,36 @@ class UserFormPage extends StatelessWidget {
     );
   }
 
+  /// Saving a login that can open nothing but the always-on screens is
+  /// allowed, but it is asked first, as on the web: the server enforces
+  /// it silently and the person just meets "you don't have access".
+  Future<void> _save(BuildContext context, UserFormController ctrl) async {
+    if (ctrl.isEmployeeLogin || !ctrl.grantsNothing) return ctrl.submit();
+    final name = ctrl.nameCtrl.text.trim();
+    final go = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Save with no modules?'),
+        content: Text(
+          '${name.isEmpty ? 'This login' : name} will be able to open only the screens '
+          'everyone has (dashboard, notices, feedback, claims, settings) — no module is ticked.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Go back')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save anyway')),
+        ],
+      ),
+    );
+    if (go == true) await ctrl.submit();
+  }
+
   List<Widget> _buildFeatureGroups(UserFormController ctrl) {
     // Scope selection to what this department/role can actually reach, so a
     // feature the backend role gate would block can never be granted.
-    final dept = ctrl.deptCtrl.text.isEmpty ? 'production' : ctrl.deptCtrl.text;
-    final allowed = featuresForDepartment(dept).toSet();
+    final allowed = ctrl.scope.toSet();
     final widgets = <Widget>[];
-    for (final section in featureSections()) {
-      final defs = kFeatures
+    for (final section in featureSections(ctrl.catalog)) {
+      final defs = ctrl.catalog
           .where((f) => f.section == section && (f.always || allowed.contains(f.key)))
           .toList();
       if (defs.isEmpty) continue;

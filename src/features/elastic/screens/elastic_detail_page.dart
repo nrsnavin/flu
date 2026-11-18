@@ -197,7 +197,9 @@ class _DetailView extends StatelessWidget {
           ]);
         }),
       ],
-      title: Flexible(child: Obx(() => Column(
+      // (Was wrapped in Flexible, which only means something inside a Row or
+      // Column; an app bar's title is neither, and already has a bounded width.)
+      title: Obx(() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -206,7 +208,7 @@ class _DetailView extends StatelessWidget {
           Text("Elastics  ›  Detail",
               style: TextStyle(color: ErpColors.textOnDarkSub, fontSize: 10)),
         ],
-      ))),
+      )),
       bottom: const PreferredSize(
         preferredSize: Size.fromHeight(1),
         child: Divider(height: 1, color: Color(0xFF1E3A5F)),

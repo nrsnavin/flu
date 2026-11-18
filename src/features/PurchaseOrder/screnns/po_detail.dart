@@ -141,8 +141,9 @@ class _PODetailViewState extends State<_PODetailView>
         onPressed: () => Get.back(),
       ),
       titleSpacing: 4,
-      title: Flexible(
-        child: Column(
+      // (Was wrapped in Flexible, which only means something inside a Row or
+      // Column; an app bar's title is neither, and already has a bounded width.)
+      title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -159,7 +160,6 @@ class _PODetailViewState extends State<_PODetailView>
             ),
           ],
         ),
-      ),
       actions: [
         // ── PDF Preview button ─────────────────────────
         if (po != null)

@@ -23,7 +23,11 @@ class ElasticGroupFormPage extends StatelessWidget {
       backgroundColor: ErpColors.bgBase,
       appBar: ErpAppBar(
         title: ctrl.isEdit ? 'Edit Group' : 'New Elastic Group',
-        subtitle: ctrl.isEdit ? existing != null?['name'] as String? : 'Reusable bundle':"",
+        // Was `existing != null?['name'] as String?`, which Dart reads as
+        // "if existing is not null, the LIST ['name'] cast to a String":
+        // it threw on every edit, so no group could be opened here (the
+        // same slip as on the Users form).
+        subtitle: ctrl.isEdit ? (existing?['name'] as String? ?? '') : 'Reusable bundle',
       ),
       body: Form(
         key: ctrl.formKey,

@@ -111,8 +111,9 @@ class _CustomerDetailView extends StatelessWidget {
         onPressed: () => Get.back(),
       ),
       titleSpacing: 4,
-      title: Flexible(
-        child: Column(
+      // (Was wrapped in Flexible, which only means something inside a Row or
+      // Column; an app bar's title is neither, and already has a bounded width.)
+      title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -124,7 +125,6 @@ class _CustomerDetailView extends StatelessWidget {
                 overflow: TextOverflow.ellipsis),
           ],
         ),
-      ),
       actions: [
         // Edit button
         Obx(() {

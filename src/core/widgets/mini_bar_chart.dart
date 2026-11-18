@@ -44,6 +44,20 @@ export '../models/mini_bar.dart';
 //  A bar chart on a 6-inch screen is a shape, not a reading. The
 //  highest value is labelled and the axis carries the range, so the
 //  chart is a summary and the figures underneath stay authoritative.
+//
+//  ── How a bar gets its height ──────────────────────────────────
+//  A bar is a fraction of the plot's height, so it has to sit where
+//  that height is known. Each bar used to be a FractionallySizedBox
+//  placed straight into a Column — where the height on offer is
+//  unbounded, and a fraction of that is infinite. The chart threw the
+//  moment it had one bar to draw: every chart with data in it was a
+//  broken panel, and only the empty state ever rendered.
+//
+//  Now the plot is one row of cells of a known height and each bar is
+//  aligned in its cell. The figure for the highest bar has a strip of
+//  its own above the plot (below it, when the extreme is a negative),
+//  rather than sitting on top of that one bar and making it shorter
+//  than a bar nearly as high.
 // ══════════════════════════════════════════════════════════════
 
 class MiniBarChart extends StatelessWidget {
@@ -107,51 +121,23 @@ class MiniBarChart extends StatelessWidget {
         height: height,
         child: Column(
           children: [
+            _figureStrip(
+              (b) => maxValue > 0 && b.value == maxValue ? fmt(b.value) : null,
+              barColor,
+            ),
             Expanded(
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   for (final b in bars)
                     Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            if (maxValue > 0 && b.value == maxValue)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 2),
-                                child: FittedBox(
-                                  child: Text(
-                                    fmt(b.value),
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w700,
-                                      color: barColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            // A zero month still gets a hairline, so the
-                            // month is visibly present and empty rather
-                            // than missing from the chart.
-                            FractionallySizedBox(
-                              heightFactor: b.value <= 0
-                                  ? 0.01
-                                  : (b.value * scale).clamp(0.02, 1.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: b.value <= 0
-                                      ? barColor.withValues(alpha: 0.25)
-                                      : barColor,
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(3),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      child: _bar(
+                        // A zero month still gets a hairline, so the
+                        // month is visibly present and empty rather
+                        // than missing from the chart.
+                        fraction: b.value <= 0 ? 0.01 : (b.value * scale).clamp(0.02, 1.0),
+                        color: b.value <= 0 ? barColor.withValues(alpha: 0.25) : barColor,
+                        up: true,
                       ),
                     ),
                 ],
@@ -198,21 +184,21 @@ class MiniBarChart extends StatelessWidget {
         height: height,
         child: Column(
           children: [
+            // Only the single most extreme value is labelled, and it may
+            // be a negative one: its figure goes at the end its bar
+            // reaches — above the plot, or below it.
+            if (biggest >= 0)
+              _figureStrip((b) => span > 0 && b.value == biggest ? fmt(b.value) : null, barColor),
             Expanded(
               flex: posFlex,
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   for (final b in bars)
                     Expanded(
-                      child: _halfBar(
-                        // Only the single most extreme value is
-                        // labelled, and it may be a negative one.
-                        label: b.value == biggest && span > 0 ? fmt(b.value) : null,
-                        fraction: b.value > 0 && maxPos > 0 ? b.value / maxPos : 0,
-                        color: barColor,
-                        up: true,
-                      ),
+                      child: b.value > 0 && maxPos > 0
+                          ? _bar(fraction: (b.value / maxPos).clamp(0.02, 1.0), color: barColor, up: true)
+                          : const SizedBox.shrink(),
                     ),
                 ],
               ),
@@ -225,20 +211,19 @@ class MiniBarChart extends StatelessWidget {
             Expanded(
               flex: negFlex,
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   for (final b in bars)
                     Expanded(
-                      child: _halfBar(
-                        label: b.value == biggest && span > 0 ? fmt(b.value) : null,
-                        fraction: b.value < 0 && maxNeg > 0 ? -b.value / maxNeg : 0,
-                        color: down,
-                        up: false,
-                      ),
+                      child: b.value < 0 && maxNeg > 0
+                          ? _bar(fraction: (-b.value / maxNeg).clamp(0.02, 1.0), color: down, up: false)
+                          : const SizedBox.shrink(),
                     ),
                 ],
               ),
             ),
+            if (biggest < 0)
+              _figureStrip((b) => b.value == biggest ? fmt(b.value) : null, down),
             const SizedBox(height: 4),
             _axisLabels(),
           ],
@@ -247,17 +232,19 @@ class MiniBarChart extends StatelessWidget {
     );
   }
 
-  Widget _halfBar({
-    required String? label,
-    required double fraction,
-    required Color color,
-    required bool up,
-  }) {
-    final bar = fraction <= 0
-        ? const SizedBox.shrink()
-        : FractionallySizedBox(
-            heightFactor: fraction.clamp(0.02, 1.0),
-            child: Container(
+  /// One bar in its cell: [fraction] of the cell's height, standing on
+  /// the baseline ([up]) or hanging from it.
+  ///
+  /// The cell's height is known — the row it sits in is stretched to
+  /// the plot — which is what lets a fraction of it mean something.
+  Widget _bar({required double fraction, required Color color, required bool up}) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: Align(
+          alignment: up ? Alignment.bottomCenter : Alignment.topCenter,
+          child: FractionallySizedBox(
+            heightFactor: fraction,
+            widthFactor: 1,
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.vertical(
@@ -266,37 +253,43 @@ class MiniBarChart extends StatelessWidget {
                 ),
               ),
             ),
-          );
+          ),
+        ),
+      );
 
-    final text = label == null
-        ? null
-        : FittedBox(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                color: color,
+  /// The strip that carries the one labelled figure, in line with its
+  /// bar. A strip of its own, the same for every bar, so the labelled
+  /// bar is not the only one made shorter by its label.
+  Widget _figureStrip(String? Function(MiniBar) figure, Color color) => SizedBox(
+        height: 12,
+        child: Row(
+          children: [
+            for (final b in bars)
+              Expanded(
+                child: figure(b) == null
+                    ? const SizedBox.shrink()
+                    : FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          figure(b)!,
+                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: color),
+                        ),
+                      ),
               ),
-            ),
-          );
+          ],
+        ),
+      );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Column(
-        mainAxisAlignment: up ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: up
-            ? [if (text != null) text, bar]
-            : [bar, if (text != null) text],
-      ),
-    );
-  }
-
+  // scaleDown: a label is shrunk to fit a narrow cell (twelve months on
+  // a phone) and never blown up to fill a wide one. With the default
+  // fit, a two- or three-month chart drew its month names several times
+  // their size — taller than the bars, or past the bottom of the chart.
   Widget _axisLabels() => Row(
         children: [
           for (final b in bars)
             Expanded(
               child: FittedBox(
+                fit: BoxFit.scaleDown,
                 child: Text(
                   b.label,
                   style: TextStyle(fontSize: 9, color: Colors.grey.shade600),

@@ -28,8 +28,9 @@ class EditCustomerPage extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         titleSpacing: 4,
-        title: Flexible(
-          child: Column(
+        // (Was wrapped in Flexible, which only means something inside a Row or
+      // Column; an app bar's title is neither, and already has a bounded width.)
+      title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -44,7 +45,6 @@ class EditCustomerPage extends StatelessWidget {
               ),
             ],
           ),
-        ),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, color: Color(0xFF1E3A5F)),

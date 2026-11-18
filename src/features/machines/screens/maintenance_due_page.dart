@@ -125,11 +125,18 @@ class _HorizonChips extends StatelessWidget {
     return Container(
       color: ErpColors.bgSurface,
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
-      child: Obx(() => Row(children: [
+      // A Wrap: four chips and the overdue count do not fit one line of a
+      // 360-wide phone (the selected chip is wider, with its tick), and a
+      // Row cut the last of them off.
+      child: Obx(() => Wrap(
+          spacing: 8,
+          runSpacing: 6,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
             ...horizons.map((h) {
               final selected = c.days.value == h;
               return Padding(
-                padding: const EdgeInsets.only(right: 8),
+                padding: EdgeInsets.zero,
                 child: ChoiceChip(
                   label: Text('$h days'),
                   selected: selected,
@@ -144,7 +151,6 @@ class _HorizonChips extends StatelessWidget {
                 ),
               );
             }),
-            const Spacer(),
             if (c.overdueCount.value > 0)
               Container(
                 padding:

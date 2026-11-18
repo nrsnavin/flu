@@ -121,8 +121,9 @@ class _SupplierDetailPageState extends State<SupplierDetailPage> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 4,
-      title: Flexible(
-        child: Column(
+      // (Was wrapped in Flexible, which only means something inside a Row or
+      // Column; an app bar's title is neither, and already has a bounded width.)
+      title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -135,7 +136,6 @@ class _SupplierDetailPageState extends State<SupplierDetailPage> {
                 overflow: TextOverflow.ellipsis),
           ],
         ),
-      ),
       actions: [
         Obx(() {
           final s = _c.supplier;

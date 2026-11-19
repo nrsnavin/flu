@@ -187,7 +187,28 @@ class _FeedbackCard extends StatelessWidget {
             const Spacer(),
             if (status == 'open')
               TextButton.icon(
-                onPressed: () => c.withdraw(id),
+                // It deletes the note: asked first, not on one tap.
+                onPressed: () async {
+                  final ok = await Get.dialog<bool>(
+                    AlertDialog(
+                      backgroundColor: ErpColors.bgSurface,
+                      title: const Text('Withdraw this note?'),
+                      content: Text(
+                          '"$subject" will be removed. The office will no longer see it.'),
+                      actions: [
+                        TextButton(
+                            onPressed: () => Get.back(result: false),
+                            child: const Text('Keep it')),
+                        TextButton(
+                            style: TextButton.styleFrom(
+                                foregroundColor: ErpColors.errorRed),
+                            onPressed: () => Get.back(result: true),
+                            child: const Text('Withdraw')),
+                      ],
+                    ),
+                  );
+                  if (ok == true) await c.withdraw(id);
+                },
                 icon: const Icon(Icons.close_rounded,
                     size: 14, color: ErpColors.errorRed),
                 label: const Text('Withdraw',

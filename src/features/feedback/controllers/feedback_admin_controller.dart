@@ -61,6 +61,22 @@ class FeedbackAdminController extends GetxController {
   void setCategory(String v) { category.value = v; fetch(); }
 }
 
+/// What saving a reply sends. The reply goes only when it was changed:
+/// left as it was, the request says nothing of it and the server keeps
+/// it — and who gave it, and when. It used to go back every time, as it
+/// was when the page opened, over anything a colleague had written since.
+Map<String, dynamic> feedbackRespondBody(
+  String status, {
+  required String response,
+  String before = '',
+}) {
+  final typed = response.trim();
+  return {
+    if (typed != before.trim()) 'response': typed,
+    'status': status,
+  };
+}
+
 // ══════════════════════════════════════════════════════════════
 //  FeedbackRespondController
 //  Used inside the detail / respond dialog.
@@ -96,10 +112,11 @@ class FeedbackRespondController extends GetxController {
   Future<void> submit() async {
     try {
       loading.value = true;
-      await _dio.put("/$feedbackId/respond", data: {
-        "response": responseCtrl.text.trim(),
-        "status":   status.value,
-      });
+      await _dio.put(
+        "/$feedbackId/respond",
+        data: feedbackRespondBody(status.value,
+            response: responseCtrl.text, before: initialResponse),
+      );
       Get.snackbar(
         "Updated", "Response saved",
         backgroundColor: ErpColors.solidSuccess,

@@ -857,13 +857,22 @@ class AIAdvisor extends GetxController {
         if (d != null && d < soonest) soonest = d;
       }
     }
-    final soonestLabel = soonest < (1 << 30) ? soonest.toString() : '?';
+    // The server counts whole days to the promised date: 0 is today,
+    // and a date already past is negative — "Soonest in -2d" said that
+    // of an order two days overdue.
+    final String when = soonest >= (1 << 30)
+        ? 'Due soon'
+        : soonest < 0
+            ? 'Most overdue by ${-soonest}d'
+            : soonest == 0
+                ? 'Soonest due today'
+                : 'Soonest in ${soonest}d';
     out.add(AISuggestion(
       id: 'order_delivery_risk',
       title:
           '${list.length} order${list.length == 1 ? '' : 's'} at delivery risk',
-      subtitle:
-          'Soonest in ${soonestLabel}d (horizon $horizon) with pending production',
+      // Ordered less packed: what the customer is still owed.
+      subtitle: '$when (next $horizon days) — not yet packed in full',
       icon: Icons.local_shipping_outlined,
       priority: soonest <= 2
           ? AISuggestionPriority.high

@@ -97,6 +97,7 @@ class _IssueCard extends StatelessWidget {
     final machineId = SafeJson.asString(machine['ID'], '—');
     final id = SafeJson.asString(issue['_id']);
     final notes = SafeJson.asString(issue['resolutionNotes']);
+    final raisedAtFloor = machineIssueRaisedAtFloor(issue);
 
     return Container(
       decoration: ErpDecorations.card,
@@ -125,6 +126,12 @@ class _IssueCard extends StatelessWidget {
                 style: const TextStyle(
                     color: ErpColors.textSecondary, fontSize: 12)),
           ],
+          if (raisedAtFloor.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(raisedAtFloor,
+                style: const TextStyle(
+                    color: ErpColors.textMuted, fontSize: 11)),
+          ],
           if (notes.isNotEmpty) ...[
             const SizedBox(height: 8),
             Container(
@@ -148,9 +155,30 @@ class _IssueCard extends StatelessWidget {
                 style: const TextStyle(
                     color: ErpColors.textMuted, fontSize: 11)),
             const Spacer(),
-            if (status == 'open')
+            if (canWithdrawMachineIssue(issue))
               TextButton.icon(
-                onPressed: () => c.withdraw(id),
+                // It deletes the report: asked first, not on one tap.
+                onPressed: () async {
+                  final ok = await Get.dialog<bool>(
+                    AlertDialog(
+                      backgroundColor: ErpColors.bgSurface,
+                      title: const Text('Withdraw this issue?'),
+                      content: Text(
+                          '"$title" will be removed. The office will no longer see it.'),
+                      actions: [
+                        TextButton(
+                            onPressed: () => Get.back(result: false),
+                            child: const Text('Keep it')),
+                        TextButton(
+                            style: TextButton.styleFrom(
+                                foregroundColor: ErpColors.errorRed),
+                            onPressed: () => Get.back(result: true),
+                            child: const Text('Withdraw')),
+                      ],
+                    ),
+                  );
+                  if (ok == true) await c.withdraw(id);
+                },
                 icon: const Icon(Icons.close_rounded,
                     size: 14, color: ErpColors.errorRed),
                 label: const Text('Withdraw',

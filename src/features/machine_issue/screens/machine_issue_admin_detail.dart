@@ -79,12 +79,10 @@ class _Body extends StatelessWidget {
     final notes       = issue['resolutionNotes']?.toString() ?? '';
 
     final machine  = issue['machine']  is Map ? issue['machine']  as Map : const {};
-    final employee = issue['employee'] is Map ? issue['employee'] as Map : const {};
     final resolver = issue['resolvedBy'] is Map ? issue['resolvedBy'] as Map : const {};
 
     final machineId = machine['ID']?.toString() ?? '—';
-    final empName   = employee['name']?.toString() ?? '—';
-    final dept      = employee['department']?.toString() ?? '';
+    final operator  = machineIssueOperator(issue);
 
     String when(String? raw) {
       if (raw == null) return '—';
@@ -117,7 +115,9 @@ class _Body extends StatelessWidget {
               _kv(Icons.precision_manufacturing_outlined,
                   'Machine', machineId),
               _kv(Icons.person_outline, 'Reported by',
-                  dept.isEmpty ? empName : '$empName · $dept'),
+                  machineIssueReporter(issue)),
+              if (operator.isNotEmpty)
+                _kv(Icons.badge_outlined, 'Operator', operator),
               _kv(Icons.calendar_today_outlined, 'Filed',
                   when(issue['createdAt']?.toString())),
               _kv(Icons.flag_circle_outlined, 'Status', status.toUpperCase()),
@@ -286,8 +286,8 @@ void _showStatusSheet(
   Map<String, dynamic> issue,
 ) {
   final current = issue['status']?.toString() ?? 'open';
-  final notesCtrl = TextEditingController(
-      text: issue['resolutionNotes']?.toString() ?? '');
+  final notesBefore = issue['resolutionNotes']?.toString() ?? '';
+  final notesCtrl = TextEditingController(text: notesBefore);
   final id = issue['_id']?.toString() ?? '';
   String picked = current;
 
@@ -377,7 +377,10 @@ void _showStatusSheet(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6)),
                         ),
-                        onPressed: c.updating.value
+                        // Nothing to confirm until a status is picked: an
+                        // open issue opens with none, and "Confirm" used to
+                        // send "open" and report "Issue marked as open".
+                        onPressed: c.updating.value || picked == current
                             ? null
                             : () async {
                                 if (needsNotes &&
@@ -395,8 +398,13 @@ void _showStatusSheet(
                                 final ok = await c.updateStatus(
                                   id,
                                   nextStatus: picked,
-                                  resolutionNotes:
-                                      notesCtrl.text.trim(),
+                                  // The notes field shows only when
+                                  // closing; otherwise nothing was typed
+                                  // and nothing is said of the notes.
+                                  resolutionNotes: needsNotes
+                                      ? notesCtrl.text.trim()
+                                      : notesBefore,
+                                  notesBefore: notesBefore,
                                 );
                                 if (ok && sheetCtx.mounted && Navigator.of(sheetCtx).canPop()) {
                                   Navigator.of(sheetCtx).pop();

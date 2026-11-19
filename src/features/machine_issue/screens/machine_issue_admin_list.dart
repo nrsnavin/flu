@@ -137,10 +137,7 @@ class _IssueCard extends StatelessWidget {
     final severity = item['severity']?.toString() ?? 'medium';
     final status   = item['status']?.toString() ?? 'open';
     final machine  = item['machine'] is Map ? item['machine'] as Map : const {};
-    final employee = item['employee'] is Map ? item['employee'] as Map : const {};
     final machineId = machine['ID']?.toString() ?? '—';
-    final empName   = employee['name']?.toString() ?? '—';
-    final dept      = employee['department']?.toString() ?? '';
 
     String when = '';
     final created = item['createdAt']?.toString();
@@ -195,7 +192,7 @@ class _IssueCard extends StatelessWidget {
               const SizedBox(width: 4),
               Flexible(
                 child: Text(
-                  dept.isEmpty ? empName : '$empName · $dept',
+                  machineIssueReporter(item),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

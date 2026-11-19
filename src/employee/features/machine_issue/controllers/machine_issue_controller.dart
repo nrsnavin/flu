@@ -7,6 +7,22 @@ import '../../../core/safe_json.dart';
 import '../../../theme/erp_theme.dart';
 import '../../auth/controllers/emp_session.dart';
 
+/// An issue is the worker's to withdraw while it is still open — and only
+/// if they reported it. One the supervisor raised at the floor entry
+/// carries the loom's operator, so it is on their list, but it is not
+/// theirs to take back (the server refuses it).
+bool canWithdrawMachineIssue(Map<String, dynamic> issue) =>
+    SafeJson.asString(issue['status'], 'open').toLowerCase() == 'open' &&
+    SafeJson.asString(issue['source']) != 'floor';
+
+/// "Raised at the floor entry by Murugan" for an issue the supervisor
+/// raised from the shift entry; '' for the worker's own report.
+String machineIssueRaisedAtFloor(Map<String, dynamic> issue) {
+  if (SafeJson.asString(issue['source']) != 'floor') return '';
+  final by = SafeJson.asString(issue['reportedByName']).trim();
+  return by.isEmpty ? 'Raised at the floor entry' : 'Raised at the floor entry by $by';
+}
+
 /// Lets the worker file a machine breakdown / maintenance request
 /// and track its status. Backed by /machine-issue endpoints.
 class EmpMachineIssueController extends GetxController {
@@ -102,7 +118,9 @@ class EmpMachineIssueController extends GetxController {
         'description': description.trim(),
         'severity':    severity,
       });
-      _snack('Reported', 'Maintenance team has been notified',
+      // What is true: it is on the office's list. (It used to say the
+      // maintenance team "has been notified", when nobody had been.)
+      _snack('Reported', 'It is on the office\'s Machine Issues list',
           error: false);
       await fetchAll();
       return true;

@@ -6,6 +6,55 @@ import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
 
+/// Who raised an issue, for a list row or the detail page: the operator
+/// (with their department), the supervisor at the floor entry, or the
+/// office login. '—' when nobody is known.
+///
+/// Only the operator used to be read, so an issue the office raised said
+/// "—", and one raised at the floor entry named the loom's operator, who
+/// had not reported it.
+String machineIssueReporter(Map issue) {
+  if (issue['source']?.toString() == 'floor') {
+    final by = issue['reportedByName']?.toString().trim() ?? '';
+    return by.isEmpty ? 'Floor entry' : '$by · floor entry';
+  }
+  final employee = issue['employee'] is Map ? issue['employee'] as Map : const {};
+  final name = employee['name']?.toString() ?? '';
+  if (name.isNotEmpty) {
+    final dept = employee['department']?.toString() ?? '';
+    return dept.isEmpty ? name : '$name · $dept';
+  }
+  final office = issue['reportedBy'] is Map
+      ? (issue['reportedBy'] as Map)['name']?.toString() ?? ''
+      : '';
+  return office.isEmpty ? '—' : '$office · office';
+}
+
+/// The loom's operator on an issue raised at the floor entry — shown
+/// beside the supervisor who raised it. '' for any other issue (an
+/// operator's own report already names them).
+String machineIssueOperator(Map issue) {
+  if (issue['source']?.toString() != 'floor') return '';
+  final employee = issue['employee'] is Map ? issue['employee'] as Map : const {};
+  return employee['name']?.toString() ?? '';
+}
+
+/// What a status change sends. The notes go only when they were changed:
+/// left as they were, the request says nothing of them and the server
+/// keeps what it has — a note a colleague added since the sheet opened
+/// included. Cleared, they are sent as cleared.
+Map<String, dynamic> machineIssueStatusBody(
+  String status, {
+  required String notes,
+  String before = '',
+}) {
+  final typed = notes.trim();
+  return {
+    'status': status,
+    if (typed != before.trim()) 'resolutionNotes': typed,
+  };
+}
+
 // ══════════════════════════════════════════════════════════════
 //  MachineIssueAdminController
 //
@@ -134,10 +183,13 @@ class MachineIssueAdminController extends GetxController {
     }
   }
 
+  /// [notesBefore] is the note the sheet opened with: the notes are sent
+  /// only if [resolutionNotes] differs from it (machineIssueStatusBody).
   Future<bool> updateStatus(
     String id, {
     required String nextStatus,
     String resolutionNotes = '',
+    String notesBefore = '',
   }) async {
     if (id.isEmpty) return false;
     if (updating.value) return false;
@@ -145,7 +197,8 @@ class MachineIssueAdminController extends GetxController {
     try {
       final res = await _dio.put(
         '/$id/status',
-        data: {'status': nextStatus, 'resolutionNotes': resolutionNotes},
+        data: machineIssueStatusBody(nextStatus,
+            notes: resolutionNotes, before: notesBefore),
       );
       final body = res.data is Map ? res.data['data'] : null;
       if (body is Map) {

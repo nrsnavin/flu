@@ -25,6 +25,8 @@ class AdjustHistoryEntry {
   final double adjustment;     // positive = added, negative = removed
   final double? balance;       // stock immediately after this adjustment
   final String reason;
+  /// Who made it. Blank on adjustments made before the name was kept.
+  final String by;
 
   AdjustHistoryEntry({
     required this.materialId,
@@ -35,6 +37,7 @@ class AdjustHistoryEntry {
     required this.adjustment,
     this.balance,
     required this.reason,
+    this.by = '',
   });
 
   bool get isPositive => adjustment > 0;
@@ -53,6 +56,7 @@ class AdjustHistoryEntry {
         adjustment: (j['adjustment'] as num?)?.toDouble() ?? 0,
         balance:    (j['balance']    as num?)?.toDouble(),
         reason:     j['reason']?.toString()         ?? '',
+        by:         j['by']?.toString().trim()      ?? '',
       );
 }
 

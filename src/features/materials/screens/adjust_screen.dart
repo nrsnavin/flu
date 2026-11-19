@@ -468,6 +468,18 @@ class _EntryCard extends StatelessWidget {
                 style: const TextStyle(color: _ts, fontSize: 11))),
           ]),
         ],
+
+        // Who made it — the half of "who wrote this off, and why" that
+        // this page never had.
+        if (entry.by.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Row(children: [
+            const Icon(Icons.person_outline_rounded, size: 12, color: _tm),
+            const SizedBox(width: 6),
+            Expanded(child: Text('By ${entry.by}',
+                style: const TextStyle(color: _tm, fontSize: 11))),
+          ]),
+        ],
       ]),
     );
   }

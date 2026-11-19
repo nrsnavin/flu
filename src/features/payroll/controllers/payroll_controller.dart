@@ -21,6 +21,29 @@ import '../models/payroll_models.dart';
 import '../../../core/app_config.dart';
 import '../../PurchaseOrder/services/theme.dart';
 
+/// What approving a leave request left as it was, in the server's own
+/// words — or null when the leave simply went onto the sheet.
+///
+/// A request can be approved after its day was marked. A shift already
+/// marked as worked stays worked (approved leave is unpaid, and an
+/// approval must not take a worked day's pay), and a month whose payslip
+/// is final does not change. Either is worth telling the approver; a
+/// plain approval is not.
+String? leaveApprovalNote(dynamic data) {
+  if (data is! Map) return null;
+  final attendance = data['attendance'];
+  final worked = attendance is Map && attendance['worked'] is List
+      ? (attendance['worked'] as List)
+      : const [];
+  final payslipFinal = data['payslipFinal'] == true;
+  if (worked.isEmpty && !payslipFinal) return null;
+  final said = (data['message'] as String?)?.trim() ?? '';
+  final base = said.isEmpty ? 'Leave approved.' : said;
+  return payslipFinal
+      ? "$base That month's payslip is already finalised, so the pay on it stays as it was."
+      : base;
+}
+
 class PayrollController extends GetxController {
   final _dio = ApiClient.buildClient(baseUrl: ApiConfig.baseUrl);
 
@@ -330,8 +353,22 @@ class PayrollController extends GetxController {
   }
 
   Future<void> approveLeave(String id) async {
-    try { await _dio.put('/leave/$id/approve'); await fetchLeaveRequests(); }
-    catch (e) { _actionFailed('Approve leave', e); }
+    try {
+      final res = await _dio.put('/leave/$id/approve');
+      // Said only when something was left as it was (leaveApprovalNote).
+      final note = leaveApprovalNote(res.data);
+      if (note != null) {
+        Get.snackbar(
+          'Leave approved',
+          note,
+          backgroundColor: ErpColors.navyDark,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 6),
+        );
+      }
+      await fetchLeaveRequests();
+    } catch (e) { _actionFailed('Approve leave', e); }
   }
 
   // FIX #2 — view calls rejectLeave(id, rem)

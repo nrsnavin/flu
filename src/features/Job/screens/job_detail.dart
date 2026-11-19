@@ -198,11 +198,20 @@ class JobWastage {
   );
 }
 
+// One packing record is one BOX: its metres, joints, weights, a size and
+// a stretch, who packed it and who checked it. This model was written
+// for rolls, batches and a dispatch status that a packing record has
+// never had, and the server sent 0 for every one of them — the tab read
+// "Packed 0m · Rolls 0" whatever had been packed. `total` is the box's
+// metres (a decimal: it was an int, and dropped the fraction) and
+// `weight` its net weight; `rolls`, `batch` and `status` are kept only
+// because older answers carry them.
 class JobPacking {
   final String id, elasticName, employeeName, batch, status;
+  final String size, stretch;
   final String? date, checkedBy;
-  final int rolls, metersPerRoll, total, joints;
-  final double quantity, weight;
+  final int rolls, metersPerRoll, joints;
+  final double quantity, weight, total;
 
   const JobPacking({
     required this.id,
@@ -218,23 +227,30 @@ class JobPacking {
     required this.joints,
     required this.quantity,
     required this.weight,
+    this.size = '',
+    this.stretch = '',
   });
 
-  factory JobPacking.fromJson(Map<String, dynamic> j) => JobPacking(
-    id: j['id']?.toString() ?? '',
-    elasticName: j['elasticName']?.toString() ?? '-',
-    employeeName: j['employeeName']?.toString() ?? '-',
-    batch: j['batch']?.toString() ?? '-',
-    status: j['status']?.toString() ?? 'open',
-    date: j['date']?.toString(),
-    checkedBy: j['checkedBy']?.toString(),
-    rolls: (j['rolls'] as num?)?.toInt() ?? 0,
-    metersPerRoll: (j['metersPerRoll'] as num?)?.toInt() ?? 0,
-    total: (j['total'] as num?)?.toInt() ?? 0,
-    joints: (j['joints'] as num?)?.toInt() ?? 0,
-    quantity: (j['quantity'] as num?)?.toDouble() ?? 0,
-    weight: (j['weight'] as num?)?.toDouble() ?? 0,
-  );
+  factory JobPacking.fromJson(Map<String, dynamic> j) {
+    final metres = ((j['meter'] ?? j['total'] ?? j['quantity']) as num?)?.toDouble() ?? 0;
+    return JobPacking(
+      id: j['id']?.toString() ?? '',
+      elasticName: j['elasticName']?.toString() ?? '-',
+      employeeName: (j['packedBy'] ?? j['employeeName'])?.toString() ?? '-',
+      batch: j['batch']?.toString() ?? '-',
+      status: j['status']?.toString() ?? 'packed',
+      date: j['date']?.toString(),
+      checkedBy: j['checkedBy']?.toString(),
+      rolls: (j['rolls'] as num?)?.toInt() ?? 1,
+      metersPerRoll: (j['metersPerRoll'] as num?)?.toInt() ?? 0,
+      total: metres,
+      joints: (j['joints'] as num?)?.toInt() ?? 0,
+      quantity: metres,
+      weight: ((j['netWeight'] ?? j['weight']) as num?)?.toDouble() ?? 0,
+      size: j['size']?.toString() ?? '',
+      stretch: j['stretch']?.toString() ?? '',
+    );
+  }
 
   // short packing ID: last 6 chars of mongo id
   String get shortId =>
@@ -347,8 +363,13 @@ class JobDetailModel {
       shiftDetails.fold(0, (s, d) => s + d.productionMeters);
   double get totalWastagePenalty =>
       wastages.fold(0.0, (s, w) => s + w.penalty);
-  int get totalPackedMeters => packingDetails.fold(0, (s, p) => s + p.total);
+  double get totalPackedMeters =>
+      packingDetails.fold<double>(0, (s, p) => s + p.total);
 }
+
+/// Metres as they are read out: "250" or "250.5", never "250.0".
+String _metres(double v) =>
+    v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
 
 class MachineMini {
   final String id, machineID, manufacturer;
@@ -2425,21 +2446,23 @@ class _PackingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalPacked = packingDetails.fold(0, (s, p) => s + p.total);
-    final dispatched = packingDetails
-        .where((p) => p.status == 'dispatched')
-        .fold(0, (s, p) => s + p.total);
-    final totalRolls = packingDetails.fold(0, (s, p) => s + p.rolls);
+    final totalPacked =
+        packingDetails.fold<double>(0, (s, p) => s + p.total);
+    final netWeight =
+        packingDetails.fold<double>(0, (s, p) => s + p.weight);
 
+    // What was packed, as it was packed. A box has no dispatch state of
+    // its own — a challan ships metres, not boxes — so the "Dispatched"
+    // and "Pending" figures this showed were never anything but 0 and
+    // everything. Dispatch is on the order and its challans.
     return _SectionShell(
-      title: 'Packing & Dispatch',
+      title: 'Packing',
       status: packingDetails.isEmpty ? 'open' : 'partial',
       accentColor: ErpColors.navyDark,
       badges: [
-        _StatBadge('Packed', '${totalPacked}m'),
-        _StatBadge('Dispatched', '${dispatched}m'),
-        _StatBadge('Pending', '${totalPacked - dispatched}m'),
-        _StatBadge('Rolls', '$totalRolls'),
+        _StatBadge('Packed', '${_metres(totalPacked)}m'),
+        _StatBadge('Boxes', '${packingDetails.length}'),
+        _StatBadge('Net wt', '${netWeight.toStringAsFixed(1)}kg'),
       ],
       children: packingDetails.isEmpty
           ? [const _EmptyCard(label: 'No packing records yet.')]
@@ -2490,19 +2513,18 @@ class _PackingTable extends StatelessWidget {
             SizedBox(width: 54, child: _TH('PACK ID')),
             SizedBox(width: 8),
             Expanded(flex: 3, child: _TH('ELASTIC')),
-            Expanded(flex: 2, child: _TH('STATUS')),
+            Expanded(flex: 2, child: _TH('METRES')),
           ]),
         ),
         // ── Packing rows ───────────────────────────────────────
         ...packingDetails.asMap().entries.map((entry) {
           final i = entry.key;
           final p = entry.value;
-          final statusColors = {
-            'dispatched': ErpColors.successGreen,
-            'ready': ErpColors.accentBlue,
-            'packing': ErpColors.warningAmber,
-          };
-          final sc = statusColors[p.status] ?? ErpColors.textSecondary;
+          final sc = ErpColors.successGreen;
+          final sizeLine = [
+            if (p.size.isNotEmpty) 'Size ${p.size}',
+            if (p.stretch.isNotEmpty) 'Stretch ${p.stretch}',
+          ].join(' · ');
 
           return Column(children: [
             // ── Main row ──────────────────────────────────────
@@ -2546,14 +2568,15 @@ class _PackingTable extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 10,
                                   color: ErpColors.textMuted)),
-                        Text('Batch: ${p.batch}',
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: ErpColors.textMuted)),
+                        if (sizeLine.isNotEmpty)
+                          Text(sizeLine,
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: ErpColors.textMuted)),
                       ],
                     ),
                   ),
-                  // Status badge
+                  // The box's metres
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 9, vertical: 3),
@@ -2562,9 +2585,9 @@ class _PackingTable extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                             color: sc.withValues(alpha: 0.35))),
-                    child: Text(p.status.toUpperCase(),
+                    child: Text('${_metres(p.total)} m',
                         style: TextStyle(
-                            fontSize: 9,
+                            fontSize: 10,
                             fontWeight: FontWeight.w800,
                             color: sc)),
                   ),
@@ -2591,15 +2614,6 @@ class _PackingTable extends StatelessWidget {
                           label: 'Checked By',
                           value: p.checkedBy ?? '—',
                           icon: Icons.verified_user_outlined),
-                      _PackCell(
-                          label: 'Meters',
-                          value: '${p.total} m',
-                          icon: Icons.straighten_outlined),
-                      _PackCell(
-                          label: 'Rolls',
-                          value:
-                          '${p.rolls} × ${p.metersPerRoll}m',
-                          icon: Icons.rotate_right_outlined),
                       if (p.joints > 0)
                         _PackCell(
                             label: 'Joints',
@@ -2607,7 +2621,7 @@ class _PackingTable extends StatelessWidget {
                             icon: Icons.join_inner_outlined),
                       if (p.weight > 0)
                         _PackCell(
-                            label: 'Weight',
+                            label: 'Net wt',
                             value: '${p.weight.toStringAsFixed(2)} kg',
                             icon: Icons.scale_outlined),
                     ],
@@ -2642,14 +2656,14 @@ class _PackingTable extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                         color: ErpColors.textPrimary))),
             Text(
-                '${packingDetails.fold(0, (s, p) => s + p.total)} m',
+                '${_metres(packingDetails.fold<double>(0, (s, p) => s + p.total))} m',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                     color: ErpColors.successGreen)),
             const SizedBox(width: 10),
             Text(
-                '${packingDetails.fold(0, (s, p) => s + p.rolls)} rolls',
+                '${packingDetails.length} ${packingDetails.length == 1 ? 'box' : 'boxes'}',
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -3554,7 +3568,6 @@ class JobDetailPdfService {
   static const _green   = PdfColor(0.086, 0.639, 0.290);   // #16A34A
   static const _blue    = PdfColor(0.114, 0.435, 0.922);   // #1D6FEB
   static const _purple  = PdfColor(0.486, 0.227, 0.929);   // #7C3AED
-  static const _amber   = PdfColor(0.851, 0.475, 0.035);   // #D97706
 
   static Future<List<int>> generate(JobDetailModel job) async {
     final pdf = pw.Document();
@@ -4116,11 +4129,9 @@ class JobDetailPdfService {
     final tw = job.wastages.fold(0.0, (s, w) => s + w.quantity);
     final tp = job.wastages.fold(0.0, (s, w) => s + w.penalty);
     final wr = job.totalPlanned > 0 ? (tw / job.totalPlanned * 100) : 0.0;
-    final tpk = job.packingDetails.fold(0, (s, p) => s + p.total);
-    final tdi = job.packingDetails
-        .where((p) => p.status == 'dispatched')
-        .fold(0, (s, p) => s + p.total);
-    final tro = job.packingDetails.fold(0, (s, p) => s + p.rolls);
+    final tpk = job.packingDetails.fold<double>(0, (s, p) => s + p.total);
+    final tnw = job.packingDetails.fold<double>(0, (s, p) => s + p.weight);
+    final tbx = job.packingDetails.length;
 
     return pw.MultiPage(
       pageFormat: PdfPageFormat.a5,
@@ -4184,12 +4195,11 @@ class JobDetailPdfService {
         pw.SizedBox(height: 10),
 
         // ── Packing ───────────────────────────────────────────
-        _secHeading('PACKING & DISPATCH', bold),
+        _secHeading('PACKING', bold),
         _kpiBar([
-          {'v': '${tpk}m',       'l': 'PACKED'},
-          {'v': '${tdi}m',       'l': 'DISPATCHED'},
-          {'v': '${tpk - tdi}m', 'l': 'PENDING'},
-          {'v': '$tro',          'l': 'TOTAL ROLLS'},
+          {'v': '${_metres(tpk)}m',              'l': 'PACKED'},
+          {'v': '$tbx',                          'l': 'BOXES'},
+          {'v': '${tnw.toStringAsFixed(1)}kg',   'l': 'NET WEIGHT'},
         ], bold, reg),
         pw.SizedBox(height: 5),
         pw.Table(
@@ -4200,17 +4210,17 @@ class JobDetailPdfService {
             2: pw.FlexColumnWidth(1.5),  // packed by
             3: pw.FlexColumnWidth(1.5),  // checked by
             4: pw.FixedColumnWidth(24),  // meters
-            5: pw.FixedColumnWidth(22),  // rolls
+            5: pw.FixedColumnWidth(22),  // size
             6: pw.FixedColumnWidth(20),  // joints
-            7: pw.FixedColumnWidth(24),  // weight
-            8: pw.FlexColumnWidth(1.0),  // status
+            7: pw.FixedColumnWidth(24),  // net weight
+            8: pw.FlexColumnWidth(1.0),  // stretch
           },
           children: [
             pw.TableRow(
               decoration: const pw.BoxDecoration(color: _hdrFill),
               children: [
                 'PACK ID', 'ELASTIC', 'PACKED BY', 'CHECKED BY',
-                'MTR', 'ROLLS', 'JNT', 'WT(kg)', 'STATUS',
+                'MTR', 'SIZE', 'JNT', 'NET(kg)', 'STRETCH',
               ]
                   .map((h) => _c(h, bold, 5, _mid,
                   align: pw.TextAlign.center))
@@ -4219,11 +4229,6 @@ class JobDetailPdfService {
             ...job.packingDetails.asMap().entries.map((entry) {
               final i = entry.key;
               final p = entry.value;
-              final sc = p.status == 'dispatched'
-                  ? _green
-                  : p.status == 'ready'
-                  ? _blue
-                  : _amber;
               return pw.TableRow(
                 decoration: pw.BoxDecoration(
                     color: i.isOdd ? _altFill : _white),
@@ -4233,9 +4238,9 @@ class JobDetailPdfService {
                   _c(p.elasticName, bold, 6, _dark),
                   _c(p.employeeName, reg, 5.8, _dark),
                   _c(p.checkedBy ?? '—', reg, 5.8, _dark),
-                  _c('${p.total}', bold, 6.5, _dark,
+                  _c(_metres(p.total), bold, 6.5, _dark,
                       align: pw.TextAlign.center),
-                  _c('${p.rolls}×${p.metersPerRoll}', reg, 5.5, _mid,
+                  _c(p.size.isNotEmpty ? p.size : '—', reg, 5.5, _mid,
                       align: pw.TextAlign.center),
                   _c(p.joints > 0 ? '${p.joints}' : '—', reg, 6,
                       _mid, align: pw.TextAlign.center),
@@ -4243,7 +4248,7 @@ class JobDetailPdfService {
                       ? p.weight.toStringAsFixed(2)
                       : '—', reg, 6, _mid,
                       align: pw.TextAlign.center),
-                  _c(p.status.toUpperCase(), bold, 5, sc,
+                  _c(p.stretch.isNotEmpty ? p.stretch : '—', reg, 5.5, _mid,
                       align: pw.TextAlign.center),
                 ],
               );
@@ -4256,9 +4261,9 @@ class JobDetailPdfService {
                 _c('TOTAL', bold, 6.5, _dark),
                 _c('', reg, 6, _mid),
                 _c('', reg, 6, _mid),
-                _c('${tpk}m', bold, 7, _dark,
+                _c('${_metres(tpk)}m', bold, 7, _dark,
                     align: pw.TextAlign.center),
-                _c('$tro', bold, 7, _dark,
+                _c('$tbx', bold, 7, _dark,
                     align: pw.TextAlign.center),
                 _c('', reg, 6, _mid),
                 _c('', reg, 6, _mid),

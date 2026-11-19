@@ -57,6 +57,13 @@ class Claim {
 
   bool get isPending => status == 'pending';
 
+  /// Approved and paid back in part: the "to be paid" total counts only
+  /// what is left of it, so the card says how much has come.
+  bool get partPaid => status == 'approved' && paidAmount > 0;
+
+  /// What is still to come on an approved claim.
+  double get toCome => amount - paidAmount < 0 ? 0 : amount - paidAmount;
+
   /// The status as the claimant reads it (the web's labels).
   String get statusLabel => switch (status) {
         'pending' => 'Waiting for approval',

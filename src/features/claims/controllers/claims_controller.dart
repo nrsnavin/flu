@@ -16,6 +16,20 @@ import '../services/claims_api.dart';
 //  see where each one stands and withdraw one still waiting.
 // ══════════════════════════════════════════════════════════════
 
+/// The day the date picker opens on: the claim's day, kept inside what
+/// the picker offers (from the start of last year, up to today). A
+/// receipt read as "2016" for "2026" puts the claim's day outside that
+/// range, and a picker opened outside its own range fails.
+DateTime claimPickerDay(DateTime value, DateTime now) {
+  final first = claimPickerFirstDay(now);
+  if (value.isBefore(first)) return first;
+  if (value.isAfter(now)) return now;
+  return value;
+}
+
+/// The earliest day the picker offers.
+DateTime claimPickerFirstDay(DateTime now) => DateTime(now.year - 1);
+
 class ClaimsController extends GetxController {
   final claims = <Claim>[].obs;
   final waiting = 0.0.obs;

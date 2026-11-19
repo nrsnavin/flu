@@ -200,6 +200,13 @@ class _ClaimCard extends StatelessWidget {
             child: Text('Paid on ${_day.format(claim.paidAt!)}',
                 style: TextStyle(fontSize: 12, color: ErpColors.statusCompletedText)),
           ),
+        if (claim.partPaid)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+                '${_inr.format(claim.paidAmount)} paid so far  ·  ${_inr.format(claim.toCome)} to come',
+                style: TextStyle(fontSize: 12, color: ErpColors.textSecondary)),
+          ),
         const SizedBox(height: 9),
         Row(children: [
           Container(
@@ -258,8 +265,8 @@ class _NewClaimPageState extends State<NewClaimPage> {
     final now = DateTime.now();
     final d = await showDatePicker(
       context: context,
-      initialDate: c.date.value.isAfter(now) ? now : c.date.value,
-      firstDate: DateTime(now.year - 1),
+      initialDate: claimPickerDay(c.date.value, now),
+      firstDate: claimPickerFirstDay(now),
       lastDate: now,
     );
     if (d != null) c.date.value = d;

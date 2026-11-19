@@ -132,6 +132,7 @@ class _CollectionsPageState extends State<CollectionsPage> {
           else if (r.promiseBroken && r.promiseDate != null)
             accountsChip('Promise of ${_day.format(r.promiseDate!)} broken', ErpColors.statusCancelledBg, ErpColors.statusCancelledText),
           if (r.recentlyContacted && !r.held) accountsChip('Contacted this week', ErpColors.statusOpenBg, ErpColors.statusOpenText),
+          if (r.sendFailed) accountsChip('Reminder did not go', ErpColors.statusCancelledBg, ErpColors.statusCancelledText),
           if (r.nextLabel.isNotEmpty && !r.held) accountsChip(r.nextLabel, ErpColors.statusPartialBg, ErpColors.statusPartialText),
         ]),
       ]),
@@ -273,6 +274,15 @@ class _CollectionDetailPageState extends State<CollectionDetailPage> {
                   'Last: ${r.lastContact}${r.lastContactAt != null ? ' on ${_day.format(r.lastContactAt!)}' : ''}'
                   '${r.lastNote.isNotEmpty ? ' — "${r.lastNote}"' : ''}',
                   style: TextStyle(fontSize: 12, color: ErpColors.textMuted),
+                ),
+              ],
+              // A reminder the provider refused is not a contact made.
+              if (r.sendFailed) ...[
+                const SizedBox(height: 6),
+                Text(
+                  'The reminder on ${_day.format(r.failedSendAt!)} did not go'
+                  '${r.failedSendWhy.isNotEmpty ? ': ${r.failedSendWhy}' : '.'}',
+                  style: TextStyle(fontSize: 12, color: ErpColors.errorRed),
                 ),
               ],
             ]),

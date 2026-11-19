@@ -238,6 +238,8 @@ class CollectionRow {
     this.lastContactAt,
     this.lastNote = '',
     this.recentlyContacted = false,
+    this.failedSendAt,
+    this.failedSendWhy = '',
     this.held = false,
     this.docs = const [],
     this.onAccount = 0,
@@ -261,6 +263,12 @@ class CollectionRow {
   /// Contacted in the last seven days: the server gives them the week.
   final bool recentlyContacted;
 
+  /// The latest thing tried was a reminder that did not go (the provider
+  /// refused it): when, and what it said. Not a contact made.
+  final DateTime? failedSendAt;
+  final String failedSendWhy;
+  bool get sendFailed => failedSendAt != null;
+
   /// A promise to pay that has not come due yet: not chased till then.
   final bool held;
   final List<OpenDoc> docs;
@@ -271,6 +279,7 @@ class CollectionRow {
     final contact = _m(j['contact']);
     final promise = _m(j['promise']);
     final last = _m(j['lastContact']);
+    final failed = _m(j['failedSend']);
     final phone = _s(contact['accountantPhone']).isNotEmpty ? _s(contact['accountantPhone']) : _s(contact['phone']);
     return CollectionRow(
       party: _s(j['party']),
@@ -296,6 +305,8 @@ class CollectionRow {
       lastContactAt: _date(last['at']),
       lastNote: _s(last['note']),
       recentlyContacted: j['recentlyContacted'] == true,
+      failedSendAt: failed.isEmpty ? null : _date(failed['at']),
+      failedSendWhy: _s(failed['result']),
       held: j['held'] == true,
       docs: _maps(j['docs']).map(OpenDoc.fromJson).toList(),
       onAccount: _d(j['onAccount']),

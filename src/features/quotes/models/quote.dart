@@ -22,6 +22,10 @@
 
 double _num(dynamic v) => (v as num?)?.toDouble() ?? 0;
 
+/// Quotations to a page: the server's own default for GET /quote/list,
+/// which this app does not override.
+const kQuotePageSize = 20;
+
 /// One material in a line's frozen costing.
 class QuoteMaterial {
   final String label;
@@ -150,10 +154,29 @@ class Quote {
   /// An ACCEPTED quote is never shown as expired: the customer said
   /// yes inside the window, and the price is owed regardless of what
   /// the calendar has done since.
-  bool get isExpired =>
-      status != 'accepted' &&
-      validTill != null &&
-      validTill!.isBefore(DateTime.now());
+  bool get isExpired => lapsedOn(DateTime.now());
+
+  /// Has the price run out, as of [now] on this phone's clock?
+  ///
+  /// By the DAY. "Valid until 30 November" is good THROUGH 30
+  /// November. The server keeps that date as the day itself (its UTC
+  /// midnight), which as a moment is 05:30 that morning in India —
+  /// compared with the clock, a quote read "Lapsed" for the whole of
+  /// its last day, in front of the customer it was still good for.
+  ///
+  /// And only of a price still on offer. One the customer declined, or
+  /// that was withdrawn, has nothing left to lapse. The server lists by
+  /// the same rule (GET /quote/list?status=expired), so the Expired
+  /// chip shows exactly the rows this marks.
+  bool lapsedOn(DateTime now) {
+    if (status == 'expired') return true;
+    if (status != 'draft' && status != 'sent') return false;
+    final till = validTill?.toUtc();
+    if (till == null) return false;
+    final lastDay = DateTime.utc(till.year, till.month, till.day);
+    final today = DateTime.utc(now.year, now.month, now.day);
+    return lastDay.isBefore(today);
+  }
 
   /// Nothing more can be decided on it.
   bool get isSettled =>
@@ -194,13 +217,21 @@ class QuotePage {
     required this.pages,
   });
 
-  factory QuotePage.fromJson(Map<String, dynamic> j) => QuotePage(
-        quotes: (j['quotes'] as List? ?? const [])
-            .whereType<Map>()
-            .map((e) => Quote.fromJson(Map<String, dynamic>.from(e)))
-            .toList(),
-        total: (j['total'] as num?)?.toInt() ?? 0,
-        page: (j['page'] as num?)?.toInt() ?? 1,
-        pages: (j['pages'] as num?)?.toInt() ?? 1,
-      );
+  factory QuotePage.fromJson(Map<String, dynamic> j) {
+    final total = (j['total'] as num?)?.toInt() ?? 0;
+    // The route sent no `pages` for a long time, and "none" was read
+    // as one: the pager never appeared, and nothing past the first
+    // twenty quotations could be reached from the phone. Worked out
+    // from the total when a server does not say.
+    final worked = total <= 0 ? 1 : (total + kQuotePageSize - 1) ~/ kQuotePageSize;
+    return QuotePage(
+      quotes: (j['quotes'] as List? ?? const [])
+          .whereType<Map>()
+          .map((e) => Quote.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      total: total,
+      page: (j['page'] as num?)?.toInt() ?? 1,
+      pages: (j['pages'] as num?)?.toInt() ?? worked,
+    );
+  }
 }

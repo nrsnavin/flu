@@ -155,8 +155,10 @@ class OrderDetailController extends GetxController {
     }
   }
 
-  /// Cancel an Open or Approved order. Stock isn't auto-refunded;
-  /// the confirmation dialog warns the user.
+  /// Cancel an Open, Approved or In-progress order. The server puts
+  /// back the raw material drawn at approval and releases the reserved
+  /// stock, and refuses while a job on the order is still live (its
+  /// message, naming the jobs, is what the snackbar shows).
   Future<void> cancelOrder() async {
     try {
       isActioning.value = true;

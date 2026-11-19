@@ -573,9 +573,9 @@ class _ActionBar extends StatelessWidget {
             onTap:   () => _confirmStart(context, c),
           ),
           const SizedBox(height: 8),
-          // Approved orders can still be cancelled (rolls back stock
-          // is NOT automatic — backend rejects in some states; the
-          // dialog explains the consequence).
+          // Approved orders can still be cancelled: the server gives the
+          // drawn raw material and the reserved stock back, and refuses
+          // while a job is still running. The dialog says so.
           SizedBox(
             width: double.infinity,
             height: 40,
@@ -627,9 +627,14 @@ class _ActionBar extends StatelessWidget {
             ]),
             const SizedBox(height: 12),
             Text(
-              "The order will be marked Cancelled. Already-deducted "
-              "raw material is NOT auto-refunded — adjust stock manually "
-              "if needed.",
+              // This used to say the raw material was NOT refunded and
+              // to adjust stock by hand. The server has refunded it for
+              // a long time — following the old advice put the same
+              // yarn back twice.
+              "The order will be marked Cancelled and can't be reopened. "
+              "The raw material drawn at approval goes back to stock and "
+              "reserved stock is released — do not adjust stock by hand. "
+              "Jobs still running have to be cancelled or completed first.",
               style: TextStyle(color: ErpColors.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 18),

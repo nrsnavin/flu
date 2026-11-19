@@ -4443,7 +4443,33 @@ class _JobDocsMenuState extends State<_JobDocsMenu> {
   Future<void> _coa(JobDetailModel job) async {
     setState(() => _busy = true);
     try {
-      await CoaPdf.generate(job.id);
+      final coa = await CoaPdf.fetch(job.id);
+      // The sheet shows each elastic's latest PASSING check. If a later
+      // check of one failed, say so before it is built and shared —
+      // the certificate itself still reads PASS.
+      final cautions = CoaPdf.laterFailLines(coa);
+      if (cautions.isNotEmpty) {
+        if (!mounted) return;
+        final go = await showDialog<bool>(
+          context: context,
+          builder: (dctx) => AlertDialog(
+            title: const Text('Check before sharing'),
+            content: SingleChildScrollView(
+              child: Text(cautions.join('\n\n')),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(dctx, false),
+                  child: const Text('Cancel')),
+              FilledButton(
+                  onPressed: () => Navigator.pop(dctx, true),
+                  child: const Text('Build certificate')),
+            ],
+          ),
+        );
+        if (go != true) return;
+      }
+      await CoaPdf.open(coa);
     } on CoaEmpty catch (e) {
       // Not an error — a real answer. A job with no passing QC has
       // nothing to certify, and printing a heading with no results

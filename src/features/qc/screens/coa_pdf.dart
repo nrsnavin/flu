@@ -55,15 +55,51 @@ class CoaPdf {
     return Map<String, dynamic>.from(res.data['coa'] as Map);
   }
 
+  static List<Map<String, dynamic>> _items(Map<String, dynamic> coa) =>
+      (coa['items'] as List? ?? const [])
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+
+  /// What whoever is about to share the certificate should know first.
+  ///
+  /// The sheet shows each elastic's latest PASSING check. When a later
+  /// check of the same elastic failed, the sheet still reads PASS — so
+  /// the endpoint says so beside the item (`laterFail`), and this puts
+  /// it into a sentence for each. Empty when there is nothing to say
+  /// (or the server is one that does not say).
+  static List<String> laterFailLines(Map<String, dynamic> coa) {
+    final day = DateFormat('dd MMM yyyy');
+    final lines = <String>[];
+    for (final item in _items(coa)) {
+      final f = item['laterFail'];
+      if (f is! Map) continue;
+      final metres = (f['rejectedMeters'] as num?) ?? 0;
+      final detail = [
+        if ((f['defectCode'] ?? '').toString().trim().isNotEmpty)
+          f['defectCode'].toString().trim(),
+        if (metres > 0)
+          '${metres % 1 == 0 ? metres.toInt() : metres} m rejected',
+      ].join(', ');
+      lines.add(
+        '${_or(item['elasticName'], 'An elastic')} failed its latest check on '
+        '${_date(f['at'], day)}${detail.isEmpty ? '' : ' ($detail)'}. '
+        'This certificate shows its earlier pass of '
+        '${_date(item['checkedAt'], day)}.',
+      );
+    }
+    return lines;
+  }
+
   /// Fetch and open. Throws [CoaEmpty] when there is nothing to
   /// certify, and lets a DioException through for the caller's own
   /// message handling.
-  static Future<void> generate(String jobId) async {
-    final coa = await fetch(jobId);
-    final items = (coa['items'] as List? ?? const [])
-        .whereType<Map>()
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList();
+  static Future<void> generate(String jobId) async => open(await fetch(jobId));
+
+  /// Draw and open a certificate from what [fetch] returned. Throws
+  /// [CoaEmpty] when there is nothing to certify.
+  static Future<void> open(Map<String, dynamic> coa) async {
+    final items = _items(coa);
 
     if (items.isEmpty) throw const CoaEmpty();
 

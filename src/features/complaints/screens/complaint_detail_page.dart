@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../PurchaseOrder/services/theme.dart';
 import '../controllers/complaint_controller.dart';
+import '../models/complaint.dart';
 
 // ══════════════════════════════════════════════════════════════
 //  ONE COMPLAINT, AND WHO ELSE GOT THE SAME CLOTH
@@ -20,8 +21,17 @@ import '../controllers/complaint_controller.dart';
 //  every open slow to serve the minority.
 //
 //  ── An empty trace is stated, not left blank ───────────────────
-//  "No other jobs share a lot with this one" is a real and reassuring
-//  answer. A blank panel is indistinguishable from one that failed.
+//  "No other job carries these lots" is a real and reassuring answer,
+//  and a blank panel is indistinguishable from one that failed. But it
+//  is said ONLY when lots were traced and nobody else carries them.
+//  When no lot is recorded against the job there was nothing to trace,
+//  and the server's own words for that are shown instead: it "is not
+//  evidence that no other order is affected".
+//
+//  ── Still here comes first ─────────────────────────────────────
+//  As on the web: the jobs that have not left are the only ones that
+//  can still be stopped, so they are listed above the customers who
+//  already have the goods.
 // ══════════════════════════════════════════════════════════════
 
 class ComplaintDetailPage extends StatefulWidget {
@@ -95,7 +105,9 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
               if (x.orderNo != null) _row('Order', x.orderNo!),
               if (x.quantity > 0) _row('Quantity', x.quantity.toStringAsFixed(0)),
               if (x.date != null)
-                _row('Raised', DateFormat('dd MMM yyyy').format(x.date!)),
+                // The moment it was filed, on this phone's clock: read as
+                // it came (UTC), one filed before 05:30 showed the day before.
+                _row('Raised', DateFormat('dd MMM yyyy').format(x.date!.toLocal())),
             ]),
             if (x.reason.isNotEmpty) ...[
               const SizedBox(height: 10),
@@ -150,70 +162,118 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
             Text(c.traceError.value!,
                 style: TextStyle(
                     fontSize: 12, color: ErpColors.textSecondary)),
-          if (t != null && t.isEmpty)
-            // A real, reassuring answer — not a blank panel that could
-            // equally mean the trace failed.
+          if (t != null && !t.ok)
             Text(
-              'No other jobs share a yarn lot with this one.',
+              t.message ?? 'There is no trail to follow for this complaint.',
               style: TextStyle(fontSize: 13, color: ErpColors.textSecondary),
             ),
-          if (t != null && !t.isEmpty) ...[
+          if (t != null && t.ok) ...[
             if (t.lots.isNotEmpty) ...[
-              Text('Lots involved',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: ErpColors.textSecondary)),
-              const SizedBox(height: 4),
-              for (final l in t.lots) _traceRow(l, 'lotNo', 'material'),
+              _traceHeading('Lots involved (${t.lots.length})'),
+              for (final l in t.lots)
+                _traceRow(
+                  (l['lotNo'] ?? '').toString().isEmpty
+                      ? 'Unnumbered lot'
+                      : l['lotNo'].toString(),
+                  ComplaintTrace.lotLine(l),
+                ),
               const SizedBox(height: 10),
             ],
-            if (t.exposedJobs.isNotEmpty) ...[
-              Text('${t.exposedJobs.length} other job(s) exposed',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: ErpColors.textSecondary)),
-              const SizedBox(height: 4),
-              for (final j in t.exposedJobs) _traceRow(j, 'jobOrderNo', 'customerName'),
+            if (t.nobodyElse)
+              // A real, reassuring answer — said only when lots were
+              // traced and nobody else carries them.
+              Text(
+                'No other job carries ${t.lots.length == 1 ? 'this lot' : 'these lots'}.',
+                style: TextStyle(fontSize: 13, color: ErpColors.textSecondary),
+              ),
+            if (t.otherJobs > 0) ...[
+              // Containable first: these are the ones that can be stopped.
+              _exposure('Still here — stop these', t.inHouse,
+                  'Nothing has gone out.', ErpColors.statusPartialText),
+              _exposure('In transit', t.inTransit,
+                  'Dispatched, not yet marked delivered.', ErpColors.statusPartialText),
+              _exposure('Already delivered — call these customers', t.delivered,
+                  'The goods are with them.', ErpColors.errorRed),
             ],
-            if (t.note != null) ...[
+            for (final caveat in t.caveats) ...[
               const SizedBox(height: 8),
-              Text(t.note!,
+              Text(caveat,
                   style: TextStyle(
-                      fontSize: 11, color: ErpColors.textMuted)),
+                      fontSize: t.nothingToTrace ? 13 : 11,
+                      height: 1.35,
+                      color: t.nothingToTrace
+                          ? ErpColors.textPrimary
+                          : ErpColors.textMuted)),
             ],
+            if (t.nothingToTrace && t.caveats.isEmpty)
+              Text(
+                'No yarn lot is recorded against this job, so there is nothing '
+                'to trace. That is not evidence that no other order is affected.',
+                style: TextStyle(fontSize: 13, color: ErpColors.textPrimary),
+              ),
           ],
         ]);
       });
 
-  /// The trace rows are the server's shape to change, so this reads
-  /// them defensively rather than binding to a model that would break
-  /// the screen the next time a field is added.
-  Widget _traceRow(Map<String, dynamic> row, String primary, String secondary) {
-    final a = row[primary]?.toString();
-    final b = row[secondary]?.toString();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              a == null || a.isEmpty ? '—' : a,
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: ErpColors.textPrimary),
-            ),
-          ),
-          if (b != null && b.isNotEmpty)
-            Text(b,
+  Widget _traceHeading(String text, {Color? color}) => Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Text(text,
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: color ?? ErpColors.textSecondary)),
+      );
+
+  /// One group of the other jobs carrying the lot, by where the goods are.
+  Widget _exposure(String title, List<Map<String, dynamic>> rows, String sub, Color tone) =>
+      Padding(
+        padding: const EdgeInsets.only(top: 6, bottom: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _traceHeading('$title (${rows.length})', color: tone),
+            Text(sub, style: TextStyle(fontSize: 11, color: ErpColors.textMuted)),
+            if (rows.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text('None.',
+                    style: TextStyle(fontSize: 12, color: ErpColors.textSecondary)),
+              ),
+            for (final r in rows)
+              _traceRow(
+                (r['customerName'] ?? '').toString().isEmpty
+                    ? 'Unnamed customer'
+                    : r['customerName'].toString(),
+                [
+                  ComplaintTrace.jobLine(r),
+                  // A challan names an order and a product, not a job:
+                  // where an order has two jobs for the product, say so.
+                  if (r['certain'] == false) 'may not be this job',
+                  if (r['finishedNotShipped'] == true) 'finished, still here',
+                ].join(' · '),
+              ),
+          ],
+        ),
+      );
+
+  /// A name, and what is known about it beneath.
+  Widget _traceRow(String title, String detail) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
                 style: TextStyle(
-                    fontSize: 12, color: ErpColors.textSecondary)),
-        ],
-      ),
-    );
-  }
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: ErpColors.textPrimary)),
+            if (detail.isNotEmpty)
+              Text(detail,
+                  style: TextStyle(
+                      fontSize: 12, color: ErpColors.textSecondary)),
+          ],
+        ),
+      );
 
   Widget _card(String title, List<Widget> children) => Container(
         width: double.infinity,

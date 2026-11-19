@@ -200,7 +200,7 @@ class _Tile extends StatelessWidget {
             ],
             if (complaint.date != null) ...[
               const SizedBox(height: 6),
-              Text(DateFormat('dd MMM yyyy').format(complaint.date!),
+              Text(DateFormat('dd MMM yyyy').format(complaint.date!.toLocal()),
                   style: TextStyle(
                       fontSize: 11, color: ErpColors.textMuted)),
             ],

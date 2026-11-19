@@ -38,11 +38,16 @@ class OrderListItem {
   factory OrderListItem.fromJson(Map<String, dynamic> json) {
     final created = json["createdBy"];
     final updated = json["updatedBy"];
+    // One row must not take the whole list down. A customer that has
+    // since been deleted comes back as null, and an order from before
+    // order numbers existed has none: either threw here, and the page
+    // showed no orders at all.
+    final customer = json["customer"];
     return OrderListItem(
-      id: json["_id"],
-      orderNo: json["orderNo"],
-      customerName: json["customer"]["name"],
-      status: json["status"],
+      id: json["_id"]?.toString() ?? '',
+      orderNo: (json["orderNo"] as num?)?.toInt() ?? 0,
+      customerName: (customer is Map ? customer["name"]?.toString() : null) ?? '—',
+      status: json["status"]?.toString() ?? '',
       date:       DateTime.tryParse(json["date"]?.toString() ?? '') ?? DateTime(1970),
       supplyDate: DateTime.tryParse(json["supplyDate"]?.toString() ?? '') ?? DateTime(1970),
       createdByName: created is Map ? created["name"] as String? : null,

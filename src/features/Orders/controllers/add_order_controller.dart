@@ -226,7 +226,11 @@ class AddOrderController extends GetxController {
   };
 
   // ── Submit ─────────────────────────────────────────────────
-  Future<void> submitOrder() async {
+  //
+  // `creditOverride`: an admin's reason for releasing this one order
+  // for a customer on credit hold (set when the first attempt came
+  // back CREDIT_HOLD and the admin gave one).
+  Future<void> submitOrder({String? creditOverride}) async {
     final err = validate();
     if (err != null) {
       _snack('Validation', err, isError: true, amber: true);
@@ -244,6 +248,7 @@ class AddOrderController extends GetxController {
       );
       if (editReason == null) return; // cancelled
     }
+    String? holdMessage;   // set when the customer is on credit hold
     try {
       isSubmitting.value = true;
       if (isEditing) {
@@ -260,19 +265,42 @@ class AddOrderController extends GetxController {
           isError: false,
         );
       } else {
-        await _dio.post('/order/create-order', data: _buildPayload());
-        _snack(
-          'Order Created',
-          'PO ${poCtrl.text} — ${DateFormat('dd MMM').format(orderDate.value)}',
-          isError: false,
-        );
+        final res = await _dio.post('/order/create-order', data: {
+          ..._buildPayload(),
+          if (creditOverride != null) 'creditOverride': creditOverride,
+        });
+        final body = res.data is Map ? res.data as Map : const {};
+        if (body['duplicate'] == true) {
+          // The same order had just been saved (a second tap, or a retry
+          // on a bad line): the server answers with that one.
+          _snack('Already saved',
+              body['message']?.toString() ?? 'This order was already saved.',
+              isError: false);
+        } else {
+          _snack(
+            'Order Created',
+            'PO ${poCtrl.text} — ${DateFormat('dd MMM').format(orderDate.value)}',
+            isError: false,
+          );
+        }
       }
       success = true;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 409) {
+      final data = e.response?.data;
+      final code = data is Map ? data['code']?.toString() : null;
+      final serverSays = data is Map ? data['message']?.toString() : null;
+      // Every 409 used to be reported as an edit conflict — including a
+      // NEW order refused because the customer is on credit hold, which
+      // read "someone else changed this order while you were editing".
+      if (e.response?.statusCode == 409 && code == 'CREDIT_HOLD') {
+        holdMessage = serverSays ?? 'This customer is on credit hold.';
+      } else if (e.response?.statusCode == 409 &&
+          (code == 'VERSION_CONFLICT' || (isEditing && code == null))) {
         _snack('Edit conflict',
             'Someone else changed this order while you were editing. Go back, reload it, and apply your change again.',
             isError: true);
+      } else if (e.response?.statusCode == 409) {
+        _snack('Not saved', serverSays ?? 'The order could not be saved just now. Try again.', isError: true);
       } else {
         final msg = e.response?.data?['message'] ??
             (isEditing ? 'Failed to update order' : 'Failed to create order');
@@ -282,6 +310,34 @@ class AddOrderController extends GetxController {
       isSubmitting.value = false;
       if (success) onSuccess?.call();
     }
+    if (holdMessage != null) await _creditHold(holdMessage);
+  }
+
+  /// The customer is on credit hold. An admin may release this one order
+  /// with a reason, which the server records on it; anyone else is told
+  /// why it was refused. (As raising an invoice already does.)
+  Future<void> _creditHold(String message) async {
+    bool admin = false;
+    try {
+      admin = LoginController.find.user.value.role.toLowerCase() == 'admin';
+    } catch (_) {}
+    if (!admin) {
+      await Get.dialog<void>(AlertDialog(
+        title: const Text('Customer on credit hold'),
+        content: Text(message),
+        actions: [TextButton(onPressed: () => Get.back(), child: const Text('OK'))],
+      ));
+      return;
+    }
+    final reason = await showReasonDialog(
+      title: 'Customer on credit hold',
+      message: '$message\n\nTo release this one order, say why. It is recorded on the order.',
+      confirmLabel: 'Release and save',
+      // services/creditControl.js takes a reason of 8 characters or more.
+      minLength: 8,
+    );
+    if (reason == null) return;
+    await submitOrder(creditOverride: reason);
   }
 
   @override

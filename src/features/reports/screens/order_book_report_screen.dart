@@ -106,7 +106,19 @@ class OrderBookReportScreen extends StatelessWidget {
           trailing: d == null || d == 0 ? null : _DeltaChip(value: d),
         )),
         const SizedBox(width: 10),
-        Expanded(child: _Tile(label: 'Pending', value: '${_nf.format(c.pendingQty)} m')),
+        // "Pending" was the metres no job had been raised for — read as
+        // the backlog, which it is not: a book planned in full and not
+        // yet made said 0. What is still owed leads; the unplanned part
+        // is named under it.
+        Expanded(
+          child: c.toDeliverQty == null
+              ? _Tile(label: 'Not yet planned', value: '${_nf.format(c.pendingQty)} m')
+              : _Tile(
+                  label: 'Still to deliver',
+                  value: '${_nf.format(c.toDeliverQty)} m',
+                  sub: '${_nf.format(c.pendingQty)} m not yet planned',
+                ),
+        ),
       ]),
       const SizedBox(height: 10),
       Row(children: [
@@ -170,6 +182,7 @@ class OrderBookReportScreen extends StatelessWidget {
       final label = r['label']?.toString() ?? '—';
       final orders = (r['orders'] as num?) ?? 0;
       final pending = (r['pendingQty'] as num?) ?? 0;
+      final owed = r['toDeliverQty'] as num?;
       return Container(
         margin: const EdgeInsets.only(bottom: 8),
         decoration: ErpDecorations.card,
@@ -190,7 +203,10 @@ class OrderBookReportScreen extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                   fontSize: 13)),
           const SizedBox(width: 10),
-          Text('${_nf.format(pending)} m pend',
+          Text(
+              owed == null
+                  ? '${_nf.format(pending)} m unplanned'
+                  : '${_nf.format(owed)} m to deliver',
               style: TextStyle(color: ErpColors.textMuted, fontSize: 11)),
         ]),
       );

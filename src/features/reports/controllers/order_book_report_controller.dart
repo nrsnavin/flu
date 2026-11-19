@@ -85,7 +85,11 @@ class OrderBookReportController extends GetxController {
 
   num get orders     => (summary.value?['orders'] as num?) ?? 0;
   num get orderedQty => (summary.value?['orderedQty'] as num?) ?? 0;
+  /// Ordered less planned on open orders: what no job has been raised for.
   num get pendingQty => (summary.value?['pendingQty'] as num?) ?? 0;
+  /// Ordered less packed on open orders: what the customers are still
+  /// owed. Null from a server that does not send it yet.
+  num? get toDeliverQty => summary.value?['toDeliverQty'] as num?;
   num get openOrders => (summary.value?['openOrders'] as num?) ?? 0;
   num get overdueOrders => (summary.value?['overdueOrders'] as num?) ?? 0;
   // null-safe: on-time % is null when no dispatches were considered.

@@ -192,7 +192,7 @@ class AnnouncementFormPage extends StatelessWidget {
                       title: Text(
                         ctrl.validUntil.value == null
                             ? 'Valid until (optional)'
-                            : 'Valid until: ${DateFormat('dd MMM yyyy').format(ctrl.validUntil.value!)}',
+                            : 'Up through ${DateFormat('dd MMM yyyy').format(ctrl.validUntil.value!)}',
                         style: ErpTextStyles.fieldValue,
                       ),
                       trailing: ctrl.validUntil.value == null
@@ -205,10 +205,10 @@ class AnnouncementFormPage extends StatelessWidget {
                         final now = DateTime.now();
                         final picked = await showDatePicker(
                           context: context,
-                          initialDate: ctrl.validUntil.value ??
-                              now.add(const Duration(days: 7)),
-                          firstDate: now.subtract(const Duration(days: 1)),
-                          lastDate: now.add(const Duration(days: 365 * 5)),
+                          initialDate: announcementPickerDay(
+                              ctrl.validUntil.value, now),
+                          firstDate: announcementPickerFirstDay(now),
+                          lastDate: announcementPickerLastDay(now),
                         );
                         if (picked != null) ctrl.validUntil.value = picked;
                       },

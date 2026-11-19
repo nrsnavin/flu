@@ -164,6 +164,8 @@ class _AnnouncementCard extends StatelessWidget {
     final pinned   = data['isPinned'] == true;
     final active   = data['isActive'] != false;
     final validUntil = data['validUntil'] as String?;
+    // Still listed for the office, but no longer on the workers' board.
+    final expired  = active && announcementExpired(validUntil, DateTime.now());
     final color    = _typeColors[type] ?? ErpColors.accentBlue;
     final icon     = _typeIcons[type] ?? Icons.info_outline;
 
@@ -227,6 +229,23 @@ class _AnnouncementCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: const Text('INACTIVE',
+                        style: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5)),
+                  ),
+                if (expired)
+                  Container(
+                    margin: const EdgeInsets.only(left: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      border: Border.all(color: const Color(0xFFCBD5E1)),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text('EXPIRED',
                         style: TextStyle(
                             color: Color(0xFF64748B),
                             fontSize: 9,

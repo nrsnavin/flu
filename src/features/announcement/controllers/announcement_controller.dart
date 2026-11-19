@@ -6,6 +6,57 @@ import 'package:dio/dio.dart';
 import '../../../core/api_client.dart';
 import '../../../core/app_config.dart';
 
+// ── The day a notice is valid until ───────────────────────────
+//
+// "Valid until the 20th" is up through the 20th. The phone used to send
+// its own midnight on that day as an instant — 18:30 UTC the evening
+// before — and the notice came down as its last day began. It sends the
+// day now, and the server keeps it as a day.
+
+/// What a save sends of the end date: the day picked, as a day. On an
+/// edit a cleared date is sent as null, so the server takes it away —
+/// it used to be left out, which the server read as "no change", and
+/// the ✕ beside the date did nothing.
+Map<String, dynamic> announcementValidity(DateTime? validUntil,
+    {required bool isEdit}) {
+  if (validUntil == null) return isEdit ? {'validUntil': null} : {};
+  String two(int n) => n.toString().padLeft(2, '0');
+  return {
+    'validUntil':
+        '${validUntil.year}-${two(validUntil.month)}-${two(validUntil.day)}',
+  };
+}
+
+/// The first and last day the "valid until" picker offers.
+DateTime announcementPickerFirstDay(DateTime now) =>
+    DateTime(now.year, now.month, now.day);
+DateTime announcementPickerLastDay(DateTime now) =>
+    now.add(const Duration(days: 365 * 5));
+
+/// The day the picker opens on: the notice's own end date when the picker
+/// offers it, else the nearest day it does. An expired notice — the one
+/// an admin opens to extend — has an end date before the first day
+/// offered, and a picker opened outside its own range fails.
+DateTime announcementPickerDay(DateTime? validUntil, DateTime now) {
+  final first = announcementPickerFirstDay(now);
+  final last = announcementPickerLastDay(now);
+  final wanted = validUntil ?? now.add(const Duration(days: 7));
+  if (wanted.isBefore(first)) return first;
+  if (wanted.isAfter(last)) return last;
+  return wanted;
+}
+
+/// True once the last day a notice is valid has passed (on this phone's
+/// calendar). A notice is still up on that day itself.
+bool announcementExpired(dynamic validUntil, DateTime now) {
+  if (validUntil == null) return false;
+  final parsed = DateTime.tryParse(validUntil.toString());
+  if (parsed == null) return false;
+  final until = parsed.toLocal();
+  final lastDay = DateTime(until.year, until.month, until.day);
+  return lastDay.isBefore(DateTime(now.year, now.month, now.day));
+}
+
 // ══════════════════════════════════════════════════════════════
 //  AnnouncementListController
 //  Admin view — full list (active + inactive).
@@ -133,8 +184,7 @@ class AnnouncementFormController extends GetxController {
         'department':    departmentCtrl.text.trim(),
         'isPinned':      isPinned.value,
         'attachmentUrl': attachmentCtrl.text.trim(),
-        if (validUntil.value != null)
-          'validUntil': validUntil.value!.toUtc().toIso8601String(),
+        ...announcementValidity(validUntil.value, isEdit: isEdit),
       };
       if (isEdit) payload['isActive'] = isActive.value;
 

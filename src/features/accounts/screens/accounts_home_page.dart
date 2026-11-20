@@ -170,7 +170,11 @@ class _AccountsHomePageState extends State<AccountsHomePage> {
         onTap: () => _go(const VoucherEntryPage(kind: 'payment')));
     add(i.mailedBills, Icons.mark_email_unread_outlined, 'Bills in the mailbox', 'Read from mail, waiting to be checked',
         onTap: () => _go(const BillInboxPage()));
-    add(i.chequesDue, Icons.money_outlined, 'Cheques to deposit', 'Their date has come', web: true);
+    // Received, in the drawer, dated this week or before (not only "their
+    // date has come": the count takes in the week ahead).
+    add(i.chequesDue, Icons.money_outlined, 'Cheques to deposit', 'Received, dated this week or before', web: true);
+    // Ours, given post-dated. Not money to bank: money the bank will pay out.
+    add(i.chequesIssued, Icons.outbox_outlined, 'Our cheques falling due', 'Given post-dated: keep this much in the bank');
     add(i.statementsDue, Icons.account_balance_outlined, 'Bank statements due', 'No statement this week', web: true);
     if (i.bankLines > 0) {
       add(InboxGroup(count: i.bankLines), Icons.compare_arrows_rounded, 'Bank lines to match', 'Lines on a statement not yet in the books', web: true);

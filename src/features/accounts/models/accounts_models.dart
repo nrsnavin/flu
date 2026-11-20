@@ -44,6 +44,7 @@ class AccountsInbox {
     this.promisesDue = const InboxGroup(),
     this.mailedBills = const InboxGroup(),
     this.chequesDue = const InboxGroup(),
+    this.chequesIssued = const InboxGroup(),
     this.statementsDue = const InboxGroup(),
     this.bankLines = 0,
     this.msmeDue = const InboxGroup(),
@@ -51,6 +52,11 @@ class AccountsInbox {
 
   final InboxGroup approvals, claimsToPay, billsDue, toChase, promisesDue,
       mailedBills, chequesDue, statementsDue, msmeDue;
+
+  /// Our own post-dated cheques falling due: money the bank will be asked
+  /// for. Apart from [chequesDue] — the ones received, to be deposited —
+  /// which the server used to add them into.
+  final InboxGroup chequesIssued;
   final int bankLines;
 
   factory AccountsInbox.fromJson(Map<String, dynamic> j) => AccountsInbox(
@@ -61,6 +67,7 @@ class AccountsInbox {
         promisesDue: InboxGroup.fromJson(j['promisesDue']),
         mailedBills: InboxGroup.fromJson(j['mailedBills']),
         chequesDue: InboxGroup.fromJson(j['chequesDue']),
+        chequesIssued: InboxGroup.fromJson(_m(j['chequesDue'])['issued']),
         statementsDue: InboxGroup.fromJson(j['statementsDue']),
         bankLines: _i(_m(j['bankLines'])['count']),
         msmeDue: InboxGroup.fromJson(j['msmeDue']),

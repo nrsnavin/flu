@@ -185,6 +185,9 @@ class RawMaterialDetailModel {
   final double   price;
   final String?  supplierName;
   final DateTime? createdAt;
+  /// GST on buying it: "" / null mean "not set" (the default applies).
+  final String   hsn;
+  final double?  gstPercent;
 
   final List<MaterialInwardModel>  inwards;
   final List<MaterialOutwardModel> outwards;
@@ -200,6 +203,8 @@ class RawMaterialDetailModel {
     required this.price,
     this.supplierName,
     this.createdAt,
+    this.hsn            = '',
+    this.gstPercent,
     this.inwards        = const [],
     this.outwards       = const [],
     this.stockMovements = const [],
@@ -224,6 +229,8 @@ class RawMaterialDetailModel {
       price:        (j['price']    as num?)?.toDouble() ?? 0,
       supplierName: supplier is Map ? supplier['name']?.toString() : null,
       createdAt:    DateTime.tryParse(j['createdAt']?.toString() ?? '')?.toLocal(),
+      hsn:          j['hsn']?.toString() ?? '',
+      gstPercent:   (j['gstPercent'] as num?)?.toDouble(),
       inwards:  (j['inwards']  as List? ?? [])
           .map((e) => MaterialInwardModel.fromJson(e as Map<String, dynamic>))
           .toList(),

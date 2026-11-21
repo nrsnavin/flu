@@ -201,6 +201,16 @@ class _HeroCard extends StatelessWidget {
                       icon: Icons.store_outlined),
                 ],
               ]),
+              // GST on buying it, when either is set.
+              if (material.hsn.isNotEmpty || material.gstPercent != null) ...[
+                const SizedBox(height: 4),
+                _HeroPill([
+                  if (material.hsn.isNotEmpty) 'HSN ${material.hsn}',
+                  material.gstPercent != null
+                      ? 'GST ${material.gstPercent!.toStringAsFixed(material.gstPercent! % 1 == 0 ? 0 : 2)}%'
+                      : 'GST: default',
+                ].join('  ·  ')),
+              ],
             ],
           ),
         ),

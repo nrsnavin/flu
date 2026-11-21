@@ -296,7 +296,7 @@ class _FormBody extends StatelessWidget {
                 .toList();
             if (validRows.isEmpty) return const SizedBox();
 
-            final total = validRows.fold<double>(0, (s, r) => s + r.lineTotal);
+            final tax = c.taxPreview;
 
             return _SectionCard(
               title: "ORDER SUMMARY",
@@ -346,12 +346,24 @@ class _FormBody extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
+                  // The GST, set out as the supplier's bill will set it out.
+                  _TaxRow("Taxable value", tax.totals.taxable),
+                  for (final t in tax.taxRows) _TaxRow(t.key, t.value),
+                  if (tax.noGst.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text("${tax.noGst}.",
+                          style: TextStyle(color: ErpColors.textSecondary, fontSize: 11)),
+                    ),
+                  if (tax.totals.roundOff != 0) _TaxRow("Round off", tax.totals.roundOff),
+                  const SizedBox(height: 6),
+
                   // Grand total row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "GRAND TOTAL",
+                        "TOTAL WITH GST",
                         style: TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 12,
@@ -359,7 +371,7 @@ class _FormBody extends StatelessWidget {
                             color: ErpColors.textPrimary),
                       ),
                       Text(
-                        "₹${total.toStringAsFixed(2)}",
+                        "₹${tax.totals.grand.toStringAsFixed(2)}",
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 18,
@@ -579,6 +591,52 @@ class _ItemCard extends StatelessWidget {
                   ],
                 ),
 
+                // Row 2b: HSN + GST % — filled from the material when it
+                // is picked; either can be typed over.
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const _Label("HSN"),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            controller: row.hsnCtrl,
+                            style: ErpTextStyles.fieldValue,
+                            keyboardType: TextInputType.number,
+                            decoration: ErpDecorations.formInput("e.g. 5402"),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const _Label("GST %"),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            controller: row.gstCtrl,
+                            style: ErpTextStyles.fieldValue,
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                            decoration: ErpDecorations.formInput("default").copyWith(
+                              suffixText: "%",
+                              suffixStyle: TextStyle(
+                                  color: ErpColors.textSecondary,
+                                  fontSize: 12),
+                            ),
+                            onChanged: (_) => onChanged(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
                 // Row 3: Line total — shown only when both price & qty filled
                 if (row.lineTotal > 0) ...[
                   const SizedBox(height: 10),
@@ -689,7 +747,8 @@ class _FooterBar extends StatelessWidget {
         ],
       ),
       child: Obx(() {
-        final total = c.rows.fold<double>(0, (s, r) => s + r.lineTotal);
+        // With GST, as the summary works it out.
+        final total = c.taxPreview.totals.grand;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -699,7 +758,7 @@ class _FooterBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "TOTAL ORDER VALUE",
+                  "TOTAL WITH GST",
                   style: TextStyle(
                     color: ErpColors.textMuted,
                     fontSize: 10,
@@ -867,4 +926,24 @@ class _Label extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(text, style: ErpTextStyles.fieldLabel);
   }
+}
+
+/// One line of the tax summary: a label and an amount.
+class _TaxRow extends StatelessWidget {
+  final String label;
+  final double amount;
+  const _TaxRow(this.label, this.amount);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 2),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(color: ErpColors.textSecondary, fontSize: 12)),
+        Text("₹${amount.toStringAsFixed(2)}",
+            style: TextStyle(color: ErpColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600)),
+      ],
+    ),
+  );
 }

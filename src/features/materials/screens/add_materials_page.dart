@@ -288,6 +288,46 @@ class _AddRawMaterialPageState extends State<AddRawMaterialPage> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 12),
+                  // GST on buying it — what a PO line takes unless it
+                  // says otherwise. Blank rate: the default in Settings.
+                  Row(children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: c.hsnCtrl,
+                        style: ErpTextStyles.fieldValue,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        decoration: ErpDecorations.formInput('HSN'),
+                        validator: (v) {
+                          final s = (v ?? '').trim();
+                          if (s.isNotEmpty && !RegExp(r'^\d{4,8}$').hasMatch(s)) return '4 to 8 digits';
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: c.gstCtrl,
+                        style: ErpTextStyles.fieldValue,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d*')),
+                        ],
+                        decoration: ErpDecorations.formInput('GST % (blank: default)'),
+                        validator: (v) {
+                          final s = (v ?? '').trim();
+                          if (s.isEmpty) return null;
+                          final n = double.tryParse(s);
+                          if (n == null || n < 0 || n > 100) return '0 to 100';
+                          return null;
+                        },
+                      ),
+                    ),
+                  ]),
                 ]),
               ),
               const SizedBox(height: 24),

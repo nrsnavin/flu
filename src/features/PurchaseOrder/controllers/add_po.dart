@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../models/po_models.dart';
+import '../models/po_tax.dart';
 import '../services/api.dart';
 import '../../../common_widgets/reason_dialog.dart';
 
@@ -12,20 +13,32 @@ class POItemRow {
   MaterialMini? material;
   final TextEditingController priceCtrl = TextEditingController();
   final TextEditingController quantityCtrl = TextEditingController();
+  // The line's GST: filled from the material when it is picked, either
+  // typed over. A blank rate is sent as "not stated", and the server
+  // takes the material's, else the default.
+  final TextEditingController hsnCtrl = TextEditingController();
+  final TextEditingController gstCtrl = TextEditingController();
   double receivedQuantity = 0; // preserved during edit
 
-  POItemRow({this.material, double price = 0, double quantity = 0, this.receivedQuantity = 0}) {
+  POItemRow({this.material, double price = 0, double quantity = 0, this.receivedQuantity = 0, String hsn = "", double? gstPercent}) {
     priceCtrl.text = price > 0 ? price.toString() : "";
     quantityCtrl.text = quantity > 0 ? quantity.toString() : "";
+    hsnCtrl.text = hsn;
+    gstCtrl.text = gstPercent == null ? "" : pct(gstPercent).replaceAll('%', '');
   }
 
   double get price => double.tryParse(priceCtrl.text) ?? 0;
   double get quantity => double.tryParse(quantityCtrl.text) ?? 0;
   double get lineTotal => price * quantity;
+  String get hsn => hsnCtrl.text.trim();
+  /// null when blank.
+  double? get gstPercent => rateOf(gstCtrl.text);
 
   void dispose() {
     priceCtrl.dispose();
     quantityCtrl.dispose();
+    hsnCtrl.dispose();
+    gstCtrl.dispose();
   }
 }
 
@@ -45,6 +58,13 @@ class AddPOController extends GetxController {
   // ─── Form state ─────────────────────────────────────────────
   Rx<SupplierMini?> selectedSupplier = Rx<SupplierMini?>(null);
   final rows = <POItemRow>[].obs;
+
+  // ─── GST ────────────────────────────────────────────────────
+  // Our state and the default rate, off Settings → Invoice. Read once;
+  // if it cannot be read the preview takes 5% and CGST + SGST, and the
+  // server prices the PO for real either way.
+  final ourState = ''.obs;
+  final defaultGst = 5.0.obs;
 
   // ─── Computed ───────────────────────────────────────────────
   RxDouble get grandTotal => rows
@@ -82,6 +102,7 @@ class AddPOController extends GetxController {
 
       // Prefill after data loads (clone / edit)
       if (seedData != null) _prefill(seedData!);
+      _loadTaxSettings();
 
     } catch (e) {
       Get.snackbar("Error", "Failed to load form data");
@@ -90,6 +111,35 @@ class AddPOController extends GetxController {
       // Always start with at least one row
       if (rows.isEmpty) addRow();
     }
+  }
+
+  Future<void> _loadTaxSettings() async {
+    try {
+      final res = await POApiService.settingsDio.get('/document');
+      final s = (res.data is Map ? res.data['settings'] : null) as Map?;
+      final inv = (s?['invoice'] as Map?) ?? const {};
+      final code = inv['stateCode']?.toString() ?? '';
+      ourState.value = code.isNotEmpty ? code : stateCodeFromGstin(s?['gstin']?.toString());
+      final d = inv['defaultGstPercent'];
+      if (d is num) defaultGst.value = d.toDouble();
+    } catch (_) {
+      // Not fatal: see above.
+    }
+  }
+
+  /// A line's rate for the preview: its own, else its material's, else
+  /// the default — the server's order.
+  double _lineRate(POItemRow r) => r.gstPercent ?? r.material?.gstPercent ?? defaultGst.value;
+
+  /// What the PO comes to with GST, worked out the way the server will.
+  PoTax get taxPreview {
+    final s = selectedSupplier.value;
+    return pricePoLines(
+      rows.where((r) => r.material != null).map((r) => PoTaxLine(quantity: r.quantity, rate: r.price, gstPercent: _lineRate(r))).toList(),
+      supplierGstin: s?.gstin,
+      ourState: ourState.value,
+      noGst: noGstReason(s?.name, s?.gstRegistration),
+    );
   }
 
   void _prefill(Map<String, dynamic> data) {
@@ -113,6 +163,8 @@ class AddPOController extends GetxController {
         price: (item["price"] ?? 0).toDouble(),
         quantity: (item["quantity"] ?? 0).toDouble(),
         receivedQuantity: (item["receivedQuantity"] ?? 0).toDouble(),
+        hsn: item["hsn"]?.toString() ?? "",
+        gstPercent: (item["gstPercent"] as num?)?.toDouble(),
       ));
     }
   }
@@ -126,7 +178,14 @@ class AddPOController extends GetxController {
   /// rows.
   void setRowMaterial(int rowIndex, MaterialMini? mat) {
     if (rowIndex < 0 || rowIndex >= rows.length) return;
-    rows[rowIndex].material = mat;
+    final row = rows[rowIndex];
+    row.material = mat;
+    // The material brings its HSN and rate (else the default), as on the
+    // web form; either can be typed over.
+    if (mat != null) {
+      row.hsnCtrl.text = mat.hsn;
+      row.gstCtrl.text = pct(mat.gstPercent ?? defaultGst.value).replaceAll('%', '');
+    }
     rows.refresh();
     if (mat == null) return;
     if (selectedSupplier.value == null && mat.defaultSupplierId != null) {
@@ -160,6 +219,15 @@ class AddPOController extends GetxController {
         Get.snackbar("Validation", "Enter quantity for row ${i + 1}");
         return false;
       }
+      if (r.hsn.isNotEmpty && !hsnPattern.hasMatch(r.hsn)) {
+        Get.snackbar("Validation", "Row ${i + 1}: an HSN is 4 to 8 digits");
+        return false;
+      }
+      final g = r.gstCtrl.text.trim();
+      if (g.isNotEmpty && (r.gstPercent == null || r.gstPercent! < 0 || r.gstPercent! > 100)) {
+        Get.snackbar("Validation", "Row ${i + 1}: GST % is from 0 to 100");
+        return false;
+      }
     }
     return true;
   }
@@ -189,6 +257,8 @@ class AddPOController extends GetxController {
           "rawMaterial": r.material!.id,
           "price": r.price,
           "quantity": r.quantity,
+          "hsn": r.hsn,
+          "gstPercent": r.gstPercent,
         })
             .toList(),
       };

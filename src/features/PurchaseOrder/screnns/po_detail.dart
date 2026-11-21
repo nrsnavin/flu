@@ -13,6 +13,7 @@ import '../controllers/add_po.dart';
 import '../controllers/po_detail.dart';
 
 import '../models/po_models.dart';
+import '../models/po_tax.dart';
 import '../services/theme.dart';
 import 'add_po.dart';
 
@@ -467,11 +468,11 @@ class _SummaryHeader extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text("ORDER VALUE",
+                    Text(po.tax != null ? "WITH GST" : "ORDER VALUE",
                         style: ErpTextStyles.fieldLabel),
                     const SizedBox(height: 3),
                     Text(
-                      "₹${NumberFormat('#,##,###').format(po.totalOrderValue)}",
+                      "₹${NumberFormat('#,##,###').format(po.tax?.totals.grand ?? po.totalOrderValue)}",
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 18,
@@ -588,12 +589,15 @@ class _ItemsTab extends StatelessWidget {
             style: TextStyle(color: ErpColors.textSecondary)),
       );
     }
+    final tax = po.tax;
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 90),
-      itemCount: po.items.length,
+      // The lines, then what they come to with GST.
+      itemCount: po.items.length + (tax != null ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (_, i) =>
-          _ItemCard(item: po.items[i], index: i),
+      itemBuilder: (_, i) => i < po.items.length
+          ? _ItemCard(item: po.items[i], index: i, noGst: tax?.noGst.isNotEmpty ?? false)
+          : _TaxSummaryCard(tax: tax!),
     );
   }
 }
@@ -601,7 +605,9 @@ class _ItemsTab extends StatelessWidget {
 class _ItemCard extends StatelessWidget {
   final POItem item;
   final int index;
-  const _ItemCard({required this.item, required this.index});
+  /// The supplier charges no GST: no rate is shown on the line.
+  final bool noGst;
+  const _ItemCard({required this.item, required this.index, this.noGst = false});
 
   @override
   Widget build(BuildContext context) {
@@ -712,6 +718,33 @@ class _ItemCard extends StatelessWidget {
                 _StatCell(
                     label: "PRICE",
                     value: "₹${item.price}",
+                    valueColor: ErpColors.textPrimary),
+              ],
+            ),
+          ),
+          // The line's GST: HSN, rate, and the line with its tax.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+            child: Row(
+              children: [
+                _StatCell(
+                    label: "HSN",
+                    value: item.hsn.isEmpty ? "—" : item.hsn,
+                    valueColor: ErpColors.textPrimary),
+                const SizedBox(width: 8),
+                _StatCell(
+                    label: "GST",
+                    value: noGst || item.gstPercent == null ? "—" : pct(item.gstPercent!),
+                    valueColor: ErpColors.textPrimary),
+                const SizedBox(width: 8),
+                _StatCell(
+                    label: "AMOUNT",
+                    value: "₹${(item.taxable ?? item.totalValue).toStringAsFixed(2)}",
+                    valueColor: ErpColors.textPrimary),
+                const SizedBox(width: 8),
+                _StatCell(
+                    label: "WITH GST",
+                    value: item.amount == null ? "—" : "₹${item.amount!.toStringAsFixed(2)}",
                     valueColor: ErpColors.textPrimary),
               ],
             ),
@@ -968,6 +1001,61 @@ class _LoadFailure extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// What the PO comes to with GST, as the server priced it: the taxable
+/// value, CGST + SGST (or IGST), any round-off, and the total.
+class _TaxSummaryCard extends StatelessWidget {
+  final PoTax tax;
+  const _TaxSummaryCard({required this.tax});
+
+  Widget _row(String label, double amount, {bool bold = false}) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 3),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label,
+            style: TextStyle(
+                color: bold ? ErpColors.textPrimary : ErpColors.textSecondary,
+                fontSize: bold ? 13 : 12,
+                fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
+        Text("₹${amount.toStringAsFixed(2)}",
+            style: TextStyle(
+                color: ErpColors.textPrimary,
+                fontSize: bold ? 16 : 12,
+                fontWeight: bold ? FontWeight.w900 : FontWeight.w600)),
+      ],
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tax.totals;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      decoration: BoxDecoration(
+        color: ErpColors.bgSurface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: ErpColors.borderLight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _row("Taxable value", t.taxable),
+          for (final r in tax.taxRows) _row(r.key, r.value),
+          if (tax.noGst.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2, bottom: 2),
+              child: Text("${tax.noGst}.",
+                  style: TextStyle(color: ErpColors.textSecondary, fontSize: 11)),
+            ),
+          if (t.roundOff != 0) _row("Round off", t.roundOff),
+          Divider(height: 14, color: ErpColors.borderLight),
+          _row("Total with GST", t.grand, bold: true),
+        ],
       ),
     );
   }

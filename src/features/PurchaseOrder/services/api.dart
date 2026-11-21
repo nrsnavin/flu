@@ -9,4 +9,7 @@ class POApiService {
   static final Dio supplierDio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/supplier');
 
   static final Dio materialDio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/materials');
+
+  // Our GSTIN / state and the default GST rate, for the PO form's tax preview.
+  static final Dio settingsDio = ApiClient.buildClient(baseUrl: '${ApiConfig.baseUrl}/settings');
 }

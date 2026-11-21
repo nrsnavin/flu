@@ -278,6 +278,10 @@ class AddMaterialController extends GetxController {
   final stockCtrl    = TextEditingController(text: '0');
   final minStockCtrl = TextEditingController(text: '0');
   final priceCtrl    = TextEditingController(text: '0');
+  // GST on buying it: what a purchase order line takes unless the line
+  // says otherwise. A blank rate means the default in Settings.
+  final hsnCtrl      = TextEditingController();
+  final gstCtrl      = TextEditingController();
 
   // ── Two classifications, and they are independent ──────────────
   //
@@ -356,6 +360,8 @@ class AddMaterialController extends GetxController {
     stockCtrl.dispose();
     minStockCtrl.dispose();
     priceCtrl.dispose();
+    hsnCtrl.dispose();
+    gstCtrl.dispose();
     super.onClose();
   }
 
@@ -393,6 +399,17 @@ class AddMaterialController extends GetxController {
       _snack('Validation', 'Please select a supplier', isError: true);
       return false;
     }
+    final hsn = hsnCtrl.text.trim();
+    if (hsn.isNotEmpty && !RegExp(r'^\d{4,8}$').hasMatch(hsn)) {
+      _snack('Validation', 'An HSN is 4 to 8 digits', isError: true);
+      return false;
+    }
+    final gstText = gstCtrl.text.trim();
+    final gst = gstText.isEmpty ? null : double.tryParse(gstText);
+    if (gstText.isNotEmpty && (gst == null || gst < 0 || gst > 100)) {
+      _snack('Validation', 'GST % is from 0 to 100', isError: true);
+      return false;
+    }
     isSaving.value = true;
     try {
       await MaterialApiService.createMaterial({
@@ -407,6 +424,8 @@ class AddMaterialController extends GetxController {
         'minStock': double.tryParse(minStockCtrl.text) ?? 0,
         'price':    double.tryParse(priceCtrl.text) ?? 0,
         'supplier': selectedSupplierId.value,
+        'hsn':        hsn,
+        'gstPercent': gst,
       });
       _snack('Saved', 'Raw material added successfully', isError: false);
       onSuccess?.call();

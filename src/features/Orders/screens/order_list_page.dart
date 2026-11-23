@@ -12,6 +12,7 @@ import 'package:production/src/features/Orders/widgets/order_eta_chip.dart';
 
 
 import '../../PurchaseOrder/services/theme.dart';
+import '../../../core/server_pdf.dart';
 import 'package:production/src/core/nav.dart';
 
 class OrderListPage extends StatefulWidget {
@@ -76,6 +77,7 @@ class _OrderListPageState extends State<OrderListPage> {
       titleSpacing: 16,
       title: Text("Orders", style: ErpTextStyles.pageTitle),
       actions: [
+        const _ExportOpenOrdersButton(),
         Obx(() => Padding(
           padding: const EdgeInsets.only(right: 16),
           child: Center(
@@ -1008,6 +1010,52 @@ class _EmptyState extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Every order still in hand (Open, Approved, In progress) as an Excel
+/// file — the customer and the first few elastics, one row per order —
+/// opened in the phone's spreadsheet app. Whatever tab is showing.
+class _ExportOpenOrdersButton extends StatefulWidget {
+  const _ExportOpenOrdersButton();
+
+  @override
+  State<_ExportOpenOrdersButton> createState() => _ExportOpenOrdersButtonState();
+}
+
+class _ExportOpenOrdersButtonState extends State<_ExportOpenOrdersButton> {
+  bool _busy = false;
+
+  Future<void> _export() async {
+    setState(() => _busy = true);
+    try {
+      await openServerXlsx('/order/export/open',
+          filename: 'open-orders-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.xlsx');
+    } on ServerPdfError catch (e) {
+      Get.snackbar('Export open orders', e.message, snackPosition: SnackPosition.BOTTOM);
+    } catch (_) {
+      Get.snackbar('Export open orders', 'Could not export the open orders.', snackPosition: SnackPosition.BOTTOM);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_busy) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 14),
+        child: Center(
+          child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+        ),
+      );
+    }
+    return IconButton(
+      key: const Key('export-open-orders'),
+      tooltip: 'Export open orders (Excel)',
+      icon: const Icon(Icons.table_view_outlined, color: Colors.white),
+      onPressed: _export,
     );
   }
 }

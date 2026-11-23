@@ -196,3 +196,50 @@ String _safeName(String name) {
   if (cleaned.isEmpty) return 'document.pdf';
   return cleaned.toLowerCase().endsWith('.pdf') ? cleaned : '$cleaned.pdf';
 }
+
+// ══════════════════════════════════════════════════════════════
+//  SERVER-MADE EXCEL FILES
+//
+//  The open orders list (GET /order/export/open) is a spreadsheet the
+//  server builds. Downloaded, saved to the cache and handed to the
+//  phone's spreadsheet app, with the same contract as openServerPdf:
+//  it throws [ServerPdfError] with words rather than failing quietly.
+// ══════════════════════════════════════════════════════════════
+const _xlsxMime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+Future<void> openServerXlsx(String path, {required String filename}) async {
+  late final Response<List<int>> res;
+  try {
+    res = await _pdfDio.get<List<int>>(
+      path,
+      options: Options(responseType: ResponseType.bytes, headers: {'Accept': _xlsxMime}),
+    );
+  } on DioException catch (e) {
+    throw ServerPdfError(_messageFor(e));
+  }
+  final bytes = Uint8List.fromList(res.data ?? const <int>[]);
+  // An .xlsx is a zip, so it starts "PK". Anything else is an error
+  // body or a sign-in page, and would open as a broken file.
+  if (bytes.length < 2 || bytes[0] != 0x50 || bytes[1] != 0x4B) {
+    throw ServerPdfError(bytes.isEmpty
+        ? 'The server returned an empty file.'
+        : 'The server did not return a spreadsheet — you may have been signed out. '
+            'Sign in again and retry.');
+  }
+  final dir = await getTemporaryDirectory();
+  final file = File('${dir.path}/${xlsxFileName(filename)}');
+  await file.writeAsBytes(bytes, flush: true);
+  final opened = await openExternally(file.path);
+  if (opened.type != ResultType.done) {
+    throw ServerPdfError(opened.message.isNotEmpty
+        ? opened.message
+        : 'No app on this phone can open an Excel file. Install Google Sheets or Excel and retry.');
+  }
+}
+
+/// A safe file name ending in .xlsx.
+String xlsxFileName(String name) {
+  final cleaned = name.replaceAll(RegExp(r'[^A-Za-z0-9 ._-]'), '_').trim();
+  if (cleaned.isEmpty) return 'export.xlsx';
+  return cleaned.toLowerCase().endsWith('.xlsx') ? cleaned : '$cleaned.xlsx';
+}
